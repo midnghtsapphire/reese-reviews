@@ -46,6 +46,8 @@
     --success-foreground: 0 0% 100%;
     --danger: 350 70% 55%;
     --danger-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
 
     --sidebar-background: 220 20% 10%;
     --sidebar-foreground: 0 0% 93%;
