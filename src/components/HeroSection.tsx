@@ -38,7 +38,7 @@ const HeroSection = () => {
           <img
             src={reeseLogo}
             alt="Reese Reviews logo"
-            className="mx-auto h-64 w-auto drop-shadow-2xl md:h-96"
+            className="mx-auto w-auto max-w-[280px] drop-shadow-2xl md:max-w-[400px]"
           />
         </motion.div>
 
