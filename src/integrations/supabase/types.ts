@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      admins: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          average_rating: number | null
+          category: string | null
+          created_at: string
+          description: string | null
+          external_link: string | null
+          id: string
+          image_url: string | null
+          name: string
+          review_count: number | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          average_rating?: number | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          external_link?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          review_count?: number | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          average_rating?: number | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          external_link?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          review_count?: number | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           category: Database["public"]["Enums"]["review_category"]
@@ -24,12 +84,16 @@ export type Database = {
           id: string
           image_url: string | null
           is_featured: boolean
+          product_id: string | null
           product_link: string | null
           product_name: string | null
           pros: string[] | null
           published_at: string | null
           rating: number
+          reviewer_email: string | null
+          reviewer_name: string | null
           slug: string
+          status: string
           title: string
           updated_at: string
           verdict: string | null
@@ -43,12 +107,16 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_featured?: boolean
+          product_id?: string | null
           product_link?: string | null
           product_name?: string | null
           pros?: string[] | null
           published_at?: string | null
           rating: number
+          reviewer_email?: string | null
+          reviewer_name?: string | null
           slug: string
+          status?: string
           title: string
           updated_at?: string
           verdict?: string | null
@@ -62,17 +130,29 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_featured?: boolean
+          product_id?: string | null
           product_link?: string | null
           product_name?: string | null
           pros?: string[] | null
           published_at?: string | null
           rating?: number
+          reviewer_email?: string | null
+          reviewer_name?: string | null
           slug?: string
+          status?: string
           title?: string
           updated_at?: string
           verdict?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
