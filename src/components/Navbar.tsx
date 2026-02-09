@@ -1,17 +1,29 @@
 import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
-  { label: "Home", href: "#home" },
-  { label: "Reviews", href: "#reviews" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
+  { label: "Home", href: "/" },
+  { label: "Reviews", href: "/reviews" },
+  { label: "About", href: "/#about" },
+  { label: "Contact", href: "/#contact" },
 ];
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const location = useLocation();
 
+  const handleNavClick = (href: string) => {
+    if (href.startsWith("/#")) {
+      // Hash link on home page
+      if (location.pathname === "/") {
+        const el = document.querySelector(href.replace("/", ""));
+        el?.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+    setOpen(false);
+  };
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
       <div className="container mx-auto flex h-16 items-center justify-between px-6">
