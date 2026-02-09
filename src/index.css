@@ -42,6 +42,11 @@
     --pearl: 30 20% 92%;
     --chrome: 220 8% 70%;
 
+    --success: 152 60% 50%;
+    --success-foreground: 0 0% 100%;
+    --danger: 350 70% 55%;
+    --danger-foreground: 0 0% 100%;
+
     --sidebar-background: 220 20% 10%;
     --sidebar-foreground: 0 0% 93%;
     --sidebar-primary: 220 10% 72%;
