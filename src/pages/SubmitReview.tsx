@@ -1,404 +1,422 @@
-import { useState } from "react";
-import { useSearchParams, useNavigate, Link } from "react-router-dom";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Star, ArrowLeft, Send, CheckCircle } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import { useProducts, useProduct } from "@/hooks/useProducts";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import type { Database } from "@/integrations/supabase/types";
+import { Upload, X, CheckCircle, Camera } from "lucide-react";
+import StarRating from "@/components/StarRating";
+import SEOHead from "@/components/SEOHead";
+import { submitReview, CATEGORIES, type ReviewCategory } from "@/lib/reviewStore";
 
-type ReviewCategory = Database["public"]["Enums"]["review_category"];
+interface FormData {
+  title: string;
+  category: ReviewCategory | "";
+  rating: number;
+  excerpt: string;
+  content: string;
+  pros: string;
+  cons: string;
+  verdict: string;
+  product_name: string;
+  product_link: string;
+  reviewer_name: string;
+  reviewer_email: string;
+}
 
-const reviewSchema = z.object({
-  reviewer_name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
-  reviewer_email: z.string().trim().email("Please enter a valid email"),
-  title: z.string().trim().min(5, "Title must be at least 5 characters").max(200),
-  excerpt: z.string().trim().min(20, "Summary must be at least 20 characters").max(300),
-  content: z.string().trim().min(100, "Review must be at least 100 characters").max(5000),
-  rating: z.number().min(1, "Please select a rating").max(5),
-  pros: z.string().optional(),
-  cons: z.string().optional(),
-  product_id: z.string().optional(),
-  category: z.string().min(1, "Please select a category"),
-});
-
-type ReviewFormData = z.infer<typeof reviewSchema>;
-
-const categories: { value: ReviewCategory; label: string }[] = [
-  { value: "home-office", label: "Home Office" },
-  { value: "furniture", label: "Furniture" },
-  { value: "organization", label: "Organization" },
-  { value: "kitchen", label: "Kitchen" },
-  { value: "bathroom", label: "Bathroom" },
-  { value: "tech", label: "Tech" },
-  { value: "decor", label: "Decor" },
-  { value: "outdoor", label: "Outdoor" },
-];
+const initialForm: FormData = {
+  title: "",
+  category: "",
+  rating: 0,
+  excerpt: "",
+  content: "",
+  pros: "",
+  cons: "",
+  verdict: "",
+  product_name: "",
+  product_link: "",
+  reviewer_name: "",
+  reviewer_email: "",
+};
 
 const SubmitReview = () => {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [rating, setRating] = useState(0);
+  const [form, setForm] = useState<FormData>(initialForm);
   const [hoverRating, setHoverRating] = useState(0);
-  const [submitted, setSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const productSlug = searchParams.get("product");
-  const { data: selectedProduct } = useProduct(productSlug || "");
-  const { data: products } = useProducts();
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<ReviewFormData>({
-    resolver: zodResolver(reviewSchema),
-    defaultValues: {
-      rating: 0,
-      category: selectedProduct?.category || "",
-      product_id: selectedProduct?.id || "",
-    },
-  });
-
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "")
-      + "-" + Date.now().toString(36);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const onSubmit = async (data: ReviewFormData) => {
-    setIsSubmitting(true);
-    try {
-      const slug = generateSlug(data.title);
-      const pros = data.pros?.split("\n").filter(Boolean) || null;
-      const cons = data.cons?.split("\n").filter(Boolean) || null;
-
-      const { error } = await supabase.from("reviews").insert({
-        title: data.title,
-        slug,
-        excerpt: data.excerpt,
-        content: data.content,
-        rating: data.rating,
-        category: data.category as ReviewCategory,
-        product_id: data.product_id || null,
-        reviewer_name: data.reviewer_name,
-        reviewer_email: data.reviewer_email,
-        pros,
-        cons,
-        status: "pending",
-        is_featured: false,
-      });
-
-      if (error) throw error;
-
-      setSubmitted(true);
-      toast({
-        title: "Review Submitted!",
-        description: "Your review has been submitted for moderation.",
-      });
-    } catch (error) {
-      console.error("Error submitting review:", error);
-      toast({
-        title: "Error",
-        description: "Failed to submit review. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image must be under 5MB");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => setImagePreview(reader.result as string);
+      reader.readAsDataURL(file);
     }
   };
 
-  if (submitted) {
+  const removeImage = () => {
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (form.rating === 0) {
+      alert("Please select a star rating");
+      return;
+    }
+    if (!form.category) {
+      alert("Please select a category");
+      return;
+    }
+
+    setStatus("submitting");
+
+    try {
+      submitReview({
+        title: form.title,
+        category: form.category as ReviewCategory,
+        rating: form.rating,
+        excerpt: form.excerpt,
+        content: form.content,
+        pros: form.pros.split("\n").filter(Boolean),
+        cons: form.cons.split("\n").filter(Boolean),
+        verdict: form.verdict,
+        image_url: imagePreview || "",
+        product_name: form.product_name,
+        product_link: form.product_link,
+        affiliate_tag: "",
+        reviewer_name: form.reviewer_name,
+        reviewer_email: form.reviewer_email,
+      });
+      setStatus("success");
+      setForm(initialForm);
+      setImagePreview(null);
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  if (status === "success") {
     return (
-      <div className="min-h-screen gradient-dark-surface">
-        <Navbar />
-        <div className="container mx-auto flex min-h-[70vh] flex-col items-center justify-center px-6 pt-28 text-center">
+      <main id="main-content" className="min-h-screen pt-24 pb-16">
+        <SEOHead title="Review Submitted" noIndex />
+        <div className="container mx-auto px-6">
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", duration: 0.5 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mx-auto max-w-lg text-center py-20"
           >
-            <CheckCircle size={80} className="mx-auto mb-6 text-success" />
+            <CheckCircle size={64} className="mx-auto mb-6 text-green-400" />
+            <h1 className="font-serif text-3xl font-bold gradient-steel-text">Review Submitted!</h1>
+            <p className="mt-4 text-muted-foreground">
+              Thanks for sharing your honest take! Your review is pending approval and will appear on the site once reviewed.
+            </p>
+            <button
+              onClick={() => setStatus("idle")}
+              className="mt-8 rounded-lg gradient-steel px-8 py-3 text-sm font-semibold text-primary-foreground"
+            >
+              Submit Another Review
+            </button>
           </motion.div>
-          <h1 className="mb-4 font-serif text-3xl font-bold gradient-steel-text">
-            Thank You!
-          </h1>
-          <p className="mb-8 max-w-md text-muted-foreground">
-            Your review has been submitted and is pending moderation. We'll notify you once it's approved.
-          </p>
-          <div className="flex gap-4">
-            <Link to="/">
-              <Button variant="outline" className="steel-border">
-                Back to Home
-              </Button>
-            </Link>
-            <Link to="/products">
-              <Button className="gradient-steel text-primary-foreground">
-                Browse Products
-              </Button>
-            </Link>
-          </div>
         </div>
-        <Footer />
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen gradient-dark-surface">
-      <Navbar />
+    <main id="main-content" className="min-h-screen pt-24 pb-16">
+      <SEOHead
+        title="Submit a Review"
+        description="Share your honest review on Reese Reviews. Rate products, food, services, entertainment, and tech."
+      />
+      <div className="container mx-auto px-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-12 text-center">
+          <h1 className="font-serif text-4xl font-bold gradient-steel-text md:text-5xl">Submit a Review</h1>
+          <p className="mt-3 text-lg text-muted-foreground">
+            Share your honest experience. Every voice matters here.
+          </p>
+        </motion.div>
 
-      <div className="pt-24 pb-16">
-        <div className="container mx-auto max-w-2xl px-6">
-          <Link
-            to={productSlug ? `/products/${productSlug}` : "/products"}
-            className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft size={16} /> Back
-          </Link>
+        <form onSubmit={handleSubmit} className="mx-auto max-w-3xl space-y-8">
+          {/* Basic Info */}
+          <section className="glass-card-strong rounded-2xl p-8 space-y-6" aria-labelledby="basic-info">
+            <h2 id="basic-info" className="font-serif text-xl font-semibold text-foreground">Basic Info</h2>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8 text-center"
-          >
-            <h1 className="mb-4 font-serif text-3xl font-bold gradient-steel-text md:text-4xl">
-              Write a Review
-            </h1>
-            <p className="text-muted-foreground">
-              Share your experience and help others make informed decisions.
-            </p>
-          </motion.div>
-
-          <motion.form
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            onSubmit={handleSubmit(onSubmit)}
-            className="space-y-6 rounded-xl border border-border bg-card p-8"
-          >
-            {/* Your Info */}
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <Label htmlFor="reviewer_name">Your Name *</Label>
-                <Input
-                  id="reviewer_name"
-                  {...register("reviewer_name")}
-                  placeholder="John Doe"
-                  className="mt-1"
-                />
-                {errors.reviewer_name && (
-                  <p className="mt-1 text-sm text-danger">{errors.reviewer_name.message}</p>
-                )}
-              </div>
-              <div>
-                <Label htmlFor="reviewer_email">Your Email *</Label>
-                <Input
-                  id="reviewer_email"
-                  type="email"
-                  {...register("reviewer_email")}
-                  placeholder="john@example.com"
-                  className="mt-1"
-                />
-                {errors.reviewer_email && (
-                  <p className="mt-1 text-sm text-danger">{errors.reviewer_email.message}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Product Selection */}
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <Label>Product (optional)</Label>
-                <Select
-                  defaultValue={selectedProduct?.id}
-                  onValueChange={(value) => setValue("product_id", value)}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select a product" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {products?.map((product) => (
-                      <SelectItem key={product.id} value={product.id}>
-                        {product.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Category *</Label>
-                <Select
-                  defaultValue={selectedProduct?.category || ""}
-                  onValueChange={(value) => setValue("category", value)}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
-                        {cat.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.category && (
-                  <p className="mt-1 text-sm text-danger">{errors.category.message}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Rating */}
             <div>
-              <Label>Rating *</Label>
-              <div className="mt-2 flex items-center gap-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => {
-                      setRating(star);
-                      setValue("rating", star);
-                    }}
-                    onMouseEnter={() => setHoverRating(star)}
-                    onMouseLeave={() => setHoverRating(0)}
-                    className="p-1 transition-transform hover:scale-110"
-                  >
-                    <Star
-                      size={28}
-                      className={
-                        star <= (hoverRating || rating)
-                          ? "fill-steel-shine text-steel-shine"
-                          : "text-muted"
-                      }
-                    />
-                  </button>
-                ))}
-                {rating > 0 && (
-                  <span className="ml-2 text-sm text-muted-foreground">
-                    {rating} / 5
-                  </span>
-                )}
-              </div>
-              {errors.rating && (
-                <p className="mt-1 text-sm text-danger">{errors.rating.message}</p>
-              )}
-            </div>
-
-            {/* Title */}
-            <div>
-              <Label htmlFor="title">Review Title *</Label>
-              <Input
+              <label htmlFor="title" className="mb-2 block text-sm font-medium text-foreground">
+                Review Title <span className="text-danger">*</span>
+              </label>
+              <input
                 id="title"
-                {...register("title")}
-                placeholder="Give your review a catchy title"
-                className="mt-1"
+                name="title"
+                required
+                value={form.title}
+                onChange={handleChange}
+                className="w-full rounded-lg glass-input px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="e.g., The Best Wireless Earbuds I've Ever Used"
               />
-              {errors.title && (
-                <p className="mt-1 text-sm text-danger">{errors.title.message}</p>
-              )}
             </div>
 
-            {/* Excerpt */}
-            <div>
-              <Label htmlFor="excerpt">Short Summary *</Label>
-              <Textarea
-                id="excerpt"
-                {...register("excerpt")}
-                placeholder="A brief summary of your review (shown in cards)"
-                className="mt-1"
-                rows={2}
-              />
-              {errors.excerpt && (
-                <p className="mt-1 text-sm text-danger">{errors.excerpt.message}</p>
-              )}
-            </div>
-
-            {/* Content */}
-            <div>
-              <Label htmlFor="content">Full Review *</Label>
-              <Textarea
-                id="content"
-                {...register("content")}
-                placeholder="Share your detailed experience..."
-                className="mt-1"
-                rows={6}
-              />
-              {errors.content && (
-                <p className="mt-1 text-sm text-danger">{errors.content.message}</p>
-              )}
-            </div>
-
-            {/* Pros & Cons */}
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-6 sm:grid-cols-2">
               <div>
-                <Label htmlFor="pros">Pros (one per line)</Label>
-                <Textarea
-                  id="pros"
-                  {...register("pros")}
-                  placeholder="Great build quality&#10;Easy to assemble&#10;Good value"
-                  className="mt-1"
-                  rows={3}
-                />
+                <label htmlFor="category" className="mb-2 block text-sm font-medium text-foreground">
+                  Category <span className="text-danger">*</span>
+                </label>
+                <select
+                  id="category"
+                  name="category"
+                  required
+                  value={form.category}
+                  onChange={handleChange}
+                  className="w-full rounded-lg glass-input px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                >
+                  <option value="">Select category</option>
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat.value} value={cat.value}>
+                      {cat.icon} {cat.label}
+                    </option>
+                  ))}
+                </select>
               </div>
+
               <div>
-                <Label htmlFor="cons">Cons (one per line)</Label>
-                <Textarea
-                  id="cons"
-                  {...register("cons")}
-                  placeholder="Instructions unclear&#10;Missing parts&#10;Expensive shipping"
-                  className="mt-1"
-                  rows={3}
+                <label htmlFor="product_name" className="mb-2 block text-sm font-medium text-foreground">
+                  Product/Place Name
+                </label>
+                <input
+                  id="product_name"
+                  name="product_name"
+                  value={form.product_name}
+                  onChange={handleChange}
+                  className="w-full rounded-lg glass-input px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  placeholder="e.g., SoundCore Pro Buds X3"
                 />
               </div>
             </div>
 
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full gradient-steel text-primary-foreground"
-            >
-              {isSubmitting ? (
-                "Submitting..."
+            <div>
+              <label className="mb-3 block text-sm font-medium text-foreground">
+                Rating <span className="text-danger">*</span>
+              </label>
+              <StarRating
+                rating={form.rating}
+                size={32}
+                interactive
+                onRate={(r) => setForm((prev) => ({ ...prev, rating: r }))}
+                hoverRating={hoverRating}
+                onHover={setHoverRating}
+              />
+              {form.rating > 0 && (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {form.rating === 1 && "Poor"}
+                  {form.rating === 2 && "Below Average"}
+                  {form.rating === 3 && "Average"}
+                  {form.rating === 4 && "Great"}
+                  {form.rating === 5 && "Excellent"}
+                </p>
+              )}
+            </div>
+          </section>
+
+          {/* Photo Upload */}
+          <section className="glass-card-strong rounded-2xl p-8 space-y-6" aria-labelledby="photo-section">
+            <h2 id="photo-section" className="font-serif text-xl font-semibold text-foreground">Photo</h2>
+            <div className="relative">
+              {imagePreview ? (
+                <div className="relative overflow-hidden rounded-xl">
+                  <img src={imagePreview} alt="Review photo preview" className="w-full max-h-64 object-cover rounded-xl" />
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute top-3 right-3 rounded-full bg-background/80 p-2 text-foreground hover:bg-background"
+                    aria-label="Remove photo"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
               ) : (
-                <>
-                  <Send size={16} className="mr-2" />
-                  Submit Review
-                </>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-border py-12 text-muted-foreground transition-colors hover:border-steel-mid hover:text-foreground"
+                >
+                  <Camera size={32} className="mb-3" />
+                  <span className="text-sm font-medium">Click to upload a photo</span>
+                  <span className="mt-1 text-xs">PNG, JPG, WebP up to 5MB</span>
+                </button>
               )}
-            </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={handleImageChange}
+                className="hidden"
+                aria-label="Upload review photo"
+              />
+            </div>
+          </section>
 
-            <p className="text-center text-xs text-muted-foreground">
-              By submitting, you agree that your review may be published on our site.
-              Reviews are moderated before appearing publicly.
+          {/* Review Content */}
+          <section className="glass-card-strong rounded-2xl p-8 space-y-6" aria-labelledby="content-section">
+            <h2 id="content-section" className="font-serif text-xl font-semibold text-foreground">Your Review</h2>
+
+            <div>
+              <label htmlFor="excerpt" className="mb-2 block text-sm font-medium text-foreground">
+                Quick Summary <span className="text-danger">*</span>
+              </label>
+              <textarea
+                id="excerpt"
+                name="excerpt"
+                required
+                rows={2}
+                value={form.excerpt}
+                onChange={handleChange}
+                className="w-full resize-none rounded-lg glass-input px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="One or two sentences that capture your overall take"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="content" className="mb-2 block text-sm font-medium text-foreground">
+                Full Review <span className="text-danger">*</span>
+              </label>
+              <textarea
+                id="content"
+                name="content"
+                required
+                rows={8}
+                value={form.content}
+                onChange={handleChange}
+                className="w-full resize-none rounded-lg glass-input px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="Tell the full story — what you liked, what you didn't, and everything in between"
+              />
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div>
+                <label htmlFor="pros" className="mb-2 block text-sm font-medium text-foreground">
+                  Pros <span className="text-xs text-muted-foreground">(one per line)</span>
+                </label>
+                <textarea
+                  id="pros"
+                  name="pros"
+                  rows={4}
+                  value={form.pros}
+                  onChange={handleChange}
+                  className="w-full resize-none rounded-lg glass-input px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  placeholder={"Great sound quality\nLong battery life\nComfortable fit"}
+                />
+              </div>
+              <div>
+                <label htmlFor="cons" className="mb-2 block text-sm font-medium text-foreground">
+                  Cons <span className="text-xs text-muted-foreground">(one per line)</span>
+                </label>
+                <textarea
+                  id="cons"
+                  name="cons"
+                  rows={4}
+                  value={form.cons}
+                  onChange={handleChange}
+                  className="w-full resize-none rounded-lg glass-input px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  placeholder={"Slightly bulky case\nNo wireless charging"}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="verdict" className="mb-2 block text-sm font-medium text-foreground">
+                Final Verdict
+              </label>
+              <textarea
+                id="verdict"
+                name="verdict"
+                rows={2}
+                value={form.verdict}
+                onChange={handleChange}
+                className="w-full resize-none rounded-lg glass-input px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="Your bottom-line recommendation in one or two sentences"
+              />
+            </div>
+          </section>
+
+          {/* Affiliate / Link */}
+          <section className="glass-card-strong rounded-2xl p-8 space-y-6" aria-labelledby="link-section">
+            <h2 id="link-section" className="font-serif text-xl font-semibold text-foreground">Product Link</h2>
+            <p className="text-sm text-muted-foreground">Optional — if there's a link where people can check it out</p>
+            <div>
+              <label htmlFor="product_link" className="mb-2 block text-sm font-medium text-foreground">
+                Product URL
+              </label>
+              <input
+                id="product_link"
+                name="product_link"
+                type="url"
+                value={form.product_link}
+                onChange={handleChange}
+                className="w-full rounded-lg glass-input px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                placeholder="https://..."
+              />
+            </div>
+          </section>
+
+          {/* Reviewer Info */}
+          <section className="glass-card-strong rounded-2xl p-8 space-y-6" aria-labelledby="reviewer-section">
+            <h2 id="reviewer-section" className="font-serif text-xl font-semibold text-foreground">About You</h2>
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div>
+                <label htmlFor="reviewer_name" className="mb-2 block text-sm font-medium text-foreground">
+                  Your Name <span className="text-danger">*</span>
+                </label>
+                <input
+                  id="reviewer_name"
+                  name="reviewer_name"
+                  required
+                  value={form.reviewer_name}
+                  onChange={handleChange}
+                  className="w-full rounded-lg glass-input px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  placeholder="Your name"
+                />
+              </div>
+              <div>
+                <label htmlFor="reviewer_email" className="mb-2 block text-sm font-medium text-foreground">
+                  Email <span className="text-xs text-muted-foreground">(private, for follow-up only)</span>
+                </label>
+                <input
+                  id="reviewer_email"
+                  name="reviewer_email"
+                  type="email"
+                  value={form.reviewer_email}
+                  onChange={handleChange}
+                  className="w-full rounded-lg glass-input px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  placeholder="you@example.com"
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={status === "submitting"}
+            className="w-full rounded-xl gradient-steel py-4 text-base font-semibold text-primary-foreground transition-transform hover:scale-[1.01] disabled:opacity-50"
+          >
+            {status === "submitting" ? "Submitting..." : "Submit Review"}
+          </button>
+
+          {status === "error" && (
+            <p className="text-center text-sm text-red-400" role="alert">
+              Something went wrong. Please try again.
             </p>
-          </motion.form>
-        </div>
+          )}
+        </form>
       </div>
-
-      <Footer />
-    </div>
+    </main>
   );
 };
 

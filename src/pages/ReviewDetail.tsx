@@ -1,251 +1,197 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Star, ArrowLeft, Check, X, ExternalLink } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import { useReview } from "@/hooks/useReviews";
-import { Skeleton } from "@/components/ui/skeleton";
-import { format } from "date-fns";
-
-const categoryLabels: Record<string, string> = {
-  "home-office": "Home Office",
-  furniture: "Furniture",
-  organization: "Organization",
-  kitchen: "Kitchen",
-  bathroom: "Bathroom",
-  tech: "Tech",
-  decor: "Decor",
-  outdoor: "Outdoor",
-};
+import { ArrowLeft, ExternalLink, ThumbsUp, ThumbsDown, Share2 } from "lucide-react";
+import StarRating from "@/components/StarRating";
+import { ReviewSEO } from "@/components/SEOHead";
+import SEOHead from "@/components/SEOHead";
+import { getReviewBySlug, generateAffiliateLink, CATEGORIES } from "@/lib/reviewStore";
 
 const ReviewDetail = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { data: review, isLoading } = useReview(slug || "");
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen gradient-dark-surface">
-        <Navbar />
-        <div className="container mx-auto px-6 pt-28">
-          <Skeleton className="mb-4 h-8 w-48" />
-          <Skeleton className="mb-8 h-12 w-3/4" />
-          <Skeleton className="h-96 w-full rounded-xl" />
-        </div>
-      </div>
-    );
-  }
+  const review = slug ? getReviewBySlug(slug) : undefined;
 
   if (!review) {
     return (
-      <div className="min-h-screen gradient-dark-surface">
-        <Navbar />
-        <div className="container mx-auto px-6 py-32 text-center">
-          <h1 className="mb-4 font-serif text-3xl font-bold text-foreground">
-            Review Not Found
-          </h1>
-          <p className="mb-8 text-muted-foreground">
-            The review you're looking for doesn't exist.
-          </p>
-          <Link
-            to="/reviews"
-            className="inline-flex items-center gap-2 rounded-lg gradient-steel px-6 py-3 text-sm font-medium text-primary-foreground"
-          >
+      <main id="main-content" className="min-h-screen pt-24 pb-16">
+        <SEOHead title="Review Not Found" noIndex />
+        <div className="container mx-auto px-6 text-center py-20">
+          <p className="text-5xl mb-4" aria-hidden="true">📝</p>
+          <h1 className="font-serif text-3xl font-bold text-foreground">Review Not Found</h1>
+          <p className="mt-3 text-muted-foreground">This review may have been moved or doesn't exist.</p>
+          <Link to="/reviews" className="mt-6 inline-flex items-center gap-2 rounded-lg gradient-steel px-6 py-3 text-sm font-semibold text-primary-foreground">
             <ArrowLeft size={16} /> Back to Reviews
           </Link>
         </div>
-        <Footer />
-      </div>
+      </main>
     );
   }
 
+  const catInfo = CATEGORIES.find((c) => c.value === review.category);
+  const affiliateUrl = review.product_link ? generateAffiliateLink(review.product_link, review.affiliate_tag) : "";
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      await navigator.share({ title: review.title, text: review.excerpt, url });
+    } else {
+      await navigator.clipboard.writeText(url);
+    }
+  };
+
   return (
-    <div className="min-h-screen gradient-dark-surface">
-      <Navbar />
+    <main id="main-content" className="min-h-screen pt-24 pb-16">
+      <ReviewSEO
+        title={review.title}
+        excerpt={review.excerpt}
+        rating={review.rating}
+        productName={review.product_name}
+        slug={review.slug}
+      />
 
-      {/* Header */}
-      <section className="border-b border-border pb-12 pt-28">
-        <div className="container mx-auto px-6">
-          <Link
-            to="/reviews"
-            className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft size={16} /> Back to All Reviews
-          </Link>
+      <article className="container mx-auto max-w-4xl px-6">
+        {/* Breadcrumb */}
+        <nav aria-label="Breadcrumb" className="mb-8">
+          <ol className="flex items-center gap-2 text-sm text-muted-foreground">
+            <li><Link to="/" className="hover:text-foreground">Home</Link></li>
+            <li aria-hidden="true">/</li>
+            <li><Link to="/reviews" className="hover:text-foreground">Reviews</Link></li>
+            <li aria-hidden="true">/</li>
+            <li><Link to={`/categories?cat=${review.category}`} className="hover:text-foreground">{catInfo?.label}</Link></li>
+            <li aria-hidden="true">/</li>
+            <li className="text-foreground font-medium truncate max-w-[200px]">{review.title}</li>
+          </ol>
+        </nav>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div className="mb-4 flex flex-wrap items-center gap-3">
-              <span className="rounded-md bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
-                {categoryLabels[review.category] || review.category}
-              </span>
-              <div className="flex items-center gap-1">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star
-                    key={i}
-                    size={16}
-                    className={
-                      i < review.rating
-                        ? "fill-steel-shine text-steel-shine"
-                        : "text-muted"
-                    }
-                  />
-                ))}
-              </div>
-              {review.published_at && (
-                <span className="text-sm text-muted-foreground">
-                  {format(new Date(review.published_at), "MMMM d, yyyy")}
-                </span>
-              )}
-            </div>
-
-            <h1 className="mb-4 font-serif text-3xl font-bold gradient-steel-text md:text-5xl">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          {/* Header */}
+          <header className="mb-10">
+            <span className="category-badge mb-4 inline-flex">
+              {catInfo?.icon} {catInfo?.label}
+            </span>
+            <h1 className="font-serif text-3xl font-bold text-foreground md:text-4xl lg:text-5xl">
               {review.title}
             </h1>
-            <p className="max-w-2xl text-lg text-muted-foreground">
+            <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
               {review.excerpt}
             </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Content */}
-      <section className="py-16">
-        <div className="container mx-auto px-6">
-          <div className="grid gap-12 lg:grid-cols-3">
-            {/* Main Content */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="lg:col-span-2"
-            >
-              {review.image_url && (
-                <div className="mb-8 overflow-hidden rounded-xl">
-                  <img
-                    src={review.image_url}
-                    alt={review.title}
-                    className="h-auto w-full object-cover"
-                  />
-                </div>
-              )}
-
-              <div className="prose prose-invert max-w-none">
-                {review.content.split("\n\n").map((paragraph, i) => {
-                  if (paragraph.startsWith("## ")) {
-                    return (
-                      <h2
-                        key={i}
-                        className="mb-4 mt-8 font-serif text-2xl font-bold text-foreground"
-                      >
-                        {paragraph.replace("## ", "")}
-                      </h2>
-                    );
-                  }
-                  return (
-                    <p key={i} className="mb-4 leading-relaxed text-muted-foreground">
-                      {paragraph}
-                    </p>
-                  );
+            <div className="mt-6 flex flex-wrap items-center gap-6">
+              <StarRating rating={review.rating} size={20} showLabel />
+              <time dateTime={review.published_at} className="text-sm text-muted-foreground">
+                {new Date(review.published_at).toLocaleDateString("en-US", {
+                  month: "long", day: "numeric", year: "numeric",
                 })}
-              </div>
-            </motion.div>
+              </time>
+              <span className="text-sm text-muted-foreground">By {review.reviewer_name}</span>
+              <button
+                onClick={handleShare}
+                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Share this review"
+              >
+                <Share2 size={14} /> Share
+              </button>
+            </div>
+          </header>
 
-            {/* Sidebar */}
-            <motion.aside
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="space-y-6"
-            >
-              {/* Product Info Card */}
-              {review.product_name && (
-                <div className="rounded-xl border border-border bg-card p-6">
-                  <h3 className="mb-4 font-serif text-lg font-semibold text-card-foreground">
-                    Product
-                  </h3>
-                  <p className="mb-4 font-medium text-foreground">
-                    {review.product_name}
-                  </p>
-                  {review.product_link && (
-                    <a
-                      href={review.product_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-lg gradient-steel px-4 py-2 text-sm font-medium text-primary-foreground"
-                    >
-                      View Product <ExternalLink size={14} />
-                    </a>
-                  )}
-                </div>
+          {/* Image */}
+          {review.image_url && (
+            <div className="mb-10 overflow-hidden rounded-xl">
+              <img src={review.image_url} alt={review.title} className="w-full object-cover" />
+            </div>
+          )}
+
+          {/* Product info card */}
+          {review.product_name && (
+            <div className="mb-10 glass-card-strong rounded-xl p-6">
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                Reviewing
+              </h2>
+              <p className="font-serif text-xl font-semibold text-foreground">{review.product_name}</p>
+              {affiliateUrl && (
+                <a
+                  href={affiliateUrl}
+                  target="_blank"
+                  rel="noopener noreferrer sponsored"
+                  className="mt-3 inline-flex items-center gap-2 rounded-lg gradient-steel px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-105"
+                >
+                  Check Price <ExternalLink size={14} />
+                </a>
               )}
-
-              {/* Pros & Cons */}
-              {(review.pros?.length || review.cons?.length) && (
-                <div className="rounded-xl border border-border bg-card p-6">
-                  <h3 className="mb-4 font-serif text-lg font-semibold text-card-foreground">
-                    The Breakdown
-                  </h3>
-
-                  {review.pros && review.pros.length > 0 && (
-                    <div className="mb-6">
-                      <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-success">
-                        <Check size={16} /> Pros
-                      </h4>
-                      <ul className="space-y-2">
-                        {review.pros.map((pro, i) => (
-                          <li
-                            key={i}
-                            className="flex items-start gap-2 text-sm text-muted-foreground"
-                          >
-                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-success" />
-                            {pro}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {review.cons && review.cons.length > 0 && (
-                    <div>
-                      <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-danger">
-                        <X size={16} /> Cons
-                      </h4>
-                      <ul className="space-y-2">
-                        {review.cons.map((con, i) => (
-                          <li
-                            key={i}
-                            className="flex items-start gap-2 text-sm text-muted-foreground"
-                          >
-                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-danger" />
-                            {con}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
+              {affiliateUrl && (
+                <p className="mt-2 text-[10px] text-muted-foreground/50">
+                  Affiliate link — we may earn a commission at no extra cost to you
+                </p>
               )}
+            </div>
+          )}
 
-              {/* Verdict */}
-              {review.verdict && (
-                <div className="rounded-xl border border-steel-mid/30 bg-steel-dark/50 p-6">
-                  <h3 className="mb-3 font-serif text-lg font-semibold gradient-steel-text">
-                    The Verdict
-                  </h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {review.verdict}
-                  </p>
-                </div>
-              )}
-            </motion.aside>
+          {/* Review content */}
+          <div className="prose prose-invert max-w-none mb-10">
+            {review.content.split("\n").map((paragraph, i) => (
+              <p key={i} className="mb-4 text-foreground/90 leading-relaxed">
+                {paragraph}
+              </p>
+            ))}
           </div>
-        </div>
-      </section>
 
-      <Footer />
-    </div>
+          {/* Pros and Cons */}
+          {(review.pros.length > 0 || review.cons.length > 0) && (
+            <div className="mb-10 grid gap-6 md:grid-cols-2">
+              {review.pros.length > 0 && (
+                <div className="glass-card rounded-xl p-6">
+                  <h3 className="mb-4 flex items-center gap-2 font-serif text-lg font-semibold text-foreground">
+                    <ThumbsUp size={18} className="text-green-400" /> Pros
+                  </h3>
+                  <ul className="space-y-2">
+                    {review.pros.map((pro, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-foreground/80">
+                        <span className="mt-1 text-green-400" aria-hidden="true">+</span>
+                        {pro}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {review.cons.length > 0 && (
+                <div className="glass-card rounded-xl p-6">
+                  <h3 className="mb-4 flex items-center gap-2 font-serif text-lg font-semibold text-foreground">
+                    <ThumbsDown size={18} className="text-red-400" /> Cons
+                  </h3>
+                  <ul className="space-y-2">
+                    {review.cons.map((con, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-foreground/80">
+                        <span className="mt-1 text-red-400" aria-hidden="true">−</span>
+                        {con}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Verdict */}
+          {review.verdict && (
+            <div className="mb-10 glass-card-strong rounded-xl p-8 text-center">
+              <h3 className="font-serif text-xl font-bold gradient-steel-text mb-3">The Verdict</h3>
+              <p className="text-lg text-foreground/90 leading-relaxed">{review.verdict}</p>
+              <div className="mt-4">
+                <StarRating rating={review.rating} size={24} showLabel />
+              </div>
+            </div>
+          )}
+
+          {/* Back link */}
+          <div className="mt-12 text-center">
+            <Link
+              to="/reviews"
+              className="inline-flex items-center gap-2 rounded-lg steel-border px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            >
+              <ArrowLeft size={16} /> Back to All Reviews
+            </Link>
+          </div>
+        </motion.div>
+      </article>
+    </main>
   );
 };
 

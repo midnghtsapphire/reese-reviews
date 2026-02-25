@@ -1,18 +1,16 @@
-import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import FeaturedReviews from "@/components/FeaturedReviews";
-import AboutSection from "@/components/AboutSection";
-import Footer from "@/components/Footer";
+import CategoriesPreview from "@/components/CategoriesPreview";
+import SEOHead from "@/components/SEOHead";
 
 const Index = () => {
   return (
-    <div className="min-h-screen gradient-dark-surface">
-      <Navbar />
+    <main id="main-content">
+      <SEOHead />
       <HeroSection />
       <FeaturedReviews />
-      <AboutSection />
-      <Footer />
-    </div>
+      <CategoriesPreview />
+    </main>
   );
 };
 
