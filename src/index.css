@@ -141,6 +141,49 @@
   [data-a11y-mode="no-blue-light"] video {
     filter: sepia(15%) saturate(90%) brightness(95%);
   }
+
+  /* ── ADHD MODE ─────────────────────────────────────────── */
+  [data-a11y-mode="adhd"] * {
+    animation: none !important;
+    transition: none !important;
+  }
+  [data-a11y-mode="adhd"] body {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    letter-spacing: 0.01em;
+  }
+  [data-a11y-mode="adhd"] *:focus-visible {
+    outline: 3px solid hsl(48 100% 55%);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 5px hsl(48 100% 55% / 0.25);
+  }
+  [data-a11y-mode="adhd"] .glass-card,
+  [data-a11y-mode="adhd"] .glass-card-strong {
+    border: 2px solid hsl(var(--border));
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  /* ── DYSLEXIC MODE ─────────────────────────────────────── */
+  [data-a11y-mode="dyslexic"] * {
+    animation: none !important;
+    transition: none !important;
+    font-family: 'Atkinson Hyperlegible', 'Arial', sans-serif !important;
+    letter-spacing: 0.2em;
+  }
+  [data-a11y-mode="dyslexic"] body {
+    line-height: 1.9;
+    word-spacing: 0.15em;
+  }
+  [data-a11y-mode="dyslexic"] p,
+  [data-a11y-mode="dyslexic"] li,
+  [data-a11y-mode="dyslexic"] td {
+    max-width: 70ch;
+  }
+  [data-a11y-mode="dyslexic"] *:focus-visible {
+    outline: 3px solid hsl(220 90% 60%);
+    outline-offset: 3px;
+  }
 }
 
 @layer base {

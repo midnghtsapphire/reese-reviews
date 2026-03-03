@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Accessibility, Brain, Leaf, Sun, X, Check } from "lucide-react";
+import { Accessibility, Brain, Leaf, Sun, X, Check, Zap, BookOpen } from "lucide-react";
 import { useAccessibility, MODE_LABELS, type A11yMode } from "@/contexts/AccessibilityContext";
 
 const modes: { value: A11yMode; icon: typeof Brain; label: string; description: string }[] = [
@@ -15,6 +15,18 @@ const modes: { value: A11yMode; icon: typeof Brain; label: string; description: 
     icon: Brain,
     label: "Neurodivergent",
     description: "No animations, high-legibility font, increased spacing, enhanced focus indicators",
+  },
+  {
+    value: "adhd",
+    icon: Zap,
+    label: "ADHD Mode",
+    description: "No animations, bold focus rings, cleaner layouts for reduced cognitive load",
+  },
+  {
+    value: "dyslexic",
+    icon: BookOpen,
+    label: "Dyslexic Mode",
+    description: "Atkinson Hyperlegible font, wide letter-spacing, increased line height for readability",
   },
   {
     value: "eco",
