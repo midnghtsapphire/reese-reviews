@@ -98,7 +98,7 @@ export default function Blog() {
   };
 
   const handleGeneratePosts = async () => {
-    if (!apiKey?.trim()) {
+    if (!apiKey.trim()) {
       toast({
         title: "API Key Required",
         description: "Please enter your OpenRouter API key. The field cannot be empty.",

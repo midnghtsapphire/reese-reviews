@@ -110,7 +110,7 @@ export default function FAQ() {
   };
 
   const handleGenerateFAQs = async () => {
-    if (!apiKey?.trim()) {
+    if (!apiKey.trim()) {
       toast({
         title: "API Key Required",
         description: "Please enter your OpenRouter API key. The field cannot be empty.",
