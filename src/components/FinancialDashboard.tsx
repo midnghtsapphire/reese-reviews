@@ -106,7 +106,7 @@ export function FinancialDashboard() {
 
   const handleExportData = () => {
     const csvContent = `Month,Revenue,Expenses,Net Income\n${DEMO_MONTHLY_DATA.map(
-      (d) => `${d.month},${d.revenue},${d.expenses},${d.net}`
+      (d) => `"${d.month}","${d.revenue}","${d.expenses}","${d.net}"`
     ).join("\n")}`;
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
