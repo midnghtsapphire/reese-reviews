@@ -107,40 +107,40 @@ export function VineDashboard() {
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600">Total Items</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="text-2xl font-bold">{allItems.length}</div>
             <p className="text-xs text-gray-500 mt-1">Vine items received</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600">Pending Reviews</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="text-2xl font-bold text-blue-600">{pendingReviews.length}</div>
             <p className="text-xs text-gray-500 mt-1">Awaiting your review</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600">In Progress</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="text-2xl font-bold text-yellow-600">{inProgressReviews.length}</div>
             <p className="text-xs text-gray-500 mt-1">Being reviewed</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600">Overdue</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className={`text-2xl font-bold ${overdueReviews.length > 0 ? "text-red-600" : "text-green-600"}`}>
               {overdueReviews.length}
             </div>

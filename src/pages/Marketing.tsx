@@ -164,35 +164,46 @@ export default function Marketing() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Campaign Type</label>
-                    <select className="w-full px-4 py-2 bg-slate-800 border border-purple-500/30 rounded-lg text-white focus:outline-none focus:border-purple-500">
-                      <option>Product Review</option>
-                      <option>Affiliate Promo</option>
-                      <option>Seasonal Deal</option>
-                      <option>Recommendation</option>
-                      <option>Giveaway</option>
-                      <option>Comparison</option>
-                      <option>Tutorial</option>
-                      <option>Testimonial</option>
-                    </select>
+                    <Label htmlFor="campaign-type">Campaign Type</Label>
+                    <Select defaultValue="product">
+                      <SelectTrigger id="campaign-type" className="bg-slate-800 border-purple-500/30 text-white">
+                        <SelectValue placeholder="Select campaign type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="product">Product Review</SelectItem>
+                        <SelectItem value="affiliate">Affiliate Promo</SelectItem>
+                        <SelectItem value="seasonal">Seasonal Deal</SelectItem>
+                        <SelectItem value="recommendation">Recommendation</SelectItem>
+                        <SelectItem value="giveaway">Giveaway</SelectItem>
+                        <SelectItem value="comparison">Comparison</SelectItem>
+                        <SelectItem value="tutorial">Tutorial</SelectItem>
+                        <SelectItem value="testimonial">Testimonial</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Topic</label>
-                    <input
+                    <Label htmlFor="campaign-topic">Topic</Label>
+                    <Input
+                      id="campaign-topic"
                       type="text"
                       placeholder="e.g., Best productivity tools for remote work"
-                      className="w-full px-4 py-2 bg-slate-800 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                      className="bg-slate-800 border-purple-500/30 text-white placeholder-gray-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Tone</label>
-                    <select className="w-full px-4 py-2 bg-slate-800 border border-purple-500/30 rounded-lg text-white focus:outline-none focus:border-purple-500">
-                      <option>Professional</option>
-                      <option>Casual</option>
-                      <option>Fun</option>
-                      <option>Urgent</option>
-                      <option>Educational</option>
-                    </select>
+                    <Label htmlFor="campaign-tone">Tone</Label>
+                    <Select defaultValue="professional">
+                      <SelectTrigger id="campaign-tone" className="bg-slate-800 border-purple-500/30 text-white">
+                        <SelectValue placeholder="Select tone" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="professional">Professional</SelectItem>
+                        <SelectItem value="casual">Casual</SelectItem>
+                        <SelectItem value="fun">Fun</SelectItem>
+                        <SelectItem value="urgent">Urgent</SelectItem>
+                        <SelectItem value="educational">Educational</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </CardContent>
               </Card>
