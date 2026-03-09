@@ -52,13 +52,13 @@ export default function EmailConfirmation() {
             <CardHeader className="text-center pb-4">
               <div className="flex justify-center mb-4">
                 {status === "loading" && (
-                  <Loader2 className="h-16 w-16 text-purple-400 animate-spin" />
+                  <Loader2 className="h-16 w-16 text-purple-400 animate-spin" aria-label="Loading" />
                 )}
                 {status === "success" && (
-                  <CheckCircle2 className="h-16 w-16 text-green-400" />
+                  <CheckCircle2 className="h-16 w-16 text-green-400" aria-label="Email confirmed successfully" />
                 )}
                 {status === "error" && (
-                  <XCircle className="h-16 w-16 text-red-400" />
+                  <XCircle className="h-16 w-16 text-red-400" aria-label="Confirmation failed" />
                 )}
               </div>
               <CardTitle className="text-2xl">
