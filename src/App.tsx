@@ -18,6 +18,7 @@ import Business from "@/pages/Business";
 import Marketing from "@/pages/Marketing";
 import Blog from "@/pages/Blog";
 import FAQ from "@/pages/FAQ";
+import EmailConfirmation from "@/pages/EmailConfirmation";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/marketing" element={<Marketing />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/faq" element={<FAQ />} />
+              <Route path="/confirm-email" element={<EmailConfirmation />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Footer />
