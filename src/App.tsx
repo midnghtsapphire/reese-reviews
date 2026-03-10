@@ -29,7 +29,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter basename="/reesereviews">
+          <BrowserRouter>
             <a href="#main-content" className="skip-link">
               Skip to main content
             </a>
