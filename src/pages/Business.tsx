@@ -5,6 +5,7 @@ import { VineDashboard } from "@/components/VineDashboard";
 import { VineCookieManager } from "@/components/VineCookieManager";
 import { InventoryManager } from "@/components/InventoryManager";
 import { FinancialDashboard } from "@/components/FinancialDashboard";
+import { AmazonAPISettings } from "@/components/AmazonAPISettings";
 import SEOHead from "@/components/SEOHead";
 
 export default function Business() {
@@ -77,7 +78,7 @@ export default function Business() {
             {/* Settings */}
             <TabsContent value="settings" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
-                <VineCookieManager />
+                <AmazonAPISettings />
               </div>
             </TabsContent>
           </Tabs>
