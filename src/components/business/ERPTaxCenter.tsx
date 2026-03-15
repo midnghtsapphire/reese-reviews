@@ -111,6 +111,7 @@ import { TransactionScanner } from "./TransactionScanner";
 import { ExpenseTracker } from "@/components/ExpenseTracker";
 import { OdooIntegration } from "@/components/OdooIntegration";
 import { PDFillerIntegration } from "@/components/PDFillerIntegration";
+import { IndustryWriteOffHelper } from "./IndustryWriteOffHelper";
 
 // ─── BRAND ───────────────────────────────────────────────────
 const BRAND = {
@@ -957,6 +958,7 @@ type ERPTab =
   | "documents"
   | "quarterly"
   | "people"
+  | "writeoffs"
   | "audit";
 
 const ERP_TABS: Array<{
@@ -971,6 +973,7 @@ const ERP_TABS: Array<{
   { value: "bank",         label: "Bank Accounts",  shortLabel: "Bank",     icon: <Link2 className="w-4 h-4" />,       color: BRAND.amber },
   { value: "transactions", label: "Transactions",   shortLabel: "Txns",     icon: <Zap className="w-4 h-4" />,         color: BRAND.gold },
   { value: "expenses",     label: "Expenses",       shortLabel: "Expenses", icon: <Receipt className="w-4 h-4" />,     color: BRAND.green },
+  { value: "writeoffs",    label: "Write-Off Helper", shortLabel: "Write-Offs", icon: <TrendingDown className="w-4 h-4" />, color: BRAND.gold, badge: "NEW" },
   { value: "forms",        label: "Tax Forms",      shortLabel: "Forms",    icon: <FileText className="w-4 h-4" />,    color: BRAND.crimson },
   { value: "accounting",   label: "Accounting",     shortLabel: "Odoo",     icon: <Building2 className="w-4 h-4" />,   color: "#06b6d4" },
   { value: "documents",    label: "Documents",      shortLabel: "Docs",     icon: <Upload className="w-4 h-4" />,      color: BRAND.volt },
@@ -1196,6 +1199,13 @@ export function ERPTaxCenter({
               </div>
             </div>
             <QuarterlyTracker taxYear={selectedYear} />
+          </div>
+        </TabsContent>
+
+        {/* ── WRITE-OFF HELPER ────────────────────────────── */}
+        <TabsContent value="writeoffs">
+          <div className="space-y-4">
+            <IndustryWriteOffHelper taxYear={selectedYear} />
           </div>
         </TabsContent>
 

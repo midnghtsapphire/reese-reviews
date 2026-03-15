@@ -79,7 +79,24 @@ export type WriteOffCategory =
   | "equipment"
   | "education"
   | "meals_entertainment"
+  | "uniform_ppe"
+  | "pet_supplies"
+  | "vehicle_actual"
+  | "health_insurance"
+  | "platform_fees"
+  | "licensing_certs"
   | "other";
+
+/** Industry types for write-off suggestion engine */
+export type BusinessIndustry =
+  | "pet_care"           // Rover: pet sitting / dog walking
+  | "rideshare"          // zTrip, Uber, Lyft: rideshare driver
+  | "retail_w2"          // Home Depot, Dollar Store: W-2 retail employee
+  | "home_care"          // Home Care: in-home caregiver / CNA
+  | "content_creator"    // Amazon Vine, review business, social media
+  | "rental"             // NoCo Nook / rental company
+  | "nonprofit"          // Freedom Angel Corps
+  | "general";
 
 export type FilingStatus =
   | "single"
@@ -235,6 +252,12 @@ export const WRITEOFF_CATEGORY_META: Record<WriteOffCategory, {
   equipment:             { label: "Equipment & Tech",         description: "Computers, cameras, peripherals, software",       default_pct: 100, icon: "💻" },
   education:             { label: "Education & Training",     description: "Courses, books, conferences",                     default_pct: 100, icon: "📚" },
   meals_entertainment:   { label: "Meals & Entertainment",    description: "Business meals (50% deductible)",                 default_pct: 50,  icon: "🍽️" },
+  uniform_ppe:           { label: "Uniform / PPE",            description: "Required work uniforms, safety gear, scrubs, PPE",default_pct: 100, icon: "👔" },
+  pet_supplies:          { label: "Pet Supplies",             description: "Pet care supplies used for client animals",       default_pct: 100, icon: "🐾" },
+  vehicle_actual:        { label: "Vehicle Actual Expenses",  description: "Gas, oil, insurance, repairs, registration (business %)", default_pct: 60, icon: "⛽" },
+  health_insurance:      { label: "Health Insurance Premium", description: "Self-employed health insurance deduction (100%)", default_pct: 100, icon: "🏥" },
+  platform_fees:         { label: "Platform / App Fees",      description: "Service platform fees, booking app commissions",  default_pct: 100, icon: "📲" },
+  licensing_certs:       { label: "Licenses & Certifications",description: "Professional licenses, certifications, background checks", default_pct: 100, icon: "🎓" },
   other:                 { label: "Other Business Expense",   description: "Ordinary and necessary business expenses",        default_pct: 100, icon: "📋" },
 };
 
@@ -271,15 +294,24 @@ export const DEFAULT_PERSONS: TaxPerson[] = [
         type: "sole_prop",
         schedule: "schedule_c",
         home_office_eligible: true,
-        notes: "Amazon Vine ETV income + review business income",
+        notes: "Amazon Vine ETV income + review business income — content creation",
       },
       {
         id: "biz-fac",
         name: "Freedom Angel Corps",
+        ein: "applied",
         type: "sole_prop",
         schedule: "schedule_c",
         home_office_eligible: true,
-        notes: "Review business / content creation entity",
+        notes: "Non-profit entity (EIN registered). Payment gateway for apps. Amazon inventory income flows through here. Also reskills trafficking victims.",
+      },
+      {
+        id: "biz-noconook",
+        name: "NoCo Nook / Reviewed Surplus",
+        type: "llc",
+        schedule: "schedule_c",
+        home_office_eligible: false,
+        notes: "Resale company — sells reviewed/surplus inventory. Daughter manages day-to-day.",
       },
       {
         id: "biz-rmr",
@@ -289,8 +321,16 @@ export const DEFAULT_PERSONS: TaxPerson[] = [
         home_office_eligible: false,
         notes: "Rental company — Schedule E income",
       },
+      {
+        id: "biz-truthslayer",
+        name: "TruthSlayer.com",
+        type: "sole_prop",
+        schedule: "schedule_c",
+        home_office_eligible: true,
+        notes: "Review marketplace platform — future development",
+      },
     ],
-    notes: "Disability income (SSA-1099), Amazon Vine, Freedom Angel Corps, Rocky Mountain Rentals",
+    notes: "Disability income (SSA-1099), Amazon Vine (passive), Freedom Angel Corps, NoCo Nook, Rocky Mountain Rentals. Head of Household. AUDHD.",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -300,8 +340,49 @@ export const DEFAULT_PERSONS: TaxPerson[] = [
     slug: "reese",
     role: "dependent",
     filing_status: "single",
-    businesses: [],
-    notes: "Multiple W-2 jobs (Rover, Home Depot, Dollar Store, zTrip) + potential 1099 gig work",
+    businesses: [
+      {
+        id: "biz-reese-rover",
+        name: "Rover — Pet Care",
+        type: "gig",
+        schedule: "schedule_c",
+        home_office_eligible: false,
+        notes: "Dog walking & pet sitting via Rover app. Likely 1099-K or 1099-NEC — confirm contractor vs employee status each year. MAXIMIZE write-offs as self-employed.",
+      },
+      {
+        id: "biz-reese-ztrip",
+        name: "zTrip — Rideshare",
+        type: "gig",
+        schedule: "schedule_c",
+        home_office_eligible: false,
+        notes: "Rideshare driving. Confirm W-2 vs 1099 each year. If 1099, all vehicle + phone expenses deductible on Sch C.",
+      },
+      {
+        id: "biz-reese-homedepot",
+        name: "Home Depot — W-2",
+        type: "sole_prop",
+        schedule: "none",
+        home_office_eligible: false,
+        notes: "W-2 employment. Post-TCJA 2017, unreimbursed employee expenses are NOT federally deductible. Check CO state rules — CO may still allow.",
+      },
+      {
+        id: "biz-reese-homecare",
+        name: "Home Care — Caregiver",
+        type: "gig",
+        schedule: "schedule_c",
+        home_office_eligible: false,
+        notes: "In-home caregiver. Confirm 1099 vs W-2. If 1099/self-employed, deduct all uniforms, mileage between clients, PPE, certifications.",
+      },
+      {
+        id: "biz-reese-dollarstore",
+        name: "Dollar Store — W-2",
+        type: "sole_prop",
+        schedule: "none",
+        home_office_eligible: false,
+        notes: "W-2 employment. Limited federal deductions post-TCJA. Check CO state rules.",
+      },
+    ],
+    notes: "5 income sources: Rover (pet care), zTrip (rideshare), Home Depot (W-2), Home Care (caregiver), Dollar Store (W-2). Legally deaf — uses captions/ASL. AUDHD. Manages NoCo Nook for Mom.",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -379,14 +460,15 @@ export const DEFAULT_INCOME_SOURCES: IncomeSource[] = [
     id: "inc-reese-rover",
     person_id: "person-reese",
     tax_year: 2025,
-    label: "Rover — W-2",
+    label: "Rover — Pet Care Income",
     payer_name: "Rover Group Inc.",
-    income_type: "w2",
+    income_type: "1099_k",
     gross_amount: 0,
     federal_withheld: 0,
     state_withheld: 0,
+    business_entity_id: "biz-reese-rover",
     reconciled: false,
-    notes: "Pet sitting / dog walking platform",
+    notes: "Pet sitting / dog walking platform. Rover pays via 1099-K if over threshold. Track ALL pet care expenses as Schedule C deductions.",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -401,8 +483,9 @@ export const DEFAULT_INCOME_SOURCES: IncomeSource[] = [
     gross_amount: 0,
     federal_withheld: 0,
     state_withheld: 0,
+    business_entity_id: "biz-reese-homedepot",
     reconciled: false,
-    notes: "",
+    notes: "W-2 employee. Limited federal deductions post-TCJA 2017. Keep receipts for CO state return.",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -416,8 +499,9 @@ export const DEFAULT_INCOME_SOURCES: IncomeSource[] = [
     gross_amount: 0,
     federal_withheld: 0,
     state_withheld: 0,
+    business_entity_id: "biz-reese-dollarstore",
     reconciled: false,
-    notes: "",
+    notes: "W-2 employee. Limited federal deductions post-TCJA 2017.",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -431,8 +515,25 @@ export const DEFAULT_INCOME_SOURCES: IncomeSource[] = [
     gross_amount: 0,
     federal_withheld: 0,
     state_withheld: 0,
+    business_entity_id: "biz-reese-ztrip",
     reconciled: false,
     notes: "Rideshare — confirm if W-2 employee or 1099 contractor",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: "inc-reese-homecare",
+    person_id: "person-reese",
+    tax_year: 2025,
+    label: "Home Care — Caregiver Income",
+    payer_name: "Home Care Agency / Client",
+    income_type: "1099_nec",
+    gross_amount: 0,
+    federal_withheld: 0,
+    state_withheld: 0,
+    business_entity_id: "biz-reese-homecare",
+    reconciled: false,
+    notes: "In-home caregiver. If 1099-NEC/self-employed → Schedule C. Track mileage between clients, scrubs, PPE.",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -805,7 +906,169 @@ export function estimateTaxSavings(personId: string, taxYear: number): number {
   return parseFloat((totalDeductible * 0.25).toFixed(2));
 }
 
-// ─── EXPORT ALL ──────────────────────────────────────────────
-// Named exports above cover the full public API.
-// Host apps should import from this file only — no internal
-// dependencies on Reese Reviews or TruthSlayer-specific code.
+// ─── INDUSTRY WRITE-OFF SUGGESTIONS ──────────────────────────
+
+/**
+ * A suggested write-off for a specific business industry.
+ * Used to pre-populate write-offs for each of Reese's jobs
+ * and Revvel's businesses, maximizing legal deductions.
+ */
+export interface WriteOffSuggestion {
+  description: string;
+  vendor: string;
+  category: WriteOffCategory;
+  deductible_pct: number;
+  /** Rough monthly estimate for budgeting — 0 = user enters amount */
+  estimated_monthly: number;
+  note: string;
+  /** Federal deductibility note */
+  federal_note: string;
+}
+
+/**
+ * Returns industry-specific write-off suggestions.
+ * Always consult a tax professional — these are starting-point
+ * suggestions based on IRS Publication 535 and common practice.
+ */
+export function getIndustryWriteOffSuggestions(
+  industry: BusinessIndustry
+): WriteOffSuggestion[] {
+  switch (industry) {
+    // ── Pet Care (Rover) ──────────────────────────────────────
+    // Schedule C self-employment — maximize ALL business expenses
+    case "pet_care":
+      return [
+        { description: "Dog treats & chews for client dogs",         vendor: "Pet store",          category: "pet_supplies",     deductible_pct: 100, estimated_monthly: 20,  note: "Must be used in the course of pet care services", federal_note: "Sch C deductible if self-employed" },
+        { description: "Poop bags (bulk purchase)",                  vendor: "Amazon/Chewy",       category: "pet_supplies",     deductible_pct: 100, estimated_monthly: 10,  note: "Consumable supplies used for client dogs", federal_note: "Sch C deductible" },
+        { description: "Leashes, harnesses for client dogs",         vendor: "Pet store",          category: "pet_supplies",     deductible_pct: 100, estimated_monthly: 5,   note: "Equipment used in service delivery", federal_note: "Sch C deductible" },
+        { description: "Pet first aid kit",                          vendor: "Pet store",          category: "pet_supplies",     deductible_pct: 100, estimated_monthly: 2,   note: "Safety equipment required for pet care", federal_note: "Sch C deductible" },
+        { description: "Mileage to/from client homes",               vendor: "Vehicle",            category: "vehicle_mileage",  deductible_pct: 100, estimated_monthly: 50,  note: "IRS standard rate (2025: 70¢/mile). Log every trip.", federal_note: "Sch C deductible — MUST keep mileage log" },
+        { description: "Phone data plan (Rover app use)",            vendor: "Phone carrier",      category: "phone",            deductible_pct: 50,  estimated_monthly: 25,  note: "50% for business use of phone for app", federal_note: "Sch C deductible — estimate business %" },
+        { description: "Pet CPR / first aid certification",          vendor: "Red Cross / NAPPS",  category: "licensing_certs",  deductible_pct: 100, estimated_monthly: 5,   note: "Annual certification — divide by 12 for monthly", federal_note: "Sch C deductible" },
+        { description: "Pet sitter liability insurance",             vendor: "Pet Sitters Intl",   category: "professional_services", deductible_pct: 100, estimated_monthly: 15, note: "Professional liability insurance", federal_note: "Sch C deductible" },
+        { description: "Dog carrier / crate for transport",         vendor: "Amazon/Petco",       category: "equipment",        deductible_pct: 100, estimated_monthly: 5,   note: "Equipment used in service", federal_note: "Sch C — may depreciate if > $2,500" },
+        { description: "Rover platform service fees / commissions",  vendor: "Rover Group",        category: "platform_fees",    deductible_pct: 100, estimated_monthly: 30,  note: "Rover keeps ~20% commission — track on 1099-K", federal_note: "Sch C deductible" },
+        { description: "Self-employed health insurance premium",     vendor: "Insurance carrier",  category: "health_insurance", deductible_pct: 100, estimated_monthly: 0,   note: "If not eligible for employer coverage from any job", federal_note: "Above-the-line deduction on Form 1040" },
+        { description: "Pet care reference books / courses",         vendor: "Amazon / NAPPS",     category: "education",        deductible_pct: 100, estimated_monthly: 5,   note: "Education directly related to pet care business", federal_note: "Sch C deductible" },
+      ];
+
+    // ── Rideshare (zTrip) ────────────────────────────────────
+    // Schedule C if 1099 contractor — vehicle expenses are biggest deduction
+    case "rideshare":
+      return [
+        { description: "Business mileage (IRS standard rate method)", vendor: "Vehicle",           category: "vehicle_mileage",  deductible_pct: 100, estimated_monthly: 150, note: "2025 IRS rate: 70¢/mile. Log ALL business miles with app.", federal_note: "Sch C — CANNOT also deduct actual expenses if using standard rate" },
+        { description: "Vehicle cleaning / car wash",                 vendor: "Car wash",           category: "vehicle_actual",   deductible_pct: 100, estimated_monthly: 20,  note: "Keep car clean for passenger ratings", federal_note: "Sch C deductible (actual expense method only)" },
+        { description: "Phone data plan — navigation + app",          vendor: "Phone carrier",      category: "phone",            deductible_pct: 70,  estimated_monthly: 35,  note: "Estimate business use % for navigation/dispatching", federal_note: "Sch C deductible" },
+        { description: "Phone mount for navigation",                  vendor: "Amazon",             category: "equipment",        deductible_pct: 100, estimated_monthly: 2,   note: "Dashboard phone mount", federal_note: "Sch C deductible" },
+        { description: "Car charger / USB hub for passengers",        vendor: "Amazon",             category: "equipment",        deductible_pct: 100, estimated_monthly: 2,   note: "Passenger amenity equipment", federal_note: "Sch C deductible" },
+        { description: "Bottled water / mints for passengers",        vendor: "Costco / grocery",   category: "supplies",         deductible_pct: 100, estimated_monthly: 15,  note: "Passenger amenities — keeps ratings high", federal_note: "Sch C deductible as supplies" },
+        { description: "Toll fees",                                   vendor: "Toll authority",     category: "vehicle_actual",   deductible_pct: 100, estimated_monthly: 20,  note: "E-ZPass / toll booth fees incurred on trips", federal_note: "Sch C deductible" },
+        { description: "Rideshare platform fees / commissions",       vendor: "zTrip",              category: "platform_fees",    deductible_pct: 100, estimated_monthly: 50,  note: "Company's cut of each fare", federal_note: "Sch C deductible" },
+        { description: "Rideshare / TNC commercial insurance",        vendor: "Rideshare insurance",category: "vehicle_actual",   deductible_pct: 100, estimated_monthly: 40,  note: "Gap insurance or TNC rider required between rides", federal_note: "Sch C deductible (actual method)" },
+        { description: "Self-employed health insurance premium",      vendor: "Insurance carrier",  category: "health_insurance", deductible_pct: 100, estimated_monthly: 0,   note: "If not covered by another employer", federal_note: "Above-the-line deduction on Form 1040" },
+        { description: "Spotify / music streaming for passengers",    vendor: "Spotify",            category: "supplies",         deductible_pct: 100, estimated_monthly: 10,  note: "Passenger experience / ratings", federal_note: "Sch C deductible" },
+        { description: "Background check renewal fee",               vendor: "Checkr / zTrip",    category: "licensing_certs",  deductible_pct: 100, estimated_monthly: 2,   note: "Required for platform access", federal_note: "Sch C deductible" },
+      ];
+
+    // ── Retail W-2 (Home Depot, Dollar Store) ────────────────
+    // Very limited FEDERAL deductions post-TCJA 2017
+    // Colorado may still allow itemized employee deductions — check CO DR 0104
+    case "retail_w2":
+      return [
+        { description: "Required safety boots / steel-toed shoes",   vendor: "Boot Barn / Amazon", category: "uniform_ppe",      deductible_pct: 100, estimated_monthly: 5,   note: "ONLY if required by employer AND not reimbursed. NOT federally deductible for W-2 post-2017. May be CO state deductible.", federal_note: "NOT federally deductible (W-2 employee post-TCJA). Check CO state." },
+        { description: "Required work uniform / vest",               vendor: "Employer store",     category: "uniform_ppe",      deductible_pct: 100, estimated_monthly: 3,   note: "Only if uniform is required AND cannot be worn off-duty", federal_note: "NOT federally deductible for W-2. Check CO state." },
+        { description: "Work gloves / safety gear",                  vendor: "Home Depot / Amazon",category: "uniform_ppe",      deductible_pct: 100, estimated_monthly: 5,   note: "Required PPE not reimbursed by employer", federal_note: "NOT federally deductible for W-2. Possible CO state deduction." },
+        { description: "Union dues (if applicable)",                 vendor: "Union",              category: "professional_services", deductible_pct: 100, estimated_monthly: 20, note: "Union dues are no longer federally deductible for employees post-2017", federal_note: "NOT federally deductible. Some states allow." },
+        { description: "Job search expenses (same field)",           vendor: "Various",            category: "other",            deductible_pct: 100, estimated_monthly: 0,   note: "Currently not federally deductible for W-2. Track for future changes.", federal_note: "NOT federally deductible post-TCJA." },
+      ];
+
+    // ── Home Care / Caregiver ────────────────────────────────
+    // Schedule C if 1099-NEC self-employed
+    case "home_care":
+      return [
+        { description: "Scrubs / medical uniforms",                  vendor: "Walmart / Amazon",   category: "uniform_ppe",      deductible_pct: 100, estimated_monthly: 15,  note: "Required distinctive work clothing", federal_note: "Sch C deductible if self-employed" },
+        { description: "Gloves, masks, PPE supplies",                vendor: "Amazon / Costco",    category: "uniform_ppe",      deductible_pct: 100, estimated_monthly: 20,  note: "Personal protective equipment for client care", federal_note: "Sch C deductible" },
+        { description: "Mileage between client homes",               vendor: "Vehicle",            category: "vehicle_mileage",  deductible_pct: 100, estimated_monthly: 60,  note: "IRS 70¢/mile (2025). Log every client-to-client trip.", federal_note: "Sch C deductible — mileage log required" },
+        { description: "Phone (client coordination / scheduling)",   vendor: "Phone carrier",      category: "phone",            deductible_pct: 50,  estimated_monthly: 25,  note: "Scheduling, care app use", federal_note: "Sch C deductible — estimate business %" },
+        { description: "CNA license / state certification renewal",  vendor: "State health dept",  category: "licensing_certs",  deductible_pct: 100, estimated_monthly: 5,   note: "Required professional license", federal_note: "Sch C deductible" },
+        { description: "CPR / First Aid certification",              vendor: "Red Cross",          category: "licensing_certs",  deductible_pct: 100, estimated_monthly: 3,   note: "Required certification for caregivers", federal_note: "Sch C deductible" },
+        { description: "Background check fee",                       vendor: "Checkr / state",     category: "licensing_certs",  deductible_pct: 100, estimated_monthly: 2,   note: "Required by employer or platform annually", federal_note: "Sch C deductible" },
+        { description: "Continuing education / CE credits",          vendor: "CE provider",        category: "education",        deductible_pct: 100, estimated_monthly: 10,  note: "Continuing education to maintain licensure", federal_note: "Sch C deductible" },
+        { description: "First aid kit / medical supplies",           vendor: "CVS / Amazon",       category: "supplies",         deductible_pct: 100, estimated_monthly: 10,  note: "Supplies used during client care", federal_note: "Sch C deductible" },
+        { description: "Medical reference books / apps",            vendor: "Amazon / App store", category: "education",        deductible_pct: 100, estimated_monthly: 5,   note: "Medical reference materials used on the job", federal_note: "Sch C deductible" },
+        { description: "Home care platform fees",                    vendor: "Care.com / agency",  category: "platform_fees",    deductible_pct: 100, estimated_monthly: 20,  note: "Booking platform or agency fees", federal_note: "Sch C deductible" },
+        { description: "Self-employed health insurance premium",     vendor: "Insurance carrier",  category: "health_insurance", deductible_pct: 100, estimated_monthly: 0,   note: "If not eligible for employer plan from other jobs", federal_note: "Above-the-line deduction on 1040" },
+      ];
+
+    // ── Content Creator / Amazon Vine ────────────────────────
+    // Schedule C — broad range of deductible creative expenses
+    case "content_creator":
+      return [
+        { description: "Home office (dedicated review/recording space)", vendor: "Home",            category: "home_office",      deductible_pct: 100, estimated_monthly: 100, note: "Sq ft of office / total home sq ft × monthly rent/mortgage interest", federal_note: "Form 8829 + Sch C" },
+        { description: "Internet bill (business portion)",            vendor: "ISP",                category: "internet",         deductible_pct: 80,  estimated_monthly: 60,  note: "High % business use for streaming, uploads", federal_note: "Sch C deductible" },
+        { description: "Phone plan (content posting, app use)",       vendor: "Phone carrier",      category: "phone",            deductible_pct: 70,  estimated_monthly: 35,  note: "Used for review app, posting, communication", federal_note: "Sch C deductible" },
+        { description: "Camera / photography equipment",             vendor: "Amazon / B&H",       category: "equipment",        deductible_pct: 100, estimated_monthly: 20,  note: "Camera, tripod, ring light for product reviews", federal_note: "Sch C deductible — Form 4562 if > $2,500" },
+        { description: "Microphone / audio gear",                    vendor: "Amazon",              category: "equipment",        deductible_pct: 100, estimated_monthly: 10,  note: "Microphone for video reviews", federal_note: "Sch C deductible" },
+        { description: "Lighting equipment",                         vendor: "Amazon",              category: "equipment",        deductible_pct: 100, estimated_monthly: 5,   note: "Ring light, LED panels for review photos/videos", federal_note: "Sch C deductible" },
+        { description: "Computer / laptop (business portion)",       vendor: "Apple / Dell",        category: "equipment",        deductible_pct: 80,  estimated_monthly: 30,  note: "Used for review writing, video editing, uploads", federal_note: "Sch C — Form 4562 for depreciation" },
+        { description: "HeyGen AI video subscription",               vendor: "HeyGen",              category: "advertising",      deductible_pct: 100, estimated_monthly: 30,  note: "AI video creation for review content", federal_note: "Sch C deductible" },
+        { description: "ElevenLabs AI voice subscription",           vendor: "ElevenLabs",          category: "advertising",      deductible_pct: 100, estimated_monthly: 22,  note: "AI voice generation for review videos", federal_note: "Sch C deductible" },
+        { description: "OpenAI / ChatGPT subscription",              vendor: "OpenAI",              category: "advertising",      deductible_pct: 100, estimated_monthly: 20,  note: "AI writing assistance for review content", federal_note: "Sch C deductible" },
+        { description: "Amazon Prime (product research)",            vendor: "Amazon",              category: "supplies",         deductible_pct: 50,  estimated_monthly: 7,   note: "Business use portion of Prime for Vine research", federal_note: "Sch C deductible — estimate business %" },
+        { description: "Video editing software (DaVinci, Premiere)", vendor: "Adobe / Blackmagic",  category: "equipment",        deductible_pct: 100, estimated_monthly: 25,  note: "Software for review video production", federal_note: "Sch C deductible" },
+        { description: "Product photography supplies (backdrop, props)", vendor: "Amazon",          category: "supplies",         deductible_pct: 100, estimated_monthly: 20,  note: "Staging supplies for product review photos", federal_note: "Sch C deductible" },
+        { description: "Mileage to post office / shipping supplies", vendor: "Post office",         category: "vehicle_mileage",  deductible_pct: 100, estimated_monthly: 15,  note: "Shipping returned/donated items, getting supplies", federal_note: "Sch C deductible" },
+        { description: "Packaging supplies for donation/resale",     vendor: "Uline / Amazon",      category: "shipping",         deductible_pct: 100, estimated_monthly: 20,  note: "Boxes, tape, bubble wrap for transferred inventory", federal_note: "Sch C deductible" },
+      ];
+
+    // ── Rental (NoCo Nook) ───────────────────────────────────
+    // Schedule E — rental income and expenses
+    case "rental":
+      return [
+        { description: "Mortgage interest (rental property)",        vendor: "Lender",             category: "other",            deductible_pct: 100, estimated_monthly: 0,   note: "Interest portion of mortgage — from Form 1098", federal_note: "Sch E deductible" },
+        { description: "Property taxes (rental property)",           vendor: "County",             category: "other",            deductible_pct: 100, estimated_monthly: 0,   note: "Annual property tax / 12", federal_note: "Sch E deductible" },
+        { description: "Property insurance",                         vendor: "Insurance carrier",  category: "other",            deductible_pct: 100, estimated_monthly: 100, note: "Landlord / rental property insurance", federal_note: "Sch E deductible" },
+        { description: "Repairs and maintenance",                    vendor: "Contractor / store", category: "supplies",         deductible_pct: 100, estimated_monthly: 50,  note: "Repairs to keep property in rentable condition", federal_note: "Sch E deductible — NOT capital improvements" },
+        { description: "Property management fees",                   vendor: "Property manager",   category: "professional_services", deductible_pct: 100, estimated_monthly: 0, note: "If using a property management company", federal_note: "Sch E deductible" },
+        { description: "Advertising / listing fees",                 vendor: "Zillow / VRBO",      category: "advertising",      deductible_pct: 100, estimated_monthly: 20,  note: "Listing fees on rental platforms", federal_note: "Sch E deductible" },
+        { description: "Cleaning between tenants",                   vendor: "Cleaning service",   category: "supplies",         deductible_pct: 100, estimated_monthly: 50,  note: "Professional cleaning for turnovers", federal_note: "Sch E deductible" },
+        { description: "Depreciation (Form 4562)",                   vendor: "IRS",                category: "other",            deductible_pct: 100, estimated_monthly: 0,   note: "27.5-year depreciation on residential rental property — requires Form 4562", federal_note: "Sch E — use Form 4562" },
+        { description: "Professional services (CPA, attorney)",      vendor: "CPA / attorney",     category: "professional_services", deductible_pct: 100, estimated_monthly: 20, note: "Tax prep and legal fees related to rental", federal_note: "Sch E deductible" },
+      ];
+
+    // ── Non-profit (Freedom Angel Corps) ────────────────────
+    case "nonprofit":
+      return [
+        { description: "Bank service fees",                          vendor: "Bank",               category: "professional_services", deductible_pct: 100, estimated_monthly: 10, note: "Operating account fees", federal_note: "Non-profit operating expense" },
+        { description: "Website / domain hosting",                   vendor: "Cloudflare / DO",    category: "internet",         deductible_pct: 100, estimated_monthly: 20,  note: "Non-profit website hosting", federal_note: "Non-profit operating expense" },
+        { description: "Program supplies (trafficking victim services)", vendor: "Various",          category: "supplies",         deductible_pct: 100, estimated_monthly: 50,  note: "Supplies for reskilling program", federal_note: "Non-profit program expense" },
+        { description: "Payment gateway / processing fees",          vendor: "Stripe / PayPal",    category: "platform_fees",    deductible_pct: 100, estimated_monthly: 15,  note: "Payment processing fees for donations", federal_note: "Non-profit operating expense" },
+        { description: "State registration fees",                   vendor: "State",               category: "licensing_certs",  deductible_pct: 100, estimated_monthly: 5,   note: "Annual non-profit registration fees", federal_note: "Non-profit administrative expense" },
+      ];
+
+    default:
+      return [
+        { description: "General business supplies",                  vendor: "Various",            category: "supplies",         deductible_pct: 100, estimated_monthly: 30,  note: "Ordinary and necessary business supplies", federal_note: "Sch C deductible" },
+        { description: "Phone (business portion)",                   vendor: "Phone carrier",      category: "phone",            deductible_pct: 50,  estimated_monthly: 25,  note: "Estimate business use %", federal_note: "Sch C deductible" },
+        { description: "Mileage (business trips)",                   vendor: "Vehicle",            category: "vehicle_mileage",  deductible_pct: 100, estimated_monthly: 30,  note: "IRS standard mileage rate 2025: 70¢/mile", federal_note: "Sch C deductible with mileage log" },
+        { description: "Professional services (CPA, legal)",         vendor: "CPA / attorney",     category: "professional_services", deductible_pct: 100, estimated_monthly: 30, note: "Tax prep and legal fees", federal_note: "Sch C deductible" },
+      ];
+  }
+}
+
+/** Map a BusinessEntity to its closest BusinessIndustry */
+export function entityToIndustry(entity: BusinessEntity): BusinessIndustry {
+  const name = entity.name.toLowerCase();
+  const notes = entity.notes.toLowerCase();
+  if (name.includes("rover") || name.includes("pet") || notes.includes("pet"))                            return "pet_care";
+  if (name.includes("ztrip") || name.includes("rideshare") || notes.includes("rideshare"))                return "rideshare";
+  if (name.includes("home care") || name.includes("caregiver") || notes.includes("caregiver"))            return "home_care";
+  if (name.includes("home depot") || name.includes("dollar") || notes.includes("w-2 retail"))            return "retail_w2";
+  if (name.includes("vine") || name.includes("review") || notes.includes("content"))                     return "content_creator";
+  if (name.includes("rental") || name.includes("nook") || entity.schedule === "schedule_e")              return "rental";
+  if (name.includes("freedom") || name.includes("non") || name.includes("angel"))                       return "nonprofit";
+  if (entity.type === "gig") return "general";
+  return "general";
+}
+
+
