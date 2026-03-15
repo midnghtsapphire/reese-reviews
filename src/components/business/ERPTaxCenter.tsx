@@ -71,6 +71,7 @@ import {
 import {
   getETVRecords,
   get1099Forms,
+  save1099Form,
   reconcile1099,
   getCapitalEvents,
   getDonations,
@@ -157,6 +158,35 @@ function VineETVOverview({ taxYear }: { taxYear: number }) {
   const form1099 = forms1099[0] ?? null;
   const reconciled = form1099?.filing_status === "reconciled";
   const discrepancy = form1099?.discrepancy_amount ?? 0;
+
+  // Inline 1099 edit state
+  const [editing1099, setEditing1099] = useState(false);
+  const [draft1099, setDraft1099] = useState({ box_1a: "", received_date: "", account_number: "", recipient_tin: "" });
+  const [draft1099Error, setDraft1099Error] = useState("");
+
+  const handleSave1099 = () => {
+    if (!form1099) return;
+    const amount = parseFloat(draft1099.box_1a);
+    if (isNaN(amount) || amount < 0) {
+      setDraft1099Error("Please enter a valid dollar amount (e.g. 89.97).");
+      return;
+    }
+    setDraft1099Error("");
+    const updated: Form1099NEC = {
+      ...form1099,
+      box_1_misc_income: amount,
+      box_1a_etv_vine: amount,
+      received_date: draft1099.received_date || form1099.received_date,
+      account_number: draft1099.account_number || form1099.account_number,
+      recipient_tin: draft1099.recipient_tin || form1099.recipient_tin,
+      filing_status: "received",
+    };
+    save1099Form(updated);
+    // immediately reconcile so discrepancy is recalculated
+    reconcile1099(updated);
+    setForms1099(get1099Forms().filter((f) => f.tax_year === taxYear));
+    setEditing1099(false);
+  };
 
   // Capital events
   const totalGains = capitalEvents.filter((e) => e.gain_loss > 0).reduce((s, e) => s + e.gain_loss, 0);
@@ -277,20 +307,107 @@ function VineETVOverview({ taxYear }: { taxYear: number }) {
                 <FileText className="w-4 h-4" style={{ color: BRAND.amber }} />
                 1099-NEC Reconciliation
               </CardTitle>
-              <Badge
-                className={
-                  reconciled
-                    ? "bg-green-600/20 text-green-400 border-green-600/30"
-                    : discrepancy !== 0
-                    ? "bg-red-600/20 text-red-400 border-red-600/30"
-                    : "bg-yellow-600/20 text-yellow-400 border-yellow-600/30"
-                }
-              >
-                {reconciled ? "Reconciled" : discrepancy !== 0 ? "Discrepancy" : "Pending"}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge
+                  className={
+                    reconciled
+                      ? "bg-green-600/20 text-green-400 border-green-600/30"
+                      : discrepancy !== 0
+                      ? "bg-red-600/20 text-red-400 border-red-600/30"
+                      : "bg-yellow-600/20 text-yellow-400 border-yellow-600/30"
+                  }
+                >
+                  {reconciled ? "Reconciled" : discrepancy !== 0 ? "Discrepancy" : "Pending"}
+                </Badge>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    if (!editing1099 && form1099) {
+                      setDraft1099({
+                        box_1a: String(form1099.box_1a_etv_vine),
+                        received_date: form1099.received_date,
+                        account_number: form1099.account_number ?? "",
+                        recipient_tin: form1099.recipient_tin,
+                      });
+                      setDraft1099Error("");
+                    }
+                    setEditing1099((v) => !v);
+                  }}
+                  className="text-xs border-white/20 text-gray-300 hover:text-white"
+                >
+                  {editing1099 ? "Cancel" : "Enter My 1099"}
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Inline 1099 entry form */}
+            {editing1099 && (
+              <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 space-y-3">
+                <p className="text-amber-300 text-xs font-semibold uppercase tracking-wide">
+                  Enter what your Amazon 1099-NEC says
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-gray-300 text-xs">Box 1 — Nonemployee Compensation ($)</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={draft1099.box_1a}
+                      onChange={(e) => setDraft1099((d) => ({ ...d, box_1a: e.target.value }))}
+                      placeholder="e.g. 89.97"
+                      className="bg-black/30 border-white/20 text-white text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-gray-300 text-xs">Date Received</Label>
+                    <Input
+                      type="date"
+                      value={draft1099.received_date}
+                      onChange={(e) => setDraft1099((d) => ({ ...d, received_date: e.target.value }))}
+                      className="bg-black/30 border-white/20 text-white text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-gray-300 text-xs">Account Number (optional)</Label>
+                    <Input
+                      value={draft1099.account_number}
+                      onChange={(e) => setDraft1099((d) => ({ ...d, account_number: e.target.value }))}
+                      placeholder="e.g. A12345678"
+                      className="bg-black/30 border-white/20 text-white text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-gray-300 text-xs">Your SSN / TIN (for your records)</Label>
+                    <Input
+                      value={draft1099.recipient_tin}
+                      onChange={(e) => setDraft1099((d) => ({ ...d, recipient_tin: e.target.value }))}
+                      placeholder="XXX-XX-XXXX"
+                      className="bg-black/30 border-white/20 text-white text-sm"
+                    />
+                  </div>
+                </div>
+                {draft1099Error && (
+                  <p className="text-red-400 text-xs flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3 shrink-0" />
+                    {draft1099Error}
+                  </p>
+                )}
+                <Button
+                  size="sm"
+                  onClick={handleSave1099}
+                  disabled={!draft1099.box_1a}
+                  className="font-bold text-black text-xs w-full"
+                  style={{ background: BRAND.amber }}
+                >
+                  <CheckCircle2 className="w-3 h-3 mr-1" />
+                  Save & Reconcile
+                </Button>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
                 { label: "Amazon Reports (Box 1a)", value: `$${form1099.box_1a_etv_vine.toFixed(2)}`, color: BRAND.amber },
@@ -317,7 +434,7 @@ function VineETVOverview({ taxYear }: { taxYear: number }) {
               </div>
             )}
 
-            {!reconciled && (
+            {!reconciled && !editing1099 && (
               <Button
                 size="sm"
                 onClick={handleReconcile}
