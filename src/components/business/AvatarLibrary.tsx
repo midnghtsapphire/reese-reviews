@@ -432,7 +432,7 @@ export function AvatarLibrary() {
       </Card>
 
       {/* Edit / Add Form */}
-      {(editId !== undefined || Object.keys(editForm).length > 0) && (
+      {(editId !== null || Object.keys(editForm).length > 0) && (
         <Card className="bg-white/5 border-purple-600/30">
           <CardHeader className="pb-2">
             <CardTitle className="text-white text-base">

@@ -117,9 +117,11 @@ export async function textToSpeech(
 }
 
 /**
- * Convert text to speech and return a browser-playable URL.
- * The caller is responsible for revoking the URL with URL.revokeObjectURL()
- * when done.
+ * Convert text to speech and return a browser-playable object URL.
+ *
+ * **IMPORTANT**: The caller MUST call `URL.revokeObjectURL(url)` when done
+ * to prevent memory leaks. Failing to revoke will keep the blob in memory
+ * for the lifetime of the browser tab.
  */
 export async function textToSpeechUrl(
   apiKey: string,
