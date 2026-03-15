@@ -4,6 +4,7 @@ import { TaxDashboard } from "@/components/TaxDashboard";
 import { VineDashboard } from "@/components/VineDashboard";
 import { VineCookieManager } from "@/components/VineCookieManager";
 import { InventoryManager } from "@/components/InventoryManager";
+import { AmazonDashboard } from "@/components/AmazonDashboard";
 import SEOHead from "@/components/SEOHead";
 
 export default function Business() {
@@ -27,12 +28,15 @@ export default function Business() {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-8 bg-white/10 backdrop-blur-md border border-white/20">
+            <TabsList className="grid w-full grid-cols-5 mb-8 bg-white/10 backdrop-blur-md border border-white/20">
               <TabsTrigger value="tax" className="text-white data-[state=active]:bg-purple-600">
                 💰 Taxes
               </TabsTrigger>
               <TabsTrigger value="vine" className="text-white data-[state=active]:bg-purple-600">
                 🍇 Vine
+              </TabsTrigger>
+              <TabsTrigger value="amazon" className="text-white data-[state=active]:bg-purple-600">
+                🛒 Amazon
               </TabsTrigger>
               <TabsTrigger value="inventory" className="text-white data-[state=active]:bg-purple-600">
                 📦 Inventory
@@ -53,6 +57,13 @@ export default function Business() {
             <TabsContent value="vine" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <VineDashboard />
+              </div>
+            </TabsContent>
+
+            {/* Amazon Dashboard */}
+            <TabsContent value="amazon" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <AmazonDashboard />
               </div>
             </TabsContent>
 

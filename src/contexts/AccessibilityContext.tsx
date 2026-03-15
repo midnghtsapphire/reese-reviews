@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 
-export type A11yMode = "default" | "neurodivergent" | "eco" | "no-blue-light";
+export type A11yMode = "default" | "neurodivergent" | "adhd" | "dyslexic" | "eco" | "no-blue-light";
 
 interface AccessibilityContextType {
   mode: A11yMode;
@@ -14,6 +14,8 @@ const AccessibilityContext = createContext<AccessibilityContextType | undefined>
 const MODE_LABELS: Record<A11yMode, string> = {
   default: "Default",
   neurodivergent: "Neurodivergent",
+  adhd: "ADHD Mode",
+  dyslexic: "Dyslexic Mode",
   eco: "ECO CODE",
   "no-blue-light": "No Blue Light",
 };

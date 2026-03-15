@@ -34,7 +34,7 @@ export const DEMO_AMAZON_ORDERS: AmazonOrder[] = [
     status: "delivered",
     review_status: "published",
     review_id: "best-wireless-earbuds-everyday",
-    affiliate_link: "https://amazon.com/dp/B09JQMJHXY?tag=reesereviews-20",
+    affiliate_link: "https://amazon.com/dp/B09JQMJHXY?tag=meetaudreyeva-20",
     source: "purchased",
   },
   {
