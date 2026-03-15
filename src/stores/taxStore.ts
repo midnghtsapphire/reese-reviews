@@ -131,6 +131,8 @@ export interface BusinessEntity {
   name: string;
   /** EIN or SSN-based */
   ein?: string;
+  /** Contact email for this entity */
+  email?: string;
   type: "sole_prop" | "llc" | "s_corp" | "partnership" | "rental" | "gig";
   /** Which IRS schedule this entity files on */
   schedule: "schedule_c" | "schedule_e" | "schedule_f" | "none";
@@ -299,11 +301,12 @@ export const DEFAULT_PERSONS: TaxPerson[] = [
       {
         id: "biz-fac",
         name: "Freedom Angel Corps",
-        ein: "applied",
+        ein: "86-1209156",
+        email: "audrey@freedomangelcorps.com",
         type: "sole_prop",
         schedule: "schedule_c",
         home_office_eligible: true,
-        notes: "Non-profit entity (EIN registered). Payment gateway for apps. Amazon inventory income flows through here. Also reskills trafficking victims.",
+        notes: "Non-Profit Corporation (EIN 86-1209156). Payment gateway for apps. Amazon Vine/inventory income flows through here. Also reskills trafficking victims.",
       },
       {
         id: "biz-noconook",

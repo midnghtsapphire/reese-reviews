@@ -1047,6 +1047,21 @@ function PeopleManager({ taxYear, onNavigate }: { taxYear: number; onNavigate: (
                   ✕
                 </button>
               </div>
+              {p.businesses.length > 0 && (
+                <div className="space-y-1">
+                  <p className="text-gray-500 text-xs uppercase tracking-wider">Business Entities</p>
+                  <div className="flex flex-wrap gap-2">
+                    {p.businesses.map((biz) => (
+                      <div key={biz.id} className="px-2 py-1 rounded-lg bg-white/5 border border-white/10">
+                        <p className="text-gray-300 text-xs font-medium">{biz.name}</p>
+                        <p className="text-gray-500 text-xs">{biz.schedule.replace("_", " ").toUpperCase()}</p>
+                        {biz.ein && <p className="text-gray-500 text-xs font-mono">EIN {biz.ein}</p>}
+                        {biz.email && <p className="text-gray-500 text-xs">{biz.email}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="flex flex-wrap gap-3 text-xs">
                 <span className="text-gray-400">{sources.length} income source{sources.length !== 1 ? "s" : ""}</span>
                 <span className="text-gray-400">Gross: <span style={{ color: BRAND.amber }}>${summary.total_gross.toFixed(2)}</span></span>
