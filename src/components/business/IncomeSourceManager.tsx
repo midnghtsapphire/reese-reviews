@@ -619,6 +619,48 @@ export function IncomeSourceManager({
         })}
       </div>
 
+      {/* Person Context Banner — who you're viewing right now */}
+      {selectedPerson && (
+        <div
+          className="rounded-xl border p-4 space-y-2"
+          style={{ background: "rgba(255,255,255,0.04)", borderColor: `${BRAND.gold}33` }}
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-lg">
+              {selectedPerson.role === "primary" ? "⭐" : selectedPerson.id === "person-revvel" ? "💙" : "👤"}
+            </span>
+            <div>
+              <p className="text-white font-semibold text-sm">{selectedPerson.name}</p>
+              <p className="text-gray-400 text-xs capitalize">
+                {selectedPerson.role === "primary" ? "Primary filer — this is your section" : selectedPerson.role}
+                {" · "}
+                {selectedPerson.filing_status?.replace(/_/g, " ")}
+              </p>
+            </div>
+          </div>
+          {selectedPerson.notes && (
+            <div className="space-y-1">
+              {selectedPerson.notes.split("\n").filter(Boolean).map((line, i) => (
+                <p key={i} className="text-gray-400 text-xs leading-relaxed">{line}</p>
+              ))}
+            </div>
+          )}
+          {selectedPerson.businesses.length > 0 && (
+            <div className="flex flex-wrap gap-1 pt-1">
+              {selectedPerson.businesses.map((biz) => (
+                <span
+                  key={biz.id}
+                  className="px-2 py-0.5 rounded-full text-xs"
+                  style={{ background: `${BRAND.gold}22`, color: BRAND.gold, border: `1px solid ${BRAND.gold}44` }}
+                >
+                  {biz.name}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
