@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f0f1a"/>
+      <stop offset="50%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#c0c0d0"/>
+      <stop offset="100%" stop-color="#e8e8f0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="60" y="60" width="1080" height="510" rx="24" fill="none" stroke="#2a2a40" stroke-width="2"/>
+  <text x="600" y="260" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="700" fill="url(#accent)" text-anchor="middle">Reese Reviews</text>
+  <text x="600" y="330" font-family="'Helvetica Neue', Arial, sans-serif" font-size="28" fill="#9090b0" text-anchor="middle">From Box to Beautiful</text>
+  <line x1="480" y1="370" x2="720" y2="370" stroke="#2a2a40" stroke-width="2"/>
+  <text x="600" y="420" font-family="'Helvetica Neue', Arial, sans-serif" font-size="20" fill="#6a6a8a" text-anchor="middle">Honest product reviews by a teen for real people</text>
+  <text x="600" y="520" font-family="'Helvetica Neue', Arial, sans-serif" font-size="16" fill="#4a4a6a" text-anchor="middle">reesereviews.com</text>
+</svg>
