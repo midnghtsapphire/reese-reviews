@@ -765,6 +765,159 @@ function QuarterlyTracker({ taxYear }: { taxYear: number }) {
   );
 }
 
+// ─── BACKUP / RESTORE ────────────────────────────────────────
+/** All localStorage keys that contain tax / business data for this app. */
+const BACKUP_KEYS = [
+  // taxStore (stores/)
+  "taxmod-persons",
+  "taxmod-income-sources",
+  "taxmod-documents",
+  "taxmod-writeoffs",
+  "taxmod-receipts",
+  "taxmod-quarterly-estimates",
+  // taxStore (lib/)
+  "reese-tax-etv-records",
+  "reese-tax-1099-forms",
+  "reese-tax-capital-events",
+  "reese-tax-donations",
+  "reese-tax-documents",
+  // expenses
+  "reese-expenses",
+  // Plaid
+  "reese-plaid-config",
+  "reese-plaid-accounts",
+  "reese-plaid-transactions",
+  // Vine
+  "reese-vine-items",
+  "reese-vine-config",
+  "reese-vine-cookies",
+  // Amazon
+  "reese-amazon-orders",
+  "reese-amazon-config",
+  // Product lifecycle
+  "reese-product-lifecycle",
+  // Review pipeline
+  "reese-review-pipeline",
+  "reese-pipeline-stats",
+  // Automation settings
+  "rr-automation-settings",
+  "rr-avatar-library",
+] as const;
+
+function BackupRestore() {
+  const [restoreStatus, setRestoreStatus] = useState<"idle" | "success" | "error">("idle");
+  const [restoreMsg, setRestoreMsg]       = useState("");
+  const fileRef = React.useRef<HTMLInputElement>(null);
+
+  const handleBackup = () => {
+    const snapshot: Record<string, unknown> = {
+      _meta: {
+        app: "Reese Reviews Tax Center",
+        exported_at: new Date().toISOString(),
+        version: 1,
+      },
+    };
+    for (const key of BACKUP_KEYS) {
+      const val = localStorage.getItem(key);
+      if (val !== null) {
+        try { snapshot[key] = JSON.parse(val); }
+        catch { snapshot[key] = val; }
+      }
+    }
+    const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: "application/json" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = `ReeseReviews_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleRestore = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target?.result as string) as Record<string, unknown>;
+        let count = 0;
+        for (const key of BACKUP_KEYS) {
+          if (key in data) {
+            localStorage.setItem(key, JSON.stringify(data[key]));
+            count++;
+          }
+        }
+        setRestoreStatus("success");
+        setRestoreMsg(`✅ Restored ${count} data sets. Reloading…`);
+        setTimeout(() => window.location.reload(), 1500);
+      } catch {
+        setRestoreStatus("error");
+        setRestoreMsg("❌ Could not read backup file. Make sure it's a valid Reese Reviews backup JSON.");
+      }
+    };
+    reader.readAsText(file);
+    // reset so same file can be re-selected
+    e.target.value = "";
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Backup */}
+        <button
+          onClick={handleBackup}
+          className="flex flex-col items-start gap-2 p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all text-left"
+        >
+          <Download className="w-5 h-5" style={{ color: BRAND.volt }} />
+          <p className="text-white text-sm font-semibold">💾 Save Backup File</p>
+          <p className="text-gray-400 text-xs">
+            Downloads all income sources, SSA data, ETV records, write-offs, and business data to a
+            JSON file you can save to email or a USB drive.
+          </p>
+        </button>
+
+        {/* Restore */}
+        <button
+          onClick={() => fileRef.current?.click()}
+          className="flex flex-col items-start gap-2 p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all text-left"
+        >
+          <Upload className="w-5 h-5" style={{ color: BRAND.amber }} />
+          <p className="text-white text-sm font-semibold">📥 Restore from Backup</p>
+          <p className="text-gray-400 text-xs">
+            Open a backup file from your old computer to restore all your tax and business data on
+            this device.
+          </p>
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".json,application/json"
+          className="hidden"
+          onChange={handleRestore}
+        />
+      </div>
+
+      {restoreStatus !== "idle" && (
+        <div
+          className="p-3 rounded-lg text-sm font-medium"
+          style={{
+            background: restoreStatus === "success" ? "#16a34a22" : "#dc262622",
+            border: `1px solid ${restoreStatus === "success" ? "#16a34a66" : "#dc262666"}`,
+            color: restoreStatus === "success" ? "#4ade80" : "#f87171",
+          }}
+        >
+          {restoreMsg}
+        </div>
+      )}
+
+      <p className="text-gray-600 text-xs">
+        Tip: email the backup file to audrey@freedomangelcorps.com to keep a safe copy, or save it
+        to your iCloud / Google Drive.
+      </p>
+    </div>
+  );
+}
+
 // ─── AUDIT TRAIL ─────────────────────────────────────────────
 function AuditTrail({ taxYear }: { taxYear: number }) {
   const etvRecords = getETVRecords().filter((r) => r.tax_year === taxYear);
@@ -890,6 +1043,22 @@ function AuditTrail({ taxYear }: { taxYear: number }) {
               </button>
             ))}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Backup & Restore */}
+      <Card className="bg-white/5 border-white/10">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-white text-sm flex items-center gap-2">
+            <RefreshCw className="w-4 h-4" style={{ color: BRAND.volt }} />
+            Backup &amp; Restore — Transfer to New Computer
+          </CardTitle>
+          <CardDescription className="text-gray-400 text-xs">
+            Save all your tax data to a file, then import it on any device. Your income sources, write-offs, ETV records, and all business data are included.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <BackupRestore />
         </CardContent>
       </Card>
 
