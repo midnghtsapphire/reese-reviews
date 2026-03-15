@@ -7,6 +7,10 @@ import { InventoryManager } from "@/components/InventoryManager";
 import { FinancialDashboard } from "@/components/FinancialDashboard";
 import { AmazonAPISettings } from "@/components/AmazonAPISettings";
 import { AmazonDashboard } from "@/components/AmazonDashboard";
+import { AmazonAccountSettings } from "@/components/AmazonAccountSettings";
+import { OdooIntegration } from "@/components/OdooIntegration";
+import { PDFillerIntegration } from "@/components/PDFillerIntegration";
+import { ExpenseTracker } from "@/components/ExpenseTracker";
 import SEOHead from "@/components/SEOHead";
 
 export default function Business() {
@@ -30,24 +34,33 @@ export default function Business() {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-6 mb-8 bg-white/10 backdrop-blur-md border border-white/20">
-              <TabsTrigger value="tax" className="text-white data-[state=active]:bg-purple-600">
+            <TabsList className="flex flex-wrap gap-1 mb-8 bg-white/10 backdrop-blur-md border border-white/20 p-1 rounded-lg h-auto">
+              <TabsTrigger value="tax" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
                 💰 Taxes
               </TabsTrigger>
-              <TabsTrigger value="financial" className="text-white data-[state=active]:bg-purple-600">
+              <TabsTrigger value="financial" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
                 💵 Financial
               </TabsTrigger>
-              <TabsTrigger value="vine" className="text-white data-[state=active]:bg-purple-600">
+              <TabsTrigger value="vine" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
                 🍇 Vine
               </TabsTrigger>
-              <TabsTrigger value="amazon" className="text-white data-[state=active]:bg-purple-600">
+              <TabsTrigger value="amazon" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
                 🛒 Amazon
               </TabsTrigger>
-              <TabsTrigger value="inventory" className="text-white data-[state=active]:bg-purple-600">
+              <TabsTrigger value="inventory" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
                 📦 Inventory
               </TabsTrigger>
-              <TabsTrigger value="settings" className="text-white data-[state=active]:bg-purple-600">
-                ⚙️ Settings
+              <TabsTrigger value="accounting" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
+                📊 Accounting
+              </TabsTrigger>
+              <TabsTrigger value="expenses" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
+                💸 Expenses
+              </TabsTrigger>
+              <TabsTrigger value="documents" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
+                📄 Documents
+              </TabsTrigger>
+              <TabsTrigger value="integrations" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
+                ⚙️ Integrations
               </TabsTrigger>
             </TabsList>
 
@@ -86,10 +99,34 @@ export default function Business() {
               </div>
             </TabsContent>
 
-            {/* Settings */}
-            <TabsContent value="settings" className="space-y-6">
+            {/* Accounting (Odoo) */}
+            <TabsContent value="accounting" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <OdooIntegration />
+              </div>
+            </TabsContent>
+
+            {/* Expenses */}
+            <TabsContent value="expenses" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <ExpenseTracker />
+              </div>
+            </TabsContent>
+
+            {/* Documents (PDFiller) */}
+            <TabsContent value="documents" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <PDFillerIntegration />
+              </div>
+            </TabsContent>
+
+            {/* Integrations / Settings */}
+            <TabsContent value="integrations" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <AmazonAPISettings />
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <AmazonAccountSettings />
               </div>
             </TabsContent>
           </Tabs>
