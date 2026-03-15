@@ -291,7 +291,7 @@ export interface VineScraperResult {
 }
 
 /**
- * Scrape Vine items from Amazon Vine dashboard
+ * Scrape Vine items from Amazon Vine dashboard (https://www.amazon.com/vine/vine-reviews)
  * In BACKEND MODE: Calls Supabase Edge Function
  * In DEMO MODE: Returns simulated data
  */
