@@ -41,6 +41,9 @@ export default function Business() {
               <TabsTrigger value="inventory" className="text-white data-[state=active]:bg-purple-600">
                 📦 Inventory
               </TabsTrigger>
+              <TabsTrigger value="amazon" className="text-white data-[state=active]:bg-purple-600">
+                🛒 Amazon
+              </TabsTrigger>
               <TabsTrigger value="settings" className="text-white data-[state=active]:bg-purple-600">
                 ⚙️ Settings
               </TabsTrigger>
@@ -71,6 +74,13 @@ export default function Business() {
             <TabsContent value="inventory" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <InventoryManager />
+              </div>
+            </TabsContent>
+
+            {/* Amazon Reviews */}
+            <TabsContent value="amazon" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <AmazonDashboard />
               </div>
             </TabsContent>
 
