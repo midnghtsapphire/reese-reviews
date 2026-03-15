@@ -1,471 +1,503 @@
-import React, { useState, useCallback } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// ============================================================
+// AMAZON DASHBOARD — SP-API Connection & Order Management
+// Connects Amazon purchases to the Reese Reviews workflow
+// Auto-generates affiliate links via meetaudreyeva-20 tag
+// ============================================================
+
+import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Textarea } from "@/components/ui/textarea";
-import { Star, Copy, FileText, ExternalLink, RefreshCw, Link, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  type AmazonReview,
-  type ImportMode,
-  getAmazonReviews,
-  buildAffiliateLink,
-  DEFAULT_AFFILIATE_TAG,
-} from "@/lib/amazonReviewStore";
-import { apiImport, apiPublish } from "@/api/amazon";
+  AlertCircle,
+  CheckCircle2,
+  RefreshCw,
+  ShoppingCart,
+  Link2,
+  FileText,
+  Zap,
+  Copy,
+  ExternalLink,
+  Package,
+} from "lucide-react";
+import {
+  getAmazonOrders,
+  getAmazonConfig,
+  saveAmazonConfig,
+  syncAmazonOrders,
+  getUnreviewedOrders,
+  getDraftOrders,
+  getReviewedOrders,
+  updateOrderReviewStatus,
+  generateReviewDraft,
+  getAmazonAffiliateLink,
+  type AmazonConfig,
+} from "@/lib/amazonStore";
+import type { AmazonOrder } from "@/lib/businessTypes";
 
-// ─── HELPERS ─────────────────────────────────────────────────
-
-function StarRow({ rating }: { rating: number }) {
-  return (
-    <span className="flex gap-0.5" aria-label={`${rating} out of 5 stars`}>
-      {Array.from({ length: 5 }, (_, i) => (
-        <Star
-          key={i}
-          size={14}
-          className={i < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-400"}
-        />
-      ))}
-    </span>
-  );
-}
-
-function SourceBadge({ source }: { source: ImportMode }) {
-  const map: Record<ImportMode, { label: string; className: string }> = {
-    demo: { label: "Demo", className: "bg-purple-600/20 text-purple-300 border-purple-600/30" },
-    html: { label: "HTML Import", className: "bg-blue-600/20 text-blue-300 border-blue-600/30" },
-    cookie: { label: "Live Import", className: "bg-green-600/20 text-green-300 border-green-600/30" },
-  };
-  const { label, className } = map[source] ?? map.demo;
-  return (
-    <span className={`text-xs px-2 py-0.5 rounded-full border ${className}`}>{label}</span>
-  );
-}
-
-// ─── REVIEW CARD ─────────────────────────────────────────────
-
-interface ReviewCardProps {
-  review: AmazonReview;
-  affiliateTag: string;
-  onCopy: (review: AmazonReview) => void;
-  onCreateDraft: (review: AmazonReview) => void;
-  onPublish: (review: AmazonReview) => void;
-}
-
-function ReviewCard({ review, affiliateTag, onCopy, onCreateDraft, onPublish }: ReviewCardProps) {
-  const affiliateLink = buildAffiliateLink(review.asin, affiliateTag);
-
-  return (
-    <div className="p-4 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition space-y-3">
-      <div className="flex items-start justify-between gap-2">
-        <div className="space-y-1 flex-1 min-w-0">
-          <p className="font-semibold text-white truncate">{review.productName}</p>
-          <div className="flex items-center gap-2 flex-wrap">
-            <StarRow rating={review.rating} />
-            <span className="text-xs text-gray-400">{review.date}</span>
-            <SourceBadge source={review.source} />
-            {review.status === "published" && (
-              <Badge className="bg-green-600/20 text-green-300 border-green-600/30 text-xs">Published</Badge>
-            )}
-          </div>
-        </div>
-        <span className="text-xs text-gray-500 shrink-0 font-mono">{review.asin}</span>
-      </div>
-
-      {review.title && (
-        <p className="text-sm font-medium text-gray-200 italic">"{review.title}"</p>
-      )}
-
-      <p className="text-sm text-gray-300 line-clamp-3">{review.body}</p>
-
-      {/* Actions */}
-      <div className="flex flex-wrap gap-2 pt-1">
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-7 text-xs border-white/20 text-gray-300 hover:bg-white/10"
-          onClick={() => onCopy(review)}
-          aria-label={`Copy review text for ${review.productName}`}
-        >
-          <Copy size={12} className="mr-1" />
-          Copy text
-        </Button>
-
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-7 text-xs border-white/20 text-gray-300 hover:bg-white/10"
-          onClick={() => onCreateDraft(review)}
-          aria-label={`Create draft for ${review.productName}`}
-        >
-          <FileText size={12} className="mr-1" />
-          Create Draft
-        </Button>
-
-        {review.status !== "published" && (
-          <Button
-            size="sm"
-            className="h-7 text-xs bg-purple-600 hover:bg-purple-700 text-white"
-            onClick={() => onPublish(review)}
-            aria-label={`Publish review for ${review.productName}`}
-          >
-            <CheckCircle2 size={12} className="mr-1" />
-            Publish
-          </Button>
-        )}
-
-        {affiliateLink && (
-          <a
-            href={affiliateLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs h-7 px-2 rounded border border-white/20 text-gray-300 hover:bg-white/10 transition"
-            aria-label={`Open ${review.productName} on Amazon`}
-          >
-            <ExternalLink size={12} />
-            Open on Amazon
-          </a>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ─── MAIN COMPONENT ──────────────────────────────────────────
+const DEFAULT_AFFILIATE_TAG = "meetaudreyeva-20";
 
 export function AmazonDashboard() {
-  const [activeTab, setActiveTab] = useState("connection");
-  const [importMode, setImportMode] = useState<ImportMode>("demo");
-  const [pastedHtml, setPastedHtml] = useState("");
-  const [reviews, setReviews] = useState<AmazonReview[]>(getAmazonReviews);
-  const [statusMsg, setStatusMsg] = useState<{ type: "info" | "success" | "error"; text: string } | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [config, setConfig] = useState<AmazonConfig>(
+    getAmazonConfig() ?? {
+      seller_id: "",
+      marketplace_id: "ATVPDKIKX0DER",
+      refresh_token: "",
+      affiliate_tag: DEFAULT_AFFILIATE_TAG,
+      connected: false,
+    }
+  );
+  const [orders, setOrders] = useState<AmazonOrder[]>(getAmazonOrders());
+  const [syncing, setSyncing] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<AmazonOrder | null>(null);
+  const [draftCopied, setDraftCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState<string | null>(null);
 
-  // Affiliate tab state
-  const [asinInput, setAsinInput] = useState("");
-  const [affiliateTag, setAffiliateTag] = useState(DEFAULT_AFFILIATE_TAG);
-  const [generatedLink, setGeneratedLink] = useState("");
-  const [copiedLink, setCopiedLink] = useState(false);
+  const unreviewedOrders = getUnreviewedOrders();
+  const draftOrders = getDraftOrders();
+  const reviewedOrders = getReviewedOrders();
 
-  const refreshReviews = useCallback(() => {
-    setReviews(getAmazonReviews());
-  }, []);
+  const handleSaveConfig = () => {
+    if (!config.seller_id.trim() || !config.refresh_token.trim()) {
+      setMessage({ type: "error", text: "Seller ID and Refresh Token are required." });
+      return;
+    }
+    saveAmazonConfig({ ...config, connected: true });
+    setMessage({ type: "success", text: "Amazon SP-API credentials saved successfully." });
+  };
 
-  // ─── Import handler ──────────────────────────────────────
-
-  const handleImport = async () => {
-    setLoading(true);
-    setStatusMsg(null);
+  const handleSync = async () => {
+    if (!config.seller_id || !config.connected) {
+      setMessage({ type: "error", text: "Please configure and save your Amazon credentials first." });
+      return;
+    }
+    setSyncing(true);
+    setMessage(null);
     try {
-      const result = await apiImport({ mode: importMode, html: pastedHtml });
-      setReviews(result.reviews);
-      setStatusMsg({ type: "success", text: result.message });
-      if (result.imported > 0) setActiveTab("reviews");
-    } catch (err) {
-      setStatusMsg({ type: "error", text: String(err) });
+      const synced = await syncAmazonOrders(config);
+      setOrders(synced);
+      setMessage({ type: "success", text: `Synced ${synced.length} orders from Amazon.` });
+    } catch {
+      setMessage({ type: "error", text: "Sync failed. Please check your credentials and try again." });
     } finally {
-      setLoading(false);
+      setSyncing(false);
     }
   };
 
-  // ─── Review actions ──────────────────────────────────────
-
-  const handleCopy = (review: AmazonReview) => {
-    const text = `${review.title}\n\n${review.body}`;
-    navigator.clipboard.writeText(text).catch(() => {});
-    setCopiedId(review.id);
-    setTimeout(() => setCopiedId(null), 2000);
+  const handleCopyDraft = (order: AmazonOrder) => {
+    const draft = generateReviewDraft(order);
+    navigator.clipboard.writeText(draft);
+    setDraftCopied(true);
+    setTimeout(() => setDraftCopied(false), 2000);
   };
 
-  const handleCreateDraft = (review: AmazonReview) => {
-    // Persist as draft (already stored) and show confirmation
-    setStatusMsg({ type: "success", text: `Draft saved for "${review.productName}".` });
+  const handleCopyAffiliateLink = (order: AmazonOrder) => {
+    const tag = config.affiliate_tag || DEFAULT_AFFILIATE_TAG;
+    const link = order.affiliate_link || getAmazonAffiliateLink(order.asin, tag);
+    navigator.clipboard.writeText(link);
+    setLinkCopied(order.id);
+    setTimeout(() => setLinkCopied(null), 2000);
   };
 
-  const handlePublish = async (review: AmazonReview) => {
-    const result = await apiPublish({ reviewId: review.id });
-    if (result.success) {
-      refreshReviews();
-      setStatusMsg({ type: "success", text: `"${review.productName}" marked as published.` });
-    } else {
-      setStatusMsg({ type: "error", text: result.message });
-    }
+  const handleMarkDraft = (order: AmazonOrder) => {
+    updateOrderReviewStatus(order.id, "draft");
+    setOrders(getAmazonOrders());
+    setMessage({ type: "success", text: `"${order.product_name}" moved to draft.` });
   };
 
-  // ─── Affiliate generator ─────────────────────────────────
-
-  const handleGenerateLink = () => {
-    const link = buildAffiliateLink(asinInput, affiliateTag);
-    setGeneratedLink(link);
+  const handleMarkPublished = (order: AmazonOrder) => {
+    updateOrderReviewStatus(order.id, "published");
+    setOrders(getAmazonOrders());
+    setMessage({ type: "success", text: `"${order.product_name}" marked as published.` });
   };
 
-  const handleCopyLink = () => {
-    if (!generatedLink) return;
-    navigator.clipboard.writeText(generatedLink).catch(() => {});
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2000);
+  const statusBadge = (status: AmazonOrder["review_status"]) => {
+    const map: Record<AmazonOrder["review_status"], { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+      not_reviewed: { label: "Not Reviewed", variant: "outline" },
+      draft: { label: "Draft", variant: "secondary" },
+      published: { label: "Published", variant: "default" },
+    };
+    const { label, variant } = map[status];
+    return <Badge variant={variant}>{label}</Badge>;
   };
 
-  // ─── Render ──────────────────────────────────────────────
+  const OrderCard = ({ order }: { order: AmazonOrder }) => {
+    const affiliateTag = config.affiliate_tag || DEFAULT_AFFILIATE_TAG;
+    const affiliateUrl = order.affiliate_link || getAmazonAffiliateLink(order.asin, affiliateTag);
+
+    return (
+      <div
+        className={`p-4 border rounded-lg cursor-pointer transition hover:bg-gray-50 ${selectedOrder?.id === order.id ? "ring-2 ring-purple-500" : ""}`}
+        onClick={() => setSelectedOrder(selectedOrder?.id === order.id ? null : order)}
+      >
+        <div className="flex gap-4">
+          <img
+            src={order.image_url}
+            alt={order.product_name}
+            className="w-16 h-16 object-cover rounded flex-shrink-0"
+          />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <h3 className="font-semibold text-sm truncate">{order.product_name}</h3>
+              {statusBadge(order.review_status)}
+            </div>
+            <p className="text-xs text-gray-500 mb-1">ASIN: {order.asin}</p>
+            <div className="flex items-center gap-4 text-xs text-gray-600">
+              <span>${order.price.toFixed(2)}</span>
+              <span>{new Date(order.purchase_date).toLocaleDateString()}</span>
+              <Badge variant="outline" className="text-xs py-0">{order.category}</Badge>
+            </div>
+          </div>
+        </div>
+
+        {selectedOrder?.id === order.id && (
+          <div className="mt-4 pt-3 border-t space-y-2">
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={(e) => { e.stopPropagation(); handleCopyAffiliateLink(order); }}
+                className="text-xs"
+              >
+                <Link2 className="mr-1 h-3 w-3" />
+                {linkCopied === order.id ? "Copied!" : "Copy Affiliate Link"}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={(e) => { e.stopPropagation(); handleCopyDraft(order); }}
+                className="text-xs"
+              >
+                <FileText className="mr-1 h-3 w-3" />
+                {draftCopied ? "Draft Copied!" : "Copy Review Draft"}
+              </Button>
+              <a
+                href={affiliateUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1 text-xs px-3 py-1.5 border rounded-md hover:bg-gray-100 transition"
+              >
+                <ExternalLink className="h-3 w-3" />
+                View on Amazon
+              </a>
+            </div>
+            {order.review_status === "not_reviewed" && (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={(e) => { e.stopPropagation(); handleMarkDraft(order); }}
+                className="text-xs"
+              >
+                <Zap className="mr-1 h-3 w-3" />
+                Start Draft
+              </Button>
+            )}
+            {order.review_status === "draft" && (
+              <Button
+                size="sm"
+                onClick={(e) => { e.stopPropagation(); handleMarkPublished(order); }}
+                className="text-xs"
+              >
+                <CheckCircle2 className="mr-1 h-3 w-3" />
+                Mark Published
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-white">Amazon Reviews</h2>
-          <p className="text-gray-400 text-sm">Import Vine/purchase reviews, manage drafts, and generate affiliate links</p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={refreshReviews}
-          className="border-white/20 text-gray-300 hover:bg-white/10"
-          aria-label="Refresh review list"
-        >
-          <RefreshCw size={14} className="mr-1" />
-          Refresh
-        </Button>
+    <div className="space-y-6">
+      {/* Stats Overview */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[
+          { label: "Total Orders", value: orders.length, icon: ShoppingCart, color: "text-blue-400" },
+          { label: "Needs Review", value: unreviewedOrders.length, icon: AlertCircle, color: "text-yellow-400" },
+          { label: "In Draft", value: draftOrders.length, icon: FileText, color: "text-orange-400" },
+          { label: "Published", value: reviewedOrders.length, icon: CheckCircle2, color: "text-green-400" },
+        ].map(({ label, value, icon: Icon, color }) => (
+          <Card key={label} className="bg-white/5 border-white/10">
+            <CardContent className="p-4 flex items-center gap-3">
+              <Icon className={`h-8 w-8 ${color}`} />
+              <div>
+                <p className="text-2xl font-bold text-white">{value}</p>
+                <p className="text-xs text-gray-400">{label}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {statusMsg && (
-        <Alert className={`border ${statusMsg.type === "error" ? "border-red-500/40 bg-red-500/10" : "border-green-500/40 bg-green-500/10"}`}>
-          <AlertCircle size={14} className={statusMsg.type === "error" ? "text-red-400" : "text-green-400"} />
-          <AlertDescription className={statusMsg.type === "error" ? "text-red-300" : "text-green-300"}>
-            {statusMsg.text}
-          </AlertDescription>
+      {/* Message */}
+      {message && (
+        <Alert variant={message.type === "error" ? "destructive" : "default"}>
+          {message.type === "error" ? <AlertCircle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+          <AlertDescription>{message.text}</AlertDescription>
         </Alert>
       )}
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-white/10 border border-white/20">
-          <TabsTrigger value="connection" className="text-gray-300 data-[state=active]:bg-purple-600 data-[state=active]:text-white">
-            🔗 Connection
+      <Tabs defaultValue="orders">
+        <TabsList className="bg-white/10">
+          <TabsTrigger value="orders" className="text-white data-[state=active]:bg-purple-600">
+            📦 Orders ({orders.length})
           </TabsTrigger>
-          <TabsTrigger value="reviews" className="text-gray-300 data-[state=active]:bg-purple-600 data-[state=active]:text-white">
-            ⭐ Reviews {reviews.length > 0 && <span className="ml-1 text-xs">({reviews.length})</span>}
-          </TabsTrigger>
-          <TabsTrigger value="affiliate" className="text-gray-300 data-[state=active]:bg-purple-600 data-[state=active]:text-white">
-            🔗 Affiliate Links
+          <TabsTrigger value="connection" className="text-white data-[state=active]:bg-purple-600">
+            🔌 Connection
           </TabsTrigger>
         </TabsList>
 
-        {/* ── Connection Tab ── */}
-        <TabsContent value="connection" className="mt-4">
+        {/* Orders Tab */}
+        <TabsContent value="orders" className="space-y-4">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-300">
+              {config.connected ? (
+                <span className="flex items-center gap-1">
+                  <CheckCircle2 className="h-4 w-4 text-green-400" />
+                  Connected · Last synced: {config.last_synced ? new Date(config.last_synced).toLocaleString() : "never"}
+                </span>
+              ) : (
+                <span className="flex items-center gap-1 text-yellow-400">
+                  <AlertCircle className="h-4 w-4" />
+                  Not connected — configure SP-API in the Connection tab
+                </span>
+              )}
+            </p>
+            <Button
+              size="sm"
+              onClick={handleSync}
+              disabled={syncing}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
+              {syncing ? "Syncing…" : "Sync Orders"}
+            </Button>
+          </div>
+
+          <Tabs defaultValue="unreviewed">
+            <TabsList className="bg-white/10">
+              <TabsTrigger value="unreviewed" className="text-white data-[state=active]:bg-orange-600">
+                Needs Review ({unreviewedOrders.length})
+              </TabsTrigger>
+              <TabsTrigger value="draft" className="text-white data-[state=active]:bg-orange-600">
+                Drafts ({draftOrders.length})
+              </TabsTrigger>
+              <TabsTrigger value="published" className="text-white data-[state=active]:bg-orange-600">
+                Published ({reviewedOrders.length})
+              </TabsTrigger>
+              <TabsTrigger value="all" className="text-white data-[state=active]:bg-orange-600">
+                All ({orders.length})
+              </TabsTrigger>
+            </TabsList>
+
+            {[
+              { value: "unreviewed", items: unreviewedOrders },
+              { value: "draft", items: draftOrders },
+              { value: "published", items: reviewedOrders },
+              { value: "all", items: orders },
+            ].map(({ value, items }) => (
+              <TabsContent key={value} value={value} className="space-y-3 mt-4">
+                {items.length === 0 ? (
+                  <div className="text-center py-10 text-gray-400">
+                    <Package className="mx-auto h-10 w-10 mb-2 opacity-40" />
+                    <p>No orders in this category.</p>
+                  </div>
+                ) : (
+                  items.map((order) => <OrderCard key={order.id} order={order} />)
+                )}
+              </TabsContent>
+            ))}
+          </Tabs>
+        </TabsContent>
+
+        {/* Connection Tab */}
+        <TabsContent value="connection" className="space-y-4">
           <Card className="bg-white/5 border-white/10">
             <CardHeader>
-              <CardTitle className="text-white">Import Amazon Reviews</CardTitle>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Link2 className="h-5 w-5 text-yellow-400" />
+                Amazon SP-API Connection
+              </CardTitle>
               <CardDescription className="text-gray-400">
-                Choose how to import your reviews. Demo mode works without any credentials.
+                Connect your Amazon Seller account to automatically import purchased orders and generate
+                affiliate links. Your credentials are stored locally and never sent to third parties.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Mode selector */}
-              <div className="space-y-3">
-                <p className="text-sm text-gray-300 font-medium">Import Mode</p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {(["demo", "html", "cookie"] as ImportMode[]).map((mode) => {
-                    const info = {
-                      demo: { icon: "🎭", label: "Demo", desc: "Pre-loaded sample reviews. No credentials needed." },
-                      html: { icon: "📄", label: "Paste HTML", desc: "Copy your Amazon review page source and paste it here." },
-                      cookie: { icon: "🍪", label: "Session Cookie", desc: "Requires a server-side proxy. Falls back to demo in SPA mode." },
-                    }[mode];
-                    return (
-                      <button
-                        key={mode}
-                        onClick={() => setImportMode(mode)}
-                        className={`p-3 rounded-lg border text-left transition ${
-                          importMode === mode
-                            ? "border-purple-500 bg-purple-600/20"
-                            : "border-white/20 bg-white/5 hover:bg-white/10"
-                        }`}
-                        aria-pressed={importMode === mode}
-                      >
-                        <div className="text-lg mb-1">{info.icon}</div>
-                        <div className="text-sm font-medium text-white">{info.label}</div>
-                        <div className="text-xs text-gray-400 mt-0.5">{info.desc}</div>
-                      </button>
-                    );
-                  })}
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label className="text-gray-300">Seller ID</Label>
+                  <Input
+                    placeholder="e.g. A2EUQ1WTGCTBG2"
+                    value={config.seller_id}
+                    onChange={(e) => setConfig({ ...config, seller_id: e.target.value })}
+                    className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-300">Marketplace ID</Label>
+                  <Input
+                    placeholder="ATVPDKIKX0DER (US)"
+                    value={config.marketplace_id}
+                    onChange={(e) => setConfig({ ...config, marketplace_id: e.target.value })}
+                    className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
+                  />
                 </div>
               </div>
 
-              {/* HTML paste area */}
-              {importMode === "html" && (
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-300 font-medium">Paste Amazon Review Page HTML</p>
-                  <p className="text-xs text-gray-500">
-                    Open your Amazon review page, right-click → "View Page Source", select all, and paste below.
-                  </p>
-                  <Textarea
-                    placeholder="Paste the full page HTML here…"
-                    value={pastedHtml}
-                    onChange={(e) => setPastedHtml(e.target.value)}
-                    className="bg-white/5 border-white/20 text-gray-200 placeholder:text-gray-600 font-mono text-xs min-h-[120px]"
-                    aria-label="Amazon review page HTML"
-                  />
-                </div>
-              )}
+              <div className="space-y-2">
+                <Label className="text-gray-300">LWA Refresh Token</Label>
+                <Input
+                  type="password"
+                  placeholder="Atzr|..."
+                  value={config.refresh_token}
+                  onChange={(e) => setConfig({ ...config, refresh_token: e.target.value })}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
+                />
+                <p className="text-xs text-gray-500">
+                  Obtain via{" "}
+                  <a
+                    href="https://developer-docs.amazon.com/sp-api/docs/authorizing-selling-partner-api-applications"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-purple-400 hover:underline"
+                  >
+                    Amazon SP-API Authorization Guide
+                  </a>
+                </p>
+              </div>
 
-              {/* Cookie mode notice */}
-              {importMode === "cookie" && (
-                <Alert className="border-yellow-500/40 bg-yellow-500/10">
-                  <AlertCircle size={14} className="text-yellow-400" />
-                  <AlertDescription className="text-yellow-300 text-sm">
-                    Cookie mode scrapes Amazon using your session cookie stored in the{" "}
-                    <code className="bg-yellow-500/20 px-1 rounded">AMAZON_SESSION_COOKIE</code> environment variable.
-                    This requires a server-side proxy. In this demo deployment it falls back to demo data.
-                    See <em>docs/amazon-integration.md</em> for full setup instructions.
+              <div className="space-y-2">
+                <Label className="text-gray-300">Amazon Affiliate Tag</Label>
+                <Input
+                  placeholder="meetaudreyeva-20"
+                  value={config.affiliate_tag}
+                  onChange={(e) => setConfig({ ...config, affiliate_tag: e.target.value })}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
+                />
+                <p className="text-xs text-gray-500">
+                  Default: <code className="text-purple-400">meetaudreyeva-20</code>. Appended to every Amazon
+                  product link to earn affiliate commissions.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleSaveConfig}
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                >
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                  Save & Connect
+                </Button>
+                {config.connected && (
+                  <Button
+                    variant="outline"
+                    onClick={handleSync}
+                    disabled={syncing}
+                    className="border-white/20 text-white hover:bg-white/10"
+                  >
+                    <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
+                    {syncing ? "Syncing…" : "Sync Now"}
+                  </Button>
+                )}
+              </div>
+
+              {config.connected && (
+                <Alert>
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <AlertDescription>
+                    Connected to Amazon SP-API. Affiliate tag: <strong>{config.affiliate_tag || DEFAULT_AFFILIATE_TAG}</strong>
                   </AlertDescription>
                 </Alert>
               )}
 
-              <Button
-                onClick={handleImport}
-                disabled={loading || (importMode === "html" && !pastedHtml.trim())}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
-              >
-                {loading ? (
-                  <>
-                    <RefreshCw size={14} className="mr-2 animate-spin" />
-                    Importing…
-                  </>
-                ) : (
-                  <>Import Reviews</>
-                )}
-              </Button>
+              <Alert variant="destructive" className="bg-yellow-900/20 border-yellow-600/40 text-yellow-200">
+                <AlertCircle className="h-4 w-4 text-yellow-400" />
+                <AlertDescription>
+                  <strong>Production Note:</strong> Live SP-API calls require a backend proxy to handle
+                  AWS SigV4 signing and LWA token refresh. Currently running in demo mode with sample data.
+                  Configure your backend at <code>/api/amazon/orders</code> to enable live sync.
+                </AlertDescription>
+              </Alert>
             </CardContent>
           </Card>
-        </TabsContent>
 
-        {/* ── Reviews Tab ── */}
-        <TabsContent value="reviews" className="mt-4">
-          {reviews.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              <p className="mb-3">No reviews imported yet.</p>
-              <Button
-                variant="outline"
-                className="border-white/20 text-gray-300 hover:bg-white/10"
-                onClick={() => setActiveTab("connection")}
-              >
-                Import Reviews
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {reviews.map((review) => (
-                <ReviewCard
-                  key={review.id}
-                  review={review}
-                  affiliateTag={affiliateTag}
-                  onCopy={handleCopy}
-                  onCreateDraft={handleCreateDraft}
-                  onPublish={handlePublish}
-                />
-              ))}
-            </div>
-          )}
-
-          {copiedId && (
-            <div className="fixed bottom-4 right-4 bg-green-600 text-white text-sm px-4 py-2 rounded shadow-lg" role="status">
-              Review text copied!
-            </div>
-          )}
-        </TabsContent>
-
-        {/* ── Affiliate Tab ── */}
-        <TabsContent value="affiliate" className="mt-4">
+          {/* Affiliate Link Generator */}
           <Card className="bg-white/5 border-white/10">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Link size={18} />
-                Affiliate Link Generator
+              <CardTitle className="text-white text-base flex items-center gap-2">
+                <Link2 className="h-4 w-4 text-orange-400" />
+                Quick Affiliate Link Generator
               </CardTitle>
               <CardDescription className="text-gray-400">
-                Generate Amazon affiliate links from any ASIN.
+                Paste any Amazon ASIN to generate an affiliate link with your tag.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-sm text-gray-300" htmlFor="asin-input">ASIN</label>
-                  <Input
-                    id="asin-input"
-                    placeholder="e.g. B09JQMJHXY"
-                    value={asinInput}
-                    onChange={(e) => setAsinInput(e.target.value)}
-                    className="bg-white/5 border-white/20 text-gray-200 placeholder:text-gray-600 font-mono"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-sm text-gray-300" htmlFor="affiliate-tag">Affiliate Tag</label>
-                  <Input
-                    id="affiliate-tag"
-                    placeholder={DEFAULT_AFFILIATE_TAG}
-                    value={affiliateTag}
-                    onChange={(e) => setAffiliateTag(e.target.value)}
-                    className="bg-white/5 border-white/20 text-gray-200 placeholder:text-gray-600 font-mono"
-                  />
-                </div>
-              </div>
-
-              <Button
-                onClick={handleGenerateLink}
-                disabled={!asinInput.trim()}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
-              >
-                Generate Link
-              </Button>
-
-              {generatedLink && (
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-300 font-medium">Generated Link</p>
-                  <div className="flex items-center gap-2">
-                    <code className="flex-1 bg-white/10 border border-white/20 rounded px-3 py-2 text-sm text-green-300 break-all">
-                      {generatedLink}
-                    </code>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="shrink-0 border-white/20 text-gray-300 hover:bg-white/10"
-                      onClick={handleCopyLink}
-                      aria-label="Copy affiliate link"
-                    >
-                      {copiedLink ? <CheckCircle2 size={14} className="text-green-400" /> : <Copy size={14} />}
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {/* Quick links from imported reviews */}
-              {reviews.length > 0 && (
-                <div className="space-y-2 pt-2 border-t border-white/10">
-                  <p className="text-sm text-gray-300 font-medium">Quick Links — Imported Reviews</p>
-                  <div className="space-y-1 max-h-48 overflow-y-auto">
-                    {reviews.map((r) => (
-                      <div key={r.id} className="flex items-center justify-between gap-2 text-sm">
-                        <span className="text-gray-400 truncate flex-1">{r.productName}</span>
-                        <a
-                          href={buildAffiliateLink(r.asin, affiliateTag)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-purple-400 hover:text-purple-300 shrink-0 flex items-center gap-1"
-                          aria-label={`Affiliate link for ${r.productName}`}
-                        >
-                          <ExternalLink size={12} />
-                          {r.asin}
-                        </a>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+            <CardContent>
+              <AffiliateQuickGen affiliateTag={config.affiliate_tag || DEFAULT_AFFILIATE_TAG} />
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function AffiliateQuickGen({ affiliateTag }: { affiliateTag: string }) {
+  const [asin, setAsin] = useState("");
+  const [generatedLink, setGeneratedLink] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  const handleGenerate = () => {
+    const trimmed = asin.trim().toUpperCase();
+    if (!trimmed) return;
+    setGeneratedLink(getAmazonAffiliateLink(trimmed, affiliateTag));
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(generatedLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-2">
+        <Input
+          placeholder="Enter ASIN (e.g. B09JQMJHXY)"
+          value={asin}
+          onChange={(e) => setAsin(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
+          className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
+        />
+        <Button onClick={handleGenerate} className="bg-orange-600 hover:bg-orange-700 text-white flex-shrink-0">
+          Generate
+        </Button>
+      </div>
+      {generatedLink && (
+        <div className="flex items-center gap-2 p-3 bg-white/5 rounded-lg">
+          <code className="text-xs text-green-400 flex-1 break-all">{generatedLink}</code>
+          <Button size="sm" variant="ghost" onClick={handleCopy} className="text-white flex-shrink-0">
+            <Copy className="h-4 w-4 mr-1" />
+            {copied ? "Copied!" : "Copy"}
+          </Button>
+          <a
+            href={generatedLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-400 hover:text-white"
+          >
+            <ExternalLink className="h-4 w-4" />
+          </a>
+        </div>
+      )}
     </div>
   );
 }
