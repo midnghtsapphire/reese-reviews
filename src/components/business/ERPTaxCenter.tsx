@@ -1463,7 +1463,7 @@ export function ERPTaxCenter({
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="viewer">
-                  <TaxFormViewer defaultPersonId={focusedPersonId} taxYear={selectedYear} />
+                  <TaxFormViewer key={focusedPersonId ?? "default"} defaultPersonId={focusedPersonId} taxYear={selectedYear} />
                 </TabsContent>
                 <TabsContent value="pdfiller">
                   <PDFillerIntegration />
