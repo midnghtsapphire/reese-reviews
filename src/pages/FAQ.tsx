@@ -2,7 +2,11 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, Search, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ChevronDown, Search, ThumbsUp, ThumbsDown, Sparkles, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import SEOHead from "@/components/SEOHead";
 import { getFAQs, searchFAQs } from "@/lib/seoStore";
 
@@ -74,6 +78,12 @@ export default function FAQ() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [helpful, setHelpful] = useState<Record<string, boolean>>({});
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
+  const [numFAQs, setNumFAQs] = useState("10");
+  const [selectedGenCategory, setSelectedGenCategory] = useState("getting-started");
+  const [apiKey, setApiKey] = useState("");
+  const { toast } = useToast();
 
   const faqs = getFAQs().length > 0 ? getFAQs() : DEMO_FAQS;
 
@@ -99,6 +109,31 @@ export default function FAQ() {
     setHelpful({ ...helpful, [id]: isHelpful });
   };
 
+  const handleGenerateFAQs = async () => {
+    if (!apiKey.trim()) {
+      toast({
+        title: "API Key Required",
+        description: "Please enter your OpenRouter API key. The field cannot be empty.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+
+    // Mock generation with delay
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    toast({
+      title: "Generation Complete (Mock)",
+      description: `Successfully generated ${numFAQs} FAQs in the ${selectedGenCategory} category. Note: This is a placeholder - actual LLM integration not implemented.`,
+    });
+
+    setIsGenerating(false);
+    setGenerateDialogOpen(false);
+    setApiKey("");
+  };
+
   return (
     <>
       <SEOHead
@@ -113,15 +148,103 @@ export default function FAQ() {
             <p className="text-gray-300 mb-6">Find answers to common questions about Reese Reviews</p>
 
             {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
-              <input
-                type="text"
-                placeholder="Search FAQs..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
-              />
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-3 h-5 w-5 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="Search FAQs..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                />
+              </div>
+              <Dialog open={generateDialogOpen} onOpenChange={setGenerateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="gradient-steel flex items-center gap-2">
+                    <Sparkles className="h-4 w-4" />
+                    Generate FAQs
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="glass-card border-purple-500/20 sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="text-white">Generate FAQs</DialogTitle>
+                    <DialogDescription className="text-gray-400">
+                      Use AI to generate frequently asked questions. This is a placeholder for OpenRouter LLM integration.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-white">Number of FAQs</label>
+                      <Select value={numFAQs} onValueChange={setNumFAQs}>
+                        <SelectTrigger className="bg-slate-800 border-purple-500/30 text-white">
+                          <SelectValue placeholder="Select number" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-800 border-purple-500/30">
+                          <SelectItem value="10">10 questions</SelectItem>
+                          <SelectItem value="25">25 questions</SelectItem>
+                          <SelectItem value="50">50 questions</SelectItem>
+                          <SelectItem value="100">100 questions</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-white">Category</label>
+                      <Select value={selectedGenCategory} onValueChange={setSelectedGenCategory}>
+                        <SelectTrigger className="bg-slate-800 border-purple-500/30 text-white">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-800 border-purple-500/30">
+                          <SelectItem value="getting-started">Getting Started</SelectItem>
+                          <SelectItem value="features">Features</SelectItem>
+                          <SelectItem value="technical">Technical</SelectItem>
+                          <SelectItem value="legal">Legal</SelectItem>
+                          <SelectItem value="accessibility">Accessibility</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-white">OpenRouter API Key</label>
+                      <Input
+                        type="password"
+                        placeholder="sk-or-..."
+                        value={apiKey}
+                        onChange={(e) => setApiKey(e.target.value)}
+                        className="bg-slate-800 border-purple-500/30 text-white"
+                      />
+                      <p className="text-xs text-gray-400">
+                        Your API key is not stored and only used for this generation
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => setGenerateDialogOpen(false)}
+                      disabled={isGenerating}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      className="gradient-steel"
+                      onClick={handleGenerateFAQs}
+                      disabled={isGenerating}
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4 mr-2" />
+                          Generate
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
 

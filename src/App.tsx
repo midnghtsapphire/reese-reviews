@@ -20,6 +20,7 @@ import Business from "@/pages/Business";
 import Marketing from "@/pages/Marketing";
 import Blog from "@/pages/Blog";
 import FAQ from "@/pages/FAQ";
+import EmailConfirmation from "@/pages/EmailConfirmation";
 import Admin from "@/pages/Admin";
 import NotFound from "@/pages/NotFound";
 
@@ -50,6 +51,7 @@ const AuthenticatedApp = () => {
         <Route path="/marketing" element={<Marketing />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/faq" element={<FAQ />} />
+        <Route path="/confirm-email" element={<EmailConfirmation />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

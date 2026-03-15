@@ -2,7 +2,11 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, Eye, Share2, Rss } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar, User, Eye, Share2, Rss, Sparkles, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import SEOHead from "@/components/SEOHead";
 import { getBlogPosts, generateRSSXML } from "@/lib/seoStore";
 
@@ -54,6 +58,12 @@ const DEMO_POSTS = [
 export default function Blog() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
+  const [numPosts, setNumPosts] = useState("5");
+  const [selectedGenCategory, setSelectedGenCategory] = useState("how-to");
+  const [apiKey, setApiKey] = useState("");
+  const { toast } = useToast();
 
   const posts = getBlogPosts().length > 0 ? getBlogPosts() : DEMO_POSTS;
 
@@ -87,6 +97,31 @@ export default function Blog() {
     document.body.removeChild(a);
   };
 
+  const handleGeneratePosts = async () => {
+    if (!apiKey.trim()) {
+      toast({
+        title: "API Key Required",
+        description: "Please enter your OpenRouter API key. The field cannot be empty.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+
+    // Mock generation with delay
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    toast({
+      title: "Generation Complete (Mock)",
+      description: `Successfully generated ${numPosts} blog posts in the ${selectedGenCategory} category. Note: This is a placeholder - actual LLM integration not implemented.`,
+    });
+
+    setIsGenerating(false);
+    setGenerateDialogOpen(false);
+    setApiKey("");
+  };
+
   return (
     <>
       <SEOHead
@@ -109,10 +144,96 @@ export default function Blog() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-1 px-4 py-2 bg-slate-800 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
               />
-              <Button onClick={handleDownloadRSS} className="glass-nav border border-purple-500/30 flex items-center gap-2">
+              <Button onClick={handleDownloadRSS} variant="outline" className="glass-nav border border-purple-500/30 flex items-center gap-2">
                 <Rss className="h-4 w-4" />
                 RSS Feed
               </Button>
+              <Dialog open={generateDialogOpen} onOpenChange={setGenerateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="gradient-steel flex items-center gap-2">
+                    <Sparkles className="h-4 w-4" />
+                    Generate Posts
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="glass-card border-purple-500/20 sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="text-white">Generate Blog Posts</DialogTitle>
+                    <DialogDescription className="text-gray-400">
+                      Use AI to generate blog posts for your site. This is a placeholder for OpenRouter LLM integration.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-white">Number of Posts</label>
+                      <Select value={numPosts} onValueChange={setNumPosts}>
+                        <SelectTrigger className="bg-slate-800 border-purple-500/30 text-white">
+                          <SelectValue placeholder="Select number" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-800 border-purple-500/30">
+                          <SelectItem value="5">5 posts</SelectItem>
+                          <SelectItem value="10">10 posts</SelectItem>
+                          <SelectItem value="20">20 posts</SelectItem>
+                          <SelectItem value="50">50 posts</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-white">Category</label>
+                      <Select value={selectedGenCategory} onValueChange={setSelectedGenCategory}>
+                        <SelectTrigger className="bg-slate-800 border-purple-500/30 text-white">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-800 border-purple-500/30">
+                          <SelectItem value="how-to">How-To</SelectItem>
+                          <SelectItem value="industry-news">Industry News</SelectItem>
+                          <SelectItem value="product-updates">Product Updates</SelectItem>
+                          <SelectItem value="tips-tricks">Tips & Tricks</SelectItem>
+                          <SelectItem value="case-studies">Case Studies</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-white">OpenRouter API Key</label>
+                      <Input
+                        type="password"
+                        placeholder="sk-or-..."
+                        value={apiKey}
+                        onChange={(e) => setApiKey(e.target.value)}
+                        className="bg-slate-800 border-purple-500/30 text-white"
+                      />
+                      <p className="text-xs text-gray-400">
+                        Your API key is not stored and only used for this generation
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => setGenerateDialogOpen(false)}
+                      disabled={isGenerating}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      className="gradient-steel"
+                      onClick={handleGeneratePosts}
+                      disabled={isGenerating}
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4 mr-2" />
+                          Generate
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
 
