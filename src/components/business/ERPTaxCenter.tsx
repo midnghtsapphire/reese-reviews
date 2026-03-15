@@ -1237,7 +1237,7 @@ function PeopleManager({ taxYear, onNavigate }: { taxYear: number; onNavigate: (
                 <span className="text-gray-400">Deductions: <span style={{ color: BRAND.green }}>${summary.total_deductible.toFixed(2)}</span></span>
               </div>
               <div className="flex gap-2">
-                <Button size="sm" className="text-xs font-bold text-black" style={{ background: BRAND.amber }} onClick={() => onNavigate("income", p.id)}>Manage Income</Button>
+                <Button size="sm" className="text-xs font-bold text-black" style={{ background: BRAND.amber }} onClick={() => onNavigate("people", p.id)}>Manage Income</Button>
                 <Button size="sm" variant="outline" className="text-xs border-white/20 text-gray-300 hover:bg-white/10" onClick={() => onNavigate("forms", p.id)}>View Forms</Button>
               </div>
             </div>
@@ -1517,7 +1517,7 @@ export function ERPTaxCenter({
               <PeopleManager taxYear={selectedYear} onNavigate={handleNavigate} />
             </div>
             <div className="bg-white/5 backdrop-blur-md rounded-xl border border-white/10 p-6">
-              <IncomeSourceManager defaultPersonId={focusedPersonId} taxYear={selectedYear} />
+              <IncomeSourceManager key={focusedPersonId ?? "default"} defaultPersonId={focusedPersonId} taxYear={selectedYear} />
             </div>
           </div>
         </TabsContent>

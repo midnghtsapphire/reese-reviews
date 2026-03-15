@@ -599,20 +599,24 @@ export function IncomeSourceManager({
 
       {/* Person Tabs */}
       <div className="flex flex-wrap gap-2">
-        {persons.map((p) => (
-          <button
-            key={p.id}
-            onClick={() => handlePersonChange(p.id)}
-            className="px-4 py-2 rounded-full text-sm font-medium transition-all"
-            style={
-              selectedPersonId === p.id
-                ? { background: BRAND.gold, color: "#000" }
-                : { background: "rgba(255,255,255,0.1)", color: "#ccc" }
-            }
-          >
-            {p.name}
-          </button>
-        ))}
+        {persons.map((p) => {
+          const isSelected = selectedPersonId === p.id;
+          const isPrimary = p.role === "primary";
+          return (
+            <button
+              key={p.id}
+              onClick={() => handlePersonChange(p.id)}
+              className="px-4 py-2 rounded-full text-sm font-medium transition-all"
+              style={
+                isSelected
+                  ? { background: BRAND.gold, color: "#000" }
+                  : { background: "rgba(255,255,255,0.1)", color: "#ccc" }
+              }
+            >
+              {isPrimary ? "⭐ " : ""}{p.name}{isPrimary ? " (You)" : ""}
+            </button>
+          );
+        })}
       </div>
 
       {/* Summary Cards */}

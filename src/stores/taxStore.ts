@@ -283,11 +283,41 @@ export const IRS_FORM_META: Record<IrsForm, {
 // ─── PRE-SEEDED PERSON PROFILES ──────────────────────────────
 
 export const DEFAULT_PERSONS: TaxPerson[] = [
+  // ── Caresse — PRIMARY (this is her app) ──────────────────────
+  {
+    id: "person-caresse",
+    name: "Caresse",
+    slug: "caresse",
+    role: "primary",
+    filing_status: "single",
+    businesses: [
+      {
+        id: "biz-caresse-homecare",
+        name: "Home Care — Caregiver (Full-Time)",
+        type: "gig",
+        schedule: "schedule_c",
+        home_office_eligible: false,
+        notes: "Full-time in-home caregiver for Audrey/Mom. Confirm 1099-NEC vs W-2 each year. If self-employed/1099: deduct mileage between clients, scrubs/uniforms, PPE, certification fees, phone (work use %).",
+      },
+      {
+        id: "biz-caresse-sitemgmt",
+        name: "Digital Business Manager — Audrey's Sites & Businesses",
+        type: "sole_prop",
+        schedule: "schedule_c",
+        home_office_eligible: true,
+        notes: "Managing Audrey's online properties: Reese Reviews, TruthSlayer, Freedom Angel Corps, Amazon Vine tracking, NoCo Nook, social media, etc. Self-employment income — Schedule C. Deduct: internet, home office %, phone, software, computer equipment.",
+      },
+    ],
+    notes: "Primary user of this app. Full-time caregiver for Audrey/Mom AND digital business manager for all of Audrey's sites & ventures. Two income streams: (1) home care, (2) site/business management. Handles Audrey's passive income businesses.",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  // ── Audrey (Mom) — passive income only ───────────────────────
   {
     id: "person-revvel",
-    name: "Revvel / Mom",
+    name: "Audrey / Mom",
     slug: "revvel",
-    role: "primary",
+    role: "dependent",
     filing_status: "head_of_household",
     businesses: [
       {
@@ -296,7 +326,7 @@ export const DEFAULT_PERSONS: TaxPerson[] = [
         type: "sole_prop",
         schedule: "schedule_c",
         home_office_eligible: true,
-        notes: "Amazon Vine ETV income + review business income — content creation",
+        notes: "Amazon Vine ETV income — passive. Caresse manages tracking and reporting.",
       },
       {
         id: "biz-fac",
@@ -306,7 +336,7 @@ export const DEFAULT_PERSONS: TaxPerson[] = [
         type: "sole_prop",
         schedule: "schedule_c",
         home_office_eligible: true,
-        notes: "Non-Profit Corporation (EIN 86-1209156). Payment gateway for apps. Amazon Vine/inventory income flows through here. Also reskills trafficking victims.",
+        notes: "Non-Profit Corporation (EIN 86-1209156). Payment gateway for apps. Amazon Vine/inventory income flows through here. Caresse manages day-to-day.",
       },
       {
         id: "biz-noconook",
@@ -314,7 +344,7 @@ export const DEFAULT_PERSONS: TaxPerson[] = [
         type: "llc",
         schedule: "schedule_c",
         home_office_eligible: false,
-        notes: "Resale company — sells reviewed/surplus inventory. Daughter manages day-to-day.",
+        notes: "Resale company — sells reviewed/surplus inventory. Passive for Audrey; Caresse assists with management.",
       },
       {
         id: "biz-rmr",
@@ -322,7 +352,7 @@ export const DEFAULT_PERSONS: TaxPerson[] = [
         type: "llc",
         schedule: "schedule_e",
         home_office_eligible: false,
-        notes: "Rental company — Schedule E income",
+        notes: "Rental property — Schedule E passive income.",
       },
       {
         id: "biz-truthslayer",
@@ -330,13 +360,14 @@ export const DEFAULT_PERSONS: TaxPerson[] = [
         type: "sole_prop",
         schedule: "schedule_c",
         home_office_eligible: true,
-        notes: "Review marketplace platform — future development",
+        notes: "Review marketplace — in development. Caresse will manage site. This tax module will be reused in TruthSlayer.",
       },
     ],
-    notes: "Disability income (SSA-1099), Amazon Vine (passive), Freedom Angel Corps, NoCo Nook, Rocky Mountain Rentals. Head of Household. AUDHD.",
+    notes: "Passive income only: SSA-1099 (disability) + Amazon Vine 1099-NEC. Head of Household. AUDHD. Caresse is her full-time caregiver and manages all her sites and businesses.",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
+  // ── Reese / Daughter ─────────────────────────────────────────
   {
     id: "person-reese",
     name: "Reese / Daughter",
@@ -385,14 +416,31 @@ export const DEFAULT_PERSONS: TaxPerson[] = [
         notes: "W-2 employment. Limited federal deductions post-TCJA. Check CO state rules.",
       },
     ],
-    notes: "5 income sources: Rover (pet care), zTrip (rideshare), Home Depot (W-2), Home Care (caregiver), Dollar Store (W-2). Legally deaf — uses captions/ASL. AUDHD. Manages NoCo Nook for Mom.",
+    notes: "5 income sources: Rover (pet care), zTrip (rideshare), Home Depot (W-2), Home Care (caregiver), Dollar Store (W-2). Legally deaf — uses captions/ASL. AUDHD.",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
 ];
 
 export const DEFAULT_INCOME_SOURCES: IncomeSource[] = [
-  // ── Revvel ──────────────────────────────────────────────────
+  // ── Caresse (PRIMARY — her app) ─────────────────────────────
+  {
+    id: "inc-caresse-homecare",
+    person_id: "person-caresse",
+    tax_year: 2025,
+    label: "Home Care — Caregiver Income",
+    payer_name: "Home Care Agency / Client",
+    income_type: "1099_nec",
+    gross_amount: 0,
+    federal_withheld: 0,
+    state_withheld: 0,
+    business_entity_id: "biz-caresse-homecare",
+    reconciled: false,
+    notes: "Caregiver for Audrey/Mom. If paid via agency: confirm W-2 vs 1099-NEC. If 1099/self-employed → Schedule C. Deductible: mileage between client visits, scrubs/uniforms, PPE, certification fees.",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  // ── Audrey / Mom (2 income items: SSA + Vine) ───────────────
   {
     id: "inc-revvel-ssa",
     person_id: "person-revvel",
@@ -405,7 +453,7 @@ export const DEFAULT_INCOME_SOURCES: IncomeSource[] = [
     federal_withheld: 0,
     state_withheld: 0,
     reconciled: false,
-    notes: "Disability income — up to 85% may be taxable depending on total income",
+    notes: "Disability income — up to 85% may be taxable depending on total income. Enter Box 5 (Net Benefits) from your SSA-1099.",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -413,7 +461,7 @@ export const DEFAULT_INCOME_SOURCES: IncomeSource[] = [
     id: "inc-revvel-vine",
     person_id: "person-revvel",
     tax_year: 2025,
-    label: "Amazon Vine ETV Income",
+    label: "Amazon Vine ETV Income (1099-NEC)",
     payer_name: "Amazon.com Services LLC",
     payer_ein: "91-1646860",
     income_type: "1099_nec",
@@ -422,7 +470,7 @@ export const DEFAULT_INCOME_SOURCES: IncomeSource[] = [
     state_withheld: 0,
     business_entity_id: "biz-vine",
     reconciled: false,
-    notes: "Estimated Tax Value from Vine program — reported on 1099-NEC",
+    notes: "Estimated Tax Value from Vine program — reported on 1099-NEC. Enter Box 1 amount from your Amazon 1099-NEC.",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -458,7 +506,7 @@ export const DEFAULT_INCOME_SOURCES: IncomeSource[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
-  // ── Reese ───────────────────────────────────────────────────
+  // ── Reese / Daughter ─────────────────────────────────────────
   {
     id: "inc-reese-rover",
     person_id: "person-reese",
