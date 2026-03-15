@@ -42,7 +42,7 @@ const Navbar = () => {
     >
       <div className="container mx-auto flex items-center justify-between px-6 py-3">
         <Link to="/" className="flex items-center gap-3" aria-label="Reese Reviews Home">
-          <img src={reeseLogo} alt="" className="h-10 w-auto" aria-hidden="true" />
+          <img src={reeseLogo} alt="Reese Reviews logo" className="h-10 w-auto" />
           <span className="hidden font-serif text-lg font-bold gradient-steel-text sm:inline">
             Reese Reviews
           </span>
