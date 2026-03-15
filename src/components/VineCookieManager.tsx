@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, CheckCircle2, RefreshCw, Trash2, Copy } from "lucide-react";
+import { AlertCircle, CheckCircle2, ExternalLink, RefreshCw, Trash2 } from "lucide-react";
 import {
   getVineCookies,
   saveVineCookies,
@@ -15,6 +15,7 @@ import {
   validateVineCookies,
   scrapeVineItems,
   getLastSyncTime,
+  VINE_URLS,
 } from "@/lib/vineScraper";
 import type { VineCookies, VineQueue } from "@/lib/vineScraper";
 
@@ -111,6 +112,56 @@ export function VineCookieManager() {
 
   return (
     <div className="space-y-6">
+      {/* Amazon Quick Links */}
+      <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-transparent">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <span>🔗 Amazon Quick Links</span>
+          </CardTitle>
+          <CardDescription>Open the Amazon Vine pages you need directly in a new tab</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <a
+              href={VINE_URLS.reviews}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center gap-1.5 rounded-lg border border-orange-200 bg-white px-3 py-3 text-center text-sm font-medium text-orange-700 transition hover:bg-orange-100"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Vine Reviews
+            </a>
+            <a
+              href={VINE_URLS.orders}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center gap-1.5 rounded-lg border border-orange-200 bg-white px-3 py-3 text-center text-sm font-medium text-orange-700 transition hover:bg-orange-100"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Vine Orders
+            </a>
+            <a
+              href={VINE_URLS.account}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center gap-1.5 rounded-lg border border-orange-200 bg-white px-3 py-3 text-center text-sm font-medium text-orange-700 transition hover:bg-orange-100"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Vine Account
+            </a>
+            <a
+              href={VINE_URLS.amazonAccount}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center gap-1.5 rounded-lg border border-orange-200 bg-white px-3 py-3 text-center text-sm font-medium text-orange-700 transition hover:bg-orange-100"
+            >
+              <ExternalLink className="h-4 w-4" />
+              My Account
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Cookie Configuration */}
       <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-transparent">
         <CardHeader>
@@ -144,7 +195,16 @@ export function VineCookieManager() {
               <Alert className="border-amber-200 bg-amber-50">
                 <AlertCircle className="h-4 w-4 text-amber-600" />
                 <AlertDescription className="text-amber-800">
-                  To get your cookies: Open Amazon Vine in your browser, open DevTools (F12), go to Application → Cookies → amazon.com, and copy the cookie data as JSON.
+                  To get your cookies: Open{" "}
+                  <a
+                    href={VINE_URLS.reviews}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium underline"
+                  >
+                    Amazon Vine
+                  </a>{" "}
+                  in your browser, open DevTools (F12), go to Application → Cookies → amazon.com, and copy the cookie data as JSON.
                 </AlertDescription>
               </Alert>
 
