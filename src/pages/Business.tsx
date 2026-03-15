@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TaxDashboard } from "@/components/TaxDashboard";
 import { VineDashboard } from "@/components/VineDashboard";
 import { VineCookieManager } from "@/components/VineCookieManager";
 import { InventoryManager } from "@/components/InventoryManager";
@@ -8,131 +7,132 @@ import { FinancialDashboard } from "@/components/FinancialDashboard";
 import { AmazonAPISettings } from "@/components/AmazonAPISettings";
 import { AmazonDashboard } from "@/components/AmazonDashboard";
 import { AmazonAccountSettings } from "@/components/AmazonAccountSettings";
-import { OdooIntegration } from "@/components/OdooIntegration";
-import { PDFillerIntegration } from "@/components/PDFillerIntegration";
-import { ExpenseTracker } from "@/components/ExpenseTracker";
 import SEOHead from "@/components/SEOHead";
 import { ProductLifecycle } from "@/components/business/ProductLifecycle";
-import { TaxCenter } from "@/components/business/TaxCenter";
 import { ReviewAutomation } from "@/components/business/ReviewAutomation";
+import { ERPTaxCenter } from "@/components/business/ERPTaxCenter";
+
+// ─── TOP-LEVEL TABS ───────────────────────────────────────────
+// Consolidated from 12 tabs → 8 tabs.
+//
+// REMOVED as standalone tabs (now sub-tabs inside Tax Center ERP):
+//   - "Taxes"       → Tax Center > Vine ETV (primary view)
+//   - "Expenses"    → Tax Center > Expenses
+//   - "Accounting"  → Tax Center > Accounting
+//   - "Documents"   → Tax Center > Documents
+//   - "Tax Center"  → Replaced by ERPTaxCenter (the new unified module)
+//
+// KEPT as top-level tabs:
+//   - Tax Center ERP (default, Vine-first)
+//   - Vine
+//   - Amazon
+//   - Inventory
+//   - Financial
+//   - Integrations
+//   - Lifecycle
+//   - Reviews
+
+const TOP_TABS = [
+  { value: "taxcenter",    label: "🍃 Tax Center",   title: "Tax Center ERP — Vine-first" },
+  { value: "vine",         label: "🍇 Vine",          title: "Amazon Vine Dashboard" },
+  { value: "amazon",       label: "🛒 Amazon",        title: "Amazon Dashboard" },
+  { value: "inventory",    label: "📦 Inventory",     title: "Inventory Manager" },
+  { value: "financial",    label: "💵 Financial",     title: "Financial Dashboard" },
+  { value: "integrations", label: "⚙️ Integrations", title: "Integrations & Settings" },
+  { value: "lifecycle",    label: "⚡ Lifecycle",     title: "Product Lifecycle Tracker" },
+  { value: "reviews",      label: "🎬 Reviews",       title: "Review Automation" },
+] as const;
 
 export default function Business() {
-  const [activeTab, setActiveTab] = useState("tax");
+  // Default to Tax Center (Vine ETV primary view)
+  const [activeTab, setActiveTab] = useState<string>("taxcenter");
 
   return (
     <>
       <SEOHead
         title="Business Dashboard | Reese Reviews"
         description="Manage Vine reviews, track taxes, inventory, and financial data for Reese's review business."
-        keywords="Vine tracking, tax dashboard, inventory management, business analytics"
+        keywords="Vine tracking, tax dashboard, inventory management, business analytics, Plaid bank integration"
       />
 
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 pt-20 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
+          {/* ── Page Header ─────────────────────────────────── */}
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-white mb-2">Business Dashboard</h1>
-            <p className="text-gray-300">Manage Vine reviews, taxes, inventory, and finances</p>
+            <p className="text-gray-300">
+              Amazon Vine · Tax ERP · Bank Integration · Inventory · Reviews
+            </p>
           </div>
 
-          {/* Tabs */}
+          {/* ── Top-Level Tabs ───────────────────────────────── */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="flex flex-wrap gap-1 mb-8 bg-white/10 backdrop-blur-md border border-white/20 p-1 rounded-lg h-auto">
-              <TabsTrigger value="tax" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
-                💰 Taxes
-              </TabsTrigger>
-              <TabsTrigger value="financial" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
-                💵 Financial
-              </TabsTrigger>
-              <TabsTrigger value="vine" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
-                🍇 Vine
-              </TabsTrigger>
-              <TabsTrigger value="amazon" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
-                🛒 Amazon
-              </TabsTrigger>
-              <TabsTrigger value="inventory" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
-                📦 Inventory
-              </TabsTrigger>
-              <TabsTrigger value="accounting" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
-                📊 Accounting
-              </TabsTrigger>
-              <TabsTrigger value="expenses" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
-                💸 Expenses
-              </TabsTrigger>
-              <TabsTrigger value="documents" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
-                📄 Documents
-              </TabsTrigger>
-              <TabsTrigger value="integrations" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
-                ⚙️ Integrations
-              </TabsTrigger>
-              <TabsTrigger value="lifecycle" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
-                ⚡ Lifecycle
-              </TabsTrigger>
-              <TabsTrigger value="taxcenter" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
-                📋 Tax Center
-              </TabsTrigger>
-              <TabsTrigger value="reviews" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
-                🎬 Reviews
-              </TabsTrigger>
+              {TOP_TABS.map((tab) => (
+                <TabsTrigger
+                  key={tab.value}
+                  value={tab.value}
+                  className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600 data-[state=active]:text-white text-sm"
+                >
+                  {tab.label}
+                </TabsTrigger>
+              ))}
             </TabsList>
 
-            {/* Tax Dashboard */}
-            <TabsContent value="tax" className="space-y-6">
-              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
-                <TaxDashboard />
-              </div>
+            {/* ── TAX CENTER ERP (DEFAULT) ─────────────────────
+                Vine ETV is the primary/default sub-tab.
+                Contains: Vine ETV, Bank (Plaid), Transactions,
+                Expenses, Forms, Accounting (Odoo), Documents,
+                Quarterly, People, Audit & Export.
+            ─────────────────────────────────────────────────── */}
+            <TabsContent value="taxcenter">
+              <ERPTaxCenter defaultTab="vine" />
             </TabsContent>
 
-            {/* Financial Dashboard */}
-            <TabsContent value="financial" className="space-y-6">
-              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
-                <FinancialDashboard />
-              </div>
-            </TabsContent>
-
-            {/* Vine Dashboard */}
+            {/* ── VINE DASHBOARD ───────────────────────────────
+                Full Vine product dashboard — item status,
+                review deadlines, ETV summary, cookie manager.
+            ─────────────────────────────────────────────────── */}
             <TabsContent value="vine" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <VineDashboard />
               </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <VineCookieManager />
+              </div>
             </TabsContent>
 
-            {/* Amazon Dashboard */}
+            {/* ── AMAZON DASHBOARD ─────────────────────────────
+                Amazon seller metrics, ASIN tracking, BSR.
+            ─────────────────────────────────────────────────── */}
             <TabsContent value="amazon" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <AmazonDashboard />
               </div>
             </TabsContent>
 
-            {/* Inventory Manager */}
+            {/* ── INVENTORY ────────────────────────────────────
+                Vine item inventory — received, reviewed,
+                transferred, resold, donated.
+            ─────────────────────────────────────────────────── */}
             <TabsContent value="inventory" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <InventoryManager />
               </div>
             </TabsContent>
 
-            {/* Accounting (Odoo) */}
-            <TabsContent value="accounting" className="space-y-6">
+            {/* ── FINANCIAL DASHBOARD ──────────────────────────
+                Revenue, P&L, cash flow, financial analytics.
+            ─────────────────────────────────────────────────── */}
+            <TabsContent value="financial" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
-                <OdooIntegration />
+                <FinancialDashboard />
               </div>
             </TabsContent>
 
-            {/* Expenses */}
-            <TabsContent value="expenses" className="space-y-6">
-              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
-                <ExpenseTracker />
-              </div>
-            </TabsContent>
-
-            {/* Documents (PDFiller) */}
-            <TabsContent value="documents" className="space-y-6">
-              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
-                <PDFillerIntegration />
-              </div>
-            </TabsContent>
-
-            {/* Integrations / Settings */}
+            {/* ── INTEGRATIONS & SETTINGS ──────────────────────
+                Amazon API keys, account settings, Plaid config.
+            ─────────────────────────────────────────────────── */}
             <TabsContent value="integrations" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <AmazonAPISettings />
@@ -142,21 +142,19 @@ export default function Business() {
               </div>
             </TabsContent>
 
-            {/* Product Lifecycle Tracker */}
+            {/* ── PRODUCT LIFECYCLE ────────────────────────────
+                Track Vine products from received → reviewed
+                → transferred/resold/donated.
+            ─────────────────────────────────────────────────── */}
             <TabsContent value="lifecycle" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <ProductLifecycle />
               </div>
             </TabsContent>
 
-            {/* Tax Center Module */}
-            <TabsContent value="taxcenter" className="space-y-6">
-              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
-                <TaxCenter taxYear={2025} />
-              </div>
-            </TabsContent>
-
-            {/* Review Automation */}
+            {/* ── REVIEW AUTOMATION ────────────────────────────
+                Generate and manage reviews for Vine products.
+            ─────────────────────────────────────────────────── */}
             <TabsContent value="reviews" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <ReviewAutomation />

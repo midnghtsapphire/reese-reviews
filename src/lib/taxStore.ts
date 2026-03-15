@@ -389,3 +389,35 @@ export function saveTaxDocument(doc: TaxDocument): void {
   docs.push(doc);
   localStorage.setItem(STORAGE_KEY_DOCUMENTS, JSON.stringify(docs));
 }
+
+// ─── FULL YEAR TAX REPORT EXPORT ─────────────────────────────
+
+export function generateTaxReportExport(taxYear: number): {
+  tax_year: number;
+  generated: string;
+  etv_summary: ReturnType<typeof calculateTaxPeriodSummary>;
+  etv_records: ReturnType<typeof getETVRecords>;
+  forms_1099: ReturnType<typeof get1099Forms>;
+  capital_events: ReturnType<typeof getCapitalEvents>;
+  donations: ReturnType<typeof getDonations>;
+  total_resale_income: number;
+  total_rental_income: number;
+} {
+  const etvRecords = getETVRecords().filter((r) => r.tax_year === taxYear);
+  const capitalEvents = getCapitalEvents().filter((e) => e.tax_year === taxYear);
+  const resaleIncome = capitalEvents
+    .filter((e) => e.event_type === "resale" && e.gain_loss > 0)
+    .reduce((s, e) => s + e.disposition_amount, 0);
+
+  return {
+    tax_year: taxYear,
+    generated: new Date().toISOString(),
+    etv_summary: calculateTaxPeriodSummary(taxYear),
+    etv_records: etvRecords,
+    forms_1099: get1099Forms().filter((f) => f.tax_year === taxYear),
+    capital_events: capitalEvents,
+    donations: getDonations().filter((d) => d.tax_year === taxYear),
+    total_resale_income: resaleIncome,
+    total_rental_income: 0, // Populated from IncomeSourceManager
+  };
+}
