@@ -12,6 +12,9 @@ import { OdooIntegration } from "@/components/OdooIntegration";
 import { PDFillerIntegration } from "@/components/PDFillerIntegration";
 import { ExpenseTracker } from "@/components/ExpenseTracker";
 import SEOHead from "@/components/SEOHead";
+import { ProductLifecycle } from "@/components/business/ProductLifecycle";
+import { TaxCenter } from "@/components/business/TaxCenter";
+import { ReviewAutomation } from "@/components/business/ReviewAutomation";
 
 export default function Business() {
   const [activeTab, setActiveTab] = useState("tax");
@@ -61,6 +64,15 @@ export default function Business() {
               </TabsTrigger>
               <TabsTrigger value="integrations" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
                 ⚙️ Integrations
+              </TabsTrigger>
+              <TabsTrigger value="lifecycle" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
+                ⚡ Lifecycle
+              </TabsTrigger>
+              <TabsTrigger value="taxcenter" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
+                📋 Tax Center
+              </TabsTrigger>
+              <TabsTrigger value="reviews" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
+                🎬 Reviews
               </TabsTrigger>
             </TabsList>
 
@@ -127,6 +139,27 @@ export default function Business() {
               </div>
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <AmazonAccountSettings />
+              </div>
+            </TabsContent>
+
+            {/* Product Lifecycle Tracker */}
+            <TabsContent value="lifecycle" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <ProductLifecycle />
+              </div>
+            </TabsContent>
+
+            {/* Tax Center Module */}
+            <TabsContent value="taxcenter" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <TaxCenter taxYear={2025} />
+              </div>
+            </TabsContent>
+
+            {/* Review Automation */}
+            <TabsContent value="reviews" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <ReviewAutomation />
               </div>
             </TabsContent>
           </Tabs>

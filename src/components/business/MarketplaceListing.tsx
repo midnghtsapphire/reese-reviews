@@ -342,7 +342,7 @@ function AddPlatformForm({
     const newListing: PlatformListing = {
       platform,
       status: "pending",
-      listing_price: parseFloat(price) || product.listed?.listing_price ?? 0,
+      listing_price: parseFloat(price) || (product.listed?.listing_price ?? 0),
       listed_date: new Date().toISOString().slice(0, 10),
       listing_url: url || undefined,
       notes: notes || undefined,
