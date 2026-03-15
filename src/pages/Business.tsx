@@ -11,9 +11,10 @@ import SEOHead from "@/components/SEOHead";
 import { ProductLifecycle } from "@/components/business/ProductLifecycle";
 import { ReviewAutomation } from "@/components/business/ReviewAutomation";
 import { ERPTaxCenter } from "@/components/business/ERPTaxCenter";
+import { ReviewPipeline } from "@/components/business/ReviewPipeline";
 
 // ─── TOP-LEVEL TABS ───────────────────────────────────────────
-// Consolidated from 12 tabs → 8 tabs.
+// Consolidated from 12 tabs → 9 tabs.
 //
 // REMOVED as standalone tabs (now sub-tabs inside Tax Center ERP):
 //   - "Taxes"       → Tax Center > Vine ETV (primary view)
@@ -31,6 +32,7 @@ import { ERPTaxCenter } from "@/components/business/ERPTaxCenter";
 //   - Integrations
 //   - Lifecycle
 //   - Reviews
+//   - Review Pipeline (NEW)
 
 const TOP_TABS = [
   { value: "taxcenter",    label: "🍃 Tax Center",   title: "Tax Center ERP — Vine-first" },
@@ -41,6 +43,7 @@ const TOP_TABS = [
   { value: "integrations", label: "⚙️ Integrations", title: "Integrations & Settings" },
   { value: "lifecycle",    label: "⚡ Lifecycle",     title: "Product Lifecycle Tracker" },
   { value: "reviews",      label: "🎬 Reviews",       title: "Review Automation" },
+  { value: "reviewpipeline", label: "🔀 Review Pipeline", title: "Review Pipeline" },
 ] as const;
 
 export default function Business() {
@@ -158,6 +161,16 @@ export default function Business() {
             <TabsContent value="reviews" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <ReviewAutomation />
+              </div>
+            </TabsContent>
+
+            {/* ── REVIEW PIPELINE ──────────────────────────────
+                Bridge between Amazon Vine reviews and site —
+                enrich, categorize, and publish review content.
+            ─────────────────────────────────────────────────── */}
+            <TabsContent value="reviewpipeline" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <ReviewPipeline />
               </div>
             </TabsContent>
           </Tabs>
