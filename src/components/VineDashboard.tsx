@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,17 +13,41 @@ import {
   generateVineReviewTemplate,
   daysUntilDeadline,
   getVineItems,
-} from "@/lib/vineScraper";
+} from "@/lib/vineScraperEnhanced";
 import type { VineItem } from "@/lib/businessTypes";
 
 export function VineDashboard() {
   const [selectedItem, setSelectedItem] = useState<VineItem | null>(null);
   const [copiedTemplate, setCopiedTemplate] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [pendingReviews, setPendingReviews] = useState<VineItem[]>([]);
+  const [inProgressReviews, setInProgressReviews] = useState<VineItem[]>([]);
+  const [overdueReviews, setOverdueReviews] = useState<VineItem[]>([]);
+  const [allItems, setAllItems] = useState<VineItem[]>([]);
 
-  const pendingReviews = getPendingVineReviews();
-  const inProgressReviews = getInProgressVineReviews();
-  const overdueReviews = getOverdueVineReviews();
-  const allItems = getVineItems();
+  useEffect(() => {
+    loadVineData();
+  }, []);
+
+  const loadVineData = async () => {
+    try {
+      setLoading(true);
+      const [pending, inProgress, overdue, all] = await Promise.all([
+        getPendingVineReviews(),
+        getInProgressVineReviews(),
+        getOverdueVineReviews(),
+        getVineItems(),
+      ]);
+      setPendingReviews(pending);
+      setInProgressReviews(inProgress);
+      setOverdueReviews(overdue);
+      setAllItems(all);
+    } catch (error) {
+      console.error("Error loading Vine data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCopyTemplate = (item: VineItem) => {
     const template = generateVineReviewTemplate(item);
@@ -32,9 +56,21 @@ export function VineDashboard() {
     setTimeout(() => setCopiedTemplate(false), 2000);
   };
 
-  const handleMarkCompleted = (itemId: string) => {
-    updateVineReviewStatus(itemId, "submitted");
+  const handleMarkCompleted = async (itemId: string) => {
+    await updateVineReviewStatus(itemId, "submitted");
+    await loadVineData(); // Reload data after update
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <div className="text-center">
+          <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading Vine items...</p>
+        </div>
+      </div>
+    );
+  }
 
   const VineItemCard = ({ item }: { item: VineItem }) => {
     const daysLeft = daysUntilDeadline(item.review_deadline);
@@ -107,40 +143,40 @@ export function VineDashboard() {
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600">Total Items</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="text-2xl font-bold">{allItems.length}</div>
             <p className="text-xs text-gray-500 mt-1">Vine items received</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600">Pending Reviews</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="text-2xl font-bold text-blue-600">{pendingReviews.length}</div>
             <p className="text-xs text-gray-500 mt-1">Awaiting your review</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600">In Progress</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="text-2xl font-bold text-yellow-600">{inProgressReviews.length}</div>
             <p className="text-xs text-gray-500 mt-1">Being reviewed</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600">Overdue</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className={`text-2xl font-bold ${overdueReviews.length > 0 ? "text-red-600" : "text-green-600"}`}>
               {overdueReviews.length}
             </div>

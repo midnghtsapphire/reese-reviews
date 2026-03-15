@@ -178,20 +178,20 @@ export function TaxDashboard() {
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600">Vine ETV Income</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="text-2xl font-bold">${summary.total_etv_vine.toFixed(2)}</div>
             <p className="text-xs text-gray-500 mt-1">{summary.vine_items_completed} completed reviews</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600">Capital Gains/Losses</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className={`text-2xl font-bold ${summary.net_capital_gain_loss >= 0 ? "text-green-600" : "text-red-600"}`}>
               ${summary.net_capital_gain_loss.toFixed(2)}
             </div>
@@ -200,20 +200,20 @@ export function TaxDashboard() {
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600">Charitable Donations</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="text-2xl font-bold">${summary.charitable_donations.toFixed(2)}</div>
             <p className="text-xs text-gray-500 mt-1">{summary.donation_count} donations</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-gray-600">Net Income</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className={`text-2xl font-bold ${summary.net_income >= 0 ? "text-green-600" : "text-red-600"}`}>
               ${summary.net_income.toFixed(2)}
             </div>

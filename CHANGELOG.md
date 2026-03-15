@@ -2,6 +2,29 @@
 
 All notable changes to Reese Reviews are documented in this file.
 
+## [2.1.0] — 2026-03-03 — AMAZON REVIEWS INTEGRATION
+
+### ✨ New Features
+
+#### Amazon Reviews Integration (`feature/amazon-integration`)
+- ✅ **AmazonDashboard component** — new 🛒 Amazon tab in Business Dashboard
+  - Connection tab: demo / HTML paste / cookie import modes
+  - Reviews tab: list imported reviews with Copy, Create Draft, Publish, and Open on Amazon actions
+  - Affiliate Links tab: ASIN → affiliate URL generator with quick links for all imported reviews
+- ✅ **`src/lib/amazonReviewStore.ts`** — store module for import, persist, publish, and affiliate helpers
+- ✅ **`src/api/amazon/index.ts`** — client-side API layer simulating `GET /api/amazon/demo`, `POST /api/amazon/import`, `POST /api/amazon/publish`
+- ✅ **`src/lib/data/amazon-reviews.json`** — committed demo review data
+- ✅ **Demo mode** — active by default when no `AMAZON_SESSION_COOKIE` is set
+- ✅ **HTML import** — client-side DOMParser extracts reviews from pasted Amazon page source
+- ✅ **Cookie mode** — documented server-side scraper path (falls back to demo in SPA)
+- ✅ **Anonymisation** — reviewer handles are never stored or displayed
+- ✅ **Affiliate links** — `buildAffiliateLink(asin, tag)` with `VITE_AFFILIATE_TAG` env override
+- ✅ **Unit tests** — `src/lib/amazonReviewStore.test.ts` (Vitest)
+- ✅ **`.env.example`** — documents `AMAZON_SESSION_COOKIE` and `VITE_AFFILIATE_TAG`
+- ✅ **`docs/amazon-integration.md`** — full setup guide (demo, HTML, cookie, DigitalOcean/GitHub secrets, privacy)
+
+---
+
 ## [2.0.0] — 2024-02-25 — PRODUCTION LAUNCH
 
 ### ✨ Major Features Added

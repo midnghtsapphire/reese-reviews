@@ -4,6 +4,9 @@ import { TaxDashboard } from "@/components/TaxDashboard";
 import { VineDashboard } from "@/components/VineDashboard";
 import { VineCookieManager } from "@/components/VineCookieManager";
 import { InventoryManager } from "@/components/InventoryManager";
+import { FinancialDashboard } from "@/components/FinancialDashboard";
+import { AmazonAPISettings } from "@/components/AmazonAPISettings";
+import { AmazonDashboard } from "@/components/AmazonDashboard";
 import { AmazonAccountSettings } from "@/components/AmazonAccountSettings";
 import { OdooIntegration } from "@/components/OdooIntegration";
 import { PDFillerIntegration } from "@/components/PDFillerIntegration";
@@ -35,14 +38,17 @@ export default function Business() {
               <TabsTrigger value="tax" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
                 💰 Taxes
               </TabsTrigger>
+              <TabsTrigger value="financial" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
+                💵 Financial
+              </TabsTrigger>
               <TabsTrigger value="vine" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
                 🍇 Vine
               </TabsTrigger>
-              <TabsTrigger value="inventory" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
-                📦 Inventory
-              </TabsTrigger>
               <TabsTrigger value="amazon" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
                 🛒 Amazon
+              </TabsTrigger>
+              <TabsTrigger value="inventory" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
+                📦 Inventory
               </TabsTrigger>
               <TabsTrigger value="accounting" className="flex-1 min-w-[100px] text-white data-[state=active]:bg-purple-600">
                 📊 Accounting
@@ -65,6 +71,13 @@ export default function Business() {
               </div>
             </TabsContent>
 
+            {/* Financial Dashboard */}
+            <TabsContent value="financial" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <FinancialDashboard />
+              </div>
+            </TabsContent>
+
             {/* Vine Dashboard */}
             <TabsContent value="vine" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
@@ -72,17 +85,17 @@ export default function Business() {
               </div>
             </TabsContent>
 
+            {/* Amazon Dashboard */}
+            <TabsContent value="amazon" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <AmazonDashboard />
+              </div>
+            </TabsContent>
+
             {/* Inventory Manager */}
             <TabsContent value="inventory" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <InventoryManager />
-              </div>
-            </TabsContent>
-
-            {/* Amazon */}
-            <TabsContent value="amazon" className="space-y-6">
-              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
-                <AmazonAccountSettings />
               </div>
             </TabsContent>
 
@@ -107,10 +120,13 @@ export default function Business() {
               </div>
             </TabsContent>
 
-            {/* Integrations */}
+            {/* Integrations / Settings */}
             <TabsContent value="integrations" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
-                <VineCookieManager />
+                <AmazonAPISettings />
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <AmazonAccountSettings />
               </div>
             </TabsContent>
           </Tabs>

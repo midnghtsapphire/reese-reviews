@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertCircle, Package, TrendingUp, Gift, Trash2, Plus } from "lucide-react";
 
 export function InventoryManager() {
@@ -161,12 +161,17 @@ export function InventoryManager() {
               </div>
               <div>
                 <Label htmlFor="source">Source</Label>
-                <select className="w-full px-3 py-2 border rounded-lg">
-                  <option value="purchased">Purchased</option>
-                  <option value="vine">Vine</option>
-                  <option value="gifted">Gifted</option>
-                  <option value="sample">Sample</option>
-                </select>
+                <Select defaultValue="purchased">
+                  <SelectTrigger id="source">
+                    <SelectValue placeholder="Select source" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="purchased">Purchased</SelectItem>
+                    <SelectItem value="vine">Vine</SelectItem>
+                    <SelectItem value="gifted">Gifted</SelectItem>
+                    <SelectItem value="sample">Sample</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="flex gap-2">

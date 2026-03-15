@@ -15,7 +15,16 @@ A production-ready review business platform built for **Reese**, featuring tax-f
 - Featured/trending reviews section
 - Full accessibility support (Neurodivergent, ECO CODE, No Blue Light modes)
 
-### 2. **Amazon Vine & Tax Tracking (HIGHEST PRIORITY)**
+### 2. **Amazon Reviews Integration**
+- Import your own Amazon Vine/purchase reviews directly into the app
+- **Demo mode** — works out-of-the-box without any credentials
+- **HTML import** — paste your Amazon review page source to extract reviews
+- **Cookie mode** — live server-side scraper using `AMAZON_SESSION_COOKIE` (requires server proxy)
+- Anonymised display — reviewer handles are never stored or shown
+- Quick affiliate link generator: ASIN → `https://amazon.com/dp/{ASIN}?tag={tag}`
+- See [`docs/amazon-integration.md`](docs/amazon-integration.md) for full setup instructions
+
+### 3. **Amazon Vine & Tax Tracking**
 - Native Vine scraper (no Chrome extension needed)
 - Track all Vine items: pending, completed, deadline tracking
 - **ETV (Estimated Tax Value) tracking** — all Vine income reported to IRS

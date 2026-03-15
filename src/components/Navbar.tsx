@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut, Settings } from "lucide-react";
 import AccessibilityToggle from "./AccessibilityToggle";
+import { useAuth } from "@/contexts/AuthContext";
 import reeseLogo from "@/assets/reese-logo.png";
 
 const navLinks = [
@@ -19,6 +20,7 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const { logout } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -40,7 +42,7 @@ const Navbar = () => {
     >
       <div className="container mx-auto flex items-center justify-between px-6 py-3">
         <Link to="/" className="flex items-center gap-3" aria-label="Reese Reviews Home">
-          <img src={reeseLogo} alt="" className="h-10 w-auto" aria-hidden="true" />
+          <img src={reeseLogo} alt="Reese Reviews logo" className="h-10 w-auto" />
           <span className="hidden font-serif text-lg font-bold gradient-steel-text sm:inline">
             Reese Reviews
           </span>
@@ -65,12 +67,36 @@ const Navbar = () => {
 
         <div className="flex items-center gap-3">
           <AccessibilityToggle />
+
+          {/* Admin Panel link */}
+          <Link
+            to="/admin"
+            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-accent md:inline-flex"
+            style={{ color: "#FF6B2B" }}
+            title="Admin Panel"
+          >
+            <Settings size={15} />
+            <span className="hidden lg:inline">Admin</span>
+          </Link>
+
           <Link
             to="/submit"
             className="hidden rounded-lg gradient-steel px-5 py-2 text-sm font-semibold text-primary-foreground transition-transform hover:scale-105 md:inline-flex"
           >
             Submit Review
           </Link>
+
+          {/* Logout button */}
+          <button
+            onClick={logout}
+            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground md:inline-flex"
+            title="Logout"
+            aria-label="Logout"
+          >
+            <LogOut size={15} />
+            <span className="hidden lg:inline">Logout</span>
+          </button>
+
           <button
             onClick={() => setOpen(!open)}
             className="rounded-lg p-2 text-foreground md:hidden"
@@ -118,6 +144,17 @@ const Navbar = () => {
               </li>
               <li role="none">
                 <Link
+                  to="/admin"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="mt-2 flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold"
+                  style={{ background: "rgba(255,107,43,0.15)", color: "#FF6B2B", border: "1px solid rgba(255,107,43,0.3)" }}
+                >
+                  <Settings size={16} /> Admin Panel
+                </Link>
+              </li>
+              <li role="none">
+                <Link
                   to="/business"
                   role="menuitem"
                   onClick={() => setOpen(false)}
@@ -135,6 +172,17 @@ const Navbar = () => {
                 >
                   Marketing Hub
                 </Link>
+              </li>
+              <li role="none">
+                <button
+                  onClick={() => {
+                    setOpen(false);
+                    logout();
+                  }}
+                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                >
+                  <LogOut size={16} /> Logout
+                </button>
               </li>
             </ul>
           </motion.div>

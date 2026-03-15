@@ -1,0 +1,67 @@
+[
+  {
+    "id": "ar-001",
+    "asin": "B09JQMJHXY",
+    "productName": "Anker Soundcore Life Q30 Wireless Headphones",
+    "productLink": "https://www.amazon.com/dp/B09JQMJHXY",
+    "rating": 5,
+    "title": "Best budget noise-cancelling headphones I've tested",
+    "body": "I've been using these for about two months and the active noise cancellation is surprisingly effective for the price. The 40-hour battery life is no joke — I charge them once a week. The sound profile is bass-forward but well-balanced overall. They fold flat for travel and the ear cups are comfortable for multi-hour sessions. Setup with the Soundcore app was easy and the custom EQ is a nice bonus. Highly recommend for anyone wanting over-ear ANC without the premium price tag.",
+    "date": "2026-01-15",
+    "images": [],
+    "source": "demo",
+    "status": "draft"
+  },
+  {
+    "id": "ar-002",
+    "asin": "B0BDHX8Z63",
+    "productName": "Ninja Creami Deluxe 11-in-1 Ice Cream Maker",
+    "productLink": "https://www.amazon.com/dp/B0BDHX8Z63",
+    "rating": 4,
+    "title": "Legit makes grocery-store quality ice cream at home",
+    "body": "The Ninja Creami exceeded my expectations. I make protein ice cream weekly using the lite ice cream setting — it transforms a frozen protein shake into something that actually tastes like soft-serve. The machine is loud and the containers take 24 hours to freeze solid, so you have to plan ahead. The 11 functions feel like overkill but the ice cream, gelato, and sorbet modes all work perfectly. Cleaning the paddle is the only tedious part. Overall it's worth the counter space if you make frozen desserts regularly.",
+    "date": "2026-01-28",
+    "images": [],
+    "source": "demo",
+    "status": "draft"
+  },
+  {
+    "id": "ar-003",
+    "asin": "B0C2QWXYZ1",
+    "productName": "Ring Video Doorbell 4 with Enhanced Features",
+    "productLink": "https://www.amazon.com/dp/B0C2QWXYZ1",
+    "rating": 4,
+    "title": "Solid security camera doorbell — easy install",
+    "body": "Setup took about 20 minutes including drilling the mounting plate. The 1080p video is crisp in daylight and the night vision is decent. Pre-roll video (4 seconds before motion trigger) is genuinely useful for seeing what caused the alert. The dual-band Wi-Fi made pairing much faster than older Ring models. My one complaint is the subscription paywall — you need Ring Protect to save videos longer than 24 hours. The free tier is almost useless. If you're already in the Amazon/Alexa ecosystem and okay with the subscription, it's a great product.",
+    "date": "2026-02-05",
+    "images": [],
+    "source": "demo",
+    "status": "draft"
+  },
+  {
+    "id": "ar-004",
+    "asin": "B0BW2JQXYZ",
+    "productName": "Stanley Quencher H2.0 FlowState Tumbler 40oz",
+    "productLink": "https://www.amazon.com/dp/B0BW2JQXYZ",
+    "rating": 5,
+    "title": "The hype is real — this tumbler is genuinely excellent",
+    "body": "I was skeptical about the price but after six months of daily use I get it. Ice stays frozen for 24+ hours even in summer heat. The handle and straw lid make it easy to carry everywhere. It fits in most car cup holders (barely) and the coating hasn't chipped. I've run it through the dishwasher dozens of times with no issues. The size is perfect — not too heavy when full but enough water to skip refills at work. Whether it's worth the premium vs a cheaper brand comes down to personal preference, but the quality is undeniable.",
+    "date": "2026-02-12",
+    "images": [],
+    "source": "demo",
+    "status": "draft"
+  },
+  {
+    "id": "ar-005",
+    "asin": "B0BXYZ1234",
+    "productName": "Kindle Paperwhite 11th Gen — 8 GB, Waterproof",
+    "productLink": "https://www.amazon.com/dp/B0BXYZ1234",
+    "rating": 5,
+    "title": "The e-reader I recommend to everyone",
+    "body": "The Paperwhite 11th gen is the best e-reader I've used. The flush-front display is gorgeous with no bezels catching light. The warm light mode (amber tone) makes night reading genuinely comfortable. Battery lasts weeks not days. IPX8 waterproofing means I read in the bath without worry. The 300 ppi display makes text look almost print-quality. Storage is plenty for hundreds of books. If you read regularly and don't need color, skip the Kindle Scribe and Oasis — the Paperwhite hits the perfect price-to-feature ratio.",
+    "date": "2026-02-18",
+    "images": [],
+    "source": "demo",
+    "status": "draft"
+  }
+]
