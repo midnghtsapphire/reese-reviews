@@ -199,7 +199,7 @@ const ENTITY_META = {
 
 export function AmazonOrdersToInventory() {
   const [orders, setOrders] = useState<AmazonOrderEntry[]>(() => loadOrders());
-  const [activeTab, setActiveTab] = useState<"orders" | "add" | "summary">("orders");
+  const [activeTab, setActiveTab] = useState<"orders" | "add" | "import" | "summary">("orders");
   const [editOrder, setEditOrder] = useState<AmazonOrderEntry | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<OrderStatus | "all">("all");
@@ -212,6 +212,12 @@ export function AmazonOrdersToInventory() {
     review_written: false,
     quantity: 1,
   });
+
+  // CSV import state
+  const [csvText, setCsvText] = useState("");
+  const [csvParsed, setCsvParsed] = useState<Partial<AmazonOrderEntry>[]>([]);
+  const [csvError, setCsvError] = useState("");
+  const [importEntity, setImportEntity] = useState<AmazonOrderEntry["entity"]>("fac");
 
   const refresh = useCallback(() => setOrders(loadOrders()), []);
 
@@ -291,6 +297,162 @@ export function AmazonOrdersToInventory() {
     );
     saveOrders(updated);
     setOrders(updated);
+  }
+
+  // ─── CSV IMPORT ──────────────────────────────────────────────
+
+  /** Parse a CSV string into column arrays, handling quoted fields */
+  function parseCSV(text: string): string[][] {
+    const rows: string[][] = [];
+    for (const rawLine of text.split(/\r?\n/)) {
+      const line = rawLine.trim();
+      if (!line) continue;
+      const cols: string[] = [];
+      let inQuote = false;
+      let cur = "";
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuote && line[i + 1] === '"') { cur += '"'; i++; }
+          else inQuote = !inQuote;
+        } else if (ch === "," && !inQuote) {
+          cols.push(cur.trim()); cur = "";
+        } else {
+          cur += ch;
+        }
+      }
+      cols.push(cur.trim());
+      rows.push(cols);
+    }
+    return rows;
+  }
+
+  function handleParseCSV(raw: string) {
+    setCsvError("");
+    setCsvParsed([]);
+    const text = raw.trim();
+    if (!text) { setCsvError("Paste your CSV text above first."); return; }
+
+    const rows = parseCSV(text);
+    if (rows.length < 2) { setCsvError("CSV must have a header row and at least one order row."); return; }
+
+    // Normalize header names
+    const headers = rows[0].map((h) => h.toLowerCase().replace(/[^a-z0-9]/g, "_"));
+
+    // Helper: find the first matching column index
+    const col = (...names: string[]) => {
+      for (const name of names) {
+        const idx = headers.findIndex((h) => h.includes(name));
+        if (idx >= 0) return idx;
+      }
+      return -1;
+    };
+
+    const idxOrderId   = col("order_id", "order_number");
+    const idxDate      = col("order_date", "date", "purchase_date");
+    const idxTitle     = col("title", "product", "name", "item_name");
+    const idxAsin      = col("asin", "isbn");
+    const idxCategory  = col("category");
+    const idxQty       = col("quantity", "qty");
+    const idxPrice     = col("purchase_price_per_unit", "unit_price", "price_per_unit", "charged", "amount", "item_subtotal", "subtotal");
+
+    if (idxTitle < 0 && idxOrderId < 0) {
+      setCsvError("Could not find a 'Title' or 'Order ID' column. Make sure you copied the header row too.");
+      return;
+    }
+
+    const parsed: Partial<AmazonOrderEntry>[] = [];
+    for (const row of rows.slice(1)) {
+      if (row.every((c) => !c)) continue; // skip blank rows
+      const rawPrice = idxPrice >= 0 ? row[idxPrice] ?? "" : "";
+      const price = parseFloat(rawPrice.replace(/[$,]/g, "")) || 0;
+      parsed.push({
+        amazon_order_id: idxOrderId >= 0 ? row[idxOrderId] ?? "" : "",
+        product_name:    idxTitle >= 0   ? row[idxTitle] ?? ""   : `Row ${parsed.length + 1}`,
+        asin:            idxAsin >= 0    ? row[idxAsin] ?? ""    : "",
+        category:        idxCategory >= 0? row[idxCategory] ?? "": "General",
+        order_date:      idxDate >= 0    ? normalizeDate(row[idxDate] ?? "") : "",
+        quantity:        idxQty >= 0     ? parseInt(row[idxQty] ?? "1", 10) || 1 : 1,
+        charged_amount:  price,
+        status:          "received" as OrderStatus,
+        review_written:  false,
+        image_url:       "",
+        entity:          importEntity,
+        notes:           "",
+      });
+    }
+
+    if (parsed.length === 0) { setCsvError("No data rows found after the header."); return; }
+    setCsvParsed(parsed);
+  }
+
+  /** Try to normalize various date formats to YYYY-MM-DD */
+  function normalizeDate(s: string): string {
+    if (!s) return "";
+    // already ISO
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+    // MM/DD/YYYY or MM-DD-YYYY
+    const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+    if (m) {
+      const [, mo, dy, yr] = m;
+      const year = yr.length === 2 ? `20${yr}` : yr;
+      return `${year}-${mo.padStart(2, "0")}-${dy.padStart(2, "0")}`;
+    }
+    return s;
+  }
+
+  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string ?? "";
+      setCsvText(text);
+      handleParseCSV(text);
+    };
+    reader.onerror = () => setCsvError("Could not read the file. Try pasting the CSV text instead.");
+    reader.readAsText(file);
+    // reset so same file can be re-uploaded
+    e.target.value = "";
+  }
+
+  function handleImportConfirm() {
+    if (csvParsed.length === 0) return;
+    const now = new Date().toISOString();
+    const existingIds = new Set(orders.map((o) => o.amazon_order_id).filter(Boolean));
+    let added = 0;
+    const newEntries: AmazonOrderEntry[] = [];
+    for (const row of csvParsed) {
+      // skip duplicates (same amazon_order_id + same product_name)
+      if (row.amazon_order_id && existingIds.has(row.amazon_order_id)) continue;
+      newEntries.push({
+        id:               genOrderId(),
+        amazon_order_id:  row.amazon_order_id ?? "",
+        asin:             row.asin ?? "",
+        product_name:     row.product_name ?? "Unknown",
+        category:         row.category ?? "General",
+        image_url:        "",
+        order_date:       row.order_date ?? now.slice(0, 10),
+        charged_amount:   Number(row.charged_amount) || 0,
+        quantity:         Number(row.quantity) || 1,
+        status:           "received",
+        review_written:   false,
+        entity:           importEntity,
+        notes:            "",
+        created_at:       now,
+        updated_at:       now,
+      });
+      if (row.amazon_order_id) existingIds.add(row.amazon_order_id);
+      added++;
+    }
+    const merged = [...orders, ...newEntries];
+    saveOrders(merged);
+    setOrders(merged);
+    setCsvText("");
+    setCsvParsed([]);
+    setCsvError("");
+    showMessage("success", `Imported ${added} order${added !== 1 ? "s" : ""}${csvParsed.length - added > 0 ? ` (${csvParsed.length - added} skipped — already existed)` : ""}.`);
+    setActiveTab("orders");
   }
 
   function handleExportCSV() {
@@ -433,6 +595,9 @@ export function AmazonOrdersToInventory() {
         <TabsList className="bg-white/10 border border-white/20">
           <TabsTrigger value="orders" className="data-[state=active]:bg-purple-600 text-white">
             📦 Orders ({orders.length})
+          </TabsTrigger>
+          <TabsTrigger value="import" className="data-[state=active]:bg-purple-600 text-white">
+            📥 Import
           </TabsTrigger>
           <TabsTrigger value="add" className="data-[state=active]:bg-purple-600 text-white">
             {editOrder ? "✏️ Edit" : "➕ Add Order"}
@@ -591,6 +756,187 @@ export function AmazonOrdersToInventory() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        {/* IMPORT TAB */}
+        <TabsContent value="import" className="mt-3 space-y-4">
+          <Card className="bg-white/5 border-white/10">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-white text-base flex items-center gap-2">
+                <Upload className="h-4 w-4 text-orange-400" />
+                Import Orders from Amazon
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Download your order history from Amazon, then paste or upload the CSV here.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5">
+
+              {/* Step 1 — Download from Amazon */}
+              <div className="rounded-lg border border-orange-500/30 bg-orange-500/10 p-4 space-y-2">
+                <p className="text-orange-300 text-xs font-semibold uppercase tracking-wide">
+                  Step 1 — Download your orders from Amazon
+                </p>
+                <p className="text-gray-300 text-sm">
+                  Amazon lets you export your full order history as a CSV file.
+                </p>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <a
+                    href="https://www.amazon.com/gp/b2b/reports"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-md bg-orange-500 hover:bg-orange-400 px-3 py-1.5 text-xs font-bold text-black no-underline"
+                  >
+                    <Download className="h-3 w-3" />
+                    Order History Reports (amazon.com)
+                  </a>
+                  <a
+                    href="https://www.amazon.com/gp/css/order-history"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-md border border-white/20 hover:bg-white/10 px-3 py-1.5 text-xs text-gray-300 no-underline"
+                  >
+                    <ArrowRight className="h-3 w-3" />
+                    My Orders (alternate)
+                  </a>
+                </div>
+                <p className="text-gray-500 text-xs">
+                  On the Order History Reports page: select a date range → "Items" report type → Request Report → Download CSV.
+                </p>
+              </div>
+
+              {/* Step 2 — Upload or paste */}
+              <div className="space-y-3">
+                <p className="text-orange-300 text-xs font-semibold uppercase tracking-wide">
+                  Step 2 — Upload or paste your CSV
+                </p>
+
+                {/* Entity picker */}
+                <div className="flex items-center gap-3">
+                  <Label className="text-gray-300 text-xs shrink-0">Assign to business:</Label>
+                  <Select
+                    value={importEntity}
+                    onValueChange={(v) => setImportEntity(v as AmazonOrderEntry["entity"])}
+                  >
+                    <SelectTrigger className="w-52 bg-white/10 border-white/20 text-white text-xs h-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fac">Freedom Angel Corps (FAC)</SelectItem>
+                      <SelectItem value="reese_reviews">Reese Reviews</SelectItem>
+                      <SelectItem value="noconook">NoCo Nook</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* File upload */}
+                <div className="flex items-center gap-3">
+                  <label className="inline-flex items-center gap-1.5 cursor-pointer rounded-md border border-white/20 hover:bg-white/10 px-3 py-1.5 text-xs text-gray-300">
+                    <Upload className="h-3 w-3" />
+                    Choose CSV file
+                    <input
+                      type="file"
+                      accept=".csv,text/csv"
+                      className="sr-only"
+                      onChange={handleFileUpload}
+                    />
+                  </label>
+                  <span className="text-gray-500 text-xs">or paste below ↓</span>
+                </div>
+
+                {/* Paste area */}
+                <Textarea
+                  value={csvText}
+                  onChange={(e) => setCsvText(e.target.value)}
+                  placeholder={`Paste your Amazon order history CSV here.\n\nExpected columns (Amazon "Items" report):\nOrder ID, Order Date, Title, Category, ASIN/ISBN, Quantity, Purchase Price Per Unit, ...\n\nThe header row must be included.`}
+                  rows={6}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-gray-600 text-xs font-mono resize-y"
+                />
+
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    onClick={() => handleParseCSV(csvText)}
+                    disabled={!csvText.trim()}
+                    className="bg-orange-600 hover:bg-orange-500 text-white text-xs"
+                  >
+                    <RefreshCw className="h-3 w-3 mr-1" />
+                    Preview Import
+                  </Button>
+                  {csvParsed.length > 0 && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => { setCsvText(""); setCsvParsed([]); setCsvError(""); }}
+                      className="border-white/20 text-gray-300 text-xs hover:bg-white/10"
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </div>
+
+                {csvError && (
+                  <div className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-300">
+                    <AlertCircle className="h-3 w-3 shrink-0 mt-0.5" />
+                    {csvError}
+                  </div>
+                )}
+              </div>
+
+              {/* Step 3 — Preview & confirm */}
+              {csvParsed.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-orange-300 text-xs font-semibold uppercase tracking-wide">
+                      Step 3 — Confirm import ({csvParsed.length} orders found)
+                    </p>
+                    <Button
+                      size="sm"
+                      onClick={handleImportConfirm}
+                      className="bg-orange-500 hover:bg-orange-400 text-black text-xs font-bold"
+                    >
+                      <CheckCircle2 className="h-3 w-3 mr-1" />
+                      Import {csvParsed.length} Order{csvParsed.length !== 1 ? "s" : ""}
+                    </Button>
+                  </div>
+
+                  <div className="rounded-lg border border-white/10 overflow-auto max-h-64">
+                    <table className="w-full text-xs">
+                      <thead className="bg-white/10 text-gray-400 sticky top-0">
+                        <tr>
+                          <th className="text-left px-2 py-1.5">#</th>
+                          <th className="text-left px-2 py-1.5">Order ID</th>
+                          <th className="text-left px-2 py-1.5">Product</th>
+                          <th className="text-left px-2 py-1.5">Date</th>
+                          <th className="text-left px-2 py-1.5">Qty</th>
+                          <th className="text-right px-2 py-1.5">Charged</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {csvParsed.map((row, i) => (
+                          <tr key={i} className="border-t border-white/5 hover:bg-white/5">
+                            <td className="px-2 py-1 text-gray-500">{i + 1}</td>
+                            <td className="px-2 py-1 text-gray-400 font-mono">{row.amazon_order_id || "—"}</td>
+                            <td className="px-2 py-1 text-white max-w-[200px] truncate">{row.product_name}</td>
+                            <td className="px-2 py-1 text-gray-400">{row.order_date || "—"}</td>
+                            <td className="px-2 py-1 text-gray-400">{row.quantity}</td>
+                            <td className="px-2 py-1 text-right text-green-300">
+                              {row.charged_amount ? `$${Number(row.charged_amount).toFixed(2)}` : "—"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <p className="text-gray-500 text-xs">
+                    Existing orders with the same Order ID will be skipped. All imported orders are set to status "Received".
+                  </p>
+                </div>
+              )}
+
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* ADD / EDIT TAB */}
