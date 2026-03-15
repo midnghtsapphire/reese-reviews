@@ -68,6 +68,7 @@ const MERCHANT_RULES: Array<{ pattern: RegExp; category: WriteOffCategory; write
 
 export function suggestCategory(
   merchant: string,
+  // description is reserved for future content-based categorization rules
   _description: string
 ): { category: WriteOffCategory | "personal" | "uncategorized"; is_write_off: boolean } {
   const rule = MERCHANT_RULES.find((r) => r.pattern.test(merchant));

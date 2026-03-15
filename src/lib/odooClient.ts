@@ -145,7 +145,7 @@ async function odooRpc(
     credentials: "include",
   });
   const data = await response.json() as { error?: { data?: { message?: string }; message?: string }; result: unknown };
-  if (data.error) throw new Error(data.error.data?.message ?? data.error.message);
+  if (data.error) throw new Error(data.error.data?.message ?? data.error.message ?? "Odoo API request failed");
   return data.result;
 }
 

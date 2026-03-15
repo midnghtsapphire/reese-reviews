@@ -77,7 +77,7 @@ const DEFAULT_FORM: NewExpenseForm = {
 export function ExpenseTracker() {
   const [expenses, setExpenses] = useState<Expense[]>(() => getExpenses());
   const [form, setForm] = useState<NewExpenseForm>(DEFAULT_FORM);
-  const [formMessage, setFormMessage] = useState<string | null>(null);
+  const [formMessage, setFormMessage] = useState<{ text: string; isError: boolean } | null>(null);
 
   const summary = getWriteOffSummary(CURRENT_YEAR);
 
@@ -110,7 +110,7 @@ export function ExpenseTracker() {
   const handleAddExpense = () => {
     const amount = parseFloat(form.amount);
     if (!form.date || !form.merchant || !form.description || isNaN(amount) || amount <= 0) {
-      setFormMessage("Please fill in all required fields with a valid amount.");
+      setFormMessage({ text: "Please fill in all required fields with a valid amount.", isError: true });
       return;
     }
     const is_write_off = form.category !== "personal" && form.category !== "uncategorized";
@@ -127,7 +127,7 @@ export function ExpenseTracker() {
       tax_year: parseInt(form.date.slice(0, 4), 10) || CURRENT_YEAR,
     });
     setForm(DEFAULT_FORM);
-    setFormMessage("Expense added!");
+    setFormMessage({ text: "Expense added!", isError: false });
     refreshExpenses();
     setTimeout(() => setFormMessage(null), 3000);
   };
@@ -351,8 +351,8 @@ export function ExpenseTracker() {
             </CardHeader>
             <CardContent className="space-y-4">
               {formMessage && (
-                <p className={`text-sm ${formMessage.startsWith("Please") ? "text-red-400" : "text-green-400"}`}>
-                  {formMessage}
+                <p className={`text-sm ${formMessage.isError ? "text-red-400" : "text-green-400"}`}>
+                  {formMessage.text}
                 </p>
               )}
 

@@ -112,9 +112,6 @@ export default function Business() {
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <VineCookieManager />
               </div>
-              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
-                <AmazonAccountSettings />
-              </div>
             </TabsContent>
           </Tabs>
         </div>

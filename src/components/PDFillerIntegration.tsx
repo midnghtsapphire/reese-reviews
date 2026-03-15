@@ -39,6 +39,21 @@ const FILL_STATUS_COLORS: Record<PDFillerFill["status"], string> = {
   awaiting_signature: "bg-blue-600 text-white",
 };
 
+function MessageAlert({ message }: { message: { type: "success" | "error"; text: string } }) {
+  return (
+    <Alert className={message.type === "success" ? "border-green-500/50 bg-green-500/10" : "border-red-500/50 bg-red-500/10"}>
+      {message.type === "success" ? (
+        <CheckCircle2 className="h-4 w-4 text-green-400" />
+      ) : (
+        <AlertCircle className="h-4 w-4 text-red-400" />
+      )}
+      <AlertDescription className={message.type === "success" ? "text-green-300" : "text-red-300"}>
+        {message.text}
+      </AlertDescription>
+    </Alert>
+  );
+}
+
 export function PDFillerIntegration() {
   const [config, setConfig] = useState<PDFillerConfig | null>(getPDFillerConfig());
   const [showForm, setShowForm] = useState(false);
@@ -151,16 +166,7 @@ export function PDFillerIntegration() {
           </CardHeader>
           <CardContent className="space-y-3">
             {message && (
-              <Alert className={message.type === "success" ? "border-green-500/50 bg-green-500/10" : "border-red-500/50 bg-red-500/10"}>
-                {message.type === "success" ? (
-                  <CheckCircle2 className="h-4 w-4 text-green-400" />
-                ) : (
-                  <AlertCircle className="h-4 w-4 text-red-400" />
-                )}
-                <AlertDescription className={message.type === "success" ? "text-green-300" : "text-red-300"}>
-                  {message.text}
-                </AlertDescription>
-              </Alert>
+              <MessageAlert message={message} />
             )}
             <div className="space-y-1">
               <Label className="text-gray-300 text-xs">Access Token</Label>
@@ -191,16 +197,7 @@ export function PDFillerIntegration() {
       </div>
 
       {message && !showForm && (
-        <Alert className={message.type === "success" ? "border-green-500/50 bg-green-500/10" : "border-red-500/50 bg-red-500/10"}>
-          {message.type === "success" ? (
-            <CheckCircle2 className="h-4 w-4 text-green-400" />
-          ) : (
-            <AlertCircle className="h-4 w-4 text-red-400" />
-          )}
-          <AlertDescription className={message.type === "success" ? "text-green-300" : "text-red-300"}>
-            {message.text}
-          </AlertDescription>
-        </Alert>
+        <MessageAlert message={message} />
       )}
 
       <Tabs defaultValue="documents" className="w-full">

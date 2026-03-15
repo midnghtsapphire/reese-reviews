@@ -275,7 +275,7 @@ export function OdooIntegration() {
                         <td className="py-2 px-3 text-gray-300">{exp.partner_name}</td>
                         <td className="py-2 px-3 text-right text-white">${exp.total_amount.toFixed(2)}</td>
                         <td className="py-2 px-3 text-center">
-                          <Badge className={PAYMENT_STATE_COLORS[exp.payment_state] ?? "bg-gray-600 text-white"}>
+                          <Badge className={PAYMENT_STATE_COLORS[exp.payment_state]}>
                             {exp.payment_state.replace("_", " ")}
                           </Badge>
                         </td>

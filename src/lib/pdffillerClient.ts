@@ -76,7 +76,7 @@ async function pdffillerRequest<T>(token: string, path: string, options: Request
   });
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
-    throw new Error((err as { message?: string }).message ?? `PDFiller API error ${response.status}`);
+    throw new Error((err as { message?: string }).message ?? `PDFiller API error ${response.status} ${response.statusText} at ${path}`);
   }
   return response.json() as Promise<T>;
 }
