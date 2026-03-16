@@ -12,7 +12,7 @@
 // ============================================================
 
 import React, { useState, useCallback, useEffect } from "react";
-import readXlsxFile from "read-excel-file";
+import { parseFileToRows, rowsToCsv, parseCsvText } from "@/lib/fileParser";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -302,39 +302,13 @@ export function AmazonOrdersToInventory() {
 
   // ─── CSV IMPORT ──────────────────────────────────────────────
 
-  /** Parse a CSV string into column arrays, handling quoted fields */
-  function parseCSV(text: string): string[][] {
-    const rows: string[][] = [];
-    for (const rawLine of text.split(/\r?\n/)) {
-      const line = rawLine.trim();
-      if (!line) continue;
-      const cols: string[] = [];
-      let inQuote = false;
-      let cur = "";
-      for (let i = 0; i < line.length; i++) {
-        const ch = line[i];
-        if (ch === '"') {
-          if (inQuote && line[i + 1] === '"') { cur += '"'; i++; }
-          else inQuote = !inQuote;
-        } else if (ch === "," && !inQuote) {
-          cols.push(cur.trim()); cur = "";
-        } else {
-          cur += ch;
-        }
-      }
-      cols.push(cur.trim());
-      rows.push(cols);
-    }
-    return rows;
-  }
-
   function handleParseCSV(raw: string) {
     setCsvError("");
     setCsvParsed([]);
     const text = raw.trim();
     if (!text) { setCsvError("Paste your CSV text above first."); return; }
 
-    const rows = parseCSV(text);
+    const rows = parseCsvText(text);
     if (rows.length < 2) { setCsvError("CSV must have a header row and at least one order row."); return; }
 
     // Normalize header names
@@ -405,55 +379,37 @@ export function AmazonOrdersToInventory() {
   function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    const isExcel =
-      file.name.endsWith(".xlsx") ||
-      file.name.endsWith(".xls") ||
-      file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
-      file.type === "application/vnd.ms-excel";
-
-    if (isExcel) {
-      // Parse Excel file using read-excel-file
-      readXlsxFile(file)
-        .then((rows) => {
-          if (!rows || rows.length < 2) {
-            setCsvError("Excel file must have a header row and at least one data row.");
-            return;
-          }
-          // Convert Excel rows (array of arrays) to CSV text so the existing
-          // parseCSV / handleParseCSV logic can handle it unchanged.
-          const csvLines = rows.map((row) =>
-            row
-              .map((cell) => {
-                const v = cell === null || cell === undefined ? "" : String(cell);
-                return `"${v.replace(/"/g, '""')}"`;
-              })
-              .join(",")
-          );
-          const csvText = csvLines.join("\n");
-          setCsvText(csvText);
-          handleParseCSV(csvText);
-        })
-        .catch(() => {
-          setCsvError(
-            "Could not read the Excel file. Try saving it as CSV first: File → Save As → CSV (Comma delimited)."
-          );
-        });
-    } else {
-      // CSV / plain text
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const text = (ev.target?.result as string) ?? "";
-        setCsvText(text);
-        handleParseCSV(text);
-      };
-      reader.onerror = () =>
-        setCsvError("Could not read the file. Try pasting the CSV text instead.");
-      reader.readAsText(file);
-    }
-
     // reset so same file can be re-uploaded
     e.target.value = "";
+
+    setCsvError("");
+    setCsvParsed([]);
+
+    parseFileToRows(file)
+      .then((result) => {
+        if (result.kind === "image") {
+          setCsvError(
+            "Image files cannot be parsed as order data. Please upload a CSV, Excel (.xlsx), or PDF export from Amazon."
+          );
+          return;
+        }
+        if (result.rows.length < 2) {
+          setCsvError(
+            result.kind === "pdf"
+              ? "Could not find structured order data in this PDF. Amazon order PDFs must be downloaded via Account → Order History Reports (choose 'Items' report type → CSV or Excel). If you only have a print PDF, please use the manual 'Add Order' tab instead."
+              : "File must have a header row and at least one order row."
+          );
+          return;
+        }
+        // Convert rows to CSV text so the existing handleParseCSV logic is reused unchanged
+        const csv = rowsToCsv(result.rows);
+        setCsvText(csv);
+        handleParseCSV(csv);
+      })
+      .catch((err: unknown) => {
+        const msg = err instanceof Error ? err.message : String(err);
+        setCsvError(`Could not read the file: ${msg}. Try pasting the CSV text instead.`);
+      });
   }
 
   function handleImportConfirm() {
@@ -873,10 +829,10 @@ export function AmazonOrdersToInventory() {
                 <div className="flex items-center gap-3">
                   <label className="inline-flex items-center gap-1.5 cursor-pointer rounded-md border border-white/20 hover:bg-white/10 px-3 py-1.5 text-xs text-gray-300">
                     <Upload className="h-3 w-3" />
-                    Choose CSV or Excel file
+                    Choose CSV, Excel, or PDF
                     <input
                       type="file"
-                      accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                      accept=".csv,.xlsx,.xls,.pdf,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/pdf"
                       className="sr-only"
                       onChange={handleFileUpload}
                     />
