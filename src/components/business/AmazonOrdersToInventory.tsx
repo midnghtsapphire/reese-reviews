@@ -12,6 +12,7 @@
 // ============================================================
 
 import React, { useState, useCallback, useEffect } from "react";
+import readXlsxFile from "read-excel-file";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -404,14 +405,53 @@ export function AmazonOrdersToInventory() {
   function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const text = ev.target?.result as string ?? "";
-      setCsvText(text);
-      handleParseCSV(text);
-    };
-    reader.onerror = () => setCsvError("Could not read the file. Try pasting the CSV text instead.");
-    reader.readAsText(file);
+
+    const isExcel =
+      file.name.endsWith(".xlsx") ||
+      file.name.endsWith(".xls") ||
+      file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+      file.type === "application/vnd.ms-excel";
+
+    if (isExcel) {
+      // Parse Excel file using read-excel-file
+      readXlsxFile(file)
+        .then((rows) => {
+          if (!rows || rows.length < 2) {
+            setCsvError("Excel file must have a header row and at least one data row.");
+            return;
+          }
+          // Convert Excel rows (array of arrays) to CSV text so the existing
+          // parseCSV / handleParseCSV logic can handle it unchanged.
+          const csvLines = rows.map((row) =>
+            row
+              .map((cell) => {
+                const v = cell === null || cell === undefined ? "" : String(cell);
+                return `"${v.replace(/"/g, '""')}"`;
+              })
+              .join(",")
+          );
+          const csvText = csvLines.join("\n");
+          setCsvText(csvText);
+          handleParseCSV(csvText);
+        })
+        .catch(() => {
+          setCsvError(
+            "Could not read the Excel file. Try saving it as CSV first: File → Save As → CSV (Comma delimited)."
+          );
+        });
+    } else {
+      // CSV / plain text
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const text = (ev.target?.result as string) ?? "";
+        setCsvText(text);
+        handleParseCSV(text);
+      };
+      reader.onerror = () =>
+        setCsvError("Could not read the file. Try pasting the CSV text instead.");
+      reader.readAsText(file);
+    }
+
     // reset so same file can be re-uploaded
     e.target.value = "";
   }
@@ -833,10 +873,10 @@ export function AmazonOrdersToInventory() {
                 <div className="flex items-center gap-3">
                   <label className="inline-flex items-center gap-1.5 cursor-pointer rounded-md border border-white/20 hover:bg-white/10 px-3 py-1.5 text-xs text-gray-300">
                     <Upload className="h-3 w-3" />
-                    Choose CSV file
+                    Choose CSV or Excel file
                     <input
                       type="file"
-                      accept=".csv,text/csv"
+                      accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
                       className="sr-only"
                       onChange={handleFileUpload}
                     />
