@@ -71,8 +71,7 @@ const Navbar = () => {
           {/* Admin Panel link */}
           <Link
             to="/admin"
-            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-accent md:inline-flex"
-            style={{ color: "#FF6B2B" }}
+            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground md:inline-flex"
             title="Admin Panel"
           >
             <Settings size={15} />
@@ -147,8 +146,7 @@ const Navbar = () => {
                   to="/admin"
                   role="menuitem"
                   onClick={() => setOpen(false)}
-                  className="mt-2 flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold"
-                  style={{ background: "rgba(255,107,43,0.15)", color: "#FF6B2B", border: "1px solid rgba(255,107,43,0.3)" }}
+                  className="mt-2 flex items-center justify-center gap-2 rounded-lg steel-border px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-accent hover:text-foreground"
                 >
                   <Settings size={16} /> Admin Panel
                 </Link>
@@ -158,7 +156,7 @@ const Navbar = () => {
                   to="/business"
                   role="menuitem"
                   onClick={() => setOpen(false)}
-                  className="mt-2 block rounded-lg px-4 py-3 text-center text-sm font-semibold text-primary-foreground bg-purple-600 hover:bg-purple-700"
+                  className="mt-2 block rounded-lg gradient-steel px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
                 >
                   Business Dashboard
                 </Link>
@@ -168,7 +166,7 @@ const Navbar = () => {
                   to="/marketing"
                   role="menuitem"
                   onClick={() => setOpen(false)}
-                  className="mt-2 block rounded-lg px-4 py-3 text-center text-sm font-semibold text-primary-foreground bg-blue-600 hover:bg-blue-700"
+                  className="mt-2 block rounded-lg steel-border px-4 py-3 text-center text-sm font-semibold text-foreground hover:bg-accent"
                 >
                   Marketing Hub
                 </Link>

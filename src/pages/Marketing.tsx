@@ -3,10 +3,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Zap, Mail, Share2, TrendingUp } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertCircle, Zap, Mail, TrendingUp, Users } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
-import { OWNER_AFFILIATE_LINKS, PLATFORM_CONFIGS } from "@/lib/affiliateTypes";
 import { getAffiliateLinks, trackAffiliateLinkClick } from "@/lib/affiliateStore";
+import { getSubscribers } from "@/lib/emailStore";
 
 export default function Marketing() {
   const [activeTab, setActiveTab] = useState("affiliate-links");
@@ -15,6 +18,7 @@ export default function Marketing() {
   const [showApiKeyInput, setShowApiKeyInput] = useState(false);
 
   const affiliateLinks = getAffiliateLinks();
+  const subscribers = getSubscribers();
 
   const handleCampaignGeneration = async (tier: 20 | 50 | 100 | 200 | 500) => {
     if (!apiKey) {
@@ -39,7 +43,7 @@ export default function Marketing() {
         title="Marketing & Affiliate Dashboard | Reese Reviews"
         description="Generate campaigns, manage affiliate links, and automate social media posting"
       />
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-900 to-slate-950 pt-24 pb-12">
+      <div className="min-h-screen gradient-dark-surface pt-24 pb-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-white mb-2">Marketing & Affiliate Hub</h1>
@@ -47,18 +51,19 @@ export default function Marketing() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 glass-nav mb-6">
+            <TabsList className="grid w-full grid-cols-5 glass-nav mb-6">
               <TabsTrigger value="affiliate-links">Affiliate Links</TabsTrigger>
               <TabsTrigger value="campaign-generator">Campaign Generator</TabsTrigger>
               <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsTrigger value="subscribers">Subscribers</TabsTrigger>
             </TabsList>
 
             {/* AFFILIATE LINKS TAB */}
             <TabsContent value="affiliate-links" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {affiliateLinks.map((link) => (
-                  <Card key={link.id} className="glass-card border-purple-500/20">
+                  <Card key={link.id} className="glass-card border-white/10">
                     <CardHeader>
                       <CardTitle className="text-lg">{link.name}</CardTitle>
                       <CardDescription>{link.description}</CardDescription>
@@ -112,7 +117,7 @@ export default function Marketing() {
               )}
 
               {showApiKeyInput && (
-                <Card className="glass-card border-purple-500/20">
+                <Card className="glass-card border-white/10">
                   <CardHeader>
                     <CardTitle>API Configuration</CardTitle>
                   </CardHeader>
@@ -122,7 +127,7 @@ export default function Marketing() {
                       placeholder="Paste your OpenRouter API key"
                       value={apiKey}
                       onChange={(e) => setApiKey(e.target.value)}
-                      className="w-full px-4 py-2 bg-slate-800 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                      className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-steel-shine/40"
                     />
                     <Button onClick={() => setShowApiKeyInput(false)} className="w-full gradient-steel">
                       Save API Key
@@ -131,7 +136,7 @@ export default function Marketing() {
                 </Card>
               )}
 
-              <Card className="glass-card border-purple-500/20">
+              <Card className="glass-card border-white/10">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Zap className="h-5 w-5 text-yellow-400" />
@@ -158,7 +163,7 @@ export default function Marketing() {
                 </CardContent>
               </Card>
 
-              <Card className="glass-card border-purple-500/20">
+              <Card className="glass-card border-white/10">
                 <CardHeader>
                   <CardTitle>Campaign Settings</CardTitle>
                 </CardHeader>
@@ -166,7 +171,7 @@ export default function Marketing() {
                   <div>
                     <Label htmlFor="campaign-type">Campaign Type</Label>
                     <Select defaultValue="product">
-                      <SelectTrigger id="campaign-type" className="bg-slate-800 border-purple-500/30 text-white">
+                      <SelectTrigger id="campaign-type" className="bg-white/5 border-white/10 text-white">
                         <SelectValue placeholder="Select campaign type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -187,13 +192,13 @@ export default function Marketing() {
                       id="campaign-topic"
                       type="text"
                       placeholder="e.g., Best productivity tools for remote work"
-                      className="bg-slate-800 border-purple-500/30 text-white placeholder-gray-500"
+                      className="bg-white/5 border-white/10 text-white placeholder-gray-500"
                     />
                   </div>
                   <div>
                     <Label htmlFor="campaign-tone">Tone</Label>
                     <Select defaultValue="professional">
-                      <SelectTrigger id="campaign-tone" className="bg-slate-800 border-purple-500/30 text-white">
+                      <SelectTrigger id="campaign-tone" className="bg-white/5 border-white/10 text-white">
                         <SelectValue placeholder="Select tone" />
                       </SelectTrigger>
                       <SelectContent>
@@ -211,7 +216,7 @@ export default function Marketing() {
 
             {/* CAMPAIGNS TAB */}
             <TabsContent value="campaigns" className="space-y-6">
-              <Card className="glass-card border-purple-500/20">
+              <Card className="glass-card border-white/10">
                 <CardHeader>
                   <CardTitle>Recent Campaigns</CardTitle>
                   <CardDescription>Your generated campaigns and scheduling</CardDescription>
@@ -225,7 +230,7 @@ export default function Marketing() {
             {/* ANALYTICS TAB */}
             <TabsContent value="analytics" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="glass-card border-purple-500/20">
+                <Card className="glass-card border-white/10">
                   <CardHeader>
                     <CardTitle className="text-sm font-medium text-gray-400">Total Clicks</CardTitle>
                   </CardHeader>
@@ -233,7 +238,7 @@ export default function Marketing() {
                     <p className="text-3xl font-bold text-white">{affiliateLinks.reduce((sum, l) => sum + l.clicks, 0)}</p>
                   </CardContent>
                 </Card>
-                <Card className="glass-card border-purple-500/20">
+                <Card className="glass-card border-white/10">
                   <CardHeader>
                     <CardTitle className="text-sm font-medium text-gray-400">Total Conversions</CardTitle>
                   </CardHeader>
@@ -241,7 +246,7 @@ export default function Marketing() {
                     <p className="text-3xl font-bold text-white">{affiliateLinks.reduce((sum, l) => sum + l.conversions, 0)}</p>
                   </CardContent>
                 </Card>
-                <Card className="glass-card border-purple-500/20">
+                <Card className="glass-card border-white/10">
                   <CardHeader>
                     <CardTitle className="text-sm font-medium text-gray-400">Total Revenue</CardTitle>
                   </CardHeader>
@@ -251,7 +256,7 @@ export default function Marketing() {
                 </Card>
               </div>
 
-              <Card className="glass-card border-purple-500/20">
+              <Card className="glass-card border-white/10">
                 <CardHeader>
                   <CardTitle>Top Performing Links</CardTitle>
                 </CardHeader>
@@ -261,7 +266,7 @@ export default function Marketing() {
                       .sort((a, b) => b.clicks - a.clicks)
                       .slice(0, 5)
                       .map((link) => (
-                        <div key={link.id} className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
+                        <div key={link.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
                           <div>
                             <p className="font-medium text-white">{link.name}</p>
                             <p className="text-sm text-gray-400">{link.clicks} clicks, {link.conversions} conversions</p>
@@ -270,6 +275,77 @@ export default function Marketing() {
                         </div>
                       ))}
                   </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* SUBSCRIBERS TAB */}
+            <TabsContent value="subscribers" className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card className="glass-card border-white/10">
+                  <CardHeader>
+                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                      <Users className="h-4 w-4" /> Total Subscribers
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-3xl font-bold gradient-steel-text">{subscribers.length}</p>
+                  </CardContent>
+                </Card>
+                <Card className="glass-card border-white/10">
+                  <CardHeader>
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Confirmed</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-3xl font-bold gradient-steel-text">
+                      {subscribers.filter((s) => s.status === "confirmed").length}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="glass-card border-white/10">
+                  <CardHeader>
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Pending</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-3xl font-bold gradient-steel-text">
+                      {subscribers.filter((s) => s.status === "pending").length}
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card className="glass-card border-white/10">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Mail className="h-5 w-5 text-steel-shine" /> Subscriber List
+                  </CardTitle>
+                  <CardDescription>Leads captured via the newsletter signup form</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {subscribers.length === 0 ? (
+                    <p className="text-muted-foreground text-sm">No subscribers yet. Share your site to collect leads via the newsletter signup section on the home page.</p>
+                  ) : (
+                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                      {subscribers.map((sub) => (
+                        <div key={sub.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                          <div>
+                            <p className="font-medium text-foreground text-sm">{sub.email}</p>
+                            {sub.name && <p className="text-xs text-muted-foreground">{sub.name}</p>}
+                            <p className="text-xs text-muted-foreground">Source: {sub.source_page} · {new Date(sub.created_at).toLocaleDateString()}</p>
+                          </div>
+                          <span className={`text-xs rounded-full px-2 py-1 ${
+                            sub.status === "confirmed"
+                              ? "bg-steel-dark text-steel-shine border border-steel-shine/30"
+                              : sub.status === "unsubscribed"
+                              ? "bg-white/5 text-muted-foreground"
+                              : "bg-white/5 text-muted-foreground border border-white/10"
+                          }`}>
+                            {sub.status}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
