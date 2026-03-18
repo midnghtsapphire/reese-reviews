@@ -36,9 +36,11 @@ import {
   RefreshCw,
   Package,
   DollarSign,
+  ArrowRight,
 } from "lucide-react";
 import { getAmazonOrders, saveAmazonOrders } from "@/lib/amazonStore";
 import type { AmazonOrder } from "@/lib/businessTypes";
+import { addProduct, getProducts } from "@/stores/productLifecycleStore";
 
 // ─── ENTITY CONFIG ───────────────────────────────────────────
 
@@ -150,11 +152,8 @@ function rowToOrder(row: RawRow, entity: EntityLabel): AmazonOrder | null {
     status,
     review_status: "not_reviewed",
     source: "purchased",
-    // Store entity for routing income/revenue
-    ...(entity !== "reese_reviews" && {
-      notes: `entity:${entity}`,
-    }),
-  } as AmazonOrder & { notes?: string };
+    notes: `entity:${entity}`,
+  };
 }
 
 // ─── IMPORT STATS ────────────────────────────────────────────
@@ -177,7 +176,12 @@ export function AmazonOrdersToInventory() {
   const [fileName, setFileName] = useState<string>("");
   const [importing, setImporting] = useState(false);
   const [importDone, setImportDone] = useState(false);
+  const [lifecyclePushed, setLifecyclePushed] = useState(0);
   const [existing, setExisting] = useState<AmazonOrder[]>(() => getAmazonOrders());
+
+  // True when showing the built-in demo orders (no real CSV imported yet)
+  const isShowingDemoData =
+    existing.length > 0 && existing.every((o) => o.id.startsWith("amz-"));
 
   const handleFile = useCallback(
     (file: File) => {
@@ -297,6 +301,39 @@ export function AmazonOrdersToInventory() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  // Push all stored Amazon orders into the Lifecycle tracker as ORDERED stage products.
+  // Skips orders that already have a matching lifecycle entry (by amazon_order_id).
+  const handlePushToLifecycle = () => {
+    const orders = getAmazonOrders();
+    const existingLifecycle = getProducts();
+    const existingOrderIds = new Set(
+      existingLifecycle.map((p) => p.ordered?.order_id).filter(Boolean)
+    );
+
+    let pushed = 0;
+    for (const order of orders) {
+      if (existingOrderIds.has(order.amazon_order_id)) continue;
+      addProduct({
+        current_stage: order.status === "delivered" ? "RECEIVED" : "ORDERED",
+        ordered: {
+          asin: order.asin,
+          product_name: order.product_name,
+          order_date: order.purchase_date,
+          order_id: order.amazon_order_id,
+          price_paid: order.price,
+          product_images: order.image_url ? [order.image_url] : [],
+          description: "",
+          ein_registered: order.notes?.startsWith("entity:fac") ?? false,
+        },
+        tags: [order.category],
+        is_archived: false,
+        internal_notes: order.notes ?? "",
+      });
+      pushed++;
+    }
+    setLifecyclePushed(pushed);
+  };
+
   const totalImportedInStore = existing.length;
 
   return (
@@ -310,10 +347,27 @@ export function AmazonOrdersToInventory() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Badge className="bg-purple-500/20 text-purple-300 border border-purple-500/40 text-sm px-3 py-1">
+          <Badge
+            className={
+              isShowingDemoData
+                ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 text-sm px-3 py-1"
+                : "bg-purple-500/20 text-purple-300 border border-purple-500/40 text-sm px-3 py-1"
+            }
+          >
             <Package className="w-3.5 h-3.5 mr-1.5" />
-            {totalImportedInStore} orders stored
+            {isShowingDemoData ? `${totalImportedInStore} demo orders` : `${totalImportedInStore} orders stored`}
           </Badge>
+          {totalImportedInStore > 0 && !isShowingDemoData && (
+            <Button
+              size="sm"
+              onClick={handlePushToLifecycle}
+              className="bg-green-600 hover:bg-green-700 text-white text-xs gap-1.5"
+              title="Convert all stored orders into Lifecycle tracker products"
+            >
+              <ArrowRight className="w-3.5 h-3.5" />
+              Push to Lifecycle
+            </Button>
+          )}
         </div>
       </div>
 
@@ -404,6 +458,25 @@ export function AmazonOrdersToInventory() {
           <AlertDescription className="text-green-300">
             Successfully imported {stats?.imported ?? 0} orders into your inventory.
             {stats?.duplicates ? ` (${stats.duplicates} duplicates skipped)` : ""}
+            {" "}Use the <strong>Push to Lifecycle</strong> button above to add them to the Lifecycle tracker.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* ── Lifecycle Push Success ────────────────────── */}
+      {lifecyclePushed > 0 && (
+        <Alert className="border-cyan-500/40 bg-cyan-500/10">
+          <CheckCircle2 className="h-4 w-4 text-cyan-400" />
+          <AlertDescription className="text-cyan-300">
+            {lifecyclePushed} order{lifecyclePushed !== 1 ? "s" : ""} pushed to the Lifecycle tracker. Switch to the <strong>⚡ Lifecycle</strong> tab to track stages, mark as sold, and record buyer info.
+          </AlertDescription>
+        </Alert>
+      )}
+      {lifecyclePushed === 0 && totalImportedInStore > 0 && !importDone && !isShowingDemoData && (
+        <Alert className="border-blue-500/40 bg-blue-500/10">
+          <ArrowRight className="h-4 w-4 text-blue-400" />
+          <AlertDescription className="text-blue-300">
+            <strong>{totalImportedInStore} orders</strong> in inventory. Click <strong>Push to Lifecycle</strong> to track them through sold/rented stages, or import a new CSV above.
           </AlertDescription>
         </Alert>
       )}
@@ -522,6 +595,11 @@ export function AmazonOrdersToInventory() {
           <div className="flex items-center justify-between">
             <CardTitle className="text-white text-base">
               Current Order Inventory ({existing.length} orders)
+              {isShowingDemoData && (
+                <Badge className="ml-2 bg-yellow-500/20 text-yellow-300 border-yellow-500/40 text-xs">
+                  Demo Data
+                </Badge>
+              )}
             </CardTitle>
             {existing.length > 0 && (
               <Button

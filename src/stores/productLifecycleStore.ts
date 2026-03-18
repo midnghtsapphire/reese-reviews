@@ -745,8 +745,7 @@ export function getRentedProducts(): ProductLifecycle[] {
 export function getSalesRevenue(fromDate?: string, toDate?: string): number {
   return getSoldProducts()
     .filter((p) => {
-      const saleDate = p.sold?.buyer_renter?.sale_date;
-      // If a date filter is active but this item has no date, exclude it
+      const saleDate = p.sold?.buyer_renter?.transaction_date;
       if (!saleDate && (fromDate || toDate)) return false;
       if (!saleDate) return true;
       if (fromDate && saleDate < fromDate) return false;
@@ -762,8 +761,7 @@ export function getSalesRevenue(fromDate?: string, toDate?: string): number {
 export function getRentalIncome(fromDate?: string, toDate?: string): number {
   return getRentedProducts()
     .filter((p) => {
-      const saleDate = p.sold?.buyer_renter?.sale_date;
-      // If a date filter is active but this item has no date, exclude it
+      const saleDate = p.sold?.buyer_renter?.transaction_date;
       if (!saleDate && (fromDate || toDate)) return false;
       if (!saleDate) return true;
       if (fromDate && saleDate < fromDate) return false;
