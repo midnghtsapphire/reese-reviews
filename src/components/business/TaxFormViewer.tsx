@@ -333,6 +333,174 @@ function buildFormDefinitions(summary: IncomeSummary): FormDefinition[] {
         },
       ],
     },
+
+    // ── FORM 8936 — EV CLEAN VEHICLE CREDIT ──────────────────
+    {
+      form: "form_8936" as IrsForm,
+      sections: [
+        {
+          title: "Vehicle Information",
+          fields: [
+            { key: "f8936_make",        label: "Vehicle Make / Model / Year",    line: "1",   type: "text",   hint: "e.g. 2024 Tesla Model Y" },
+            { key: "f8936_vin",         label: "Vehicle Identification Number (VIN)", line: "2", type: "text", hint: "17-character VIN" },
+            { key: "f8936_purchase_dt", label: "Date of Purchase",               line: "3",   type: "text",   hint: "MM/DD/YYYY" },
+            { key: "f8936_battery_kwh", label: "Battery Capacity (kWh)",         line: "4",   type: "number", hint: "0" },
+          ],
+        },
+        {
+          title: "Credit Calculation",
+          fields: [
+            { key: "f8936_vehicle_cost",label: "Line 5 — Cost of Vehicle",       line: "5",   type: "number", hint: "0.00" },
+            { key: "f8936_biz_pct",     label: "Line 6 — Business Use %",        line: "6",   type: "number", hint: "100" },
+            { key: "f8936_base_credit", label: "Line 7 — Base Credit Amount",    line: "7",   type: "number", hint: "3750.00" },
+            { key: "f8936_battery_cred",label: "Line 8 — Battery Credit",        line: "8",   type: "number", hint: "3750.00" },
+            { key: "f8936_total_credit",label: "Line 15 — Total Credit (max $7,500)", line: "15", type: "readonly", hint: "", computed: (_s, f) => {
+              // NOTE: Simplified calculation. Actual Form 8936 credit depends on
+              // AGI phase-outs, manufacturer caps, new vs. used vehicle rules,
+              // and transfer election. Consult IRS Pub. 946 or a tax professional.
+              const base = parseFloat(f["f8936_base_credit"] || "0");
+              const batt = parseFloat(f["f8936_battery_cred"] || "0");
+              const pct  = parseFloat(f["f8936_biz_pct"] || "100") / 100;
+              return Math.min(7500, (base + batt) * pct).toFixed(2);
+            }},
+          ],
+        },
+        {
+          title: "Notes",
+          fields: [
+            { key: "f8936_notes",       label: "EV Purchase Notes / Dealer Name", line: "",   type: "text",   hint: "Dealership, purchase agreement number, etc." },
+          ],
+        },
+      ],
+    },
+
+    // ── FORM 4797 — SALE / TRADE-IN OF BUSINESS PROPERTY ─────
+    {
+      form: "form_4797" as IrsForm,
+      sections: [
+        {
+          title: "Part I — Long-term Capital Gains",
+          fields: [
+            { key: "f4797_desc",        label: "Description of Property",        line: "1a",  type: "text",   hint: "e.g. 2019 Honda CR-V (trade-in)" },
+            { key: "f4797_date_acq",    label: "Date Acquired",                  line: "1b",  type: "text",   hint: "MM/DD/YYYY" },
+            { key: "f4797_date_sold",   label: "Date Sold / Traded",             line: "1c",  type: "text",   hint: "MM/DD/YYYY" },
+            { key: "f4797_proceeds",    label: "Gross Sales / Trade-in Value",   line: "1d",  type: "number", hint: "0.00" },
+            { key: "f4797_cost_basis",  label: "Cost or Adjusted Basis",         line: "1e",  type: "number", hint: "0.00" },
+            { key: "f4797_depr_allowed",label: "Depreciation Allowed",           line: "1f",  type: "number", hint: "0.00" },
+          ],
+        },
+        {
+          title: "Part II — Ordinary Gains & Losses",
+          fields: [
+            { key: "f4797_gain_loss",   label: "Line 11 — Gain or (Loss)",       line: "11",  type: "readonly", hint: "", computed: (_s, f) => {
+              const proc = parseFloat(f["f4797_proceeds"] || "0");
+              const cost = parseFloat(f["f4797_cost_basis"] || "0");
+              const depr = parseFloat(f["f4797_depr_allowed"] || "0");
+              return (proc - (cost - depr)).toFixed(2);
+            }},
+            { key: "f4797_recapture",   label: "Sec. 1245 Recapture Amount",     line: "20",  type: "number", hint: "0.00" },
+            { key: "f4797_ordinary_gain",label: "Ordinary Gain (Line 22)",       line: "22",  type: "readonly", hint: "", computed: (_s, f) => {
+              return Math.min(
+                parseFloat(f["f4797_recapture"] || "0"),
+                Math.max(0, parseFloat(f["f4797_gain_loss"] || "0"))
+              ).toFixed(2);
+            }},
+          ],
+        },
+      ],
+    },
+
+    // ── FORM 2106 — EMPLOYEE BUSINESS EXPENSES ───────────────
+    {
+      form: "form_2106" as IrsForm,
+      sections: [
+        {
+          title: "Part I — Employee Business Expenses",
+          fields: [
+            { key: "f2106_vehicle_exp",  label: "Line 1 — Vehicle Expenses",     line: "1",   type: "number", hint: "0.00" },
+            { key: "f2106_parking",      label: "Line 2 — Parking / Tolls",      line: "2",   type: "number", hint: "0.00" },
+            { key: "f2106_other",        label: "Line 3 — Other Business Expenses", line: "3", type: "number", hint: "0.00" },
+            { key: "f2106_reimbursed",   label: "Line 7 — Employer Reimbursements", line: "7", type: "number", hint: "0.00" },
+          ],
+        },
+        {
+          title: "Part II — Vehicle Information",
+          fields: [
+            { key: "f2106_miles_biz",    label: "Line 11 — Business Miles",      line: "11",  type: "number", hint: "0" },
+            { key: "f2106_miles_comm",   label: "Line 12 — Commuting Miles",     line: "12",  type: "number", hint: "0" },
+            { key: "f2106_miles_other",  label: "Line 13 — Other Miles",         line: "13",  type: "number", hint: "0" },
+            { key: "f2106_std_mileage",  label: "Standard Mileage Rate Used?",   line: "14",  type: "text",   hint: "Yes / No" },
+          ],
+        },
+      ],
+    },
+
+    // ── FORM 8582 — PASSIVE ACTIVITY LOSS ────────────────────
+    {
+      form: "form_8582" as IrsForm,
+      sections: [
+        {
+          title: "Rental / Passive Activity",
+          fields: [
+            { key: "f8582_net_income",   label: "Line 1a — Net rental income",   line: "1a",  type: "number", hint: "0.00" },
+            { key: "f8582_net_loss",     label: "Line 1b — Net rental loss",     line: "1b",  type: "number", hint: "0.00" },
+            { key: "f8582_prior_loss",   label: "Line 1c — Prior unallowed loss",line: "1c",  type: "number", hint: "0.00" },
+            { key: "f8582_total",        label: "Line 4 — Total",                line: "4",   type: "readonly", hint: "", computed: (_s, f) => {
+              const inc  = parseFloat(f["f8582_net_income"] || "0");
+              const loss = parseFloat(f["f8582_net_loss"] || "0");
+              const prior= parseFloat(f["f8582_prior_loss"] || "0");
+              return (inc - loss - prior).toFixed(2);
+            }},
+          ],
+        },
+      ],
+    },
+
+    // ── FORM 1120-S — S-CORPORATION ──────────────────────────
+    {
+      form: "form_1120s" as IrsForm,
+      sections: [
+        {
+          title: "Income",
+          fields: [
+            { key: "f1120s_gross_rec",   label: "Line 1a — Gross Receipts",      line: "1a",  type: "number", hint: "0.00" },
+            { key: "f1120s_cogs",        label: "Line 2 — Cost of Goods Sold",   line: "2",   type: "number", hint: "0.00" },
+            { key: "f1120s_gross_profit",label: "Line 3 — Gross Profit",         line: "3",   type: "readonly", hint: "", computed: (_s, f) => {
+              return Math.max(0, parseFloat(f["f1120s_gross_rec"] || "0") - parseFloat(f["f1120s_cogs"] || "0")).toFixed(2);
+            }},
+          ],
+        },
+        {
+          title: "Deductions",
+          fields: [
+            { key: "f1120s_compensation",label: "Line 7 — Compensation of Officers", line: "7", type: "number", hint: "0.00" },
+            { key: "f1120s_depreciation",label: "Line 14 — Depreciation",        line: "14",  type: "number", hint: "0.00" },
+            { key: "f1120s_total_ded",   label: "Line 20 — Total Deductions",    line: "20",  type: "number", hint: "0.00" },
+          ],
+        },
+      ],
+    },
+
+    // ── FORM 1065 — PARTNERSHIP ───────────────────────────────
+    {
+      form: "form_1065" as IrsForm,
+      sections: [
+        {
+          title: "Income",
+          fields: [
+            { key: "f1065_gross_rec",    label: "Line 1a — Gross Receipts",      line: "1a",  type: "number", hint: "0.00" },
+            { key: "f1065_net_gain",     label: "Line 6 — Net Gain/Loss",        line: "6",   type: "number", hint: "0.00" },
+          ],
+        },
+        {
+          title: "Deductions",
+          fields: [
+            { key: "f1065_salaries",     label: "Line 9 — Salaries & Wages",     line: "9",   type: "number", hint: "0.00" },
+            { key: "f1065_total_ded",    label: "Line 21 — Total Deductions",    line: "21",  type: "number", hint: "0.00" },
+          ],
+        },
+      ],
+    },
   ];
 }
 
@@ -370,83 +538,200 @@ function FormPanel({ form, summary, fields, onChange }: FormPanelProps) {
   const meta = IRS_FORM_META[form];
 
   return (
-    <div className="space-y-6">
-      {/* Form header */}
+    <div
+      className="space-y-0 rounded-lg overflow-hidden"
+      style={{
+        background: "#fff",
+        color: "#000",
+        fontFamily: "'Times New Roman', Times, serif",
+        border: "2px solid #000",
+        boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
+      }}
+      role="region"
+      aria-label={`${meta.label} form`}
+    >
+      {/* IRS Form Header */}
       <div
-        className="p-4 rounded-lg border"
-        style={{ background: `${BRAND.amber}11`, borderColor: `${BRAND.amber}33` }}
+        style={{
+          borderBottom: "2px solid #000",
+          padding: "8px 12px",
+          background: "#f8f8f8",
+        }}
       >
-        <div className="flex items-start gap-3">
-          <FileText className="w-5 h-5 shrink-0 mt-0.5" style={{ color: BRAND.amber }} />
-          <div>
-            <p className="text-white font-bold">{meta.label}</p>
-            <p className="text-gray-400 text-sm">{meta.description}</p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", gap: 8 }}>
+          {/* Left: Dept of Treasury */}
+          <div style={{ fontSize: 9, lineHeight: 1.4 }}>
+            <div style={{ fontWeight: "bold" }}>DEPARTMENT OF THE TREASURY — INTERNAL REVENUE SERVICE</div>
+          </div>
+          {/* Center: Form name */}
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 22, fontWeight: "900", letterSpacing: 1 }}>{meta.label}</div>
+            <div style={{ fontSize: 10, fontWeight: "bold" }}>{meta.description.split(" — ")[0]}</div>
+          </div>
+          {/* Right: OMB / Tax year */}
+          <div style={{ textAlign: "right", fontSize: 9 }}>
+            <div>OMB No. 1545-0074</div>
+            <div style={{ fontWeight: "bold", fontSize: 12 }}>{summary.tax_year}</div>
           </div>
         </div>
       </div>
 
       {/* Sections */}
-      {def.sections.map((section) => (
-        <div key={section.title} className="space-y-3">
-          <h4 className="text-gray-300 text-xs font-semibold uppercase tracking-wider border-b border-white/10 pb-1">
-            {section.title}
-          </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {section.fields.map((field) => {
-              if (field.type === "divider") {
-                return <div key={field.key} className="sm:col-span-2 border-t border-white/10" />;
-              }
+      <div style={{ padding: "0" }}>
+        {def.sections.map((section, sIdx) => (
+          <div key={section.title} style={{ borderBottom: sIdx < def.sections.length - 1 ? "1px solid #999" : undefined }}>
+            {/* Section header */}
+            <div
+              style={{
+                background: "#1a1a1a",
+                color: "#fff",
+                padding: "3px 12px",
+                fontSize: 10,
+                fontWeight: "bold",
+                letterSpacing: 1,
+                textTransform: "uppercase",
+              }}
+            >
+              {section.title}
+            </div>
 
-              // Compute value if field has a computed function and no user override
-              const computedVal = field.computed ? field.computed(summary, fields) : undefined;
-              const displayVal = fields[field.key] ?? computedVal ?? "";
-
-              return (
-                <div key={field.key} className="space-y-1">
-                  <Label className="text-gray-400 text-xs flex items-center gap-1">
-                    {field.line && (
-                      <span
-                        className="px-1.5 py-0.5 rounded text-xs font-mono"
-                        style={{ background: `${BRAND.amber}22`, color: BRAND.amber }}
-                      >
-                        {field.line}
-                      </span>
-                    )}
-                    {field.label}
-                    {field.type === "readonly" && (
-                      <span className="text-gray-600 text-xs ml-1">(auto)</span>
-                    )}
-                  </Label>
-                  {field.type === "readonly" ? (
-                    <div className="px-3 py-2 rounded-md bg-white/5 border border-white/10 text-gray-300 text-sm font-mono">
-                      {displayVal || "—"}
-                    </div>
-                  ) : (
-                    <Input
-                      type={field.type === "number" ? "number" : "text"}
-                      step={field.type === "number" ? "0.01" : undefined}
-                      min={field.type === "number" ? "0" : undefined}
-                      value={displayVal}
-                      placeholder={field.hint}
-                      onChange={(e) => onChange(field.key, e.target.value)}
-                      className="bg-white/10 border-white/20 text-white placeholder:text-gray-600 text-sm font-mono"
+            {/* Fields */}
+            <div>
+              {section.fields.map((field, fIdx) => {
+                if (field.type === "divider") {
+                  return (
+                    <div
+                      key={field.key}
+                      style={{ borderTop: "1px solid #ccc", margin: "0" }}
                     />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      ))}
+                  );
+                }
 
-      {/* IRS disclaimer */}
-      <div className="flex items-start gap-2 p-3 rounded-lg bg-white/5 border border-white/10">
-        <Info className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
-        <p className="text-gray-500 text-xs">
-          This is a reference preview only — not an official IRS form. Consult a licensed tax
-          professional or use IRS Free File for official filing. All values are estimates based on
-          data entered in the Income Source Manager.
-        </p>
+                const computedVal = field.computed ? field.computed(summary, fields) : undefined;
+                const displayVal = fields[field.key] ?? computedVal ?? "";
+                const isReadonly = field.type === "readonly";
+                const isEvenRow = fIdx % 2 === 0;
+
+                return (
+                  <div
+                    key={field.key}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "auto 1fr auto",
+                      alignItems: "center",
+                      borderBottom: "1px solid #e0e0e0",
+                      background: isEvenRow ? "#fff" : "#fafafa",
+                      minHeight: 32,
+                    }}
+                  >
+                    {/* Line number box */}
+                    <div
+                      style={{
+                        width: 40,
+                        textAlign: "center",
+                        borderRight: "1px solid #ccc",
+                        padding: "4px 6px",
+                        fontSize: 10,
+                        fontWeight: "bold",
+                        color: "#1a1a1a",
+                        fontFamily: "monospace",
+                        minHeight: 32,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: field.line ? "#f0f4ff" : "transparent",
+                      }}
+                    >
+                      {field.line || ""}
+                    </div>
+
+                    {/* Label */}
+                    <div
+                      style={{
+                        padding: "4px 10px",
+                        fontSize: 11,
+                        borderRight: "1px solid #ccc",
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      {field.label}
+                      {isReadonly && (
+                        <span style={{ color: "#666", fontSize: 9, marginLeft: 4 }}>(auto)</span>
+                      )}
+                    </div>
+
+                    {/* Input / value box */}
+                    <div
+                      style={{
+                        width: 160,
+                        padding: "2px 6px",
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      {isReadonly ? (
+                        <div
+                          style={{
+                            width: "100%",
+                            textAlign: "right",
+                            fontFamily: "monospace",
+                            fontSize: 12,
+                            fontWeight: "bold",
+                            color: "#1a1a1a",
+                            borderBottom: "1px solid #666",
+                            padding: "1px 4px",
+                            minHeight: 22,
+                          }}
+                          aria-label={`${field.label}: ${displayVal || "0.00"}`}
+                        >
+                          {displayVal || "—"}
+                        </div>
+                      ) : (
+                        <input
+                          type={field.type === "number" ? "number" : "text"}
+                          step={field.type === "number" ? "0.01" : undefined}
+                          min={field.type === "number" ? "0" : undefined}
+                          value={displayVal}
+                          placeholder={field.hint || (field.type === "number" ? "0.00" : "")}
+                          onChange={(e) => onChange(field.key, e.target.value)}
+                          aria-label={field.label}
+                          style={{
+                            width: "100%",
+                            textAlign: field.type === "number" ? "right" : "left",
+                            fontFamily: "monospace",
+                            fontSize: 12,
+                            border: "1px solid #888",
+                            background: "#fffef0",
+                            padding: "2px 6px",
+                            outline: "none",
+                          }}
+                          onFocus={(e) => { e.target.style.border = "2px solid #0066cc"; }}
+                          onBlur={(e) => { e.target.style.border = "1px solid #888"; }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* IRS disclaimer footer */}
+      <div
+        style={{
+          borderTop: "2px solid #000",
+          padding: "6px 12px",
+          background: "#f0f0f0",
+          fontSize: 9,
+          color: "#444",
+          lineHeight: 1.4,
+        }}
+      >
+        <strong>REFERENCE ONLY — NOT AN OFFICIAL IRS FORM.</strong> This preview is auto-generated from entered
+        income data. Consult a licensed tax professional or use IRS Free File / commercial software for official filing.
+        Accuracy of computed amounts depends on completeness of data entered in the Income Source Manager.
       </div>
     </div>
   );

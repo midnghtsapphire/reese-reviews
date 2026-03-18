@@ -12,6 +12,8 @@ import { ProductLifecycle } from "@/components/business/ProductLifecycle";
 import { ReviewAutomation } from "@/components/business/ReviewAutomation";
 import { ERPTaxCenter } from "@/components/business/ERPTaxCenter";
 import { ReviewPipeline } from "@/components/business/ReviewPipeline";
+import { AmazonOrdersToInventory } from "@/components/business/AmazonOrdersToInventory";
+import { AllAttachmentForms } from "@/components/business/AllAttachmentForms";
 
 // ─── TOP-LEVEL TABS ───────────────────────────────────────────
 // Consolidated from 12 tabs → 9 tabs.
@@ -44,6 +46,7 @@ const TOP_TABS = [
   { value: "lifecycle",    label: "⚡ Lifecycle",     title: "Product Lifecycle Tracker" },
   { value: "reviews",      label: "🎬 Reviews",       title: "Review Automation" },
   { value: "reviewpipeline", label: "🔀 Review Pipeline", title: "Review Pipeline" },
+  { value: "forms",        label: "📋 Forms",         title: "Tax & Attachment Forms" },
 ] as const;
 
 export default function Business() {
@@ -107,8 +110,13 @@ export default function Business() {
 
             {/* ── AMAZON DASHBOARD ─────────────────────────────
                 Amazon seller metrics, ASIN tracking, BSR.
+                Includes Order Import with demo/real badges and
+                Push to Lifecycle Tracker.
             ─────────────────────────────────────────────────── */}
             <TabsContent value="amazon" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <AmazonOrdersToInventory />
+              </div>
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <AmazonDashboard />
               </div>
@@ -171,6 +179,17 @@ export default function Business() {
             <TabsContent value="reviewpipeline" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <ReviewPipeline />
+              </div>
+            </TabsContent>
+
+            {/* ── TAX & ATTACHMENT FORMS ───────────────────────
+                Comprehensive list of all IRS forms and schedules
+                relevant to a review business Corp & 1099 filer,
+                including EV purchase, trade-in, write-offs.
+            ─────────────────────────────────────────────────── */}
+            <TabsContent value="forms" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <AllAttachmentForms />
               </div>
             </TabsContent>
           </Tabs>

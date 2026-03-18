@@ -32,7 +32,8 @@ const HeroSection = () => {
           <img
             src={reeseLogo}
             alt="Reese Reviews — From Box to Beautiful"
-            className="mx-auto h-[260px] w-[260px] rounded-full border-4 border-steel-shine/20 object-cover drop-shadow-2xl md:h-[380px] md:w-[380px]"
+            className="mx-auto h-[240px] w-[240px] rounded-full border-4 border-steel-shine/30 object-contain mix-blend-screen drop-shadow-2xl md:h-[340px] md:w-[340px]"
+            style={{ background: "radial-gradient(circle, hsl(var(--steel-dark)/0.6) 0%, transparent 70%)" }}
           />
         </motion.div>
 
