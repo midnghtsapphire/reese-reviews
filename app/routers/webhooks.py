@@ -1,14 +1,33 @@
+import hashlib
+import hmac
 from fastapi import APIRouter, Request, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_session_factory
 from app.models import Job, JobStatus
 from app.queue import get_queue
+from app.config import settings
 
 router = APIRouter(prefix="/webhooks", tags=["webhooks"])
+
+TELEGRAM_IP_RANGES = (
+    "149.154.",
+    "91.108.",
+)
+
+
+def _verify_telegram_request(request: Request, secret_token: str | None) -> bool:
+    """Validate the X-Telegram-Bot-Api-Secret-Token header if a secret is configured."""
+    if not secret_token:
+        return True
+    provided = request.headers.get("X-Telegram-Bot-Api-Secret-Token", "")
+    return hmac.compare_digest(provided, secret_token)
 
 
 @router.post("/telegram")
 async def telegram_webhook(request: Request):
+    secret_token = settings.telegram_webhook_secret if hasattr(settings, "telegram_webhook_secret") else None
+    if not _verify_telegram_request(request, secret_token):
+        raise HTTPException(status_code=403, detail="Invalid webhook secret")
     data = await request.json()
     message = data.get("message") or data.get("edited_message") or {}
     text: str = (message.get("text") or "").strip()

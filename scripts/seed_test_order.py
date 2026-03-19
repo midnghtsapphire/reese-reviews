@@ -18,7 +18,7 @@ async def seed():
     factory = get_session_factory()
     async with factory() as session:
         order = Order(
-            product_name="Test Product — Wireless Headphones",
+            product_name="Test Product - Wireless Headphones",
             asin="B08HVZBJ2Y",
             category=OrderCategory.electronics,
             purchase_price=79.99,
