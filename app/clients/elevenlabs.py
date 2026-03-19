@@ -7,6 +7,7 @@ from app.clients.vault import get_secret_safe
 logger = logging.getLogger(__name__)
 
 ELEVENLABS_BASE = "https://api.elevenlabs.io/v1"
+# ElevenLabs enforces a 2500-character limit per TTS request; longer scripts are split into chunks.
 MAX_CHARS = 2500
 
 

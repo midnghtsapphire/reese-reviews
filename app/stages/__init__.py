@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 async def _update_job(session: AsyncSession, job: Job, **kwargs) -> None:
     for key, value in kwargs.items():
         setattr(job, key, value)
-    job.updated_at = datetime.utcnow()
     await session.commit()
 
 

@@ -16,7 +16,7 @@ def test_vault_connection_error_in_production():
             MockClient.return_value = mock_client
 
             from app.clients import vault as vault_module
-            vault_module._client = None  # reset cached client
+            vault_module.reset_client()
 
             with pytest.raises((VaultConnectionError, RuntimeError)):
                 vault_module.get_secret("supabase")
@@ -29,7 +29,7 @@ def test_vault_get_secret_safe_dev_returns_empty():
         mock_settings.vault_token = ""
 
         from app.clients import vault as vault_module
-        vault_module._client = None
+        vault_module.reset_client()
 
         import hvac
         with patch("hvac.Client") as MockClient:

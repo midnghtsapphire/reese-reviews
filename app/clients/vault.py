@@ -1,9 +1,12 @@
 import logging
+import threading
 from typing import Any
 import hvac
 from app.config import settings
 
 logger = logging.getLogger(__name__)
+
+_lock = threading.Lock()
 
 
 class VaultConnectionError(Exception):
@@ -13,19 +16,27 @@ class VaultConnectionError(Exception):
 _client: hvac.Client | None = None
 
 
+def reset_client() -> None:
+    """Reset the cached Vault client (used in tests)."""
+    global _client
+    with _lock:
+        _client = None
+
+
 def _get_client() -> hvac.Client:
     global _client
-    if _client is None or not _client.is_authenticated():
-        client = hvac.Client(url=settings.vault_addr, token=settings.vault_token)
-        try:
-            if not client.is_authenticated():
-                raise VaultConnectionError("Vault token authentication failed")
-        except Exception as exc:
-            if settings.environment == "production":
-                raise VaultConnectionError(f"Cannot reach Vault in production: {exc}") from exc
-            logger.warning("Vault unavailable in non-production environment: %s", exc)
-            raise VaultConnectionError(f"Vault unreachable: {exc}") from exc
-        _client = client
+    with _lock:
+        if _client is None or not _client.is_authenticated():
+            client = hvac.Client(url=settings.vault_addr, token=settings.vault_token)
+            try:
+                if not client.is_authenticated():
+                    raise VaultConnectionError("Vault token authentication failed")
+            except Exception as exc:
+                if settings.environment == "production":
+                    raise VaultConnectionError(f"Cannot reach Vault in production: {exc}") from exc
+                logger.warning("Vault unavailable in non-production environment: %s", exc)
+                raise VaultConnectionError(f"Vault unreachable: {exc}") from exc
+            _client = client
     return _client
 
 
