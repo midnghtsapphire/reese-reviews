@@ -3,7 +3,7 @@
 // Automatically falls back to demo mode if Supabase is not configured
 
 import type { VineItem } from "./businessTypes";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 
 const STORAGE_KEY = "reese-vine-items";
 const VINE_CONFIG_KEY = "reese-vine-config";
@@ -116,7 +116,7 @@ export function setBackendMode(enabled: boolean): void {
 
 export async function getVineItems(): Promise<VineItem[]> {
   // If backend mode is enabled, try Supabase first
-  if (isBackendMode()) {
+  if (isBackendMode() && isSupabaseConfigured()) {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -166,7 +166,7 @@ export async function saveVineItems(items: VineItem[]): Promise<void> {
   localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
 
   // If backend mode, also save to Supabase
-  if (isBackendMode()) {
+  if (isBackendMode() && isSupabaseConfigured()) {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -301,7 +301,7 @@ export async function scrapeVineItems(
 ): Promise<VineScraperResult> {
   try {
     // Backend mode - call Supabase Edge Function
-    if (isBackendMode()) {
+    if (isBackendMode() && isSupabaseConfigured()) {
       const { data, error } = await supabase.functions.invoke('sync-vine-items', {
         body: { cookies, queues }
       });

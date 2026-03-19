@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
 export type Review = Tables<"reviews">;
@@ -8,6 +8,7 @@ export const useIsAdmin = () => {
   return useQuery({
     queryKey: ["is-admin"],
     queryFn: async () => {
+      if (!isSupabaseConfigured()) return false;
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return false;
 
@@ -27,6 +28,7 @@ export const useAllReviews = (status?: string) => {
   return useQuery({
     queryKey: ["admin-reviews", status],
     queryFn: async () => {
+      if (!isSupabaseConfigured()) return [];
       let query = supabase
         .from("reviews")
         .select("*")
@@ -48,6 +50,7 @@ export const useUpdateReviewStatus = () => {
   
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      if (!isSupabaseConfigured()) throw new Error("Supabase is not configured.");
       const { error } = await supabase
         .from("reviews")
         .update({ status })
@@ -67,6 +70,7 @@ export const useDeleteReview = () => {
   
   return useMutation({
     mutationFn: async (id: string) => {
+      if (!isSupabaseConfigured()) throw new Error("Supabase is not configured.");
       const { error } = await supabase
         .from("reviews")
         .delete()
@@ -85,6 +89,7 @@ export const useAllProducts = () => {
   return useQuery({
     queryKey: ["admin-products"],
     queryFn: async () => {
+      if (!isSupabaseConfigured()) return [];
       const { data, error } = await supabase
         .from("products")
         .select("*")
