@@ -9,19 +9,8 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import LoginPage from "@/components/LoginPage";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import Index from "@/pages/Index";
-import Reviews from "@/pages/Reviews";
-import ReviewDetail from "@/pages/ReviewDetail";
-import Categories from "@/pages/Categories";
-import About from "@/pages/About";
-import Contact from "@/pages/Contact";
-import SubmitReview from "@/pages/SubmitReview";
-import Business from "@/pages/Business";
-import Marketing from "@/pages/Marketing";
-import Blog from "@/pages/Blog";
-import FAQ from "@/pages/FAQ";
-import EmailConfirmation from "@/pages/EmailConfirmation";
-import Admin from "@/pages/Admin";
+import Dashboard from "@/pages/Dashboard";
+import Generate from "@/pages/Generate";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,22 +28,13 @@ const AuthenticatedApp = () => {
         Skip to main content
       </a>
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/reviews" element={<Reviews />} />
-        <Route path="/reviews/:slug" element={<ReviewDetail />} />
-        <Route path="/categories" element={<Categories />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/submit" element={<SubmitReview />} />
-        <Route path="/business" element={<Business />} />
-        <Route path="/marketing" element={<Marketing />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/faq" element={<FAQ />} />
-        <Route path="/confirm-email" element={<EmailConfirmation />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <main id="main-content">
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/generate" element={<Generate />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
       <Footer />
     </>
   );
