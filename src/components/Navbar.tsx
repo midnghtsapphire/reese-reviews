@@ -1,24 +1,20 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LogOut, Settings } from "lucide-react";
+import { Menu, X, LogOut, Zap, LayoutDashboard } from "lucide-react";
 import AccessibilityToggle from "./AccessibilityToggle";
 import { useAuth } from "@/contexts/AuthContext";
 import reeseLogo from "@/assets/reese-logo.png";
 
 const navLinks = [
-  { label: "Home", href: "/" },
-  { label: "Reviews", href: "/reviews" },
-  { label: "Categories", href: "/categories" },
-  { label: "Blog", href: "/blog" },
-  { label: "FAQ", href: "/faq" },
-  { label: "About Reese", href: "/about" },
-  { label: "Contact", href: "/contact" },
+  { label: "Dashboard",      href: "/",         icon: LayoutDashboard },
+  { label: "Create Content", href: "/generate", icon: Zap },
 ];
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const location = useLocation();
   const { logout } = useAuth();
 
@@ -41,25 +37,35 @@ const Navbar = () => {
       aria-label="Main navigation"
     >
       <div className="container mx-auto flex items-center justify-between px-6 py-3">
-        <Link to="/" className="flex items-center gap-3" aria-label="Reese Reviews Home">
-          <img src={reeseLogo} alt="Reese Reviews logo" className="h-10 w-auto" />
+        {/* Brand */}
+        <Link to="/" className="flex items-center gap-2" aria-label="Reese-Reviews Home">
+          {!logoError && (
+            <img
+              src={reeseLogo}
+              alt="Reese-Reviews logo"
+              className="h-9 w-auto"
+              onError={() => setLogoError(true)}
+            />
+          )}
           <span className="hidden font-serif text-lg font-bold gradient-steel-text sm:inline">
-            Reese Reviews
+            Reese-Reviews
           </span>
         </Link>
 
-        <ul className="hidden items-center gap-8 md:flex" role="menubar">
-          {navLinks.map((link) => (
-            <li key={link.label} role="none">
+        {/* Desktop nav */}
+        <ul className="hidden items-center gap-6 md:flex" role="menubar">
+          {navLinks.map(({ label, href, icon: Icon }) => (
+            <li key={label} role="none">
               <Link
-                to={link.href}
+                to={href}
                 role="menuitem"
-                className={`text-sm font-medium tracking-wide transition-colors hover:text-foreground ${
-                  location.pathname === link.href ? "text-foreground" : "text-muted-foreground"
+                className={`flex items-center gap-1.5 text-sm font-medium tracking-wide transition-colors hover:text-foreground ${
+                  location.pathname === href ? "text-foreground" : "text-muted-foreground"
                 }`}
-                aria-current={location.pathname === link.href ? "page" : undefined}
+                aria-current={location.pathname === href ? "page" : undefined}
               >
-                {link.label}
+                <Icon size={14} />
+                {label}
               </Link>
             </li>
           ))}
@@ -68,25 +74,16 @@ const Navbar = () => {
         <div className="flex items-center gap-3">
           <AccessibilityToggle />
 
-          {/* Admin Panel link */}
+          {/* Create Content CTA */}
           <Link
-            to="/admin"
-            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-accent md:inline-flex"
-            style={{ color: "#FF6B2B" }}
-            title="Admin Panel"
+            to="/generate"
+            className="hidden rounded-lg gradient-steel px-4 py-2 text-sm font-semibold text-primary-foreground transition-transform hover:scale-105 md:inline-flex items-center gap-1.5"
           >
-            <Settings size={15} />
-            <span className="hidden lg:inline">Admin</span>
+            <Zap size={14} />
+            Create
           </Link>
 
-          <Link
-            to="/submit"
-            className="hidden rounded-lg gradient-steel px-5 py-2 text-sm font-semibold text-primary-foreground transition-transform hover:scale-105 md:inline-flex"
-          >
-            Submit Review
-          </Link>
-
-          {/* Logout button */}
+          {/* Logout */}
           <button
             onClick={logout}
             className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground md:inline-flex"
@@ -97,6 +94,7 @@ const Navbar = () => {
             <span className="hidden lg:inline">Logout</span>
           </button>
 
+          {/* Mobile hamburger */}
           <button
             onClick={() => setOpen(!open)}
             className="rounded-lg p-2 text-foreground md:hidden"
@@ -108,6 +106,7 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Mobile menu */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -118,67 +117,34 @@ const Navbar = () => {
             role="menu"
           >
             <ul className="flex flex-col gap-2 px-6 py-6">
-              {navLinks.map((link) => (
-                <li key={link.label} role="none">
+              {navLinks.map(({ label, href, icon: Icon }) => (
+                <li key={label} role="none">
                   <Link
-                    to={link.href}
+                    to={href}
                     role="menuitem"
                     onClick={() => setOpen(false)}
-                    className={`block rounded-lg px-4 py-3 text-sm font-medium transition-colors hover:bg-accent ${
-                      location.pathname === link.href ? "text-foreground bg-accent/50" : "text-muted-foreground"
+                    className={`flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium transition-colors hover:bg-accent ${
+                      location.pathname === href ? "text-foreground bg-accent/50" : "text-muted-foreground"
                     }`}
                   >
-                    {link.label}
+                    <Icon size={15} />
+                    {label}
                   </Link>
                 </li>
               ))}
               <li role="none">
                 <Link
-                  to="/submit"
+                  to="/generate"
                   role="menuitem"
                   onClick={() => setOpen(false)}
-                  className="mt-2 block rounded-lg gradient-steel px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
+                  className="mt-2 flex items-center justify-center gap-2 rounded-lg gradient-steel px-4 py-3 text-sm font-semibold text-primary-foreground"
                 >
-                  Submit Review
-                </Link>
-              </li>
-              <li role="none">
-                <Link
-                  to="/admin"
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="mt-2 flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold"
-                  style={{ background: "rgba(255,107,43,0.15)", color: "#FF6B2B", border: "1px solid rgba(255,107,43,0.3)" }}
-                >
-                  <Settings size={16} /> Admin Panel
-                </Link>
-              </li>
-              <li role="none">
-                <Link
-                  to="/business"
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="mt-2 block rounded-lg px-4 py-3 text-center text-sm font-semibold text-primary-foreground bg-purple-600 hover:bg-purple-700"
-                >
-                  Business Dashboard
-                </Link>
-              </li>
-              <li role="none">
-                <Link
-                  to="/marketing"
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="mt-2 block rounded-lg px-4 py-3 text-center text-sm font-semibold text-primary-foreground bg-blue-600 hover:bg-blue-700"
-                >
-                  Marketing Hub
+                  <Zap size={15} /> Create Content
                 </Link>
               </li>
               <li role="none">
                 <button
-                  onClick={() => {
-                    setOpen(false);
-                    logout();
-                  }}
+                  onClick={() => { setOpen(false); logout(); }}
                   className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 >
                   <LogOut size={16} /> Logout
