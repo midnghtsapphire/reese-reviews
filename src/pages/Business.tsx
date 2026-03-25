@@ -45,6 +45,7 @@ const TOP_TABS = [
   { value: "lifecycle",    label: "⚡ Lifecycle",     title: "Product Lifecycle Tracker" },
   { value: "reviews",      label: "🎬 Reviews",       title: "Review Automation" },
   { value: "reviewpipeline", label: "🔀 Review Pipeline", title: "Review Pipeline" },
+  { value: "forms",        label: "📋 Forms",         title: "IRS & Attachment Forms" },
 ] as const;
 
 export default function Business() {
@@ -173,6 +174,15 @@ export default function Business() {
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <ReviewPipeline />
               </div>
+            </TabsContent>
+
+            {/* ── FORMS (ALL ATTACHMENT FORMS) ─────────────────
+                Searchable, category-filtered accordion list of
+                IRS forms: 1040, Schedule C, EV credit, trade-in,
+                corporate, charitable, passive, etc.
+            ─────────────────────────────────────────────────── */}
+            <TabsContent value="forms" className="space-y-6">
+              <AllAttachmentForms />
             </TabsContent>
           </Tabs>
         </div>
