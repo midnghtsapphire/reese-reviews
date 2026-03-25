@@ -280,9 +280,9 @@ export function getSubscriberAnalytics(): SubscriberAnalytics {
     confirmed_subscribers: confirmed,
     pending_subscribers: pending,
     unsubscribed_count: unsubscribed,
-    growth_7d: growth7d,
-    growth_30d: growth30d,
-    growth_90d: growth90d,
+    growth_7d,
+    growth_30d,
+    growth_90d,
     segments: segments.map((seg) => ({
       segment_id: seg.id,
       segment_name: seg.name,
