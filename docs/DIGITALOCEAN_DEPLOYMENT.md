@@ -67,9 +67,9 @@ Click **Edit** on the component, then add these environment variables (scope: **
 | Key | Value |
 |---|---|
 | `VITE_SUPABASE_URL` | `https://nythypgelkmyoawdnkjv.supabase.co` |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (full key from `.env`) |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Your Supabase anon/public key (find it in the Supabase dashboard → Project Settings → API) |
 
-> These are Supabase **anon/public** keys — safe to expose in a frontend build. They are already committed in `.env` for local development.
+> These are Supabase **anon/public** keys — safe to expose in a frontend build. Set them here in the DO App Platform dashboard. Do **not** commit a real `.env` file; use `.env.example` as a template for local development.
 
 ### Step 4 — Choose a Plan
 

@@ -1,6 +1,7 @@
 import HeroSection from "@/components/HeroSection";
 import FeaturedReviews from "@/components/FeaturedReviews";
 import CategoriesPreview from "@/components/CategoriesPreview";
+import NewsletterSignup from "@/components/NewsletterSignup";
 import SEOHead from "@/components/SEOHead";
 
 const Index = () => {
@@ -10,6 +11,7 @@ const Index = () => {
       <HeroSection />
       <FeaturedReviews />
       <CategoriesPreview />
+      <NewsletterSignup />
     </main>
   );
 };

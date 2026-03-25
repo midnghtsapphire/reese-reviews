@@ -12,6 +12,7 @@ import { ProductLifecycle } from "@/components/business/ProductLifecycle";
 import { ReviewAutomation } from "@/components/business/ReviewAutomation";
 import { ERPTaxCenter } from "@/components/business/ERPTaxCenter";
 import { ReviewPipeline } from "@/components/business/ReviewPipeline";
+import AllAttachmentForms from "@/components/business/AllAttachmentForms";
 
 // ─── TOP-LEVEL TABS ───────────────────────────────────────────
 // Consolidated from 12 tabs → 9 tabs.
