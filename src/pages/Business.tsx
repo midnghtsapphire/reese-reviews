@@ -13,6 +13,7 @@ import { ReviewAutomation } from "@/components/business/ReviewAutomation";
 import { ERPTaxCenter } from "@/components/business/ERPTaxCenter";
 import { ReviewPipeline } from "@/components/business/ReviewPipeline";
 import { BusinessExpenseTracker } from "@/components/business/BusinessExpenseTracker";
+import { AppPortfolioTracker } from "@/components/business/AppPortfolioTracker";
 
 // ─── TOP-LEVEL TABS ───────────────────────────────────────────
 // Consolidated from 12 tabs → 9 tabs.
@@ -46,6 +47,7 @@ const TOP_TABS = [
   { value: "lifecycle",    label: "⚡ Lifecycle",     title: "Product Lifecycle Tracker" },
   { value: "reviews",      label: "🎬 Reviews",       title: "Review Automation" },
   { value: "reviewpipeline", label: "🔀 Review Pipeline", title: "Review Pipeline" },
+  { value: "apps",          label: "📱 Apps",           title: "App Portfolio" },
 ] as const;
 
 export default function Business() {
@@ -182,6 +184,15 @@ export default function Business() {
             <TabsContent value="reviewpipeline" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <ReviewPipeline />
+              </div>
+            </TabsContent>
+
+            {/* ── APP PORTFOLIO ─────────────────────────────
+                Track every app/site, stats, social accounts, content queue.
+            ─────────────────────────────────────────────────── */}
+            <TabsContent value="apps" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <AppPortfolioTracker />
               </div>
             </TabsContent>
           </Tabs>
