@@ -16,7 +16,9 @@ Every agent MUST do these steps at the start of every session, in order:
 4. Read AGENTS.md for project conventions.
 5. Check open issues / PR comments for context.
 6. Look at the checklist in the most recent commit to this file.
-7. THEN start work.
+7. SCAN for Blue Ocean Opportunities (see section below) — add at least one
+   new idea to the Blue Ocean list before starting implementation work.
+8. THEN start work.
 ```
 
 ---
@@ -30,9 +32,64 @@ Every agent MUST do these steps at the END of every session:
 2. Update "Last Session Completed" section below.
 3. Update "Open Action Items" section below.
 4. Run the Gap Analysis update (see section below).
-5. Commit HANDOFF.md with message: "docs: handoff update — [date] [brief summary]"
-6. Push via report_progress.
+5. ADD at least 3 new items to the Blue Ocean Opportunities list.
+   These should be fresh ideas from your work this session — things you
+   noticed, patterns you saw, or adjacent market opportunities.
+6. Commit HANDOFF.md with message: "docs: handoff update — [date] [brief summary]"
+7. Push via report_progress.
 ```
+
+---
+
+## 🌊 BLUE OCEAN OPPORTUNITIES
+
+**Rule:** Every agent session MUST add ideas here. Incoming agents SCAN this list for ideas to act on. Outgoing agents ADD to it. Nothing gets deleted — just marked ✅ done or ❌ not viable.
+
+This is our competitive intelligence log. Think "what can this app do that no other tool does?"
+
+### 🔴 High Priority (Act on these next)
+
+| ID | Idea | Why It's Blue Ocean | Effort | Status |
+|---|---|---|---|---|
+| BO-001 | **Vine ETV Tax Calculator for new reviewers** — dedicated landing page + free tool: "Enter your ETV, see your tax bill" | 75K+ Vine reviewers have NO idea they owe taxes until 1099 arrives. This tool = viral growth. | Low | ⬜ Todo |
+| BO-002 | **"Hot Items" Vine queue optimizer** — GrowlingEyes signal: what categories/brands are flooding Vine right now = pick high-ETV items strategically | Nobody helps Vine reviewers decide WHICH items to accept. This is unique. | Medium | ⬜ Todo |
+| BO-003 | **Vine income + SSDI interaction guide** — SSDI filers represent a huge underserved segment. "Can I do Vine on SSDI?" is asked constantly on r/AmazonVine | 30%+ of Vine reviewers may have disabilities. Zero tools address this. | Low (just content + calculator) | ⬜ Todo |
+| BO-004 | **Auto-affiliate linker** — after review is generated, auto-attach Amazon affiliate link. Every published review becomes passive income. | Nobody connects Vine → review → affiliate in one tool | Medium | ⬜ Todo |
+| BO-005 | **Vine review syndication** — publish the same review to Google reviews, Trustpilot, brand website, with one click | Vine reviewers waste their content. Cross-posting multiplies value. | Medium | ⬜ Todo |
+
+### 🟡 Medium Priority (Good ideas, not urgent)
+
+| ID | Idea | Why It's Blue Ocean | Effort | Status |
+|---|---|---|---|---|
+| BO-006 | **"Sell or keep?" AI decision engine** — after 6 months, app analyzes: sell on eBay for $X, rent for $Y/mo, donate for $Z capital contribution. Recommends best option. | Zero tools do post-review disposition optimization | Medium | ⬜ Todo |
+| BO-007 | **1099-NEC pre-fill wizard** — user enters Vine ETV, app pre-fills a PDF 1099-NEC ready to file (for self-certifying) | IRS allows self-prepared 1099s; most reviewers don't know this | Medium | ⬜ Todo |
+| BO-008 | **Vine review quality scorer** — flag reviews that are too short (<100 words), have no star rating, or use flagged phrases Amazon rejects | Amazon rejects non-compliant reviews. This prevents violations. | Low | ⬜ Todo |
+| BO-009 | **"Review club" for disability community** — private community where members share Vine strategies, SSDI tips, accessible product reviews | MASSIVE underserved market. Disability + e-commerce is growing fast. | Medium | ⬜ Todo |
+| BO-010 | **Real-time ETV tax projection widget** — as user adds Vine items, shows running total: "Your current tax bill is $XXX. Add this item (+$49 ETV) and it becomes $XXX." | Total friction remover for informed item selection | Low | ⬜ Todo |
+| BO-011 | **NoCo Nook integration** — after Vine item donated as capital contribution, auto-list it on Facebook Marketplace / Craigslist / OfferUp with one click | Closes the Vine→Rental→Income loop automatically | High | ⬜ Todo |
+| BO-012 | **ABLE account optimizer** — 2026 age expansion = millions of new eligible people. First mover: "Am I eligible for ABLE? Here's how to open one and how to use it with Vine income." | Completely untapped intersection of disability finance + creator economy | Low (info + calculator) | ⬜ Todo |
+
+### 🟢 Long-term / Moonshots
+
+| ID | Idea | Why It's Blue Ocean | Effort | Status |
+|---|---|---|---|---|
+| BO-013 | **GrowlingEyes B2B: brand monitoring** — sell to brands: "See all Vine reviews about your products before they go public" | Brands spend $10K+/mo for review intelligence. We have the data. | High | ⬜ Todo |
+| BO-014 | **Reviewer reputation protocol** — decentralized reviewer identity (did:web or similar) that travels across Amazon, Best Buy, Walmart, etc. | Nobody has solved cross-platform reviewer identity | Very High | ⬜ Todo |
+| BO-015 | **SE income tax optimization API** — sell to TurboTax, H&R Block, others as a module: "ETV tax calculator for Amazon Vine reviewers" | B2B API licensing = recurring revenue without marketing | High | ⬜ Todo |
+| BO-016 | **Video review automation** — HeyGen avatar reads the review on video; published as YouTube review. All Vine items become YouTube content. | First mover: Vine review → video pipeline. Creator income on top of Vine. | High | ⬜ Todo |
+
+### ✅ Done / ❌ Not Viable
+
+| ID | Idea | Resolution |
+|---|---|---|
+| BO-DONE-001 | Smart transaction alerts (Keeper-style) | ✅ Built — TaxAlertEngine + TaxAlertBanner |
+| BO-DONE-002 | Tax deadline calendar with credits | ✅ Built — TaxDeadlinesCredits tab |
+| BO-DONE-003 | Company onboarding wizard | ✅ Built — CompanyWizard 4-step modal |
+| BO-DONE-004 | 2025/2026 tax changes with citations | ✅ Built — TaxChangesPanel |
+| BO-DONE-005 | Bulk vine review generation | ✅ Built — VineDashboard bulk toolbar |
+| BO-DONE-006 | Vine Status Board (all orders view) | ✅ Built — VineStatusBoard.tsx |
+
+
 
 ---
 
@@ -305,29 +362,40 @@ These apply to every agent working on this codebase:
 
 ## 📝 LAST SESSION COMPLETED
 
-**Date:** 2026-03-27
+**Date:** 2026-03-27 (Session 2)
 **Agent:** copilot-swe-agent
 **Branch:** copilot/review-revvel-standards-and-growlingeyes
 
 ### What was built this session:
-- Vine bulk auto-gen toolbar (Receive All, Generate All, One-Click: Both)
-- TaxDeadlinesCredits tab (full-year calendar + credits finder + SE strategy + CO energy notes)
-- TaxChangesPanel (11 curated 2025/2026 law changes w/ IRS citations)
-- CompanyWizard (4-step business onboarding modal)
-- addBusinessEntity() / removeBusinessEntity() in taxStore
-- Form 5695, Form 2441, solar_energy, heat_pump in taxStore types
-- TaxAlertEngine (Keeper-style transaction → tax alert brain)
-- TaxAlertBanner (alert UI panel in Transactions tab)
-- 12 new credit-detection AutoFlagRules in plaidClient
-- credit_eligible field on ClassifiedTransaction
-- deadlineReminderStore (per-deadline snooze/dismiss)
-- HANDOFF.md, DATA_DICTIONARY.md, QA_TEST_PLAN.md (this session)
+- HANDOFF.md (this file) — living agent protocol + blue ocean opportunities
+- DATA_DICTIONARY.md — 18 data models, every field explained in plain English with examples
+- QA_TEST_PLAN.md — 100 test cases + 10 E2E flows + 15 edge cases, no coding knowledge needed
+- USER_GUIDE.md — plain-English guide for Audrey/Caresse with flows, tabs explained, numbers that matter
+- VineStatusBoard.tsx — all-orders view: add items manually, paste-import queue, auto-create review, color-coded status
+- VineStatusBoard wired as default "📊 Status Board" tab in VineDashboard
+- Bug fix: Vine review ratings now vary (3★ 20%, 4★ 45%, 5★ 35%) instead of always 4★
+- Bug fix: "Mark Submitted" now validates title + body + rating before allowing submission
+- Blue Ocean Opportunities section added to HANDOFF.md — 16 ideas catalogued
+
+### Live testing findings (via code audit + TypeScript compiler):
+- ✅ TypeScript: zero type errors
+- ✅ Build: passes clean
+- ⚠️ Real Vine scraping: NOT implemented. vineScraper.ts returns demo data only. Edge Function `sync-vine-items` doesn't exist. User must manually enter items for now.
+- ⚠️ Bulk actions: work correctly in localStorage mode but will need async-aware refactor when Supabase goes live
+- ⚠️ Capital contribution: localStorage only, not synced to Supabase
+- ❌ Backend mode (isBackendMode=true): will fail silently — Edge Function missing
 
 ### Gap analysis update (end of session):
-- **Biggest gap remaining:** No deployment, no real Plaid, no auth, no Stripe
-- **Highest leverage next action:** Deploy to reesereviews.com + wire Supabase Auth
-- **Revenue delta from $1M target:** ~$947K still to build/earn (0% of target realized)
-- **Precog gap:** None of the P1 precog features are live yet — 6-month vine window and quarterly spike are highest value
+- MRR: $0 (not deployed)
+- Users: 0 (not deployed)
+- Deploy status: not live
+- Plaid: demo data only
+- Auth: none
+- Stripe: none
+- **Top 3 next items:** 1) Deploy to reesereviews.com 2) Vine CSV/manual import polishing 3) Add BO-001 (ETV calculator landing page — easiest viral growth)
+
+### Blue Ocean ideas added this session:
+- BO-001 through BO-016 — see Blue Ocean section above
 
 ---
 

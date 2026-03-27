@@ -63,6 +63,22 @@ function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+/**
+ * Pick a realistic star rating weighted toward positive reviews
+ * (Vine reviewers skew positive since they received the item free).
+ * Distribution: 5★ 35% · 4★ 45% · 3★ 20%
+ *
+ * Thresholds: r < 0.35 → 5★ | r < 0.80 → 4★ | else → 3★
+ */
+function pickRating(): number {
+  const FIVE_STAR_THRESHOLD = 0.35;  // 35% chance of 5 stars
+  const FOUR_STAR_THRESHOLD = 0.80;  // next 45% → 4 stars (0.35–0.80)
+  const r = Math.random();
+  if (r < FIVE_STAR_THRESHOLD) return 5;
+  if (r < FOUR_STAR_THRESHOLD) return 4;
+  return 3;
+}
+
 // ─── TEMPLATES BY CATEGORY ──────────────────────────────────
 
 interface CategoryTemplates {
@@ -371,7 +387,7 @@ export function generateVineReview(item: VineItem): GeneratedVineReview {
   return {
     title,
     body,
-    suggestedRating: tpl.rating,
+    suggestedRating: pickRating(),
   };
 }
 

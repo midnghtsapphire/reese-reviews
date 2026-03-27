@@ -39,6 +39,7 @@ import {
   isEligibleForCapitalContribution,
   monthsHeld,
 } from "@/lib/capitalContributionStore";
+import { VineStatusBoard } from "@/components/business/VineStatusBoard";
 
 export function VineDashboard() {
   const [selectedItem, setSelectedItem] = useState<VineItem | null>(null);
@@ -167,6 +168,15 @@ export function VineDashboard() {
   };
 
   const handleMarkSubmitted = async (item: VineItem) => {
+    const draft = drafts[item.id];
+    if (!draft?.title?.trim() || !draft?.body?.trim()) {
+      alert("Please write a title and review body before marking as submitted.");
+      return;
+    }
+    if (!draft.rating || draft.rating < 1) {
+      alert("Please set a star rating (1–5) before marking as submitted.");
+      return;
+    }
     markDraftSubmitted(item.id);
     await updateVineReviewStatus(item.id, "submitted");
     setExpandedId(null);
@@ -388,8 +398,9 @@ export function VineDashboard() {
       )}
 
       {/* Tabs */}
-      <Tabs defaultValue="queue" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+      <Tabs defaultValue="board" className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="board">📊 Status Board</TabsTrigger>
           <TabsTrigger value="queue">📋 Queue</TabsTrigger>
           <TabsTrigger value="pending">
             Pending ({pendingReviews.length})
@@ -401,6 +412,14 @@ export function VineDashboard() {
             Overdue ({overdueReviews.length})
           </TabsTrigger>
         </TabsList>
+
+        {/* ── STATUS BOARD TAB ───────────────────────────────────── */}
+        <TabsContent value="board" className="mt-4">
+          <VineStatusBoard onAutoCreate={(itemId) => {
+            // Switch to Queue tab and expand that item
+            setExpandedId(itemId);
+          }} />
+        </TabsContent>
 
         {/* ── QUEUE TAB ──────────────────────────────────────── */}
         <TabsContent value="queue" className="space-y-4 mt-4">

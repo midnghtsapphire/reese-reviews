@@ -152,7 +152,12 @@ export function rerunAlertEngine(taxYear: number): number {
   return runAlertEngine(taxYear);
 }
 
-// ─── TRANSACTION ANALYZER ────────────────────────────────────
+// ─── DATE HELPERS ────────────────────────────────────────────
+
+/** Parse a YYYY-MM-DD transaction date safely (avoids UTC midnight shift). */
+function parseTxnDate(dateStr: string): Date {
+  return new Date(dateStr + "T12:00:00");
+}
 
 function analyzeTransaction(txn: ClassifiedTransaction): TaxAlert[] {
   const alerts: TaxAlert[] = [];
@@ -219,7 +224,7 @@ function analyzeTransaction(txn: ClassifiedTransaction): TaxAlert[] {
       type: "paperwork",
       title: `Review: $${absAmt.toFixed(2)} at ${txn.merchant_name}`,
       summary: `Large unclassified expense — save a receipt and classify as Business or Personal.`,
-      detail: `This $${absAmt.toFixed(2)} transaction on ${new Date(txn.date + "T12:00:00").toLocaleDateString()} has not been classified. If any portion is business-related, classify it now to capture the deduction. Save your receipt in the Documents tab.`,
+      detail: `This $${absAmt.toFixed(2)} transaction on ${parseTxnDate(txn.date).toLocaleDateString()} has not been classified. If any portion is business-related, classify it now to capture the deduction. Save your receipt in the Documents tab.`,
       transactionId: txn.id,
       txnDate: txn.date,
       actionLabel: "Classify Transaction",
@@ -284,7 +289,7 @@ function buildCreditDetail(
       ? " (Medium confidence — check the item qualifies before filing.)"
       : "";
 
-  return `${baseHint}${savingsStr}${actionStep}${confidenceNote} Transaction: ${txn.merchant_name} on ${new Date(txn.date + "T12:00:00").toLocaleDateString()}.`;
+  return `${baseHint}${savingsStr}${actionStep}${confidenceNote} Transaction: ${txn.merchant_name} on ${parseTxnDate(txn.date).toLocaleDateString()}.`;
 }
 
 function getCreditSourceUrl(form?: string): string {
