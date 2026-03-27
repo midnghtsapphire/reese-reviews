@@ -46,6 +46,8 @@ export function AmazonDashboard() {
     getAmazonConfig() ?? {
       seller_id: "",
       marketplace_id: "ATVPDKIKX0DER",
+      lwa_client_id: "",
+      lwa_client_secret: "",
       refresh_token: "",
       affiliate_tag: DEFAULT_AFFILIATE_TAG,
       connected: false,
@@ -63,8 +65,8 @@ export function AmazonDashboard() {
   const reviewedOrders = getReviewedOrders();
 
   const handleSaveConfig = () => {
-    if (!config.seller_id.trim() || !config.refresh_token.trim()) {
-      setMessage({ type: "error", text: "Seller ID and Refresh Token are required." });
+    if (!config.seller_id.trim() || !config.lwa_client_id.trim() || !config.lwa_client_secret.trim() || !config.refresh_token.trim()) {
+      setMessage({ type: "error", text: "Seller ID, LWA Client ID, Client Secret, and Refresh Token are all required." });
       return;
     }
     saveAmazonConfig({ ...config, connected: true });
@@ -349,6 +351,30 @@ export function AmazonDashboard() {
                     onChange={(e) => setConfig({ ...config, marketplace_id: e.target.value })}
                     className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
                   />
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label className="text-gray-300">LWA Client ID</Label>
+                  <Input
+                    placeholder="amzn1.application-oa2-client...."
+                    value={config.lwa_client_id}
+                    onChange={(e) => setConfig({ ...config, lwa_client_id: e.target.value })}
+                    className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
+                  />
+                  <p className="text-xs text-gray-500">From your app in Seller Central → Developer Tools → Apps & Services.</p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-300">LWA Client Secret</Label>
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    value={config.lwa_client_secret}
+                    onChange={(e) => setConfig({ ...config, lwa_client_secret: e.target.value })}
+                    className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
+                  />
+                  <p className="text-xs text-gray-500">Keep this private — never share it. Stored locally in your browser only.</p>
                 </div>
               </div>
 

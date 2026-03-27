@@ -26,6 +26,8 @@ export function AmazonAccountSettings() {
     stored ?? {
       seller_id: "",
       marketplace_id: "ATVPDKIKX0DER",
+      lwa_client_id: "",
+      lwa_client_secret: "",
       refresh_token: "",
       affiliate_tag: "",
       connected: false,
@@ -35,8 +37,8 @@ export function AmazonAccountSettings() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const handleConnect = async () => {
-    if (!config.seller_id || !config.refresh_token) {
-      setMessage({ type: "error", text: "Seller ID and Refresh Token are required." });
+    if (!config.seller_id || !config.lwa_client_id || !config.lwa_client_secret || !config.refresh_token) {
+      setMessage({ type: "error", text: "Seller ID, LWA Client ID, Client Secret, and Refresh Token are all required." });
       return;
     }
     setLoading(true);
@@ -127,6 +129,29 @@ export function AmazonAccountSettings() {
               placeholder="Atzr|..."
               className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-gray-300">LWA Client ID</Label>
+            <Input
+              value={config.lwa_client_id}
+              onChange={(e) => handleChange("lwa_client_id", e.target.value)}
+              placeholder="amzn1.application-oa2-client...."
+              className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
+            />
+            <p className="text-xs text-gray-500">From Seller Central → Apps & Services → Developer Tools → your app.</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-gray-300">LWA Client Secret</Label>
+            <Input
+              type="password"
+              value={config.lwa_client_secret}
+              onChange={(e) => handleChange("lwa_client_secret", e.target.value)}
+              placeholder="••••••••"
+              className="bg-white/10 border-white/20 text-white placeholder:text-gray-500"
+            />
+            <p className="text-xs text-gray-500">Keep private. Stored locally in your browser only — never sent to any server.</p>
           </div>
 
           <div className="space-y-2">

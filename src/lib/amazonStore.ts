@@ -12,6 +12,10 @@ const AMAZON_CONFIG_KEY = "reese-amazon-config";
 export interface AmazonConfig {
   seller_id: string;
   marketplace_id: string;
+  /** LWA Client ID — from your SP-API app in Seller Central */
+  lwa_client_id: string;
+  /** LWA Client Secret — from your SP-API app in Seller Central */
+  lwa_client_secret: string;
   refresh_token: string;
   affiliate_tag: string;
   connected: boolean;
