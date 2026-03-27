@@ -35,6 +35,7 @@ import {
   Clock,
   Star,
   XCircle,
+  Globe2,
 } from "lucide-react";
 import {
   bulkImport,
@@ -47,6 +48,7 @@ import {
   unpublishReview,
   deletePipelineReview,
   clearPipeline,
+  enrichReview,
   type PipelineReview,
   type PipelineStatus,
   type PipelineStats,
@@ -56,6 +58,8 @@ import { getAmazonReviews } from "@/lib/amazonReviewStore";
 import { SITE_CATEGORIES, type SiteCategory } from "@/lib/categoryRules";
 import { CategoryMapper } from "./CategoryMapper";
 import { ReviewEnricher } from "./ReviewEnricher";
+import { CrossMarketSeeder } from "./CrossMarketSeeder";
+import type { SeededReviewResult } from "@/lib/crossMarketReviews";
 
 // ─── TAB TYPE ───────────────────────────────────────────────
 
@@ -70,8 +74,7 @@ export function ReviewPipeline() {
   const [message, setMessage] = useState<{ type: "success" | "error" | "info"; text: string } | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [enrichReviewId, setEnrichReviewId] = useState<string | null>(null);
-
-  // Filters
+  const [seederReviewId, setSeederReviewId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<PipelineStatus | "all">("all");
   const [filterCategory, setFilterCategory] = useState<SiteCategory | "all">("all");
   const [filterRating, setFilterRating] = useState<number | "all">("all");
@@ -188,6 +191,20 @@ export function ReviewPipeline() {
   const handleEnrichReview = (id: string) => {
     setEnrichReviewId(id);
     setActiveTab("enrich");
+  };
+
+  const handleSeedGenerated = (result: SeededReviewResult) => {
+    if (!seederReviewId) return;
+    enrichReview(seederReviewId, {
+      title: result.title,
+      body: result.body,
+      pros: result.pros,
+      cons: result.cons,
+      rating: result.rating,
+    });
+    setSeederReviewId(null);
+    refreshData();
+    showMsg("success", "Review seeded from cross-market reviews and saved");
   };
 
   const showMsg = (type: "success" | "error" | "info", text: string) => {
@@ -652,6 +669,16 @@ export function ReviewPipeline() {
                   </Button>
                   <Button
                     size="sm"
+                    onClick={() => setSeederReviewId(review.id)}
+                    variant="outline"
+                    className="text-xs border-sky-500/30 text-sky-400 hover:bg-sky-500/10 hover:text-sky-300"
+                    title="Seed from cross-market Amazon reviews"
+                  >
+                    <Globe2 className="h-3 w-3 mr-1" />
+                    Seed
+                  </Button>
+                  <Button
+                    size="sm"
                     onClick={() => handlePublish(review.id)}
                     className="text-xs bg-green-600 hover:bg-green-700 text-white"
                   >
@@ -822,6 +849,22 @@ export function ReviewPipeline() {
         )}
         {activeTab === "publish" && renderPublish()}
       </div>
+
+      {/* Cross-Market Seeder Modal (Vine workflow) */}
+      {seederReviewId && (() => {
+        const r = reviews.find((rv) => rv.id === seederReviewId);
+        if (!r) return null;
+        return (
+          <CrossMarketSeeder
+            asin={r.asin}
+            productName={r.productName}
+            productDescription=""
+            defaultVoice="reese"
+            onGenerated={handleSeedGenerated}
+            onClose={() => setSeederReviewId(null)}
+          />
+        );
+      })()}
     </div>
   );
 }

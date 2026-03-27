@@ -34,6 +34,7 @@ import {
   CheckCircle2,
   AlertCircle,
   PenLine,
+  Globe2,
 } from "lucide-react";
 import {
   getReviewVariants,
@@ -52,6 +53,8 @@ import type {
   ProductInput,
 } from "@/stores/reviewAutomationStore";
 import { stripAITextFingerprints } from "@/utils/metadataStripper";
+import { CrossMarketSeeder, type ReviewerVoice } from "./CrossMarketSeeder";
+import type { SeededReviewResult } from "@/lib/crossMarketReviews";
 
 // ─── TYPES ──────────────────────────────────────────────────
 
@@ -106,6 +109,7 @@ export function ReviewGenerator({
 }: ReviewGeneratorProps) {
   const [variants, setVariants] = useState<ReviewVariant[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showSeeder, setShowSeeder] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<{
     title: string;
@@ -123,7 +127,8 @@ export function ReviewGenerator({
   const [newPro, setNewPro] = useState("");
   const [newCon, setNewCon] = useState("");
 
-  const settings = getSettings();
+    const settings = getSettings();
+  const product = getProduct(productId);
 
   const refreshVariants = useCallback(() => {
     const updated = getReviewVariants(productId);
@@ -160,6 +165,26 @@ export function ReviewGenerator({
   };
 
   // ─── SELECT VARIANT ────────────────────────────────────
+
+  const handleSeederGenerated = (result: SeededReviewResult) => {
+    const product = getProduct(productId);
+    const wordCount = result.body.split(/\s+/).length;
+    addReviewVariant({
+      productId,
+      title: stripAITextFingerprints(result.title),
+      body: stripAITextFingerprints(result.body),
+      rating: result.rating,
+      ratingJustification: `Cross-market seeded review — ${result.tone} tone, synthesized from international Amazon reviews.`,
+      pros: result.pros,
+      cons: result.cons,
+      tone: result.tone,
+      length: wordCount > 150 ? "long" : wordCount > 80 ? "medium" : "short",
+      status: "ready",
+      isSelected: false,
+    });
+    setShowSeeder(false);
+    refreshVariants();
+  };
 
   const handleSelect = (variantId: string) => {
     selectReviewVariant(productId, variantId);
@@ -326,23 +351,34 @@ export function ReviewGenerator({
           </div>
 
           {/* Generate Button */}
-          <Button
-            onClick={handleGenerate}
-            disabled={isGenerating}
-            className="bg-gradient-to-r from-[#FF6B2B] to-[#FFB347] text-white font-semibold hover:opacity-90 px-8"
-          >
-            {isGenerating ? (
-              <>
-                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                Generating {genSettings.count} variants...
-              </>
-            ) : (
-              <>
-                <Sparkles className="mr-2 h-4 w-4" />
-                Generate {genSettings.count} Review{genSettings.count > 1 ? "s" : ""}
-              </>
-            )}
-          </Button>
+          <div className="flex items-center gap-3 flex-wrap">
+            <Button
+              onClick={handleGenerate}
+              disabled={isGenerating}
+              className="bg-gradient-to-r from-[#FF6B2B] to-[#FFB347] text-white font-semibold hover:opacity-90 px-8"
+            >
+              {isGenerating ? (
+                <>
+                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                  Generating {genSettings.count} variants...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Generate {genSettings.count} Review{genSettings.count > 1 ? "s" : ""}
+                </>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowSeeder(true)}
+              disabled={isGenerating}
+              className="border-sky-500/40 text-sky-400 hover:bg-sky-500/10 hover:text-sky-300 hover:border-sky-400"
+            >
+              <Globe2 className="mr-2 h-4 w-4" />
+              Seed from Other Markets
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
@@ -786,6 +822,18 @@ export function ReviewGenerator({
           remain in the output.
         </AlertDescription>
       </Alert>
+
+      {/* Cross-Market Seeder Modal */}
+      {showSeeder && (
+        <CrossMarketSeeder
+          asin={product?.asin ?? ""}
+          productName={productName}
+          productDescription={product?.description ?? ""}
+          defaultVoice="caresse"
+          onGenerated={handleSeederGenerated}
+          onClose={() => setShowSeeder(false)}
+        />
+      )}
     </div>
   );
 }

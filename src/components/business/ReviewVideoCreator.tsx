@@ -76,6 +76,7 @@ const VIDEO_STYLES: { value: VideoStyle; label: string; description: string; ico
 const AVATAR_OPTIONS: { value: AvatarChoice; label: string; description: string }[] = [
   { value: "reese", label: "Reese", description: "Main reviewer persona — warm, authentic, relatable" },
   { value: "revvel", label: "Revvel", description: "Tech-focused persona — sharp, analytical, energetic" },
+  { value: "caresse", label: "Caresse", description: "App owner persona — confident, adult, business perspective" },
 ];
 
 const TRANSITION_OPTIONS = [

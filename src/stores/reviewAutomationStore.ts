@@ -56,7 +56,7 @@ export const PRODUCT_CATEGORIES: { value: ProductCategory; label: string }[] = [
 
 export type ReviewTone = "enthusiastic" | "balanced" | "critical" | "casual" | "detailed";
 export type ReviewLength = "short" | "medium" | "long";
-export type AvatarChoice = "revvel" | "reese";
+export type AvatarChoice = "revvel" | "reese" | "caresse";
 export type VideoStyle = "unboxing" | "demo" | "lifestyle" | "comparison" | "quick-take";
 export type MediaType = "product-photo" | "lifestyle" | "in-use" | "detail" | "packaging";
 export type ReviewStatus = "draft" | "generating" | "ready" | "finalized" | "submitted";

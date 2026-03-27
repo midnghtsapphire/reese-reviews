@@ -74,7 +74,7 @@ export function ReviewEnricher({ selectedReviewId, onRefresh, onSelectReview }: 
   const [editAffiliateLink, setEditAffiliateLink] = useState("");
   const [editImages, setEditImages] = useState<string[]>([]);
   const [editReviewerName, setEditReviewerName] = useState("Reese");
-  const [editReviewerAvatar, setEditReviewerAvatar] = useState<"reese" | "revvel">("reese");
+  const [editReviewerAvatar, setEditReviewerAvatar] = useState<"reese" | "revvel" | "caresse">("reese");
   const [editIsFeatured, setEditIsFeatured] = useState(false);
   const [newImageUrl, setNewImageUrl] = useState("");
   const [newPro, setNewPro] = useState("");
@@ -332,9 +332,11 @@ export function ReviewEnricher({ selectedReviewId, onRefresh, onSelectReview }: 
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
                 editReviewerAvatar === "reese"
                   ? "bg-purple-500/30 text-purple-300"
+                  : editReviewerAvatar === "caresse"
+                  ? "bg-sky-500/30 text-sky-300"
                   : "bg-blue-500/30 text-blue-300"
               }`}>
-                {editReviewerAvatar === "reese" ? "R" : "V"}
+                {editReviewerAvatar === "reese" ? "R" : editReviewerAvatar === "caresse" ? "C" : "V"}
               </div>
               <span className="text-xs text-gray-400">by {editReviewerName}</span>
             </div>
@@ -774,13 +776,14 @@ export function ReviewEnricher({ selectedReviewId, onRefresh, onSelectReview }: 
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs text-gray-400">Avatar</Label>
-                    <Select value={editReviewerAvatar} onValueChange={(v) => setEditReviewerAvatar(v as "reese" | "revvel")}>
+                    <Select value={editReviewerAvatar} onValueChange={(v) => setEditReviewerAvatar(v as "reese" | "revvel" | "caresse")}>
                       <SelectTrigger className="h-8 bg-white/5 border-white/10 text-gray-300 text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="reese">Reese</SelectItem>
                         <SelectItem value="revvel">Revvel</SelectItem>
+                        <SelectItem value="caresse">Caresse</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

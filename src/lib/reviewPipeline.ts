@@ -54,7 +54,7 @@ export interface PipelineReview {
   excerpt: string;
   verdict: string;
   reviewerName: string;
-  reviewerAvatar: "reese" | "revvel";
+  reviewerAvatar: "reese" | "revvel" | "caresse";
   isFeatured: boolean;
   // Timestamps
   importedAt: string;
@@ -459,7 +459,7 @@ export interface EnrichmentData {
   affiliateLink?: string;
   images?: string[];
   reviewerName?: string;
-  reviewerAvatar?: "reese" | "revvel";
+  reviewerAvatar?: "reese" | "revvel" | "caresse";
   isFeatured?: boolean;
   title?: string;
   body?: string;
