@@ -79,6 +79,15 @@ export interface AutoFlagRule {
   is_write_off: boolean;
   write_off_percentage: number;
   confidence: "high" | "medium" | "low";
+  /**
+   * If true, this transaction may trigger a federal/state tax credit
+   * (e.g. heat pump = Form 5695, solar = Form 5695, EV = Form 8936).
+   */
+  credit_eligible?: boolean;
+  /** Short description of the credit that may apply */
+  credit_hint?: string;
+  /** IRS form to file for the credit */
+  credit_form?: string;
 }
 
 export const AMAZON_VINE_FLAG_RULES: AutoFlagRule[] = [
@@ -267,6 +276,139 @@ export const AMAZON_VINE_FLAG_RULES: AutoFlagRule[] = [
     write_off_percentage: 0,
     confidence: "high",
   },
+  // ── Energy / Home Improvement (Credit-Eligible) ──────────
+  {
+    pattern: /heat pump|hvac|furnace|boiler|carrier|lennox|trane|rheem|goodman|daikin|mitsubishi electric|fujitsu|mini.?split/i,
+    label: "Heat Pump / HVAC Equipment",
+    category: "other",
+    is_vine_related: false,
+    is_amazon_related: false,
+    is_write_off: false,
+    write_off_percentage: 0,
+    confidence: "high",
+    credit_eligible: true,
+    credit_hint: "30% credit up to $2,000 via Energy Efficient Home Improvement Credit (§25C)",
+    credit_form: "Form 5695 Part II",
+  },
+  {
+    pattern: /solar|sunrun|tesla energy|sunpower|vivint solar|sunnova|enphase|silfab|lg solar|solaredge/i,
+    label: "Solar Installation / Equipment",
+    category: "other",
+    is_vine_related: false,
+    is_amazon_related: false,
+    is_write_off: false,
+    write_off_percentage: 0,
+    confidence: "high",
+    credit_eligible: true,
+    credit_hint: "30% Residential Clean Energy Credit (§25D) — no dollar cap",
+    credit_form: "Form 5695 Part I",
+  },
+  {
+    pattern: /insulation|weatherization|weatherstrip|caulk|air seal|owens corning|johns manville/i,
+    label: "Weatherization / Insulation",
+    category: "other",
+    is_vine_related: false,
+    is_amazon_related: false,
+    is_write_off: false,
+    write_off_percentage: 0,
+    confidence: "medium",
+    credit_eligible: true,
+    credit_hint: "Up to $1,200 air sealing/insulation credit via §25C",
+    credit_form: "Form 5695 Part II",
+  },
+  {
+    pattern: /window replacement|pella|andersen windows|marvin windows|energy efficient window/i,
+    label: "Energy Efficient Windows",
+    category: "other",
+    is_vine_related: false,
+    is_amazon_related: false,
+    is_write_off: false,
+    write_off_percentage: 0,
+    confidence: "medium",
+    credit_eligible: true,
+    credit_hint: "Up to $600 window/door credit via §25C",
+    credit_form: "Form 5695 Part II",
+  },
+  {
+    pattern: /tesla|rivian|ford lightning|chevy bolt|nissan leaf|hyundai ioniq|kia ev|volkswagen id|bmw ev|lucid|polestar|dealership|auto sales/i,
+    label: "Electric Vehicle Purchase",
+    category: "other",
+    is_vine_related: false,
+    is_amazon_related: false,
+    is_write_off: false,
+    write_off_percentage: 0,
+    confidence: "medium",
+    credit_eligible: true,
+    credit_hint: "Up to $7,500 Clean Vehicle Credit (§30D) — income limit $150k single",
+    credit_form: "Form 8936",
+  },
+  {
+    pattern: /home depot|lowes|menards|ace hardware/i,
+    label: "Home Improvement Store",
+    category: "other",
+    is_vine_related: false,
+    is_amazon_related: false,
+    is_write_off: false,
+    write_off_percentage: 0,
+    confidence: "low",
+    credit_eligible: true,
+    credit_hint: "Large purchases may include energy-efficient materials eligible for §25C credits — review receipt",
+    credit_form: "Form 5695 Part II",
+  },
+  {
+    pattern: /plumber|electrician|hvac contractor|mechanical contractor|home services|service experts|aire serv/i,
+    label: "Home Service Contractor",
+    category: "other",
+    is_vine_related: false,
+    is_amazon_related: false,
+    is_write_off: false,
+    write_off_percentage: 0,
+    confidence: "low",
+    credit_eligible: true,
+    credit_hint: "Installation costs for energy upgrades (heat pump, solar, weatherization) may qualify for §25C/§25D credits",
+    credit_form: "Form 5695",
+  },
+  // ── Health / Disability ──────────────────────────────────
+  {
+    pattern: /hearing aid|cochlear|beltone|starkey|costco hearing|audiology|audiologist/i,
+    label: "Hearing Aids / Audiology",
+    category: "other",
+    is_vine_related: false,
+    is_amazon_related: false,
+    is_write_off: true,
+    write_off_percentage: 100,
+    confidence: "high",
+    credit_eligible: true,
+    credit_hint: "Qualified medical expense (Schedule A) + may qualify as disability-related work expense (Form 2106)",
+    credit_form: "Schedule A",
+  },
+  {
+    pattern: /assistive tech|screen reader|dragon naturally|nuance|jaws software|accessibility/i,
+    label: "Assistive Technology",
+    category: "equipment",
+    is_vine_related: false,
+    is_amazon_related: false,
+    is_write_off: true,
+    write_off_percentage: 100,
+    confidence: "high",
+    credit_eligible: true,
+    credit_hint: "Disability-related work expense — fully deductible on Schedule A without 2% AGI floor (Form 2106)",
+    credit_form: "Form 2106 / Schedule A",
+  },
+  // ── Retirement ───────────────────────────────────────────
+  {
+    pattern: /fidelity|vanguard|schwab|td ameritrade|e.?trade|betterment|wealthfront/i,
+    label: "Investment / Retirement Contribution",
+    category: "other",
+    is_vine_related: false,
+    is_amazon_related: false,
+    is_write_off: false,
+    write_off_percentage: 0,
+    confidence: "low",
+    credit_eligible: true,
+    credit_hint: "If this is a Solo 401(k) or SEP-IRA contribution, it is deductible on Schedule 1 Line 16",
+    credit_form: "Schedule 1 Line 16",
+  },
 ];
 
 // ─── TRANSACTION CLASSIFICATION ──────────────────────────────
@@ -286,6 +428,8 @@ export interface ClassifiedTransaction extends BankTransaction {
   is_spontaneous: boolean;
   /** Vine ETV item this transaction might relate to */
   related_vine_asin?: string;
+  /** True if any matched rule has credit_eligible = true */
+  credit_eligible: boolean;
 }
 
 export function classifyTransaction(
@@ -319,6 +463,8 @@ export function classifyTransaction(
   const taxDeductible =
     bestRule?.is_write_off ?? suggestedCat.is_write_off ?? false;
 
+  const isCreditEligible = matchedRules.some((r) => r.credit_eligible === true);
+
   return {
     ...txn,
     category,
@@ -334,6 +480,7 @@ export function classifyTransaction(
       : "pending",
     synced_to_expenses: false,
     is_spontaneous: isSpontaneous,
+    credit_eligible: isCreditEligible,
   };
 }
 

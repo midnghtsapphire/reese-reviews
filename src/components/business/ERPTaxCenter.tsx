@@ -27,6 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   BarChart,
   Bar,
@@ -114,6 +115,10 @@ import { ExpenseTracker } from "@/components/ExpenseTracker";
 import { OdooIntegration } from "@/components/OdooIntegration";
 import { PDFillerIntegration } from "@/components/PDFillerIntegration";
 import { TaxDeadlinesCredits } from "./TaxDeadlinesCredits";
+import { TaxChangesPanel } from "./TaxChangesPanel";
+import { TaxAlertBanner, TaxAlertBadge } from "./TaxAlertBanner";
+import { CompanyWizard } from "./CompanyWizard";
+import { runAlertEngine } from "@/lib/taxAlertEngine";
 
 // ─── BRAND ───────────────────────────────────────────────────
 const BRAND = {
@@ -1001,6 +1006,7 @@ export function ERPTaxCenter({
   const [focusedPersonId, setFocusedPersonId] = useState<string | undefined>(defaultPersonId);
   const [selectedYear, setSelectedYear] = useState(taxYear);
   const [plaidTxnCount, setPlaidTxnCount] = useState(0);
+  const [showWizard, setShowWizard] = useState(false);
 
   // Combined KPIs
   const persons = getPersons();
@@ -1120,6 +1126,8 @@ export function ERPTaxCenter({
               taxYear={selectedYear}
               onTransactionsImported={(count) => {
                 setPlaidTxnCount(count);
+                // Run alert engine on newly imported transactions
+                runAlertEngine(selectedYear);
                 // Auto-navigate to transactions tab after import
                 setTimeout(() => setActiveTab("transactions"), 1500);
               }}
@@ -1129,7 +1137,11 @@ export function ERPTaxCenter({
 
         {/* ── TRANSACTIONS ──────────────────────────────────── */}
         <TabsContent value="transactions">
-          <div className="bg-white/5 backdrop-blur-md rounded-xl border border-white/10 p-6">
+          <div className="bg-white/5 backdrop-blur-md rounded-xl border border-white/10 p-6 space-y-4">
+            <TaxAlertBanner
+              taxYear={selectedYear}
+              onNavigate={(tab) => setActiveTab(tab as ERPTab)}
+            />
             <TransactionScanner taxYear={selectedYear} />
           </div>
         </TabsContent>
@@ -1206,8 +1218,13 @@ export function ERPTaxCenter({
 
         {/* ── DEADLINES & CREDITS ───────────────────────────── */}
         <TabsContent value="deadlines">
-          <div className="bg-white/5 backdrop-blur-md rounded-xl border border-white/10 p-6">
-            <TaxDeadlinesCredits taxYear={selectedYear} />
+          <div className="space-y-6">
+            <div className="bg-white/5 backdrop-blur-md rounded-xl border border-white/10 p-6">
+              <TaxDeadlinesCredits taxYear={selectedYear} />
+            </div>
+            <div className="bg-white/5 backdrop-blur-md rounded-xl border border-white/10 p-6">
+              <TaxChangesPanel />
+            </div>
           </div>
         </TabsContent>
 
@@ -1215,6 +1232,17 @@ export function ERPTaxCenter({
         <TabsContent value="people">
           <div className="space-y-6">
             <div className="bg-white/5 backdrop-blur-md rounded-xl border border-white/10 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div />
+                <Button
+                  onClick={() => setShowWizard(true)}
+                  className="text-xs font-bold text-black"
+                  style={{ background: "#fbbf24" }}
+                >
+                  <Building2 className="w-3.5 h-3.5 mr-1.5" />
+                  + Add Business / Company
+                </Button>
+              </div>
               <PeopleManager taxYear={selectedYear} onNavigate={handleNavigate} />
             </div>
             <div className="bg-white/5 backdrop-blur-md rounded-xl border border-white/10 p-6">
@@ -1230,6 +1258,20 @@ export function ERPTaxCenter({
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* ── COMPANY WIZARD MODAL ──────────────────────────── */}
+      <Dialog open={showWizard} onOpenChange={setShowWizard}>
+        <DialogContent className="bg-slate-900 border-white/10 text-white p-0 max-w-lg">
+          <CompanyWizard
+            onClose={() => setShowWizard(false)}
+            onComplete={(personId) => {
+              setFocusedPersonId(personId);
+              setActiveTab("people");
+            }}
+            defaultPersonId={focusedPersonId}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
