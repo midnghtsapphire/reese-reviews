@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, CheckCircle2, Clock, Zap, Copy, ChevronDown, ChevronUp, Star, Camera, Package, Send } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, Zap, Copy, ChevronDown, ChevronUp, Star, Camera, Package, Send, Gift } from "lucide-react";
 import {
   getPendingVineReviews,
   getInProgressVineReviews,
@@ -33,6 +33,12 @@ import {
   type VineReviewDraft,
 } from "@/lib/vineReviewDraftStore";
 import { generateVineReview } from "@/lib/vineReviewGenerator";
+import {
+  addCapitalContribution,
+  hasContribution,
+  isEligibleForCapitalContribution,
+  monthsHeld,
+} from "@/lib/capitalContributionStore";
 
 export function VineDashboard() {
   const [selectedItem, setSelectedItem] = useState<VineItem | null>(null);
@@ -49,6 +55,7 @@ export function VineDashboard() {
   const [generatingId, setGeneratingId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [todayCount, setTodayCount] = useState(0);
+  const [donatedIds, setDonatedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadVineData();
@@ -167,6 +174,18 @@ export function VineDashboard() {
     unsubmitDraft(item.id);
     await updateVineReviewStatus(item.id, "in_progress");
     await loadVineData();
+  };
+
+  const handleDonateAsCapital = (item: VineItem) => {
+    if (hasContribution(item.id)) return;
+    addCapitalContribution({
+      vineItemId: item.id,
+      asin: item.asin,
+      productName: item.product_name,
+      etv: item.estimated_value,
+      dateReceived: item.received_date,
+    });
+    setDonatedIds((prev) => new Set([...prev, item.id]));
   };
 
   if (loading) {
@@ -574,6 +593,22 @@ export function VineDashboard() {
                                 >
                                   <Send className="h-3.5 w-3.5 mr-1" />
                                   Mark Submitted
+                                </Button>
+                              )}
+                              {/* Donate to NoCo Nook — only show for 6+ month items */}
+                              {isEligibleForCapitalContribution(item.received_date) && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleDonateAsCapital(item)}
+                                  disabled={donatedIds.has(item.id) || hasContribution(item.id)}
+                                  className="text-xs border-amber-500/40 text-amber-400 hover:bg-amber-500/10 disabled:opacity-40"
+                                  title={`Held ${monthsHeld(item.received_date)} months — eligible to donate as capital to NoCo Nook`}
+                                >
+                                  <Gift className="h-3.5 w-3.5 mr-1" />
+                                  {donatedIds.has(item.id) || hasContribution(item.id)
+                                    ? "Donated to NoCo Nook ✓"
+                                    : `Donate to NoCo Nook (${monthsHeld(item.received_date)}mo held)`}
                                 </Button>
                               )}
                             </div>

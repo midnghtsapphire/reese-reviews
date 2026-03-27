@@ -12,6 +12,7 @@ import { ProductLifecycle } from "@/components/business/ProductLifecycle";
 import { ReviewAutomation } from "@/components/business/ReviewAutomation";
 import { ERPTaxCenter } from "@/components/business/ERPTaxCenter";
 import { ReviewPipeline } from "@/components/business/ReviewPipeline";
+import { BusinessExpenseTracker } from "@/components/business/BusinessExpenseTracker";
 
 // ─── TOP-LEVEL TABS ───────────────────────────────────────────
 // Consolidated from 12 tabs → 9 tabs.
@@ -40,6 +41,7 @@ const TOP_TABS = [
   { value: "amazon",       label: "🛒 Amazon",        title: "Amazon Dashboard" },
   { value: "inventory",    label: "📦 Inventory",     title: "Inventory Manager" },
   { value: "financial",    label: "💵 Financial",     title: "Financial Dashboard" },
+  { value: "expenses",     label: "💸 Expenses",      title: "Business Expense Tracker" },
   { value: "integrations", label: "⚙️ Integrations", title: "Integrations & Settings" },
   { value: "lifecycle",    label: "⚡ Lifecycle",     title: "Product Lifecycle Tracker" },
   { value: "reviews",      label: "🎬 Reviews",       title: "Review Automation" },
@@ -130,6 +132,15 @@ export default function Business() {
             <TabsContent value="financial" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <FinancialDashboard />
+              </div>
+            </TabsContent>
+
+            {/* ── BUSINESS EXPENSE TRACKER ─────────────────────
+                Subscriptions, AI tools, hosting, storage — per entity.
+            ─────────────────────────────────────────────────── */}
+            <TabsContent value="expenses" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <BusinessExpenseTracker />
               </div>
             </TabsContent>
 
