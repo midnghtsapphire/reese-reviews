@@ -599,6 +599,37 @@ export function deletePerson(id: string): void {
   savePersons(getPersons().filter((p) => p.id !== id));
 }
 
+/** Add a BusinessEntity to a person's businesses array. */
+export function addBusinessEntity(
+  personId: string,
+  biz: Omit<BusinessEntity, "id">
+): BusinessEntity {
+  const persons = getPersons();
+  const idx = persons.findIndex((p) => p.id === personId);
+  if (idx === -1) throw new Error(`Person ${personId} not found`);
+  const newBiz: BusinessEntity = { ...biz, id: genId("biz") };
+  persons[idx] = {
+    ...persons[idx],
+    businesses: [...persons[idx].businesses, newBiz],
+    updated_at: new Date().toISOString(),
+  };
+  savePersons(persons);
+  return newBiz;
+}
+
+/** Remove a BusinessEntity from a person's businesses array. */
+export function removeBusinessEntity(personId: string, bizId: string): void {
+  const persons = getPersons();
+  const idx = persons.findIndex((p) => p.id === personId);
+  if (idx === -1) return;
+  persons[idx] = {
+    ...persons[idx],
+    businesses: persons[idx].businesses.filter((b) => b.id !== bizId),
+    updated_at: new Date().toISOString(),
+  };
+  savePersons(persons);
+}
+
 // ─── INCOME SOURCES ──────────────────────────────────────────
 
 export function getIncomeSources(personId?: string, taxYear?: number): IncomeSource[] {
