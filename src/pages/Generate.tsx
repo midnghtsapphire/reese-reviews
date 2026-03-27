@@ -19,10 +19,6 @@ import {
   DollarSign,
   Send,
   BarChart2,
-  Eye,
-  ThumbsUp,
-  Share2,
-  FileText,
   CheckCircle2,
   Loader2,
   AlertCircle,
@@ -43,14 +39,6 @@ const PLATFORM_ICONS: Record<SocialPlatformId, React.ElementType> = {
   instagram: Instagram,
   tiktok:    Music2,
 };
-
-// ─── Analytics mock ─────────────────────────────────────────
-const ANALYTICS_ITEMS = [
-  { label: "Posts Published", value: "142", icon: FileText  },
-  { label: "Total Reach",     value: "28.4K", icon: Eye     },
-  { label: "Engagement",      value: "4.7%",  icon: ThumbsUp},
-  { label: "Shares",          value: "891",   icon: Share2  },
-];
 
 // ─── Post state per platform ────────────────────────────────
 type PostStatus = "idle" | "posting" | "done" | "error";
@@ -313,17 +301,9 @@ export default function Generate() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {ANALYTICS_ITEMS.map(({ label, value, icon: Icon }) => (
-                    <div key={label} className="flex items-start gap-3">
-                      <span className="mt-0.5 rounded-md glass-card p-1.5">
-                        <Icon size={14} className="text-muted-foreground" />
-                      </span>
-                      <div>
-                        <p className="text-xs text-muted-foreground">{label}</p>
-                        <p className="text-lg font-bold leading-tight">{value}</p>
-                      </div>
-                    </div>
-                  ))}
+                  <p className="text-xs text-muted-foreground text-center py-2">
+                    Analytics will appear once connected.
+                  </p>
                 </CardContent>
               </Card>
 

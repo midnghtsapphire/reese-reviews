@@ -14,14 +14,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
   BarChart2,
-  FileText,
   Users,
   TrendingUp,
   Zap,
   ArrowRight,
-  Eye,
-  ThumbsUp,
-  Share2,
 } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import { Logo } from "@/components/Logo";
@@ -37,21 +33,9 @@ import { ReviewAutomation } from "@/components/business/ReviewAutomation";
 import { ERPTaxCenter } from "@/components/business/ERPTaxCenter";
 import { ReviewPipeline } from "@/components/business/ReviewPipeline";
 
-// ─── Analytics mock data ─────────────────────────────────────
-const ANALYTICS = [
-  { label: "Posts Published", value: "142", icon: FileText, delta: "+12 this week" },
-  { label: "Total Reach",     value: "28.4K", icon: Eye,      delta: "+3.2K this week" },
-  { label: "Engagement",      value: "4.7%",  icon: ThumbsUp, delta: "+0.3% this week" },
-  { label: "Shares",          value: "891",   icon: Share2,   delta: "+64 this week" },
-];
+// ─── Flag: set to true when real analytics backend is connected ─────────────
+const HAS_ANALYTICS_DATA = false;
 
-// ─── Static platform reach values (stable across renders) ───────────────────
-const PLATFORM_REACH: Record<string, number> = {
-  Facebook:  72,
-  LinkedIn:  58,
-  Instagram: 84,
-  TikTok:    45,
-};
 const BIZ_TABS = [
   { value: "taxcenter",      label: "🍃 Tax Center" },
   { value: "vine",           label: "🍇 Vine" },
@@ -197,18 +181,14 @@ export default function Dashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {ANALYTICS.map(({ label, value, icon: Icon, delta }) => (
-                    <div key={label} className="flex items-start gap-3">
-                      <span className="mt-0.5 rounded-md glass-card p-1.5">
-                        <Icon size={14} className="text-muted-foreground" />
-                      </span>
-                      <div>
-                        <p className="text-xs text-muted-foreground">{label}</p>
-                        <p className="text-lg font-bold leading-tight">{value}</p>
-                        <p className="text-xs text-muted-foreground/70">{delta}</p>
-                      </div>
-                    </div>
-                  ))}
+                  {HAS_ANALYTICS_DATA ? (
+                    /* Future: map real analytics data here */
+                    null
+                  ) : (
+                    <p className="text-xs text-muted-foreground text-center py-2">
+                      Analytics will appear once connected.
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 
@@ -250,12 +230,7 @@ export default function Dashboard() {
                   {["Facebook", "LinkedIn", "Instagram", "TikTok"].map((p) => (
                     <div key={p} className="flex justify-between items-center">
                       <span className="text-muted-foreground">{p}</span>
-                      <div className="h-1.5 w-20 rounded-full bg-border overflow-hidden">
-                        <div
-                          className="h-full gradient-steel rounded-full"
-                          style={{ width: `${PLATFORM_REACH[p] ?? 50}%` }}
-                        />
-                      </div>
+                      <span className="text-xs text-muted-foreground">—</span>
                     </div>
                   ))}
                 </CardContent>

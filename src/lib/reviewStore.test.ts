@@ -9,9 +9,47 @@ import {
   submitReview,
   getSubmissions,
   generateAffiliateLink,
-  DEMO_REVIEWS,
   CATEGORIES,
+  type ReviewData,
 } from "./reviewStore";
+
+/** Counter to guarantee unique IDs across test helpers. */
+let _seedCounter = 0;
+
+/** Returns a base review object (does NOT save to localStorage). */
+function makeBaseReview(overrides: Partial<ReviewData> = {}): ReviewData {
+  return {
+    id: `seed-${++_seedCounter}`,
+    title: "Wireless Earbuds Review",
+    slug: "best-wireless-earbuds-everyday",
+    category: "tech",
+    rating: 5,
+    excerpt: "Great earbuds.",
+    content: "Really good earbuds for everyday use.",
+    pros: ["Good sound"],
+    cons: ["Bulky case"],
+    verdict: "Buy them.",
+    image_url: "",
+    product_name: "SoundCore Pro Buds X3",
+    product_link: "https://amazon.com/dp/test",
+    affiliate_tag: "meetaudreyeva-20",
+    reviewer_name: "Reese",
+    reviewer_email: "",
+    is_featured: true,
+    status: "approved",
+    published_at: new Date().toISOString(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    ...overrides,
+  };
+}
+
+/** Helper: seed a single review directly into localStorage for tests that need data. */
+function seedReview(overrides: Partial<ReviewData> = {}) {
+  const review = makeBaseReview(overrides);
+  localStorage.setItem("reese-reviews-data", JSON.stringify([review]));
+  return review;
+}
 
 describe("reviewStore", () => {
   beforeEach(() => {
@@ -19,21 +57,45 @@ describe("reviewStore", () => {
   });
 
   describe("getReviews", () => {
-    it("returns demo reviews when no stored data", () => {
+    it("returns empty array when no stored data", () => {
       const reviews = getReviews();
-      expect(reviews.length).toBe(DEMO_REVIEWS.length);
+      expect(Array.isArray(reviews)).toBe(true);
+      expect(reviews.length).toBe(0);
+    });
+
+    it("returns stored reviews when data exists", () => {
+      seedReview();
+      const reviews = getReviews();
+      expect(reviews.length).toBe(1);
     });
   });
 
   describe("getApprovedReviews", () => {
+    it("returns empty array when no data", () => {
+      const reviews = getApprovedReviews();
+      expect(reviews.length).toBe(0);
+    });
+
     it("returns only approved reviews", () => {
+      // Seed both reviews together to avoid overwriting
+      const review1 = { ...makeBaseReview(), status: "approved" as const };
+      const review2 = { ...makeBaseReview(), id: "seed-2", slug: "slug-2", status: "pending" as const };
+      localStorage.setItem("reese-reviews-data", JSON.stringify([review1, review2]));
       const reviews = getApprovedReviews();
       expect(reviews.every((r) => r.status === "approved")).toBe(true);
+      expect(reviews.length).toBe(1);
     });
   });
 
   describe("getFeaturedReviews", () => {
+    it("returns empty array when no data", () => {
+      const reviews = getFeaturedReviews();
+      expect(Array.isArray(reviews)).toBe(true);
+      expect(reviews.length).toBe(0);
+    });
+
     it("returns only featured and approved reviews", () => {
+      seedReview({ is_featured: true, status: "approved" });
       const reviews = getFeaturedReviews();
       expect(reviews.every((r) => r.is_featured && r.status === "approved")).toBe(true);
       expect(reviews.length).toBeGreaterThan(0);
@@ -42,9 +104,10 @@ describe("reviewStore", () => {
 
   describe("getReviewBySlug", () => {
     it("finds a review by slug", () => {
+      seedReview({ slug: "best-wireless-earbuds-everyday" });
       const review = getReviewBySlug("best-wireless-earbuds-everyday");
       expect(review).toBeDefined();
-      expect(review?.title).toContain("Wireless Earbuds");
+      expect(review?.title.toLowerCase()).toContain("earbuds");
     });
 
     it("returns undefined for non-existent slug", () => {
@@ -55,12 +118,12 @@ describe("reviewStore", () => {
 
   describe("getReviewsByCategory", () => {
     it("filters reviews by category", () => {
+      seedReview({ category: "tech" });
       const techReviews = getReviewsByCategory("tech");
       expect(techReviews.every((r) => r.category === "tech")).toBe(true);
     });
 
     it("returns empty array for category with no reviews", () => {
-      // All categories should have at least some reviews in demo data
       const reviews = getReviewsByCategory("products");
       expect(Array.isArray(reviews)).toBe(true);
     });
@@ -68,12 +131,14 @@ describe("reviewStore", () => {
 
   describe("searchReviews", () => {
     it("searches by title", () => {
+      seedReview({ title: "Wireless Earbuds Review" });
       const results = searchReviews("earbuds");
       expect(results.length).toBeGreaterThan(0);
       expect(results[0].title.toLowerCase()).toContain("earbuds");
     });
 
     it("searches by product name", () => {
+      seedReview({ product_name: "SoundCore Pro Buds X3" });
       const results = searchReviews("SoundCore");
       expect(results.length).toBeGreaterThan(0);
     });
