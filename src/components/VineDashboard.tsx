@@ -56,6 +56,9 @@ export function VineDashboard() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [todayCount, setTodayCount] = useState(0);
   const [donatedIds, setDonatedIds] = useState<Set<string>>(new Set());
+  const [bulkGenerating, setBulkGenerating] = useState(false);
+  const [bulkReceiveCount, setBulkReceiveCount] = useState(0);
+  const [bulkGenCount, setBulkGenCount] = useState(0);
 
   useEffect(() => {
     loadVineData();
@@ -186,6 +189,68 @@ export function VineDashboard() {
       dateReceived: item.received_date,
     });
     setDonatedIds((prev) => new Set([...prev, item.id]));
+  };
+
+  const refreshAllDrafts = () => {
+    const draftMap: Record<string, VineReviewDraft> = {};
+    for (const item of allItems) {
+      draftMap[item.id] = getOrCreateDraft(item.id);
+    }
+    setDrafts(draftMap);
+    setTodayCount(getTodaySubmittedCount());
+  };
+
+  const handleReceiveAll = () => {
+    const unReceived = allItems.filter((item) => {
+      const d = getOrCreateDraft(item.id);
+      return !d.isReceived;
+    });
+    unReceived.forEach((item) => markDraftReceived(item.id));
+    setBulkReceiveCount(unReceived.length);
+    refreshAllDrafts();
+    setTimeout(() => setBulkReceiveCount(0), 3000);
+  };
+
+  const handleGenerateAll = () => {
+    setBulkGenerating(true);
+    const needsGen = allItems.filter((item) => {
+      const d = getOrCreateDraft(item.id);
+      return d.isReceived && !d.title && !d.body;
+    });
+    needsGen.forEach((item) => {
+      const { title, body, suggestedRating } = generateVineReview(item);
+      saveDraftText(item.id, title, body);
+      setDraftRating(item.id, suggestedRating);
+    });
+    setBulkGenCount(needsGen.length);
+    refreshAllDrafts();
+    setBulkGenerating(false);
+    setTimeout(() => setBulkGenCount(0), 3000);
+  };
+
+  const handleReceiveAndGenerateAll = () => {
+    setBulkGenerating(true);
+    let receivedCount = 0;
+    let generatedCount = 0;
+    allItems.forEach((item) => {
+      const d = getOrCreateDraft(item.id);
+      if (!d.isReceived) {
+        markDraftReceived(item.id);
+        receivedCount++;
+      }
+      const afterReceive = getOrCreateDraft(item.id);
+      if (!afterReceive.title && !afterReceive.body) {
+        const { title, body, suggestedRating } = generateVineReview(item);
+        saveDraftText(item.id, title, body);
+        setDraftRating(item.id, suggestedRating);
+        generatedCount++;
+      }
+    });
+    setBulkReceiveCount(receivedCount);
+    setBulkGenCount(generatedCount);
+    refreshAllDrafts();
+    setBulkGenerating(false);
+    setTimeout(() => { setBulkReceiveCount(0); setBulkGenCount(0); }, 3500);
   };
 
   if (loading) {
@@ -362,6 +427,57 @@ export function VineDashboard() {
               />
             </div>
           </div>
+
+          {/* ── BULK ACTIONS TOOLBAR ──────────────────────── */}
+          {allItems.length > 0 && (
+            <div className="rounded-xl border border-purple-500/30 bg-purple-500/5 p-3">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div>
+                  <p className="text-xs font-semibold text-purple-300">⚡ Bulk Actions</p>
+                  <p className="text-[11px] text-gray-500 mt-0.5">
+                    {allItems.filter((i) => { const d = getOrCreateDraft(i.id); return !d.isReceived; }).length} unReceived ·{" "}
+                    {allItems.filter((i) => { const d = getOrCreateDraft(i.id); return d.isReceived && !d.title; }).length} need auto-gen
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleReceiveAll}
+                    disabled={bulkGenerating}
+                    className="text-xs border-blue-500/40 text-blue-300 hover:bg-blue-500/10"
+                  >
+                    <Package className="h-3.5 w-3.5 mr-1" />
+                    {bulkReceiveCount > 0 ? `Marked ${bulkReceiveCount} received ✓` : "Receive All"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleGenerateAll}
+                    disabled={bulkGenerating}
+                    className="text-xs border-purple-500/40 text-purple-300 hover:bg-purple-500/10"
+                  >
+                    <Zap className="h-3.5 w-3.5 mr-1" />
+                    {bulkGenerating ? "Generating..." : bulkGenCount > 0 ? `Generated ${bulkGenCount} reviews ✓` : "Auto-Generate All"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleReceiveAndGenerateAll}
+                    disabled={bulkGenerating}
+                    className="text-xs bg-purple-600 hover:bg-purple-700 text-white"
+                    title="Marks all items as received AND generates review text for any missing drafts in one click"
+                  >
+                    <Zap className="h-3.5 w-3.5 mr-1" />
+                    {bulkGenerating
+                      ? "Running..."
+                      : bulkReceiveCount > 0 || bulkGenCount > 0
+                      ? `Done — ${bulkReceiveCount} received, ${bulkGenCount} generated ✓`
+                      : "One-Click: Receive & Generate All"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Sorted item list */}
           {allItems.length === 0 ? (

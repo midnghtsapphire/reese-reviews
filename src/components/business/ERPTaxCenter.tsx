@@ -13,6 +13,7 @@
 //     accounting  → Odoo integration
 //     documents   → Tax document upload/manage
 //     quarterly   → Quarterly estimated tax payments
+//     deadlines   → Tax calendar + credits finder (NEW)
 //     people      → Multi-person tax profiles
 //     audit       → Audit trail + export
 //
@@ -65,6 +66,7 @@ import {
   ChevronRight,
   Clock,
   Loader2,
+  Bell,
 } from "lucide-react";
 
 // ── Existing stores (lib) ─────────────────────────────────────
@@ -111,6 +113,7 @@ import { TransactionScanner } from "./TransactionScanner";
 import { ExpenseTracker } from "@/components/ExpenseTracker";
 import { OdooIntegration } from "@/components/OdooIntegration";
 import { PDFillerIntegration } from "@/components/PDFillerIntegration";
+import { TaxDeadlinesCredits } from "./TaxDeadlinesCredits";
 
 // ─── BRAND ───────────────────────────────────────────────────
 const BRAND = {
@@ -956,6 +959,7 @@ type ERPTab =
   | "accounting"
   | "documents"
   | "quarterly"
+  | "deadlines"
   | "people"
   | "audit";
 
@@ -975,6 +979,7 @@ const ERP_TABS: Array<{
   { value: "accounting",   label: "Accounting",     shortLabel: "Odoo",     icon: <Building2 className="w-4 h-4" />,   color: "#06b6d4" },
   { value: "documents",    label: "Documents",      shortLabel: "Docs",     icon: <Upload className="w-4 h-4" />,      color: BRAND.volt },
   { value: "quarterly",    label: "Quarterly",      shortLabel: "Q-Tax",    icon: <Calendar className="w-4 h-4" />,    color: BRAND.volt },
+  { value: "deadlines",    label: "Deadlines & Credits", shortLabel: "Alerts", icon: <Bell className="w-4 h-4" />,      color: "#f59e0b", badge: "NEW" },
   { value: "people",       label: "People",         shortLabel: "People",   icon: <Users className="w-4 h-4" />,       color: BRAND.amber },
   { value: "audit",        label: "Audit & Export", shortLabel: "Audit",    icon: <ShieldCheck className="w-4 h-4" />, color: BRAND.green },
 ];
@@ -1196,6 +1201,13 @@ export function ERPTaxCenter({
               </div>
             </div>
             <QuarterlyTracker taxYear={selectedYear} />
+          </div>
+        </TabsContent>
+
+        {/* ── DEADLINES & CREDITS ───────────────────────────── */}
+        <TabsContent value="deadlines">
+          <div className="bg-white/5 backdrop-blur-md rounded-xl border border-white/10 p-6">
+            <TaxDeadlinesCredits taxYear={selectedYear} />
           </div>
         </TabsContent>
 

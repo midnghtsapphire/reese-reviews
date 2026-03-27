@@ -64,7 +64,9 @@ export type IrsForm =
   | "schedule_d"
   | "form_8829"
   | "form_8283"
-  | "form_4562";
+  | "form_4562"
+  | "form_5695"
+  | "form_2441";
 
 export type WriteOffCategory =
   | "home_office"
@@ -79,6 +81,8 @@ export type WriteOffCategory =
   | "equipment"
   | "education"
   | "meals_entertainment"
+  | "solar_energy"
+  | "heat_pump"
   | "other";
 
 export type FilingStatus =
@@ -253,6 +257,8 @@ export const IRS_FORM_META: Record<IrsForm, {
   "form_8829":   { label: "Form 8829",      description: "Home Office Deduction — business use of home",                                     triggered_by: ["1099_nec","self_employ"] },
   "form_8283":   { label: "Form 8283",      description: "Noncash Charitable Contributions — if donated property > $500",                    triggered_by: ["other"] },
   "form_4562":   { label: "Form 4562",      description: "Depreciation and Amortization — for business equipment",                           triggered_by: ["1099_nec","self_employ","rental"] },
+  "form_5695":   { label: "Form 5695",      description: "Residential Energy Credits — 30% solar ITC + up to $2,000 heat pump credit",       triggered_by: ["other"] },
+  "form_2441":   { label: "Form 2441",      description: "Dependent Care Credit — child/adult dependent care expenses",                      triggered_by: ["w2","self_employ","other"] },
 };
 
 // ─── PRE-SEEDED PERSON PROFILES ──────────────────────────────
