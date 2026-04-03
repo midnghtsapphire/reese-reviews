@@ -36,6 +36,8 @@ import {
   VIDEO_LENGTH_PRESETS, DEFAULT_VIDEO_LENGTH_PRESET, getPresetBySeconds,
   type VideoConfig, type VideoScene, type VideoLengthPreset,
 } from "@/services/videoService";
+import ProductPhotoFinder from "@/components/vine/ProductPhotoFinder";
+import ReviewSubmissionForm from "@/components/vine/ReviewSubmissionForm";
 
 // ─── VIDEO LENGTH SELECTOR COMPONENT ────────────────────────
 interface VideoLengthSelectorProps {
@@ -157,6 +159,11 @@ export default function VineReviewDashboard() {
   // Review editor
   const [editingReview, setEditingReview] = useState<GeneratedReview | null>(null);
   const [editForm, setEditForm] = useState({ title: "", body: "", rating: 5 });
+
+  // Photo finder modal
+  const [photoFinderItem, setPhotoFinderItem] = useState<VineItem | null>(null);
+  // Submission form modal
+  const [submissionItem, setSubmissionItem] = useState<VineItem | null>(null);
 
   const refresh = useCallback(() => {
     setItems(getVineItems());
@@ -345,6 +352,32 @@ export default function VineReviewDashboard() {
     const text = `${r.title}\n\n${r.body}\n\n${r.ftcDisclosure}`;
     navigator.clipboard.writeText(text);
     setSuccess("Review copied to clipboard — ready to paste into Amazon!");
+  };
+
+  // ─── PHOTO FINDER CALLBACK ─────────────────────────────
+  const handlePhotosSelected = (photos: ReviewPhoto[]) => {
+    if (!photoFinderItem?.generatedReview) return;
+    updateVineItem(photoFinderItem.id, {
+      generatedReview: {
+        ...photoFinderItem.generatedReview,
+        photos,
+      },
+    });
+    setPhotoFinderItem(null);
+    setSuccess(`${photos.length} photos added to "${photoFinderItem.productName}"!`);
+    refresh();
+  };
+
+  // ─── SUBMISSION FORM SAVE ──────────────────────────────
+  const handleSubmissionSave = (updatedReview: GeneratedReview) => {
+    if (!submissionItem) return;
+    updateVineItem(submissionItem.id, {
+      generatedReview: updatedReview,
+      status: "submitted",
+    });
+    setSubmissionItem(null);
+    setSuccess(`Review for "${submissionItem.productName}" marked as submitted!`);
+    refresh();
   };
 
   // ─── AVATAR UPLOAD ─────────────────────────────────────
@@ -679,6 +712,8 @@ export default function VineReviewDashboard() {
                   onPreview={() => previewVideo(item)}
                   onEdit={() => startEditing(item)}
                   onCopy={() => copyReview(item)}
+                  onFindPhotos={() => setPhotoFinderItem(item)}
+                  onSubmit={() => setSubmissionItem(item)}
                 />
               ))
           )}
@@ -712,6 +747,8 @@ export default function VineReviewDashboard() {
                   onPreview={() => previewVideo(item)}
                   onEdit={() => startEditing(item)}
                   onCopy={() => copyReview(item)}
+                  onFindPhotos={() => setPhotoFinderItem(item)}
+                  onSubmit={() => setSubmissionItem(item)}
                 />
               ))
           )}
@@ -933,6 +970,33 @@ export default function VineReviewDashboard() {
       <p className="text-xs text-muted-foreground text-center">
         Review generation powered by free and open-source APIs · Star ratings calculated algorithmically
       </p>
+
+      {/* Photo Finder Modal */}
+      {photoFinderItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-xl bg-background border border-white/10 shadow-2xl">
+            <ProductPhotoFinder
+              item={photoFinderItem}
+              onPhotosSelected={handlePhotosSelected}
+              onClose={() => setPhotoFinderItem(null)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Review Submission Form Modal */}
+      {submissionItem && submissionItem.generatedReview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-xl bg-background border border-white/10 shadow-2xl">
+            <ReviewSubmissionForm
+              item={submissionItem}
+              review={submissionItem.generatedReview}
+              onSave={handleSubmissionSave}
+              onClose={() => setSubmissionItem(null)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -949,11 +1013,14 @@ interface VineItemCardProps {
   onPreview: () => void;
   onEdit: () => void;
   onCopy: () => void;
+  onFindPhotos: () => void;
+  onSubmit: () => void;
 }
 
 function VineItemCard({
   item, avatars, isGenerating, videoLength,
   onVideoLengthChange, onGenerate, onDelete, onPreview, onEdit, onCopy,
+  onFindPhotos, onSubmit,
 }: VineItemCardProps) {
   const days = getDaysUntilDeadline(item.reviewDeadline);
   const deadlineColor = getDeadlineColor(item.reviewDeadline);
@@ -1039,6 +1106,12 @@ function VineItemCard({
               </Button>
               <Button size="sm" variant="outline" onClick={onCopy}>
                 <Copy className="h-3 w-3 mr-1" /> Copy
+              </Button>
+              <Button size="sm" variant="outline" onClick={onFindPhotos}>
+                <Camera className="h-3 w-3 mr-1" /> Photos
+              </Button>
+              <Button size="sm" variant="outline" onClick={onSubmit}>
+                <FileText className="h-3 w-3 mr-1" /> Submit
               </Button>
               {review.videoScript && (
                 <Button size="sm" variant="outline" onClick={onPreview}>

@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu, X, LogOut, Zap, LayoutDashboard, Grape, Shield,
-  Search, CreditCard, Briefcase, Megaphone, ChevronDown,
+  Search, CreditCard, Briefcase, Megaphone, ChevronDown, Music,
 } from "lucide-react";
 import AccessibilityToggle from "./AccessibilityToggle";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,6 +20,7 @@ const moreLinks = [
   { label: "Marketing",      href: "/marketing", icon: Megaphone },
   { label: "SEO",            href: "/seo",       icon: Search },
   { label: "Payments",       href: "/payments",  icon: CreditCard },
+  { label: "Music Video",    href: "/music-video", icon: Music },
   { label: "Admin",          href: "/admin",     icon: Shield },
 ];
 

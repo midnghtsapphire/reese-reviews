@@ -34,6 +34,7 @@ const VinePage = lazy(() => import("@/pages/VinePage"));
 const AdminPanelPage = lazy(() => import("@/pages/AdminPanelPage"));
 const SEOPage = lazy(() => import("@/pages/SEOPage"));
 const PaymentsPage = lazy(() => import("@/pages/PaymentsPage"));
+const MusicVideoPage = lazy(() => import("@/pages/MusicVideoPage"));
 
 const queryClient = new QueryClient();
 
@@ -88,6 +89,7 @@ const AuthenticatedApp = () => {
             <Route path="/admin" element={<AdminPanelPage />} />
             <Route path="/seo" element={<SEOPage />} />
             <Route path="/payments" element={<PaymentsPage />} />
+            <Route path="/music-video" element={<MusicVideoPage />} />
 
             {/* 404 */}
             <Route path="*" element={<NotFound />} />
