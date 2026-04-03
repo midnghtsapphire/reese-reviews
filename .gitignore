@@ -23,3 +23,15 @@ dist-ssr
 *.sln
 *.sw?
 app-spec.yaml
+
+# Environment variables — NEVER commit secrets
+.env
+.env.*
+!.env.example
+
+# Supabase local config (may contain secrets)
+supabase/.temp/
+supabase/.branches/
+
+# OS files
+Thumbs.db
