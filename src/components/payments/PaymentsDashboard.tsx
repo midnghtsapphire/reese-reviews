@@ -286,49 +286,20 @@ export default function PaymentsDashboard() {
               <CardDescription>Connect your bank account via Plaid for financial tracking</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {plaidConnected ? (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 p-4 rounded-lg glass-card">
-                    <CheckCircle2 className="h-5 w-5 text-green-400" />
-                    <div>
-                      <p className="font-medium">Bank Account Connected</p>
-                      <p className="text-xs text-muted-foreground">Chase Business Checking ····4521</p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Card className="glass-card">
-                      <CardContent className="p-4 text-center">
-                        <p className="text-2xl font-bold text-green-400">$12,450.00</p>
-                        <p className="text-xs text-muted-foreground">Available Balance</p>
-                      </CardContent>
-                    </Card>
-                    <Card className="glass-card">
-                      <CardContent className="p-4 text-center">
-                        <p className="text-2xl font-bold text-blue-400">47</p>
-                        <p className="text-xs text-muted-foreground">Recent Transactions</p>
-                      </CardContent>
-                    </Card>
-                  </div>
-                  <Button variant="outline" onClick={() => setPlaidConnected(false)}>
-                    Disconnect Account
-                  </Button>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-lg font-medium mb-2">Connect Your Bank</p>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Link your bank account to automatically categorize transactions, track expenses, and sync with the Tax Center.
-                  </p>
-                  <Button className="gradient-steel" onClick={handlePlaidConnect}>
-                    <Building2 className="h-4 w-4 mr-1" /> Connect with Plaid
-                  </Button>
-                  <p className="text-xs text-muted-foreground mt-4">
-                    <Shield className="h-3 w-3 inline mr-1" />
-                    Bank-level security · 256-bit encryption · Read-only access
-                  </p>
-                </div>
-              )}
+              <div className="text-center py-8">
+                <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-lg font-medium mb-2">Connect Your Bank</p>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Link your bank account to automatically categorize transactions, track expenses, and sync with the Tax Center.
+                </p>
+                <Button className="gradient-steel" onClick={handlePlaidConnect}>
+                  <Building2 className="h-4 w-4 mr-1" /> Connect with Plaid
+                </Button>
+                <p className="text-xs text-muted-foreground mt-4">
+                  <Shield className="h-3 w-3 inline mr-1" />
+                  Bank-level security · 256-bit encryption · Read-only access
+                </p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

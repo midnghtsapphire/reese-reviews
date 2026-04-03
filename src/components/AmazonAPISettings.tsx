@@ -48,7 +48,7 @@ export function AmazonAPISettings() {
       title: newMode ? "Backend Mode Enabled" : "Demo Mode Enabled",
       description: newMode 
         ? "App will now use Supabase and real Amazon API data" 
-        : "App will use demo data stored locally",
+        : "App is in offline mode — no real data will be fetched",
     });
   };
 
@@ -73,11 +73,11 @@ export function AmazonAPISettings() {
                 Data Source Mode
               </CardTitle>
               <CardDescription>
-                Choose between demo data (offline) or real backend integration
+                Choose between offline mode or real backend integration
               </CardDescription>
             </div>
             <Badge variant={useBackend ? "default" : "secondary"}>
-              {useBackend ? "Production" : "Demo"}
+              {useBackend ? "Production" : "Offline"}
             </Badge>
           </div>
         </CardHeader>
@@ -102,8 +102,7 @@ export function AmazonAPISettings() {
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Demo mode is active. You're seeing sample data stored locally. 
-                Enable backend mode and configure your API credentials to see real data.
+                Offline mode is active. No Amazon data will be fetched. Enable backend mode and configure your API credentials to connect to real data.
               </AlertDescription>
             </Alert>
           )}

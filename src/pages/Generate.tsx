@@ -44,13 +44,7 @@ const PLATFORM_ICONS: Record<SocialPlatformId, React.ElementType> = {
   tiktok:    Music2,
 };
 
-// ─── Analytics mock ─────────────────────────────────────────
-const ANALYTICS_ITEMS = [
-  { label: "Posts Published", value: "142", icon: FileText  },
-  { label: "Total Reach",     value: "28.4K", icon: Eye     },
-  { label: "Engagement",      value: "4.7%",  icon: ThumbsUp},
-  { label: "Shares",          value: "891",   icon: Share2  },
-];
+// Analytics will be populated from real data sources
 
 // ─── Post state per platform ────────────────────────────────
 type PostStatus = "idle" | "posting" | "done" | "error";
@@ -313,17 +307,10 @@ export default function Generate() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {ANALYTICS_ITEMS.map(({ label, value, icon: Icon }) => (
-                    <div key={label} className="flex items-start gap-3">
-                      <span className="mt-0.5 rounded-md glass-card p-1.5">
-                        <Icon size={14} className="text-muted-foreground" />
-                      </span>
-                      <div>
-                        <p className="text-xs text-muted-foreground">{label}</p>
-                        <p className="text-lg font-bold leading-tight">{value}</p>
-                      </div>
-                    </div>
-                  ))}
+                  <div className="flex flex-col items-center py-4 text-center">
+                    <BarChart2 size={24} className="text-gray-500 mb-2" />
+                    <p className="text-xs text-gray-400">Connect Google Analytics to see post performance metrics.</p>
+                  </div>
                 </CardContent>
               </Card>
 

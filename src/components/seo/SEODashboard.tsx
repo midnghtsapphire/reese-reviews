@@ -29,22 +29,17 @@ interface SEOScore {
   mobile: { score: number; message: string };
 }
 
-function calculateSEOScore(url: string): SEOScore {
-  // Simulated SEO analysis
-  const scores: SEOScore = {
-    overall: 78,
-    title: { score: 90, message: "Title tag is well-optimized (55 chars)" },
-    description: { score: 85, message: "Meta description is good (148 chars)" },
-    headings: { score: 70, message: "H1 present, but missing H2 hierarchy in some sections" },
-    images: { score: 60, message: "3 images missing alt text" },
-    performance: { score: 82, message: "LCP: 2.1s, FID: 45ms, CLS: 0.05" },
-    mobile: { score: 88, message: "Responsive design detected, touch targets adequate" },
+function calculateSEOScore(_url: string): SEOScore {
+  // Placeholder — connect a real SEO API (e.g. Moz, Ahrefs, or Google Search Console) for live data
+  return {
+    overall: 0,
+    title: { score: 0, message: "Scan your URL to get a real score" },
+    description: { score: 0, message: "Scan your URL to get a real score" },
+    headings: { score: 0, message: "Scan your URL to get a real score" },
+    images: { score: 0, message: "Scan your URL to get a real score" },
+    performance: { score: 0, message: "Scan your URL to get a real score" },
+    mobile: { score: 0, message: "Scan your URL to get a real score" },
   };
-  scores.overall = Math.round(
-    (scores.title.score + scores.description.score + scores.headings.score +
-     scores.images.score + scores.performance.score + scores.mobile.score) / 6
-  );
-  return scores;
 }
 
 // ─── BACKLINKING DATA ───────────────────────────────────────
@@ -57,23 +52,13 @@ interface BacklinkData {
 }
 
 function getBacklinkData(): BacklinkData {
+  // No placeholder data — connect Ahrefs, Moz, or Google Search Console for real backlink data
   return {
-    totalBacklinks: 147,
-    referringDomains: 23,
-    domainAuthority: 18,
-    topAnchors: [
-      { text: "reese reviews", count: 34 },
-      { text: "honest product reviews", count: 21 },
-      { text: "amazon vine reviews", count: 15 },
-      { text: "teen reviewer", count: 12 },
-      { text: "reesereviews.com", count: 9 },
-    ],
-    topReferrers: [
-      { domain: "meetaudreyevans.com", links: 12, authority: 22 },
-      { domain: "reddit.com", links: 8, authority: 91 },
-      { domain: "twitter.com", links: 5, authority: 94 },
-      { domain: "medium.com", links: 3, authority: 95 },
-    ],
+    totalBacklinks: 0,
+    referringDomains: 0,
+    domainAuthority: 0,
+    topAnchors: [],
+    topReferrers: [],
   };
 }
 
@@ -92,10 +77,7 @@ function getScheduledPosts(): ScheduledPost[] {
     const stored = localStorage.getItem("seo-scheduled-posts");
     if (stored) return JSON.parse(stored);
   } catch {}
-  return [
-    { id: "1", title: "New Review: Wireless Earbuds", platform: "both", scheduledDate: "2026-04-05T10:00:00", status: "scheduled", content: "Check out my latest review!" },
-    { id: "2", title: "Top 5 Kitchen Gadgets", platform: "instagram", scheduledDate: "2026-04-07T14:00:00", status: "scheduled", content: "My favorite kitchen finds this month" },
-  ];
+  return [];
 }
 
 // ─── COMPONENT ──────────────────────────────────────────────
@@ -108,11 +90,7 @@ export default function SEODashboard() {
   const [posts] = useState<ScheduledPost[]>(getScheduledPosts);
 
   // Meta tags management
-  const [metaTags, setMetaTags] = useState([
-    { page: "/", title: "Reese Reviews — Honest Product Reviews From Box to Beautiful", description: "Real, unfiltered product reviews by a teen reviewer. Covering tech, beauty, food, and more.", keywords: "amazon vine, product reviews, honest reviews, teen reviewer" },
-    { page: "/dashboard", title: "Business Dashboard — Reese Reviews Admin", description: "Internal management for Amazon Vine, tax tracking, and review automation.", keywords: "vine dashboard, review automation, business management" },
-    { page: "/vine", title: "Vine Review Generator — Reese Reviews", description: "Auto-generate authentic Amazon Vine reviews with AI assistance.", keywords: "vine reviews, auto review, amazon vine generator" },
-  ]);
+  const [metaTags, setMetaTags] = useState<Array<{ page: string; title: string; description: string; keywords: string }>>([]);
 
   const handleScan = () => {
     setIsScanning(true);
@@ -185,6 +163,22 @@ export default function SEODashboard() {
 
         {/* ─── META TAGS TAB ─────────────────────────────── */}
         <TabsContent value="meta" className="space-y-4">
+          <div className="flex justify-end">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setMetaTags((prev) => [...prev, { page: "/new-page", title: "", description: "", keywords: "" }])}
+            >
+              + Add Page
+            </Button>
+          </div>
+          {metaTags.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <FileText className="h-10 w-10 text-gray-500 mb-3" />
+              <p className="text-white font-medium mb-1">No meta tags configured yet</p>
+              <p className="text-gray-400 text-sm">Click "Add Page" to define meta tags for each page of your site.</p>
+            </div>
+          )}
           {metaTags.map((meta, idx) => (
             <Card key={meta.page} className="glass-card steel-border">
               <CardHeader className="pb-2">
@@ -259,30 +253,44 @@ export default function SEODashboard() {
             <Card className="glass-card steel-border">
               <CardHeader><CardTitle className="text-sm">Top Anchor Texts</CardTitle></CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {backlinks.topAnchors.map((anchor) => (
-                    <div key={anchor.text} className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">"{anchor.text}"</span>
-                      <Badge variant="outline">{anchor.count}</Badge>
-                    </div>
-                  ))}
-                </div>
+                {backlinks.topAnchors.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <Target className="h-8 w-8 text-gray-500 mb-2" />
+                    <p className="text-gray-400 text-sm">No anchor text data yet. Connect a backlink analysis tool to see this data.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {backlinks.topAnchors.map((anchor) => (
+                      <div key={anchor.text} className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">"{anchor.text}"</span>
+                        <Badge variant="outline">{anchor.count}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
             <Card className="glass-card steel-border">
               <CardHeader><CardTitle className="text-sm">Top Referring Domains</CardTitle></CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {backlinks.topReferrers.map((ref) => (
-                    <div key={ref.domain} className="flex items-center justify-between text-sm">
-                      <span>{ref.domain}</span>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">{ref.links} links</Badge>
-                        <Badge variant="secondary">DA: {ref.authority}</Badge>
+                {backlinks.topReferrers.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <Link2 className="h-8 w-8 text-gray-500 mb-2" />
+                    <p className="text-gray-400 text-sm">No backlink data yet. Connect Ahrefs, Moz, or Google Search Console to see referring domains.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {backlinks.topReferrers.map((ref) => (
+                      <div key={ref.domain} className="flex items-center justify-between text-sm">
+                        <span>{ref.domain}</span>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline">{ref.links} links</Badge>
+                          <Badge variant="secondary">DA: {ref.authority}</Badge>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -343,21 +351,29 @@ export default function SEODashboard() {
               <CardDescription>Schedule and manage social media posts</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {posts.map((post) => (
-                  <div key={post.id} className="flex items-center justify-between p-3 rounded-lg glass-card">
-                    <div>
-                      <p className="font-medium text-sm">{post.title}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(post.scheduledDate).toLocaleString()} · {post.platform}
-                      </p>
+              {posts.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Calendar className="h-10 w-10 text-gray-500 mb-3" />
+                  <p className="text-white font-medium mb-1">No scheduled posts yet</p>
+                  <p className="text-gray-400 text-sm">Connect your Facebook or Instagram account above to start scheduling content.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {posts.map((post) => (
+                    <div key={post.id} className="flex items-center justify-between p-3 rounded-lg glass-card">
+                      <div>
+                        <p className="font-medium text-sm">{post.title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(post.scheduledDate).toLocaleString()} · {post.platform}
+                        </p>
+                      </div>
+                      <Badge variant={post.status === "posted" ? "default" : post.status === "failed" ? "destructive" : "secondary"}>
+                        {post.status}
+                      </Badge>
                     </div>
-                    <Badge variant={post.status === "posted" ? "default" : post.status === "failed" ? "destructive" : "secondary"}>
-                      {post.status}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

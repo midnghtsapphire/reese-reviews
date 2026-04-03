@@ -76,25 +76,16 @@ export function suggestCategory(
   return { category: "uncategorized", is_write_off: false };
 }
 
-export const DEMO_EXPENSES: Expense[] = [
-  { id: "exp-001", date: "2026-01-15", merchant: "Adobe", description: "Lightroom Classic subscription", amount: 9.99, category: "software_subscriptions", is_write_off: true, write_off_percentage: 100, source: "manual", notes: "", tax_year: 2026 },
-  { id: "exp-002", date: "2026-01-20", merchant: "Best Buy", description: "Ring light 3-point studio kit", amount: 89.99, category: "equipment", is_write_off: true, write_off_percentage: 100, source: "manual", notes: "Used for product photography", tax_year: 2026 },
-  { id: "exp-003", date: "2026-02-01", merchant: "Staples", description: "Photo backdrop and props", amount: 34.50, category: "office_supplies", is_write_off: true, write_off_percentage: 100, source: "manual", notes: "", tax_year: 2026 },
-  { id: "exp-004", date: "2026-02-10", merchant: "Comcast", description: "Internet service Feb — 50% business use", amount: 59.99, category: "phone_internet", is_write_off: true, write_off_percentage: 50, source: "bank_import", notes: "", tax_year: 2026 },
-  { id: "exp-005", date: "2026-02-15", merchant: "Amazon", description: "Sponsored Products advertising", amount: 45.00, category: "advertising_marketing", is_write_off: true, write_off_percentage: 100, source: "bank_import", notes: "", tax_year: 2026 },
-  { id: "exp-006", date: "2026-03-01", merchant: "Whole Foods", description: "Groceries", amount: 112.30, category: "personal", is_write_off: false, write_off_percentage: 0, source: "bank_import", notes: "", tax_year: 2026 },
-  { id: "exp-007", date: "2026-03-05", merchant: "Udemy", description: "Product photography masterclass", amount: 19.99, category: "education_training", is_write_off: true, write_off_percentage: 100, source: "manual", notes: "", tax_year: 2026 },
-  { id: "exp-008", date: "2026-03-10", merchant: "UPS Store", description: "Return shipping for review items", amount: 8.75, category: "shipping_postage", is_write_off: true, write_off_percentage: 100, source: "manual", notes: "", tax_year: 2026 },
-];
+export const DEMO_EXPENSES: Expense[] = [];
 
 export function getExpenses(tax_year?: number): Expense[] {
   try {
     const stored = localStorage.getItem(EXPENSE_STORAGE_KEY);
-    const expenses: Expense[] = stored ? (JSON.parse(stored) as Expense[]) : DEMO_EXPENSES;
+    const expenses: Expense[] = stored ? (JSON.parse(stored) as Expense[]) : [];
     if (tax_year !== undefined) return expenses.filter((e) => e.tax_year === tax_year);
     return expenses;
   } catch {
-    return DEMO_EXPENSES;
+    return [];
   }
 }
 

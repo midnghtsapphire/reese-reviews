@@ -13,7 +13,25 @@ import {
   getAmazonAffiliateLink,
   DEMO_AMAZON_ORDERS,
   type AmazonConfig,
+  type AmazonOrder,
 } from "./amazonStore";
+
+// ── Test data helpers ─────────────────────────────────────────
+
+function makeOrder(overrides: Partial<AmazonOrder> = {}): AmazonOrder {
+  return {
+    id: `amz-test-${Date.now()}-${Math.random()}`,
+    asin: "B09JQMJHXY",
+    product_name: "Test Wireless Earbuds",
+    category: "electronics",
+    price: 29.99,
+    order_date: "2024-01-15",
+    status: "delivered",
+    review_status: "not_reviewed",
+    affiliate_link: "https://www.amazon.com/dp/B09JQMJHXY?tag=meetaudreyeva-20",
+    ...overrides,
+  };
+}
 
 describe("amazonStore", () => {
   beforeEach(() => {
@@ -23,13 +41,15 @@ describe("amazonStore", () => {
   // ── getAmazonOrders ───────────────────────────────────────
 
   describe("getAmazonOrders", () => {
-    it("returns demo orders when no stored data", () => {
+    it("returns empty array when no stored data (DEMO_AMAZON_ORDERS is empty)", () => {
       const orders = getAmazonOrders();
-      expect(orders.length).toBe(DEMO_AMAZON_ORDERS.length);
+      expect(orders.length).toBe(DEMO_AMAZON_ORDERS.length); // both 0
+      expect(Array.isArray(orders)).toBe(true);
     });
 
     it("returns stored orders when data exists", () => {
-      saveAmazonOrders(DEMO_AMAZON_ORDERS.slice(0, 2));
+      const testOrders = [makeOrder({ id: "amz-001" }), makeOrder({ id: "amz-002" })];
+      saveAmazonOrders(testOrders);
       const orders = getAmazonOrders();
       expect(orders.length).toBe(2);
     });
@@ -62,6 +82,9 @@ describe("amazonStore", () => {
 
   describe("getUnreviewedOrders", () => {
     it("returns only delivered + not_reviewed orders", () => {
+      const delivered = makeOrder({ id: "d1", status: "delivered", review_status: "not_reviewed" });
+      const draft = makeOrder({ id: "d2", status: "delivered", review_status: "draft" });
+      saveAmazonOrders([delivered, draft]);
       const orders = getUnreviewedOrders();
       orders.forEach((o) => {
         expect(o.review_status).toBe("not_reviewed");
@@ -72,6 +95,9 @@ describe("amazonStore", () => {
 
   describe("getDraftOrders", () => {
     it("returns only draft orders", () => {
+      const draft = makeOrder({ id: "dr1", review_status: "draft" });
+      const notReviewed = makeOrder({ id: "nr1", review_status: "not_reviewed" });
+      saveAmazonOrders([draft, notReviewed]);
       const orders = getDraftOrders();
       orders.forEach((o) => expect(o.review_status).toBe("draft"));
     });
@@ -79,6 +105,9 @@ describe("amazonStore", () => {
 
   describe("getReviewedOrders", () => {
     it("returns only published orders", () => {
+      const published = makeOrder({ id: "pub1", review_status: "published" });
+      const draft = makeOrder({ id: "dr2", review_status: "draft" });
+      saveAmazonOrders([published, draft]);
       const orders = getReviewedOrders();
       orders.forEach((o) => expect(o.review_status).toBe("published"));
     });
@@ -88,9 +117,11 @@ describe("amazonStore", () => {
 
   describe("getOrderById", () => {
     it("finds an existing order by id", () => {
-      const order = getOrderById("amz-001");
-      expect(order).toBeDefined();
-      expect(order?.asin).toBe("B09JQMJHXY");
+      const order = makeOrder({ id: "amz-001", asin: "B09JQMJHXY" });
+      saveAmazonOrders([order]);
+      const found = getOrderById("amz-001");
+      expect(found).toBeDefined();
+      expect(found?.asin).toBe("B09JQMJHXY");
     });
 
     it("returns undefined for a missing id", () => {
@@ -102,12 +133,14 @@ describe("amazonStore", () => {
 
   describe("updateOrderReviewStatus", () => {
     it("updates review status to draft", () => {
+      saveAmazonOrders([makeOrder({ id: "amz-003" })]);
       updateOrderReviewStatus("amz-003", "draft");
       const order = getOrderById("amz-003");
       expect(order?.review_status).toBe("draft");
     });
 
     it("updates review status to published with a review id", () => {
+      saveAmazonOrders([makeOrder({ id: "amz-003" })]);
       updateOrderReviewStatus("amz-003", "published", "my-review-slug");
       const order = getOrderById("amz-003");
       expect(order?.review_status).toBe("published");
@@ -123,22 +156,21 @@ describe("amazonStore", () => {
 
   describe("generateReviewDraft", () => {
     it("includes the product name in the draft", () => {
-      const order = DEMO_AMAZON_ORDERS[0];
+      const order = makeOrder({ product_name: "Test Wireless Earbuds Pro" });
       const draft = generateReviewDraft(order);
       expect(draft).toContain(order.product_name);
     });
 
     it("includes the purchase price in the draft", () => {
-      const order = DEMO_AMAZON_ORDERS[0];
+      const order = makeOrder({ price: 49.99 });
       const draft = generateReviewDraft(order);
       expect(draft).toContain(order.price.toFixed(2));
     });
 
-    it("produces non-empty text for every demo order", () => {
-      DEMO_AMAZON_ORDERS.forEach((order) => {
-        const draft = generateReviewDraft(order);
-        expect(draft.length).toBeGreaterThan(50);
-      });
+    it("produces non-empty text for a test order", () => {
+      const order = makeOrder();
+      const draft = generateReviewDraft(order);
+      expect(draft.length).toBeGreaterThan(50);
     });
   });
 
@@ -156,12 +188,12 @@ describe("amazonStore", () => {
     });
   });
 
-  // ── affiliate tag is meetaudreyeva-20 ─────────────────────
+  // ── affiliate tag compliance ──────────────────────────────
 
   describe("default affiliate tag compliance", () => {
-    it("demo order amz-001 uses meetaudreyeva-20 affiliate tag", () => {
-      const order = DEMO_AMAZON_ORDERS.find((o) => o.id === "amz-001");
-      expect(order?.affiliate_link).toContain("meetaudreyeva-20");
+    it("affiliate links use meetaudreyeva-20 tag", () => {
+      const link = getAmazonAffiliateLink("B09JQMJHXY");
+      expect(link).toContain("meetaudreyeva-20");
     });
   });
 });

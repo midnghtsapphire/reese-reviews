@@ -1,7 +1,7 @@
 // ============================================================
 // VINE REVIEW AUTO-GENERATOR — MAIN DASHBOARD
 // Priority 1 feature: CSV import, review queue, generation,
-// avatar selection, video creation, export
+// avatar selection, video creation with length selector, export
 // ============================================================
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +18,7 @@ import {
   Upload, FileText, Star, Clock, AlertTriangle, CheckCircle2,
   Zap, Trash2, Edit3, Copy, Download, Play, Pause, SkipForward,
   Camera, Video, User, Plus, Search, RefreshCw, Package,
-  BarChart2, Calendar, ArrowRight, Loader2, X, Eye,
+  BarChart2, Calendar, ArrowRight, Loader2, X, Eye, Timer,
 } from "lucide-react";
 import {
   getVineItems, addVineItem, updateVineItem, deleteVineItem,
@@ -32,12 +32,58 @@ import {
   generateVideoScript, type GeneratedReviewData,
 } from "@/services/openRouterService";
 import {
-  parseScriptToScenes, renderVideoPreview,
-  type VideoConfig, type VideoScene,
+  parseScriptToScenes, renderVideoPreview, formatDuration,
+  VIDEO_LENGTH_PRESETS, DEFAULT_VIDEO_LENGTH_PRESET, getPresetBySeconds,
+  type VideoConfig, type VideoScene, type VideoLengthPreset,
 } from "@/services/videoService";
 
-// ─── SUB-COMPONENTS ─────────────────────────────────────────
+// ─── VIDEO LENGTH SELECTOR COMPONENT ────────────────────────
+interface VideoLengthSelectorProps {
+  value: number; // seconds
+  onChange: (seconds: number) => void;
+  label?: string;
+  className?: string;
+}
 
+function VideoLengthSelector({ value, onChange, label = "Video Length", className = "" }: VideoLengthSelectorProps) {
+  return (
+    <div className={`space-y-1 ${className}`}>
+      <Label className="flex items-center gap-1 text-xs">
+        <Timer className="h-3 w-3" /> {label}
+      </Label>
+      <Select
+        value={String(value)}
+        onValueChange={(v) => onChange(Number(v))}
+      >
+        <SelectTrigger className="h-8 text-xs">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {VIDEO_LENGTH_PRESETS.map((preset) => (
+            <SelectItem key={preset.seconds} value={String(preset.seconds)}>
+              <div className="flex flex-col">
+                <span className="font-medium">{preset.label}</span>
+                <span className="text-xs text-muted-foreground">{preset.description}</span>
+              </div>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {/* Show pacing info for the selected preset */}
+      {(() => {
+        const preset = getPresetBySeconds(value);
+        return (
+          <p className="text-xs text-muted-foreground">
+            {preset.minSlides} slides · {preset.secondsPerSlide}s/slide
+            {preset.multiSection ? " · multi-section" : ""}
+          </p>
+        );
+      })()}
+    </div>
+  );
+}
+
+// ─── STATS BAR ──────────────────────────────────────────────
 function StatsBar() {
   const stats = getItemStats();
   return (
@@ -76,6 +122,11 @@ export default function VineReviewDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  // Video length — default 60s (1 minute) for Vine reviews
+  const [videoLengthSeconds, setVideoLengthSeconds] = useState<number>(60);
+  // Per-item video length overrides
+  const [itemVideoLengths, setItemVideoLengths] = useState<Record<string, number>>({});
+
   // Add item form
   const [showAddForm, setShowAddForm] = useState(false);
   const [addForm, setAddForm] = useState({
@@ -101,6 +152,7 @@ export default function VineReviewDashboard() {
   const [videoScenes, setVideoScenes] = useState<VideoScene[]>([]);
   const [currentScene, setCurrentScene] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [previewItem, setPreviewItem] = useState<VineItem | null>(null);
 
   // Review editor
   const [editingReview, setEditingReview] = useState<GeneratedReview | null>(null);
@@ -166,26 +218,24 @@ export default function VineReviewDashboard() {
   const handleGenerateReview = async (item: VineItem) => {
     setIsGenerating(true);
     setError(null);
+    const itemLength = itemVideoLengths[item.id] ?? videoLengthSeconds;
+    const preset = getPresetBySeconds(itemLength);
+
     try {
-      // Step 1: Research product
       updateVineItem(item.id, { status: "generating" });
       refresh();
 
       const scraped = await scrapeProductReviews(item.productName, item.asin);
-
-      // Step 2: Calculate star rating
       const ratingAnalysis = calculateStarRating(scraped.reviews);
-
-      // Step 3: Generate review text
       const context = scraped.reviews.map((r) => `[${r.source}] ${r.rating}★: ${r.text}`).join("\n");
       const reviewData = await generateReview(item.productName, item.asin, item.category, context);
 
-      // Step 4: Generate video script
+      // Pass preset info to video script generator so it knows to generate more content
       const videoScript = await generateVideoScript(
-        item.productName, reviewData.body, reviewData.rating, reviewData.pros, reviewData.cons
+        item.productName, reviewData.body, reviewData.rating,
+        reviewData.pros, reviewData.cons, preset
       );
 
-      // Step 5: Generate placeholder photos
       const photos: ReviewPhoto[] = [
         { id: `photo-${Date.now()}-1`, url: "", caption: "Product front view", type: "product", isSelected: true },
         { id: `photo-${Date.now()}-2`, url: "", caption: "Product in use", type: "in-use", isSelected: true },
@@ -206,6 +256,7 @@ export default function VineReviewDashboard() {
         photos,
         videoUrl: null,
         videoScript,
+        videoLengthSeconds: itemLength,
         avatarId: selectedAvatar,
         ftcDisclosure: "I received this product free through Amazon Vine and am providing my honest opinion.",
         isEdited: false,
@@ -228,7 +279,7 @@ export default function VineReviewDashboard() {
         },
       });
 
-      setSuccess(`Review generated for "${item.productName}"!`);
+      setSuccess(`Review generated for "${item.productName}" (${preset.label} video)!`);
       refresh();
     } catch (err: any) {
       setError(`Failed to generate review: ${err.message}`);
@@ -313,9 +364,12 @@ export default function VineReviewDashboard() {
   // ─── VIDEO PREVIEW ─────────────────────────────────────
   const previewVideo = (item: VineItem) => {
     if (!item.generatedReview?.videoScript || !canvasRef.current) return;
-    const scenes = parseScriptToScenes(item.generatedReview.videoScript, [item.imageUrl]);
+    const itemLength = (item.generatedReview as any).videoLengthSeconds ?? videoLengthSeconds;
+    const preset = getPresetBySeconds(itemLength);
+    const scenes = parseScriptToScenes(item.generatedReview.videoScript, [item.imageUrl], preset);
     setVideoScenes(scenes);
     setCurrentScene(0);
+    setPreviewItem(item);
     const avatar = avatars.find((a) => a.id === item.generatedReview?.avatarId);
     renderVideoPreview(canvasRef.current, {
       productName: item.productName,
@@ -323,10 +377,12 @@ export default function VineReviewDashboard() {
       script: item.generatedReview.videoScript,
       productImages: [item.imageUrl],
       avatarImage: avatar?.imageUrl || "",
-      duration: 30,
+      duration: itemLength,
       width: 640,
       height: 360,
+      preset,
     }, scenes, 0);
+    setActiveTab("video");
   };
 
   // ─── RENDER ─────────────────────────────────────────────
@@ -396,6 +452,40 @@ export default function VineReviewDashboard() {
       {/* Stats */}
       <StatsBar />
 
+      {/* Bulk Settings Bar */}
+      <Card className="glass-card steel-border">
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Video className="h-4 w-4 text-purple-400" />
+              <span>Default Video Settings</span>
+            </div>
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <VideoLengthSelector
+                value={videoLengthSeconds}
+                onChange={setVideoLengthSeconds}
+                label="Default Length for New Reviews"
+              />
+              <div className="space-y-1">
+                <Label className="text-xs">Default Avatar</Label>
+                <Select value={selectedAvatar} onValueChange={setSelectedAvatar}>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {avatars.map((a) => (
+                      <SelectItem key={a.id} value={a.id}>
+                        {a.name} · {a.gender} · {a.type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* CSV Import Modal */}
       {showCSVImport && (
         <Card className="glass-card steel-border">
@@ -417,7 +507,7 @@ export default function VineReviewDashboard() {
               <Textarea
                 value={csvText}
                 onChange={(e) => setCsvText(e.target.value)}
-                placeholder={`productName,asin,category,orderDate,reviewDeadline,etv\nWireless Mouse,B0EXAMPLE1,electronics,2026-03-01,2026-04-15,29.99\nBluetooth Speaker,B0EXAMPLE2,electronics,2026-03-05,2026-04-20,49.99`}
+                placeholder={`productName,asin,category,orderDate,reviewDeadline,etv\nWireless Mouse,B0EXAMPLE1,electronics,2026-03-01,2026-04-15,29.99`}
                 rows={8}
                 className="font-mono text-xs"
               />
@@ -499,9 +589,45 @@ export default function VineReviewDashboard() {
             </div>
             <div className="flex gap-2">
               <Button onClick={handleAddItem} className="gradient-steel">
-                <Plus className="h-4 w-4 mr-1" /> Add to Queue
+                <Plus className="h-4 w-4 mr-1" /> Add Item
               </Button>
               <Button variant="outline" onClick={() => setShowAddForm(false)}>Cancel</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Review Editor */}
+      {editingReview && (
+        <Card className="glass-card steel-border">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Edit3 className="h-5 w-5" /> Edit Review
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label>Review Title</Label>
+              <Input value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} />
+            </div>
+            <div>
+              <Label>Review Body</Label>
+              <Textarea value={editForm.body} onChange={(e) => setEditForm({ ...editForm, body: e.target.value })} rows={8} />
+            </div>
+            <div>
+              <Label>Star Rating</Label>
+              <Select value={String(editForm.rating)} onValueChange={(v) => setEditForm({ ...editForm, rating: parseFloat(v) })}>
+                <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {[1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5].map((r) => (
+                    <SelectItem key={r} value={String(r)}>{"★".repeat(Math.floor(r))}{r % 1 ? "½" : ""} ({r})</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={saveEdit} className="gradient-steel">Save Changes</Button>
+              <Button variant="outline" onClick={() => setEditingReview(null)}>Cancel</Button>
             </div>
           </CardContent>
         </Card>
@@ -510,434 +636,422 @@ export default function VineReviewDashboard() {
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="glass-card">
-          <TabsTrigger value="queue">
-            <Clock className="h-4 w-4 mr-1" /> Review Queue
-          </TabsTrigger>
-          <TabsTrigger value="generated">
-            <CheckCircle2 className="h-4 w-4 mr-1" /> Generated
-          </TabsTrigger>
-          <TabsTrigger value="avatars">
-            <User className="h-4 w-4 mr-1" /> Avatars
-          </TabsTrigger>
-          <TabsTrigger value="video">
-            <Video className="h-4 w-4 mr-1" /> Video Preview
-          </TabsTrigger>
+          <TabsTrigger value="queue"><Clock className="h-3 w-3 mr-1" /> Review Queue</TabsTrigger>
+          <TabsTrigger value="generated"><CheckCircle2 className="h-3 w-3 mr-1" /> Generated</TabsTrigger>
+          <TabsTrigger value="avatars"><User className="h-3 w-3 mr-1" /> Avatars</TabsTrigger>
+          <TabsTrigger value="video"><Video className="h-3 w-3 mr-1" /> Video Preview</TabsTrigger>
         </TabsList>
 
-        {/* ─── REVIEW QUEUE TAB ──────────────────────────── */}
+        {/* QUEUE TAB */}
         <TabsContent value="queue" className="space-y-4">
-          {items.filter((i) => ["pending", "overdue", "generating"].includes(i.status)).length === 0 ? (
+          {items.filter((i) => ["pending", "generating", "overdue"].includes(i.status)).length === 0 ? (
             <Card className="glass-card steel-border">
-              <CardContent className="p-8 text-center">
-                <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-lg font-medium">No pending reviews</p>
-                <p className="text-sm text-muted-foreground mb-4">Import Vine orders or add items manually to get started.</p>
+              <CardContent className="p-12 text-center">
+                <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-40" />
+                <h3 className="text-lg font-semibold mb-2">No pending reviews</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Import Vine orders via CSV or add items manually to get started.
+                </p>
                 <div className="flex gap-2 justify-center">
-                  <Button variant="outline" onClick={() => setShowCSVImport(true)}>
+                  <Button variant="outline" size="sm" onClick={() => setShowCSVImport(true)}>
                     <Upload className="h-4 w-4 mr-1" /> Import CSV
                   </Button>
-                  <Button variant="outline" onClick={() => setShowAddForm(true)}>
+                  <Button variant="outline" size="sm" onClick={() => setShowAddForm(true)}>
                     <Plus className="h-4 w-4 mr-1" /> Add Item
                   </Button>
                 </div>
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-3">
-              {items
-                .filter((i) => ["pending", "overdue", "generating"].includes(i.status))
-                .sort((a, b) => new Date(a.reviewDeadline).getTime() - new Date(b.reviewDeadline).getTime())
-                .map((item) => (
-                  <Card key={item.id} className="glass-card steel-border">
-                    <CardContent className="p-4">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold">{item.productName}</h3>
-                            <Badge variant={getDeadlineBadgeVariant(item.reviewDeadline)}>
-                              {item.status === "overdue" ? "OVERDUE" : item.status === "generating" ? "Generating..." : `${getDaysUntilDeadline(item.reviewDeadline)}d left`}
-                            </Badge>
-                          </div>
-                          <div className="flex gap-4 text-xs text-muted-foreground">
-                            {item.asin && <span>ASIN: {item.asin}</span>}
-                            <span>Category: {item.category}</span>
-                            {item.etv > 0 && <span>ETV: ${item.etv.toFixed(2)}</span>}
-                            <span className={getDeadlineColor(item.reviewDeadline)}>
-                              Due: {new Date(item.reviewDeadline).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            className="gradient-steel"
-                            onClick={() => handleGenerateReview(item)}
-                            disabled={isGenerating || item.status === "generating"}
-                          >
-                            {item.status === "generating" ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <><Zap className="h-4 w-4 mr-1" /> Generate</>
-                            )}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => { deleteVineItem(item.id); refresh(); }}
-                          >
-                            <Trash2 className="h-4 w-4 text-red-400" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-            </div>
+            items
+              .filter((i) => ["pending", "generating", "overdue"].includes(i.status))
+              .sort((a, b) => new Date(a.reviewDeadline).getTime() - new Date(b.reviewDeadline).getTime())
+              .map((item) => (
+                <VineItemCard
+                  key={item.id}
+                  item={item}
+                  avatars={avatars}
+                  isGenerating={isGenerating}
+                  videoLength={itemVideoLengths[item.id] ?? videoLengthSeconds}
+                  onVideoLengthChange={(s) => setItemVideoLengths((prev) => ({ ...prev, [item.id]: s }))}
+                  onGenerate={() => handleGenerateReview(item)}
+                  onDelete={() => { deleteVineItem(item.id); refresh(); }}
+                  onPreview={() => previewVideo(item)}
+                  onEdit={() => startEditing(item)}
+                  onCopy={() => copyReview(item)}
+                />
+              ))
           )}
         </TabsContent>
 
-        {/* ─── GENERATED REVIEWS TAB ─────────────────────── */}
+        {/* GENERATED TAB */}
         <TabsContent value="generated" className="space-y-4">
           {items.filter((i) => ["generated", "edited", "submitted"].includes(i.status)).length === 0 ? (
             <Card className="glass-card steel-border">
-              <CardContent className="p-8 text-center">
-                <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-lg font-medium">No generated reviews yet</p>
-                <p className="text-sm text-muted-foreground">Generate reviews from the queue tab to see them here.</p>
+              <CardContent className="p-12 text-center">
+                <CheckCircle2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-40" />
+                <h3 className="text-lg font-semibold mb-2">No generated reviews yet</h3>
+                <p className="text-sm text-muted-foreground">
+                  Add items to your queue and click "Generate" to create AI-powered reviews.
+                </p>
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-4">
-              {items
-                .filter((i) => ["generated", "edited", "submitted"].includes(i.status))
-                .map((item) => (
-                  <Card key={item.id} className="glass-card steel-border">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-base">{item.productName}</CardTitle>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={item.status === "submitted" ? "default" : "secondary"}>
-                            {item.status}
-                          </Badge>
-                          {item.generatedReview && (
-                            <div className="flex items-center gap-1">
-                              {Array.from({ length: 5 }, (_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`h-4 w-4 ${
-                                    i < Math.floor(item.generatedReview!.rating)
-                                      ? "fill-yellow-400 text-yellow-400"
-                                      : i < item.generatedReview!.rating
-                                      ? "fill-yellow-400/50 text-yellow-400"
-                                      : "text-muted-foreground"
-                                  }`}
-                                />
-                              ))}
-                              <span className="text-sm ml-1">{item.generatedReview.rating}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </CardHeader>
-                    {item.generatedReview && (
-                      <CardContent className="space-y-3">
-                        {/* Review Title */}
-                        <h4 className="font-medium text-sm">{item.generatedReview.title}</h4>
+            items
+              .filter((i) => ["generated", "edited", "submitted"].includes(i.status))
+              .map((item) => (
+                <VineItemCard
+                  key={item.id}
+                  item={item}
+                  avatars={avatars}
+                  isGenerating={isGenerating}
+                  videoLength={itemVideoLengths[item.id] ?? ((item.generatedReview as any)?.videoLengthSeconds ?? videoLengthSeconds)}
+                  onVideoLengthChange={(s) => setItemVideoLengths((prev) => ({ ...prev, [item.id]: s }))}
+                  onGenerate={() => handleGenerateReview(item)}
+                  onDelete={() => { deleteVineItem(item.id); refresh(); }}
+                  onPreview={() => previewVideo(item)}
+                  onEdit={() => startEditing(item)}
+                  onCopy={() => copyReview(item)}
+                />
+              ))
+          )}
+        </TabsContent>
 
-                        {/* Review Body (truncated) */}
-                        <p className="text-sm text-muted-foreground line-clamp-4">
-                          {item.generatedReview.body}
-                        </p>
-
-                        {/* Pros & Cons */}
-                        <div className="grid grid-cols-2 gap-4 text-xs">
-                          <div>
-                            <p className="font-medium text-green-400 mb-1">Pros</p>
-                            <ul className="space-y-1">
-                              {item.generatedReview.pros.map((p, i) => (
-                                <li key={i} className="flex items-start gap-1">
-                                  <CheckCircle2 className="h-3 w-3 text-green-400 mt-0.5 shrink-0" />
-                                  <span>{p}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div>
-                            <p className="font-medium text-red-400 mb-1">Cons</p>
-                            <ul className="space-y-1">
-                              {item.generatedReview.cons.map((c, i) => (
-                                <li key={i} className="flex items-start gap-1">
-                                  <AlertTriangle className="h-3 w-3 text-red-400 mt-0.5 shrink-0" />
-                                  <span>{c}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-
-                        {/* FTC Disclosure */}
-                        <p className="text-xs italic text-muted-foreground border-t border-border/50 pt-2">
-                          {item.generatedReview.ftcDisclosure}
-                        </p>
-
-                        {/* Actions */}
-                        <div className="flex gap-2 flex-wrap">
-                          <Button size="sm" variant="outline" onClick={() => copyReview(item)}>
-                            <Copy className="h-3 w-3 mr-1" /> Copy for Amazon
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => startEditing(item)}>
-                            <Edit3 className="h-3 w-3 mr-1" /> Edit
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => { previewVideo(item); setActiveTab("video"); }}>
-                            <Video className="h-3 w-3 mr-1" /> Video
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              updateVineItem(item.id, { status: "submitted" });
-                              refresh();
-                            }}
-                          >
-                            <CheckCircle2 className="h-3 w-3 mr-1" /> Mark Submitted
-                          </Button>
-                        </div>
-                      </CardContent>
+        {/* AVATARS TAB */}
+        <TabsContent value="avatars">
+          <Card className="glass-card steel-border">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Avatar Profiles</CardTitle>
+                <Button size="sm" variant="outline" onClick={() => setShowAvatarUpload(true)}>
+                  <Plus className="h-4 w-4 mr-1" /> Upload Avatar
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {showAvatarUpload && (
+                <div className="mb-4 p-4 border border-dashed border-slate-600 rounded-lg space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label>Avatar Name</Label>
+                      <Input
+                        value={avatarForm.name}
+                        onChange={(e) => setAvatarForm({ ...avatarForm, name: e.target.value })}
+                        placeholder="e.g., My Avatar"
+                      />
+                    </div>
+                    <div>
+                      <Label>Gender</Label>
+                      <Select value={avatarForm.gender} onValueChange={(v: any) => setAvatarForm({ ...avatarForm, gender: v })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="female">Female</SelectItem>
+                          <SelectItem value="male">Male</SelectItem>
+                          <SelectItem value="neutral">Neutral</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Upload Photo (JPG, PNG, WebP)</Label>
+                    <Input type="file" accept="image/*" onChange={handleAvatarUpload} />
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => setShowAvatarUpload(false)}>Cancel</Button>
+                </div>
+              )}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                {avatars.map((avatar) => (
+                  <div
+                    key={avatar.id}
+                    className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                      selectedAvatar === avatar.id
+                        ? "border-purple-500 bg-purple-500/10"
+                        : "border-slate-700 hover:border-slate-500"
+                    }`}
+                    onClick={() => setSelectedAvatar(avatar.id)}
+                  >
+                    <div className="w-16 h-16 mx-auto rounded-full bg-slate-700 flex items-center justify-center mb-2 overflow-hidden">
+                      {avatar.imageUrl && !avatar.imageUrl.startsWith("/avatars/") ? (
+                        <img src={avatar.imageUrl} alt={avatar.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="h-8 w-8 text-slate-400" />
+                      )}
+                    </div>
+                    <p className="text-xs font-medium text-center">{avatar.name}</p>
+                    <p className="text-xs text-muted-foreground text-center capitalize">{avatar.gender} · {avatar.type}</p>
+                    {selectedAvatar === avatar.id && (
+                      <Badge variant="secondary" className="w-full justify-center mt-1 text-xs">Selected</Badge>
                     )}
-                  </Card>
+                    {avatar.type === "custom" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full mt-1 h-6 text-xs text-red-400 hover:text-red-300"
+                        onClick={(e) => { e.stopPropagation(); deleteAvatar(avatar.id); refresh(); }}
+                      >
+                        <Trash2 className="h-3 w-3 mr-1" /> Remove
+                      </Button>
+                    )}
+                  </div>
                 ))}
-            </div>
-          )}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        {/* ─── AVATARS TAB ───────────────────────────────── */}
-        <TabsContent value="avatars" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold">Avatar Profiles</h3>
-            <Button size="sm" variant="outline" onClick={() => setShowAvatarUpload(true)}>
-              <Plus className="h-4 w-4 mr-1" /> Upload Avatar
-            </Button>
-          </div>
-
-          {showAvatarUpload && (
-            <Card className="glass-card steel-border">
-              <CardContent className="p-4 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Avatar Name</Label>
-                    <Input
-                      value={avatarForm.name}
-                      onChange={(e) => setAvatarForm({ ...avatarForm, name: e.target.value })}
-                      placeholder="My Avatar"
-                    />
-                  </div>
-                  <div>
-                    <Label>Gender</Label>
-                    <Select
-                      value={avatarForm.gender}
-                      onValueChange={(v: any) => setAvatarForm({ ...avatarForm, gender: v })}
-                    >
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="female">Female</SelectItem>
-                        <SelectItem value="male">Male</SelectItem>
-                        <SelectItem value="neutral">Neutral</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div>
-                  <Label>Upload Photo</Label>
-                  <Input type="file" accept="image/*" onChange={handleAvatarUpload} />
-                </div>
-                <Button variant="outline" size="sm" onClick={() => setShowAvatarUpload(false)}>Cancel</Button>
-              </CardContent>
-            </Card>
-          )}
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            {avatars.map((avatar) => (
-              <Card
-                key={avatar.id}
-                className={`glass-card steel-border cursor-pointer transition-all ${
-                  selectedAvatar === avatar.id ? "ring-2 ring-primary" : ""
-                }`}
-                onClick={() => setSelectedAvatar(avatar.id)}
-              >
-                <CardContent className="p-4 text-center">
-                  <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center mb-2 overflow-hidden">
-                    {avatar.imageUrl && !avatar.imageUrl.startsWith("/avatars/") ? (
-                      <img src={avatar.imageUrl} alt={avatar.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <User className="h-8 w-8 text-muted-foreground" />
-                    )}
-                  </div>
-                  <p className="text-sm font-medium">{avatar.name}</p>
-                  <p className="text-xs text-muted-foreground capitalize">{avatar.gender} · {avatar.type}</p>
-                  {selectedAvatar === avatar.id && (
-                    <Badge className="mt-1" variant="default">Selected</Badge>
-                  )}
-                  {avatar.type === "custom" && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="mt-1"
-                      onClick={(e) => { e.stopPropagation(); deleteAvatar(avatar.id); refresh(); }}
-                    >
-                      <Trash2 className="h-3 w-3 text-red-400" />
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        {/* ─── VIDEO PREVIEW TAB ─────────────────────────── */}
-        <TabsContent value="video" className="space-y-4">
+        {/* VIDEO PREVIEW TAB */}
+        <TabsContent value="video">
           <Card className="glass-card steel-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Video className="h-5 w-5" /> Video Review Preview
+                <Video className="h-5 w-5" /> Video Preview
               </CardTitle>
               <CardDescription>
-                Preview the auto-generated video review. Select a generated review to preview its video.
+                {previewItem
+                  ? `Previewing: ${previewItem.productName} · ${getPresetBySeconds((previewItem.generatedReview as any)?.videoLengthSeconds ?? videoLengthSeconds).label}`
+                  : "Select a generated review and click Preview to see the video"}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex justify-center">
-                <canvas
-                  ref={canvasRef}
-                  width={640}
-                  height={360}
-                  className="rounded-lg border border-border/50 bg-black max-w-full"
-                />
-              </div>
-              {videoScenes.length > 0 && (
-                <div className="flex items-center justify-center gap-4">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      const prev = Math.max(0, currentScene - 1);
-                      setCurrentScene(prev);
-                      if (canvasRef.current) {
-                        const item = items.find((i) => i.generatedReview?.videoScript);
-                        if (item?.generatedReview) {
-                          const avatar = avatars.find((a) => a.id === item.generatedReview?.avatarId);
-                          renderVideoPreview(canvasRef.current, {
-                            productName: item.productName,
-                            rating: item.generatedReview.rating,
-                            script: item.generatedReview.videoScript || "",
-                            productImages: [item.imageUrl],
-                            avatarImage: avatar?.imageUrl || "",
-                            duration: 30, width: 640, height: 360,
-                          }, videoScenes, prev);
+              {videoScenes.length > 0 ? (
+                <>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <VideoLengthSelector
+                      value={previewItem ? ((previewItem.generatedReview as any)?.videoLengthSeconds ?? videoLengthSeconds) : videoLengthSeconds}
+                      onChange={(s) => {
+                        if (previewItem) {
+                          setItemVideoLengths((prev) => ({ ...prev, [previewItem.id]: s }));
+                          // Re-render with new preset
+                          const preset = getPresetBySeconds(s);
+                          const scenes = parseScriptToScenes(
+                            previewItem.generatedReview?.videoScript ?? "",
+                            [previewItem.imageUrl],
+                            preset
+                          );
+                          setVideoScenes(scenes);
+                          setCurrentScene(0);
+                          if (canvasRef.current && previewItem.generatedReview) {
+                            const avatar = avatars.find((a) => a.id === previewItem.generatedReview?.avatarId);
+                            renderVideoPreview(canvasRef.current, {
+                              productName: previewItem.productName,
+                              rating: previewItem.generatedReview.rating,
+                              script: previewItem.generatedReview.videoScript ?? "",
+                              productImages: [previewItem.imageUrl],
+                              avatarImage: avatar?.imageUrl ?? "",
+                              duration: s,
+                              width: 640,
+                              height: 360,
+                              preset,
+                            }, scenes, 0);
+                          }
                         }
-                      }
-                    }}
-                    disabled={currentScene === 0}
-                  >
-                    <SkipForward className="h-4 w-4 rotate-180" />
-                  </Button>
-                  <span className="text-sm text-muted-foreground">
-                    Scene {currentScene + 1} / {videoScenes.length}
-                  </span>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      const next = Math.min(videoScenes.length - 1, currentScene + 1);
-                      setCurrentScene(next);
-                      if (canvasRef.current) {
-                        const item = items.find((i) => i.generatedReview?.videoScript);
-                        if (item?.generatedReview) {
-                          const avatar = avatars.find((a) => a.id === item.generatedReview?.avatarId);
-                          renderVideoPreview(canvasRef.current, {
-                            productName: item.productName,
-                            rating: item.generatedReview.rating,
-                            script: item.generatedReview.videoScript || "",
-                            productImages: [item.imageUrl],
-                            avatarImage: avatar?.imageUrl || "",
-                            duration: 30, width: 640, height: 360,
-                          }, videoScenes, next);
-                        }
-                      }
-                    }}
-                    disabled={currentScene >= videoScenes.length - 1}
-                  >
-                    <SkipForward className="h-4 w-4" />
-                  </Button>
+                      }}
+                      label="Change Video Length"
+                      className="w-48"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={currentScene === 0}
+                        onClick={() => {
+                          const next = Math.max(0, currentScene - 1);
+                          setCurrentScene(next);
+                          if (canvasRef.current && previewItem?.generatedReview) {
+                            const preset = getPresetBySeconds((previewItem.generatedReview as any)?.videoLengthSeconds ?? videoLengthSeconds);
+                            const avatar = avatars.find((a) => a.id === previewItem.generatedReview?.avatarId);
+                            renderVideoPreview(canvasRef.current, {
+                              productName: previewItem.productName,
+                              rating: previewItem.generatedReview.rating,
+                              script: previewItem.generatedReview.videoScript ?? "",
+                              productImages: [previewItem.imageUrl],
+                              avatarImage: avatar?.imageUrl ?? "",
+                              duration: (previewItem.generatedReview as any)?.videoLengthSeconds ?? videoLengthSeconds,
+                              width: 640, height: 360, preset,
+                            }, videoScenes, next);
+                          }
+                        }}
+                      >
+                        ← Prev
+                      </Button>
+                      <span className="text-sm self-center text-muted-foreground">
+                        {currentScene + 1} / {videoScenes.length}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={currentScene >= videoScenes.length - 1}
+                        onClick={() => {
+                          const next = Math.min(videoScenes.length - 1, currentScene + 1);
+                          setCurrentScene(next);
+                          if (canvasRef.current && previewItem?.generatedReview) {
+                            const preset = getPresetBySeconds((previewItem.generatedReview as any)?.videoLengthSeconds ?? videoLengthSeconds);
+                            const avatar = avatars.find((a) => a.id === previewItem.generatedReview?.avatarId);
+                            renderVideoPreview(canvasRef.current, {
+                              productName: previewItem.productName,
+                              rating: previewItem.generatedReview.rating,
+                              script: previewItem.generatedReview.videoScript ?? "",
+                              productImages: [previewItem.imageUrl],
+                              avatarImage: avatar?.imageUrl ?? "",
+                              duration: (previewItem.generatedReview as any)?.videoLengthSeconds ?? videoLengthSeconds,
+                              width: 640, height: 360, preset,
+                            }, videoScenes, next);
+                          }
+                        }}
+                      >
+                        Next →
+                      </Button>
+                    </div>
+                  </div>
+                  <canvas
+                    ref={canvasRef}
+                    className="w-full rounded-lg border border-slate-700"
+                    style={{ maxWidth: 640, display: "block", margin: "0 auto" }}
+                  />
+                  {videoScenes[currentScene]?.sectionTitle && (
+                    <Badge variant="secondary" className="text-xs">
+                      Section: {videoScenes[currentScene].sectionTitle}
+                    </Badge>
+                  )}
+                  <p className="text-xs text-muted-foreground text-center">
+                    Scene {currentScene + 1} of {videoScenes.length} · {videoScenes[currentScene]?.duration}s per slide
+                  </p>
+                </>
+              ) : (
+                <div className="text-center py-12">
+                  <Video className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-40" />
+                  <p className="text-sm text-muted-foreground">
+                    Generate a review first, then click the Preview button on any item to see it here.
+                  </p>
                 </div>
-              )}
-              {videoScenes.length === 0 && (
-                <p className="text-center text-sm text-muted-foreground">
-                  Generate a review first, then click "Video" on a generated review to preview it here.
-                </p>
               )}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
 
-      {/* ─── REVIEW EDITOR MODAL ───────────────────────────── */}
-      {editingReview && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <Card className="glass-card steel-border w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Edit Review</CardTitle>
-                <Button variant="ghost" size="sm" onClick={() => setEditingReview(null)}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label>Title</Label>
-                <Input
-                  value={editForm.title}
-                  onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label>Rating</Label>
-                <div className="flex items-center gap-2">
-                  {[1, 2, 3, 4, 5].map((r) => (
-                    <Star
-                      key={r}
-                      className={`h-6 w-6 cursor-pointer ${
-                        r <= editForm.rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"
-                      }`}
-                      onClick={() => setEditForm({ ...editForm, rating: r })}
-                    />
-                  ))}
-                  <span className="text-sm ml-2">{editForm.rating} stars</span>
-                </div>
-              </div>
-              <div>
-                <Label>Review Body</Label>
-                <Textarea
-                  value={editForm.body}
-                  onChange={(e) => setEditForm({ ...editForm, body: e.target.value })}
-                  rows={12}
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={saveEdit} className="gradient-steel">
-                  <CheckCircle2 className="h-4 w-4 mr-1" /> Save Changes
-                </Button>
-                <Button variant="outline" onClick={() => setEditingReview(null)}>Cancel</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Attribution footer */}
-      <p className="text-xs text-center text-muted-foreground/50 mt-8">
+      <p className="text-xs text-muted-foreground text-center">
         Review generation powered by free and open-source APIs · Star ratings calculated algorithmically
       </p>
     </div>
+  );
+}
+
+// ─── VINE ITEM CARD ─────────────────────────────────────────
+interface VineItemCardProps {
+  item: VineItem;
+  avatars: AvatarProfile[];
+  isGenerating: boolean;
+  videoLength: number;
+  onVideoLengthChange: (seconds: number) => void;
+  onGenerate: () => void;
+  onDelete: () => void;
+  onPreview: () => void;
+  onEdit: () => void;
+  onCopy: () => void;
+}
+
+function VineItemCard({
+  item, avatars, isGenerating, videoLength,
+  onVideoLengthChange, onGenerate, onDelete, onPreview, onEdit, onCopy,
+}: VineItemCardProps) {
+  const days = getDaysUntilDeadline(item.reviewDeadline);
+  const deadlineColor = getDeadlineColor(item.reviewDeadline);
+  const badgeVariant = getDeadlineBadgeVariant(item.reviewDeadline);
+  const review = item.generatedReview;
+
+  const statusColors: Record<string, string> = {
+    pending: "text-yellow-400",
+    generating: "text-purple-400",
+    generated: "text-green-400",
+    edited: "text-cyan-400",
+    submitted: "text-emerald-400",
+    overdue: "text-red-400",
+  };
+
+  return (
+    <Card className="glass-card steel-border">
+      <CardContent className="p-4 space-y-3">
+        {/* Item header */}
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-sm truncate">{item.productName}</h3>
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              {item.asin && <span className="text-xs text-muted-foreground font-mono">{item.asin}</span>}
+              <Badge variant="outline" className="text-xs capitalize">{item.category}</Badge>
+              <span className={`text-xs font-medium capitalize ${statusColors[item.status]}`}>{item.status}</span>
+              {item.etv > 0 && <span className="text-xs text-muted-foreground">ETV: ${item.etv.toFixed(2)}</span>}
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <Badge variant={badgeVariant} className="text-xs">
+              {days < 0 ? `${Math.abs(days)}d overdue` : days === 0 ? "Due today" : `${days}d left`}
+            </Badge>
+            <p className={`text-xs mt-1 ${deadlineColor}`}>
+              {new Date(item.reviewDeadline).toLocaleDateString()}
+            </p>
+          </div>
+        </div>
+
+        {/* Video length selector per item */}
+        <div className="flex items-center gap-3 p-2 bg-slate-800/40 rounded-lg">
+          <VideoLengthSelector
+            value={videoLength}
+            onChange={onVideoLengthChange}
+            label="Video Length"
+            className="flex-1"
+          />
+          {review && (
+            <div className="text-xs text-muted-foreground text-right">
+              <p>Rating: {"★".repeat(Math.floor(review.rating))}{review.rating % 1 ? "½" : ""}</p>
+              <p className="mt-1 line-clamp-1">{review.title}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Review preview */}
+        {review && (
+          <div className="p-3 bg-slate-800/50 rounded-lg space-y-2">
+            <p className="text-xs font-medium">{review.title}</p>
+            <p className="text-xs text-muted-foreground line-clamp-3">{review.body}</p>
+            {review.pros.length > 0 && (
+              <div className="flex gap-1 flex-wrap">
+                {review.pros.slice(0, 3).map((pro, i) => (
+                  <Badge key={i} variant="secondary" className="text-xs">+ {pro}</Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex gap-2 flex-wrap">
+          {(item.status === "pending" || item.status === "overdue") && (
+            <Button size="sm" className="gradient-steel" onClick={onGenerate} disabled={isGenerating}>
+              {isGenerating ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Zap className="h-3 w-3 mr-1" />}
+              Generate
+            </Button>
+          )}
+          {review && (
+            <>
+              <Button size="sm" variant="outline" onClick={onEdit}>
+                <Edit3 className="h-3 w-3 mr-1" /> Edit
+              </Button>
+              <Button size="sm" variant="outline" onClick={onCopy}>
+                <Copy className="h-3 w-3 mr-1" /> Copy
+              </Button>
+              {review.videoScript && (
+                <Button size="sm" variant="outline" onClick={onPreview}>
+                  <Video className="h-3 w-3 mr-1" /> Preview Video
+                </Button>
+              )}
+            </>
+          )}
+          <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 ml-auto" onClick={onDelete}>
+            <Trash2 className="h-3 w-3" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

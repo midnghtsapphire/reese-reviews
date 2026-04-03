@@ -35,6 +35,7 @@ export interface GeneratedReview {
   photos: ReviewPhoto[];
   videoUrl: string | null;
   videoScript: string | null;
+  videoLengthSeconds: number; // total video duration in seconds
   avatarId: string | null;
   ftcDisclosure: string;
   isEdited: boolean;

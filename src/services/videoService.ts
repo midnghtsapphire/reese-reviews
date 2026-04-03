@@ -6,8 +6,114 @@
 // - Text captions/subtitles
 // - Background music placeholder
 // Uses Canvas API to render frames, then exports as video blob
+// Supports variable video lengths from 30s to 2 hours
 // ============================================================
 
+// ─── VIDEO LENGTH PRESETS ───────────────────────────────────
+export interface VideoLengthPreset {
+  label: string;
+  seconds: number;
+  /** Minimum number of slides to generate */
+  minSlides: number;
+  /** Seconds each slide is shown */
+  secondsPerSlide: number;
+  /** How many words of caption text to show per slide */
+  wordsPerSlide: number;
+  /** Whether to generate multi-section content (for 30min+) */
+  multiSection: boolean;
+  /** Description shown in the UI */
+  description: string;
+}
+
+export const VIDEO_LENGTH_PRESETS: VideoLengthPreset[] = [
+  {
+    label: "30 seconds",
+    seconds: 30,
+    minSlides: 3,
+    secondsPerSlide: 10,
+    wordsPerSlide: 15,
+    multiSection: false,
+    description: "Quick highlight reel — great for social media stories",
+  },
+  {
+    label: "1 minute",
+    seconds: 60,
+    minSlides: 6,
+    secondsPerSlide: 10,
+    wordsPerSlide: 20,
+    multiSection: false,
+    description: "Standard Vine review — recommended for most products",
+  },
+  {
+    label: "2 minutes",
+    seconds: 120,
+    minSlides: 10,
+    secondsPerSlide: 12,
+    wordsPerSlide: 30,
+    multiSection: false,
+    description: "Detailed review with pros, cons, and verdict",
+  },
+  {
+    label: "5 minutes",
+    seconds: 300,
+    minSlides: 20,
+    secondsPerSlide: 15,
+    wordsPerSlide: 40,
+    multiSection: true,
+    description: "In-depth review with multiple product angles",
+  },
+  {
+    label: "10 minutes",
+    seconds: 600,
+    minSlides: 40,
+    secondsPerSlide: 15,
+    wordsPerSlide: 50,
+    multiSection: true,
+    description: "Comprehensive review — unboxing, setup, and testing",
+  },
+  {
+    label: "30 minutes",
+    seconds: 1800,
+    minSlides: 90,
+    secondsPerSlide: 20,
+    wordsPerSlide: 60,
+    multiSection: true,
+    description: "Extended deep-dive — ideal for complex products",
+  },
+  {
+    label: "1 hour",
+    seconds: 3600,
+    minSlides: 120,
+    secondsPerSlide: 30,
+    wordsPerSlide: 80,
+    multiSection: true,
+    description: "Full product walkthrough with tutorial sections",
+  },
+  {
+    label: "2 hours",
+    seconds: 7200,
+    minSlides: 180,
+    secondsPerSlide: 40,
+    wordsPerSlide: 100,
+    multiSection: true,
+    description: "Training / tutorial video — complete product mastery guide",
+  },
+];
+
+/** Default preset for Vine reviews (1 minute) */
+export const DEFAULT_VIDEO_LENGTH_PRESET = VIDEO_LENGTH_PRESETS[1];
+
+export function getPresetBySeconds(seconds: number): VideoLengthPreset {
+  return VIDEO_LENGTH_PRESETS.find((p) => p.seconds === seconds) ?? DEFAULT_VIDEO_LENGTH_PRESET;
+}
+
+export function formatDuration(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
+  return `${Math.floor(seconds / 3600)}h`;
+}
+
+// ─── VIDEO CONFIG ───────────────────────────────────────────
 export interface VideoConfig {
   productName: string;
   rating: number;
@@ -17,40 +123,98 @@ export interface VideoConfig {
   duration: number; // total seconds
   width: number;
   height: number;
+  preset?: VideoLengthPreset;
 }
 
 export interface VideoScene {
   imageUrl: string;
   caption: string;
-  duration: number; // seconds
+  duration: number; // seconds per slide
+  sectionTitle?: string; // for multi-section long-form videos
 }
 
+// ─── SECTION TEMPLATES FOR LONG-FORM VIDEOS ─────────────────
+const LONG_FORM_SECTIONS = [
+  "Introduction & First Impressions",
+  "Unboxing & What's in the Box",
+  "Design & Build Quality",
+  "Setup & Installation",
+  "Key Features Overview",
+  "Performance Testing",
+  "Pros & Advantages",
+  "Cons & Limitations",
+  "Comparison with Alternatives",
+  "Value for Money",
+  "Who Should Buy This",
+  "Final Verdict & Rating",
+];
+
 // ─── PARSE SCRIPT INTO SCENES ───────────────────────────────
-export function parseScriptToScenes(script: string, productImages: string[]): VideoScene[] {
+export function parseScriptToScenes(
+  script: string,
+  productImages: string[],
+  preset?: VideoLengthPreset
+): VideoScene[] {
+  const p = preset ?? DEFAULT_VIDEO_LENGTH_PRESET;
+
   // Split script into segments
-  const segments = script
+  const rawSegments = script
     .split(/\[SHOW PRODUCT\]|\n\n/)
     .map((s) => s.trim())
     .filter(Boolean);
 
   const scenes: VideoScene[] = [];
-  const totalDuration = Math.max(30, segments.length * 5);
-  const perScene = totalDuration / Math.max(segments.length, 1);
 
-  for (let i = 0; i < segments.length; i++) {
-    scenes.push({
-      imageUrl: productImages[i % productImages.length] || "",
-      caption: segments[i],
-      duration: perScene,
-    });
+  if (p.multiSection) {
+    // For long-form videos, generate structured sections
+    const sectionsNeeded = Math.min(LONG_FORM_SECTIONS.length, Math.ceil(p.minSlides / 3));
+    const slidesPerSection = Math.ceil(p.minSlides / sectionsNeeded);
+
+    for (let s = 0; s < sectionsNeeded; s++) {
+      const sectionTitle = LONG_FORM_SECTIONS[s];
+      const sectionText = rawSegments[s] ?? `${sectionTitle} — detailed analysis of ${script.slice(0, 80)}...`;
+
+      // Break section text into individual slides
+      const words = sectionText.split(" ");
+      const chunkSize = p.wordsPerSlide;
+      const chunks: string[] = [];
+      for (let i = 0; i < words.length; i += chunkSize) {
+        chunks.push(words.slice(i, i + chunkSize).join(" "));
+      }
+
+      // Ensure at least slidesPerSection slides per section
+      while (chunks.length < slidesPerSection) {
+        chunks.push(`${sectionTitle} — continued analysis and key takeaways.`);
+      }
+
+      for (let c = 0; c < Math.min(chunks.length, slidesPerSection); c++) {
+        scenes.push({
+          imageUrl: productImages[(s * slidesPerSection + c) % Math.max(productImages.length, 1)] || "",
+          caption: chunks[c],
+          duration: p.secondsPerSlide,
+          sectionTitle: c === 0 ? sectionTitle : undefined,
+        });
+      }
+    }
+  } else {
+    // Short-form: simple segment-per-slide
+    for (let i = 0; i < Math.max(rawSegments.length, p.minSlides); i++) {
+      const text = rawSegments[i] ?? script.slice(0, p.wordsPerSlide * 6);
+      const words = text.split(" ").slice(0, p.wordsPerSlide).join(" ");
+      scenes.push({
+        imageUrl: productImages[i % Math.max(productImages.length, 1)] || "",
+        caption: words,
+        duration: p.secondsPerSlide,
+      });
+    }
   }
 
-  // If no scenes, create a default
-  if (scenes.length === 0) {
+  // Ensure we meet minimum slide count
+  while (scenes.length < p.minSlides) {
     scenes.push({
-      imageUrl: productImages[0] || "",
-      caption: script.slice(0, 200),
-      duration: 15,
+      imageUrl: productImages[scenes.length % Math.max(productImages.length, 1)] || "",
+      caption: script.slice(0, p.wordsPerSlide * 6) || "Product review continues...",
+      duration: p.secondsPerSlide,
     });
   }
 
@@ -80,6 +244,16 @@ export async function renderVideoPreview(
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
 
+  // Section title banner (for long-form multi-section videos)
+  if (scene?.sectionTitle) {
+    ctx.fillStyle = "rgba(99, 102, 241, 0.85)";
+    ctx.fillRect(0, 0, width, 36);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 14px 'Inter', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(scene.sectionTitle, width / 2, 24);
+  }
+
   // Product image (if available)
   if (scene?.imageUrl) {
     try {
@@ -91,10 +265,11 @@ export async function renderVideoPreview(
         img.src = scene.imageUrl;
       });
       // Center and fit image
+      const topOffset = scene.sectionTitle ? 0.15 : 0.1;
       const scale = Math.min((width * 0.7) / img.width, (height * 0.5) / img.height);
       const iw = img.width * scale;
       const ih = img.height * scale;
-      ctx.drawImage(img, (width - iw) / 2, height * 0.1, iw, ih);
+      ctx.drawImage(img, (width - iw) / 2, height * topOffset, iw, ih);
     } catch {
       // Draw placeholder
       ctx.fillStyle = "rgba(255,255,255,0.1)";
@@ -190,6 +365,18 @@ export async function renderVideoPreview(
   ctx.textAlign = "left";
   const truncName = config.productName.length > 40 ? config.productName.slice(0, 37) + "..." : config.productName;
   ctx.fillText(truncName, 16, 32);
+
+  // Duration badge (top-center)
+  if (config.preset) {
+    ctx.fillStyle = "rgba(99, 102, 241, 0.9)";
+    const badge = `⏱ ${config.preset.label}`;
+    const bw = ctx.measureText(badge).width + 16;
+    ctx.fillRect(width / 2 - bw / 2, 8, bw, 22);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 11px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(badge, width / 2, 23);
+  }
 
   // Scene indicator
   ctx.fillStyle = "rgba(255,255,255,0.5)";

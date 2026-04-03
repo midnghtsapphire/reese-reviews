@@ -77,7 +77,7 @@ interface AnalyticsData {
 }
 
 function getAnalytics(): AnalyticsData {
-  // Pull real data from localStorage stores
+  // Pull real data from localStorage stores only
   let vineItems = 0;
   let reviewsGen = 0;
   let reviewsSub = 0;
@@ -89,17 +89,11 @@ function getAnalytics(): AnalyticsData {
   } catch {}
 
   return {
-    pageViews: 1247 + vineItems * 12,
-    uniqueVisitors: 342 + vineItems * 3,
-    avgSessionDuration: "4m 23s",
-    bounceRate: "32.1%",
-    topPages: [
-      { page: "/", views: 523 },
-      { page: "/dashboard", views: 312 },
-      { page: "/vine", views: 198 },
-      { page: "/admin", views: 87 },
-      { page: "/reviews", views: 127 },
-    ],
+    pageViews: 0,
+    uniqueVisitors: 0,
+    avgSessionDuration: "--",
+    bounceRate: "--",
+    topPages: [],
     reviewsGenerated: reviewsGen,
     reviewsSubmitted: reviewsSub,
     vineItemsTracked: vineItems,
@@ -241,27 +235,10 @@ export default function AdminPanel() {
               <CardDescription>Manage users and roles</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {[
-                  { name: "Caresse (Reese)", email: "reese@reesereviews.com", role: "Owner", status: "active" },
-                  { name: "Revvel Admin", email: "admin@revvel.dev", role: "Admin", status: "active" },
-                ].map((user) => (
-                  <div key={user.email} className="flex items-center justify-between p-3 rounded-lg glass-card">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                        <span className="text-sm font-bold">{user.name.charAt(0)}</span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-sm">{user.name}</p>
-                        <p className="text-xs text-muted-foreground">{user.email}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={user.role === "Owner" ? "default" : "secondary"}>{user.role}</Badge>
-                      <Badge variant="outline" className="text-green-400 border-green-400/50">{user.status}</Badge>
-                    </div>
-                  </div>
-                ))}
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <Users className="h-10 w-10 text-gray-500 mb-3" />
+                <p className="text-white font-medium mb-1">No users configured yet</p>
+                <p className="text-gray-400 text-sm">User management will be available once Supabase Auth is fully configured.</p>
               </div>
             </CardContent>
           </Card>
@@ -271,10 +248,10 @@ export default function AdminPanel() {
         <TabsContent value="analytics" className="space-y-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
-              { label: "Page Views", value: analytics.pageViews.toLocaleString(), icon: Eye, color: "text-blue-400" },
-              { label: "Unique Visitors", value: analytics.uniqueVisitors.toLocaleString(), icon: Users, color: "text-green-400" },
-              { label: "Avg Session", value: analytics.avgSessionDuration, icon: Activity, color: "text-purple-400" },
-              { label: "Bounce Rate", value: analytics.bounceRate, icon: TrendingUp, color: "text-orange-400" },
+              { label: "Page Views", value: "--", icon: Eye, color: "text-blue-400", note: "Connect analytics" },
+              { label: "Unique Visitors", value: "--", icon: Users, color: "text-green-400", note: "Connect analytics" },
+              { label: "Avg Session", value: "--", icon: Activity, color: "text-purple-400", note: "Connect analytics" },
+              { label: "Bounce Rate", value: "--", icon: TrendingUp, color: "text-orange-400", note: "Connect analytics" },
             ].map(({ label, value, icon: Icon, color }) => (
               <Card key={label} className="glass-card steel-border">
                 <CardContent className="p-4">
@@ -282,7 +259,8 @@ export default function AdminPanel() {
                     <Icon className={`h-4 w-4 ${color}`} />
                     <span className="text-xs text-muted-foreground">{label}</span>
                   </div>
-                  <p className="text-2xl font-bold">{value}</p>
+                  <p className="text-2xl font-bold text-gray-500">{value}</p>
+                  <p className="text-xs text-gray-600 mt-1">Google Analytics integration needed</p>
                 </CardContent>
               </Card>
             ))}
@@ -314,16 +292,9 @@ export default function AdminPanel() {
               <CardTitle className="text-sm">Top Pages</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                {analytics.topPages.map((page) => (
-                  <div key={page.page} className="flex items-center justify-between">
-                    <span className="text-sm font-mono">{page.page}</span>
-                    <div className="flex items-center gap-2">
-                      <div className="h-2 bg-primary/30 rounded-full" style={{ width: `${(page.views / 523) * 100}px` }} />
-                      <span className="text-sm text-muted-foreground">{page.views}</span>
-                    </div>
-                  </div>
-                ))}
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <Globe className="h-8 w-8 text-gray-500 mb-2" />
+                <p className="text-gray-400 text-sm">Connect Google Analytics or a similar service to see page traffic data.</p>
               </div>
             </CardContent>
           </Card>

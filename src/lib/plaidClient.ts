@@ -342,9 +342,9 @@ export function classifyTransaction(
 export function getPlaidTransactions(): ClassifiedTransaction[] {
   try {
     const raw = localStorage.getItem(SK_PLAID_TXNS);
-    return raw ? (JSON.parse(raw) as ClassifiedTransaction[]) : DEMO_TRANSACTIONS;
+    return raw ? (JSON.parse(raw) as ClassifiedTransaction[]) : [];
   } catch {
-    return DEMO_TRANSACTIONS;
+    return [];
   }
 }
 
@@ -369,9 +369,9 @@ export function updatePlaidTransaction(
 export function getPlaidAccounts(): PlaidAccount[] {
   try {
     const raw = localStorage.getItem(SK_PLAID_ACCOUNTS);
-    return raw ? (JSON.parse(raw) as PlaidAccount[]) : DEMO_ACCOUNTS;
+    return raw ? (JSON.parse(raw) as PlaidAccount[]) : [];
   } catch {
-    return DEMO_ACCOUNTS;
+    return [];
   }
 }
 
@@ -511,34 +511,7 @@ export function getPlaidDeductionSummary(taxYear?: number): PlaidDeductionSummar
 
 // ─── DEMO DATA ───────────────────────────────────────────────
 
-export const DEMO_ACCOUNTS: PlaidAccount[] = [
-  {
-    id: "acct-001",
-    plaid_account_id: "demo_checking_001",
-    institution_name: "Chase Bank",
-    account_name: "Total Checking",
-    account_type: "checking",
-    mask: "4242",
-    balance_current: 3_847.22,
-    balance_available: 3_647.22,
-    currency: "USD",
-    status: "connected",
-    last_synced: new Date().toISOString(),
-  },
-  {
-    id: "acct-002",
-    plaid_account_id: "demo_credit_001",
-    institution_name: "Chase Bank",
-    account_name: "Freedom Unlimited",
-    account_type: "credit",
-    mask: "1234",
-    balance_current: -1_234.56,
-    balance_available: 8_765.44,
-    currency: "USD",
-    status: "connected",
-    last_synced: new Date().toISOString(),
-  },
-];
+export const DEMO_ACCOUNTS: PlaidAccount[] = [];
 
 function makeDemoTxn(
   id: string,
@@ -564,33 +537,7 @@ function makeDemoTxn(
   return classifyTransaction(base);
 }
 
-export const DEMO_TRANSACTIONS: ClassifiedTransaction[] = [
-  makeDemoTxn("txn-001", "2026-01-05", "Adobe Systems", "Adobe Creative Cloud", -54.99, "acct-002"),
-  makeDemoTxn("txn-002", "2026-01-08", "Amazon Advertising", "Sponsored Products Campaign", -127.50, "acct-001"),
-  makeDemoTxn("txn-003", "2026-01-10", "Best Buy", "Ring Light Studio Kit", -299.00, "acct-002"),
-  makeDemoTxn("txn-004", "2026-01-12", "Comcast", "Internet Service January", -89.99, "acct-001"),
-  makeDemoTxn("txn-005", "2026-01-15", "Amazon Prime", "Annual Prime Membership", -139.00, "acct-002"),
-  makeDemoTxn("txn-006", "2026-01-18", "UPS Store", "Return Shipping — Vine Item", -12.75, "acct-001"),
-  makeDemoTxn("txn-007", "2026-01-20", "Whole Foods", "Groceries", -87.43, "acct-002"),
-  makeDemoTxn("txn-008", "2026-01-22", "Udemy", "Product Photography Masterclass", -19.99, "acct-001"),
-  makeDemoTxn("txn-009", "2026-01-25", "Staples", "Photo Backdrop & Props", -49.99, "acct-002"),
-  makeDemoTxn("txn-010", "2026-01-28", "DoorDash", "Dinner delivery", -34.87, "acct-001"),
-  makeDemoTxn("txn-011", "2026-02-01", "Amazon Seller", "FBA Storage Fees", -23.44, "acct-001"),
-  makeDemoTxn("txn-012", "2026-02-05", "Google Workspace", "Business email monthly", -12.00, "acct-002"),
-  makeDemoTxn("txn-013", "2026-02-08", "Netflix", "Streaming subscription", -15.49, "acct-001"),
-  makeDemoTxn("txn-014", "2026-02-10", "Zoom", "Pro plan monthly", -14.99, "acct-002"),
-  makeDemoTxn("txn-015", "2026-02-12", "Amazon", "Office supplies purchase", -67.88, "acct-001"),
-  makeDemoTxn("txn-016", "2026-02-15", "PayPal", "Facebook Marketplace sale — Ring Doorbell", 120.00, "acct-001"),
-  makeDemoTxn("txn-017", "2026-02-18", "Verizon", "Cell phone bill February", -95.00, "acct-002"),
-  makeDemoTxn("txn-018", "2026-02-20", "Canva Pro", "Design subscription", -12.99, "acct-001"),
-  makeDemoTxn("txn-019", "2026-02-22", "Amazon Web Services", "S3 storage", -4.32, "acct-001"),
-  makeDemoTxn("txn-020", "2026-02-25", "Instacart", "Grocery delivery", -112.30, "acct-002"),
-  makeDemoTxn("txn-021", "2026-03-01", "Amazon Advertising", "Sponsored Products Feb", -98.75, "acct-001"),
-  makeDemoTxn("txn-022", "2026-03-03", "FedEx", "Shipping supplies", -18.50, "acct-002"),
-  makeDemoTxn("txn-023", "2026-03-05", "Notion", "Team plan", -16.00, "acct-001"),
-  makeDemoTxn("txn-024", "2026-03-08", "Amazon", "Packaging materials", -43.20, "acct-002"),
-  makeDemoTxn("txn-025", "2026-03-10", "Skillshare", "Annual membership", -167.88, "acct-001"),
-];
+export const DEMO_TRANSACTIONS: ClassifiedTransaction[] = [];
 
 // ─── LINK TOKEN HELPERS ──────────────────────────────────────
 // In production, the link token is fetched from your server.

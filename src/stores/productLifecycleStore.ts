@@ -270,7 +270,7 @@ export interface ProductLifecycle {
   internal_notes: string;
 }
 
-// ─── DEMO DATA ───────────────────────────────────────────────
+// No demo/placeholder data — app starts clean
 
 export const DEMO_PRODUCTS: ProductLifecycle[] = [
   {
@@ -430,14 +430,17 @@ export const DEMO_PRODUCTS: ProductLifecycle[] = [
   },
 ];
 
+// Clear the demo products — start empty
+DEMO_PRODUCTS.length = 0;
+
 // ─── STORE FUNCTIONS ─────────────────────────────────────────
 
 export function getProducts(): ProductLifecycle[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? (JSON.parse(stored) as ProductLifecycle[]) : DEMO_PRODUCTS;
+    return stored ? (JSON.parse(stored) as ProductLifecycle[]) : [];
   } catch {
-    return DEMO_PRODUCTS;
+    return [];
   }
 }
 

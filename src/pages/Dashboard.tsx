@@ -37,21 +37,18 @@ import { ReviewAutomation } from "@/components/business/ReviewAutomation";
 import { ERPTaxCenter } from "@/components/business/ERPTaxCenter";
 import { ReviewPipeline } from "@/components/business/ReviewPipeline";
 
-// ─── Analytics mock data ─────────────────────────────────────
-const ANALYTICS = [
-  { label: "Posts Published", value: "142", icon: FileText, delta: "+12 this week" },
-  { label: "Total Reach",     value: "28.4K", icon: Eye,      delta: "+3.2K this week" },
-  { label: "Engagement",      value: "4.7%",  icon: ThumbsUp, delta: "+0.3% this week" },
-  { label: "Shares",          value: "891",   icon: Share2,   delta: "+64 this week" },
-];
+// Analytics pulled from real localStorage data only
+function getRealAnalytics() {
+  let vineItems = 0, pendingReviews = 0, submittedReviews = 0;
+  try {
+    const items = JSON.parse(localStorage.getItem("vine-review-items") || "[]");
+    vineItems = items.length;
+    pendingReviews = items.filter((i: any) => i.status === "pending").length;
+    submittedReviews = items.filter((i: any) => i.status === "submitted").length;
+  } catch {}
+  return { vineItems, pendingReviews, submittedReviews };
+}
 
-// ─── Static platform reach values (stable across renders) ───────────────────
-const PLATFORM_REACH: Record<string, number> = {
-  Facebook:  72,
-  LinkedIn:  58,
-  Instagram: 84,
-  TikTok:    45,
-};
 const BIZ_TABS = [
   { value: "taxcenter",      label: "🍃 Tax Center" },
   { value: "vine",           label: "🍇 Vine" },
@@ -197,18 +194,10 @@ export default function Dashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {ANALYTICS.map(({ label, value, icon: Icon, delta }) => (
-                    <div key={label} className="flex items-start gap-3">
-                      <span className="mt-0.5 rounded-md glass-card p-1.5">
-                        <Icon size={14} className="text-muted-foreground" />
-                      </span>
-                      <div>
-                        <p className="text-xs text-muted-foreground">{label}</p>
-                        <p className="text-lg font-bold leading-tight">{value}</p>
-                        <p className="text-xs text-muted-foreground/70">{delta}</p>
-                      </div>
-                    </div>
-                  ))}
+                  <div className="flex flex-col items-center py-4 text-center">
+                    <BarChart2 size={24} className="text-gray-500 mb-2" />
+                    <p className="text-xs text-gray-400">Connect Google Analytics to see real metrics here.</p>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -247,17 +236,10 @@ export default function Dashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
-                  {["Facebook", "LinkedIn", "Instagram", "TikTok"].map((p) => (
-                    <div key={p} className="flex justify-between items-center">
-                      <span className="text-muted-foreground">{p}</span>
-                      <div className="h-1.5 w-20 rounded-full bg-border overflow-hidden">
-                        <div
-                          className="h-full gradient-steel rounded-full"
-                          style={{ width: `${PLATFORM_REACH[p] ?? 50}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                  <div className="flex flex-col items-center py-4 text-center">
+                    <Share2 size={24} className="text-gray-500 mb-2" />
+                    <p className="text-xs text-gray-400">Connect social accounts to see reach data.</p>
+                  </div>
                 </CardContent>
               </Card>
 

@@ -224,12 +224,23 @@ export async function generateVideoScript(
   reviewBody: string,
   rating: number,
   pros: string[],
-  cons: string[]
+  cons: string[],
+  preset?: { label: string; seconds: number; minSlides: number; wordsPerSlide: number; multiSection: boolean }
 ): Promise<string> {
-  const messages: ChatMessage[] = [
-    {
-      role: "system",
-      content: `You are a casual video reviewer. Write a short, natural-sounding video review script (30-60 seconds when spoken). The script should:
+  const targetSeconds = preset?.seconds ?? 60;
+  const multiSection = preset?.multiSection ?? false;
+  const approxWords = Math.round(targetSeconds * 2.5); // ~150 words/min speaking pace
+
+  const systemPrompt = multiSection
+    ? `You are a professional video content creator. Write a detailed, structured video script for a ${preset?.label ?? "1 minute"} review video (~${approxWords} words when spoken). The script must:
+- Have clearly labeled sections separated by double newlines (Introduction, Unboxing, Design, Features, Performance, Pros, Cons, Verdict)
+- Start each section with a natural transition phrase
+- Include [SHOW PRODUCT] markers at key visual moments
+- Sound like a real person talking, not a formal script
+- Cover the product thoroughly with specific details
+- End with a clear recommendation and star rating
+- Target approximately ${approxWords} words total`
+    : `You are a casual video reviewer. Write a natural-sounding video review script (~${approxWords} words, about ${preset?.label ?? "1 minute"} when spoken). The script should:
 - Start with a hook/greeting
 - Mention the product naturally
 - Hit the key pros and cons
@@ -237,13 +248,18 @@ export async function generateVideoScript(
 - End with a recommendation
 - Sound like a real person talking to camera, NOT a script
 - Include [SHOW PRODUCT] markers where product images should appear
-- Keep it under 150 words`,
+- Target approximately ${approxWords} words`;
+
+  const messages: ChatMessage[] = [
+    {
+      role: "system",
+      content: systemPrompt,
     },
     {
       role: "user",
-      content: `Write a video script for reviewing "${productName}" (${rating} stars).
+      content: `Write a ${preset?.label ?? "1 minute"} video script for reviewing "${productName}" (${rating} stars).
 
-Review highlights: ${reviewBody.slice(0, 500)}
+Review highlights: ${reviewBody.slice(0, multiSection ? 2000 : 500)}
 
 Pros: ${pros.join(", ")}
 Cons: ${cons.join(", ")}`,
