@@ -1,18 +1,31 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LogOut, Zap, LayoutDashboard } from "lucide-react";
+import {
+  Menu, X, LogOut, Zap, LayoutDashboard, Grape, Shield,
+  Search, CreditCard, Briefcase, Megaphone, ChevronDown,
+} from "lucide-react";
 import AccessibilityToggle from "./AccessibilityToggle";
 import { useAuth } from "@/contexts/AuthContext";
 import reeseLogo from "@/assets/reese-logo.png";
 
-const navLinks = [
-  { label: "Dashboard",      href: "/",         icon: LayoutDashboard },
-  { label: "Create Content", href: "/generate", icon: Zap },
+const mainLinks = [
+  { label: "Dashboard",  href: "/",         icon: LayoutDashboard },
+  { label: "Vine AI",    href: "/vine",     icon: Grape },
+  { label: "Business",   href: "/business", icon: Briefcase },
+];
+
+const moreLinks = [
+  { label: "Create Content", href: "/generate",  icon: Zap },
+  { label: "Marketing",      href: "/marketing", icon: Megaphone },
+  { label: "SEO",            href: "/seo",       icon: Search },
+  { label: "Payments",       href: "/payments",  icon: CreditCard },
+  { label: "Admin",          href: "/admin",     icon: Shield },
 ];
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const location = useLocation();
@@ -26,7 +39,13 @@ const Navbar = () => {
 
   useEffect(() => {
     setOpen(false);
+    setMoreOpen(false);
   }, [location]);
+
+  const isActive = (href: string) => {
+    if (href === "/") return location.pathname === "/";
+    return location.pathname.startsWith(href);
+  };
 
   return (
     <nav
@@ -53,22 +72,57 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop nav */}
-        <ul className="hidden items-center gap-6 md:flex" role="menubar">
-          {navLinks.map(({ label, href, icon: Icon }) => (
+        <ul className="hidden items-center gap-5 md:flex" role="menubar">
+          {mainLinks.map(({ label, href, icon: Icon }) => (
             <li key={label} role="none">
               <Link
                 to={href}
                 role="menuitem"
                 className={`flex items-center gap-1.5 text-sm font-medium tracking-wide transition-colors hover:text-foreground ${
-                  location.pathname === href ? "text-foreground" : "text-muted-foreground"
+                  isActive(href) ? "text-foreground" : "text-muted-foreground"
                 }`}
-                aria-current={location.pathname === href ? "page" : undefined}
+                aria-current={isActive(href) ? "page" : undefined}
               >
                 <Icon size={14} />
                 {label}
               </Link>
             </li>
           ))}
+          {/* More dropdown */}
+          <li role="none" className="relative">
+            <button
+              role="menuitem"
+              onClick={() => setMoreOpen(!moreOpen)}
+              className="flex items-center gap-1 text-sm font-medium tracking-wide text-muted-foreground transition-colors hover:text-foreground"
+              aria-expanded={moreOpen}
+            >
+              More <ChevronDown size={14} className={`transition-transform ${moreOpen ? "rotate-180" : ""}`} />
+            </button>
+            <AnimatePresence>
+              {moreOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  className="absolute right-0 top-full mt-2 w-48 rounded-lg glass-nav border border-white/10 shadow-xl py-2"
+                >
+                  {moreLinks.map(({ label, href, icon: Icon }) => (
+                    <Link
+                      key={href}
+                      to={href}
+                      className={`flex items-center gap-2 px-4 py-2 text-sm transition-colors hover:bg-accent ${
+                        isActive(href) ? "text-foreground bg-accent/30" : "text-muted-foreground"
+                      }`}
+                      onClick={() => setMoreOpen(false)}
+                    >
+                      <Icon size={14} />
+                      {label}
+                    </Link>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </li>
         </ul>
 
         <div className="flex items-center gap-3">
@@ -76,11 +130,11 @@ const Navbar = () => {
 
           {/* Create Content CTA */}
           <Link
-            to="/generate"
+            to="/vine"
             className="hidden rounded-lg gradient-steel px-4 py-2 text-sm font-semibold text-primary-foreground transition-transform hover:scale-105 md:inline-flex items-center gap-1.5"
           >
-            <Zap size={14} />
-            Create
+            <Grape size={14} />
+            Vine AI
           </Link>
 
           {/* Logout */}
@@ -117,14 +171,14 @@ const Navbar = () => {
             role="menu"
           >
             <ul className="flex flex-col gap-2 px-6 py-6">
-              {navLinks.map(({ label, href, icon: Icon }) => (
+              {[...mainLinks, ...moreLinks].map(({ label, href, icon: Icon }) => (
                 <li key={label} role="none">
                   <Link
                     to={href}
                     role="menuitem"
                     onClick={() => setOpen(false)}
                     className={`flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium transition-colors hover:bg-accent ${
-                      location.pathname === href ? "text-foreground bg-accent/50" : "text-muted-foreground"
+                      isActive(href) ? "text-foreground bg-accent/50" : "text-muted-foreground"
                     }`}
                   >
                     <Icon size={15} />
@@ -134,12 +188,12 @@ const Navbar = () => {
               ))}
               <li role="none">
                 <Link
-                  to="/generate"
+                  to="/vine"
                   role="menuitem"
                   onClick={() => setOpen(false)}
                   className="mt-2 flex items-center justify-center gap-2 rounded-lg gradient-steel px-4 py-3 text-sm font-semibold text-primary-foreground"
                 >
-                  <Zap size={15} /> Create Content
+                  <Grape size={15} /> Vine AI Generator
                 </Link>
               </li>
               <li role="none">
