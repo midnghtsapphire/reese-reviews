@@ -3,17 +3,28 @@
 // TruthSlayer, and other apps.
 //
 // TAX CENTER STORE
-// Self-contained Zustand-style store with localStorage persistence.
+// Supabase-backed store with localStorage fallback for offline.
 // No hard dependencies on any host app — import this file and go.
 //
 // Covers:
 //   • Multi-person tax profiles (unlimited persons)
+//   • Multi-entity business profiles (LLCs, S-Corps, sole props)
 //   • Multi-income-source tracking (W-2, 1099, SSA, rental, etc.)
 //   • Uploaded tax document metadata
 //   • Business write-offs & deductions with receipt tracking
 //   • Auto-determination of required IRS forms
 //   • Quarterly estimated tax calculations
 // ============================================================
+
+import {
+  loadFromSupabase,
+  saveToSupabase,
+  deleteFromSupabase,
+  bulkSaveToSupabase,
+  loadFromLocalStorage,
+  saveToLocalStorage,
+  type SupabaseStoreOptions,
+} from "@/lib/supabasePersistence";
 
 // ─── BRAND COLORS (host app can override via CSS vars) ───────
 export const TAX_BRAND = {
@@ -25,6 +36,7 @@ export const TAX_BRAND = {
 
 // ─── STORAGE KEYS ────────────────────────────────────────────
 const SK_PERSONS    = "taxmod-persons";
+const SK_ENTITIES   = "taxmod-business-entities";
 const SK_INCOME     = "taxmod-income-sources";
 const SK_DOCUMENTS  = "taxmod-documents";
 const SK_WRITEOFFS  = "taxmod-writeoffs";
@@ -88,6 +100,9 @@ export type FilingStatus =
   | "head_of_household"
   | "qualifying_widow";
 
+export type EntityType = "sole_prop" | "llc" | "s_corp" | "partnership" | "rental" | "gig";
+export type EntitySchedule = "schedule_c" | "schedule_e" | "schedule_f" | "none";
+
 // ─── CORE INTERFACES ─────────────────────────────────────────
 
 /** A tax filer profile — one per person on the return */
@@ -100,7 +115,7 @@ export interface TaxPerson {
   role: "primary" | "spouse" | "dependent";
   ssn_last4?: string;
   filing_status?: FilingStatus;
-  /** Pre-populated business entities for this person */
+  /** Pre-populated business entities for this person (kept for backward compat) */
   businesses: BusinessEntity[];
   /** Notes visible to preparer */
   notes: string;
@@ -114,10 +129,16 @@ export interface BusinessEntity {
   name: string;
   /** EIN or SSN-based */
   ein?: string;
-  type: "sole_prop" | "llc" | "s_corp" | "partnership" | "rental" | "gig";
+  type: EntityType;
   /** Which IRS schedule this entity files on */
-  schedule: "schedule_c" | "schedule_e" | "schedule_f" | "none";
+  schedule: EntitySchedule;
   home_office_eligible: boolean;
+  /** State of formation */
+  state?: string;
+  /** Date of formation */
+  formation_date?: string;
+  /** Entity status */
+  status?: "active" | "suspended" | "dissolved";
   notes: string;
 }
 
@@ -163,6 +184,8 @@ export interface TaxDocument {
   file_name: string;
   /** Data URL or object URL for preview */
   file_data_url?: string;
+  /** Supabase storage path */
+  file_storage_path?: string;
   file_size_bytes: number;
   mime_type: string;
   /** OCR / user-confirmed extracted fields */
@@ -452,7 +475,193 @@ export function currentTaxYear(): number {
   return now.getMonth() < 3 ? now.getFullYear() - 1 : now.getFullYear();
 }
 
-// ─── STORAGE HELPERS ─────────────────────────────────────────
+// ─── SUPABASE STORE OPTIONS ─────────────────────────────────
+
+const personStoreOpts: SupabaseStoreOptions<TaxPerson> = {
+  table: "tax_persons",
+  localStorageKey: SK_PERSONS,
+  fromRow: (row) => ({
+    id: row.id as string,
+    name: row.name as string,
+    slug: row.slug as string,
+    role: row.role as TaxPerson["role"],
+    ssn_last4: row.ssn_last4 as string | undefined,
+    filing_status: row.filing_status as FilingStatus | undefined,
+    businesses: [], // loaded separately from business_entities table
+    notes: (row.notes as string) || "",
+    created_at: row.created_at as string,
+    updated_at: row.updated_at as string,
+  }),
+  toRow: (item, userId) => ({
+    id: item.id,
+    user_id: userId,
+    name: item.name,
+    slug: item.slug,
+    role: item.role,
+    ssn_last4: item.ssn_last4 || null,
+    filing_status: item.filing_status || "single",
+    notes: item.notes,
+  }),
+  getId: (item) => item.id,
+};
+
+const incomeStoreOpts: SupabaseStoreOptions<IncomeSource> = {
+  table: "income_sources",
+  localStorageKey: SK_INCOME,
+  fromRow: (row) => ({
+    id: row.id as string,
+    person_id: row.person_id as string,
+    tax_year: row.tax_year as number,
+    label: row.label as string,
+    payer_name: row.payer_name as string,
+    payer_ein: row.payer_ein as string | undefined,
+    income_type: row.income_type as IncomeType,
+    gross_amount: Number(row.gross_amount) || 0,
+    federal_withheld: Number(row.federal_withheld) || 0,
+    state_withheld: Number(row.state_withheld) || 0,
+    ss_wages: row.ss_wages != null ? Number(row.ss_wages) : undefined,
+    medicare_wages: row.medicare_wages != null ? Number(row.medicare_wages) : undefined,
+    document_id: row.document_id as string | undefined,
+    business_entity_id: row.business_entity_id as string | undefined,
+    reconciled: Boolean(row.reconciled),
+    notes: (row.notes as string) || "",
+    created_at: row.created_at as string,
+    updated_at: row.updated_at as string,
+  }),
+  toRow: (item, userId) => ({
+    id: item.id,
+    user_id: userId,
+    person_id: item.person_id,
+    tax_year: item.tax_year,
+    label: item.label,
+    payer_name: item.payer_name,
+    payer_ein: item.payer_ein || null,
+    income_type: item.income_type,
+    gross_amount: item.gross_amount,
+    federal_withheld: item.federal_withheld,
+    state_withheld: item.state_withheld,
+    ss_wages: item.ss_wages ?? null,
+    medicare_wages: item.medicare_wages ?? null,
+    document_id: item.document_id || null,
+    business_entity_id: item.business_entity_id || null,
+    reconciled: item.reconciled,
+    notes: item.notes,
+  }),
+  getId: (item) => item.id,
+};
+
+const writeOffStoreOpts: SupabaseStoreOptions<WriteOff> = {
+  table: "write_offs",
+  localStorageKey: SK_WRITEOFFS,
+  fromRow: (row) => ({
+    id: row.id as string,
+    person_id: row.person_id as string,
+    business_entity_id: row.business_entity_id as string | undefined,
+    tax_year: row.tax_year as number,
+    date: row.date as string,
+    description: row.description as string,
+    vendor: (row.vendor as string) || "",
+    category: row.category as WriteOffCategory,
+    amount: Number(row.amount) || 0,
+    deductible_pct: Number(row.deductible_pct) || 100,
+    deductible_amount: Number(row.deductible_amount) || 0,
+    receipt_document_id: row.receipt_document_id as string | undefined,
+    mileage_miles: row.mileage_miles != null ? Number(row.mileage_miles) : undefined,
+    mileage_rate: row.mileage_rate != null ? Number(row.mileage_rate) : undefined,
+    notes: (row.notes as string) || "",
+    created_at: row.created_at as string,
+  }),
+  toRow: (item, userId) => ({
+    id: item.id,
+    user_id: userId,
+    person_id: item.person_id,
+    business_entity_id: item.business_entity_id || null,
+    tax_year: item.tax_year,
+    date: item.date,
+    description: item.description,
+    vendor: item.vendor,
+    category: item.category,
+    amount: item.amount,
+    deductible_pct: item.deductible_pct,
+    deductible_amount: item.deductible_amount,
+    receipt_document_id: item.receipt_document_id || null,
+    mileage_miles: item.mileage_miles ?? null,
+    mileage_rate: item.mileage_rate ?? null,
+    notes: item.notes,
+  }),
+  getId: (item) => item.id,
+};
+
+const quarterlyStoreOpts: SupabaseStoreOptions<QuarterlyEstimate> = {
+  table: "quarterly_estimates",
+  localStorageKey: SK_QUARTERLY,
+  fromRow: (row) => ({
+    id: row.id as string,
+    person_id: row.person_id as string,
+    tax_year: row.tax_year as number,
+    quarter: row.quarter as 1 | 2 | 3 | 4,
+    due_date: row.due_date as string,
+    estimated_income: Number(row.estimated_income) || 0,
+    estimated_tax_owed: Number(row.estimated_tax_owed) || 0,
+    amount_paid: Number(row.amount_paid) || 0,
+    paid_date: row.paid_date as string | undefined,
+    paid: Boolean(row.paid),
+    notes: (row.notes as string) || "",
+  }),
+  toRow: (item, userId) => ({
+    id: item.id,
+    user_id: userId,
+    person_id: item.person_id,
+    tax_year: item.tax_year,
+    quarter: item.quarter,
+    due_date: item.due_date,
+    estimated_income: item.estimated_income,
+    estimated_tax_owed: item.estimated_tax_owed,
+    amount_paid: item.amount_paid,
+    paid_date: item.paid_date || null,
+    paid: item.paid,
+    notes: item.notes,
+  }),
+  getId: (item) => item.id,
+};
+
+const documentStoreOpts: SupabaseStoreOptions<TaxDocument> = {
+  table: "tax_documents",
+  localStorageKey: SK_DOCUMENTS,
+  fromRow: (row) => ({
+    id: row.id as string,
+    person_id: row.person_id as string,
+    tax_year: row.tax_year as number,
+    document_type: row.document_type as DocumentType,
+    file_name: row.file_name as string,
+    file_storage_path: row.file_storage_path as string | undefined,
+    file_size_bytes: Number(row.file_size_bytes) || 0,
+    mime_type: (row.mime_type as string) || "",
+    extracted_fields: (row.extracted_fields as Record<string, string>) || {},
+    confirmed: Boolean(row.confirmed),
+    linked_income_source_id: row.linked_income_source_id as string | undefined,
+    uploaded_at: row.uploaded_at as string,
+    notes: (row.notes as string) || "",
+  }),
+  toRow: (item, userId) => ({
+    id: item.id,
+    user_id: userId,
+    person_id: item.person_id,
+    tax_year: item.tax_year,
+    document_type: item.document_type,
+    file_name: item.file_name,
+    file_storage_path: item.file_storage_path || null,
+    file_size_bytes: item.file_size_bytes,
+    mime_type: item.mime_type,
+    extracted_fields: item.extracted_fields,
+    confirmed: item.confirmed,
+    linked_income_source_id: item.linked_income_source_id || null,
+    notes: item.notes,
+  }),
+  getId: (item) => item.id,
+};
+
+// ─── SYNCHRONOUS STORAGE HELPERS (backward compat) ──────────
 
 function load<T>(key: string, fallback: T): T {
   try {
@@ -472,7 +681,7 @@ function save<T>(key: string, value: T): void {
   }
 }
 
-// ─── PERSONS ─────────────────────────────────────────────────
+// ─── PERSONS (sync API — backward compatible) ───────────────
 
 export function getPersons(): TaxPerson[] {
   return load<TaxPerson[]>(SK_PERSONS, DEFAULT_PERSONS);
@@ -480,6 +689,8 @@ export function getPersons(): TaxPerson[] {
 
 export function savePersons(persons: TaxPerson[]): void {
   save(SK_PERSONS, persons);
+  // Fire-and-forget Supabase sync
+  bulkSaveToSupabase(personStoreOpts, persons).catch(() => {});
 }
 
 export function addPerson(person: Omit<TaxPerson, "id" | "created_at" | "updated_at">): TaxPerson {
@@ -508,6 +719,12 @@ export function deletePerson(id: string): void {
   savePersons(getPersons().filter((p) => p.id !== id));
 }
 
+// ─── ASYNC PERSONS (Supabase-first) ────────────────────────
+
+export async function getPersonsAsync(): Promise<TaxPerson[]> {
+  return loadFromSupabase(personStoreOpts, DEFAULT_PERSONS);
+}
+
 // ─── INCOME SOURCES ──────────────────────────────────────────
 
 export function getIncomeSources(personId?: string, taxYear?: number): IncomeSource[] {
@@ -519,6 +736,7 @@ export function getIncomeSources(personId?: string, taxYear?: number): IncomeSou
 
 export function saveIncomeSources(sources: IncomeSource[]): void {
   save(SK_INCOME, sources);
+  bulkSaveToSupabase(incomeStoreOpts, sources).catch(() => {});
 }
 
 export function addIncomeSource(source: Omit<IncomeSource, "id" | "created_at" | "updated_at">): IncomeSource {
@@ -548,6 +766,15 @@ export function deleteIncomeSource(id: string): void {
   saveIncomeSources(all.filter((s) => s.id !== id));
 }
 
+// ─── ASYNC INCOME SOURCES ───────────────────────────────────
+
+export async function getIncomeSourcesAsync(personId?: string, taxYear?: number): Promise<IncomeSource[]> {
+  const filters: Record<string, unknown> = {};
+  if (personId) filters.person_id = personId;
+  if (taxYear) filters.tax_year = taxYear;
+  return loadFromSupabase(incomeStoreOpts, DEFAULT_INCOME_SOURCES, filters);
+}
+
 // ─── TAX DOCUMENTS ───────────────────────────────────────────
 
 export function getTaxDocuments(personId?: string, taxYear?: number): TaxDocument[] {
@@ -559,6 +786,7 @@ export function getTaxDocuments(personId?: string, taxYear?: number): TaxDocumen
 
 export function saveTaxDocuments(docs: TaxDocument[]): void {
   save(SK_DOCUMENTS, docs);
+  bulkSaveToSupabase(documentStoreOpts, docs).catch(() => {});
 }
 
 export function addTaxDocument(doc: Omit<TaxDocument, "id" | "uploaded_at">): TaxDocument {
@@ -598,6 +826,7 @@ export function getWriteOffs(personId?: string, taxYear?: number): WriteOff[] {
 
 export function saveWriteOffs(items: WriteOff[]): void {
   save(SK_WRITEOFFS, items);
+  bulkSaveToSupabase(writeOffStoreOpts, items).catch(() => {});
 }
 
 export function addWriteOff(item: Omit<WriteOff, "id" | "created_at" | "deductible_amount">): WriteOff {
@@ -641,6 +870,7 @@ export function getQuarterlyEstimates(personId?: string, taxYear?: number): Quar
 
 export function saveQuarterlyEstimates(items: QuarterlyEstimate[]): void {
   save(SK_QUARTERLY, items);
+  bulkSaveToSupabase(quarterlyStoreOpts, items).catch(() => {});
 }
 
 export function upsertQuarterlyEstimate(estimate: QuarterlyEstimate): void {
