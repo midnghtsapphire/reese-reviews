@@ -6,6 +6,7 @@ import { ReviewSEO } from "@/components/SEOHead";
 import SEOHead from "@/components/SEOHead";
 import { getReviewBySlug, generateAffiliateLink, CATEGORIES } from "@/lib/reviewStore";
 import { AvatarReviewOverlay } from "@/components/avatar";
+import ReviewSchemaWrapper from "@/components/seo/ReviewSchemaWrapper";
 
 const ReviewDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -48,6 +49,8 @@ const ReviewDetail = () => {
         productName={review.product_name}
         slug={review.slug}
       />
+      {/* Schema.org JSON-LD structured data for rich results */}
+      <ReviewSchemaWrapper review={review} />
 
       <article className="container mx-auto max-w-4xl px-6">
         {/* Breadcrumb */}
