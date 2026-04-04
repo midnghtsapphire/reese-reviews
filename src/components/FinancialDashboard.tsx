@@ -34,7 +34,7 @@ import {
 } from "lucide-react";
 import { getPlaidTransactions, getPlaidAccounts } from "@/lib/plaidClient";
 
-const COLORS = ["#8b5cf6", "#06b6d4", "#10b981", "#f59e0b", "#ef4444"];
+const COLORS = ["#d0d8e0", "#06b6d4", "#10b981", "#f59e0b", "#ef4444"]; // steel-shine, cyan, green, amber, red
 
 export function FinancialDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState<"month" | "quarter" | "year">("month");
@@ -91,8 +91,8 @@ export function FinancialDashboard() {
   if (!isConnected) {
     return (
       <div className="flex flex-col items-center justify-center py-24 space-y-6 text-center">
-        <div className="p-6 rounded-full bg-purple-500/10 border border-purple-500/30">
-          <BarChart2 className="h-12 w-12 text-purple-400" />
+        <div className="p-6 rounded-full bg-steel-shine/10 border border-steel-shine/30">
+          <BarChart2 className="h-12 w-12 text-steel-shine" />
         </div>
         <div>
           <h2 className="text-2xl font-bold text-white mb-2">No Financial Data Yet</h2>
@@ -101,7 +101,7 @@ export function FinancialDashboard() {
           </p>
         </div>
         <Button
-          className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+          className="bg-steel-mid hover:bg-steel-dark text-white flex items-center gap-2"
           onClick={() => window.location.href = "/payments"}
         >
           <Link2 className="h-4 w-4" />
@@ -128,7 +128,7 @@ export function FinancialDashboard() {
 
       {/* Metric Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="glass-card border-purple-500/20">
+        <Card className="glass-card border-steel-shine/20">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardDescription className="text-gray-400">Total Revenue</CardDescription>
@@ -140,7 +140,7 @@ export function FinancialDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card border-purple-500/20">
+        <Card className="glass-card border-steel-shine/20">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardDescription className="text-gray-400">Total Expenses</CardDescription>
@@ -152,11 +152,11 @@ export function FinancialDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card border-purple-500/20">
+        <Card className="glass-card border-steel-shine/20">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardDescription className="text-gray-400">Net Income</CardDescription>
-              <TrendingUp className="h-5 w-5 text-purple-400" />
+              <TrendingUp className="h-5 w-5 text-steel-shine" />
             </div>
           </CardHeader>
           <CardContent>
@@ -166,7 +166,7 @@ export function FinancialDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card border-purple-500/20">
+        <Card className="glass-card border-steel-shine/20">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardDescription className="text-gray-400">Profit Margin</CardDescription>
@@ -182,14 +182,14 @@ export function FinancialDashboard() {
       {/* Tabs */}
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="grid w-full grid-cols-3 bg-white/10 backdrop-blur-md border border-white/20">
-          <TabsTrigger value="overview" className="text-white data-[state=active]:bg-purple-600">Overview</TabsTrigger>
-          <TabsTrigger value="transactions" className="text-white data-[state=active]:bg-purple-600">Transactions</TabsTrigger>
-          <TabsTrigger value="pl-report" className="text-white data-[state=active]:bg-purple-600">P&L Report</TabsTrigger>
+          <TabsTrigger value="overview" className="text-white data-[state=active]:bg-steel-mid">Overview</TabsTrigger>
+          <TabsTrigger value="transactions" className="text-white data-[state=active]:bg-steel-mid">Transactions</TabsTrigger>
+          <TabsTrigger value="pl-report" className="text-white data-[state=active]:bg-steel-mid">P&L Report</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6 mt-6">
           {monthlyData.length === 0 ? (
-            <Card className="glass-card border-purple-500/20">
+            <Card className="glass-card border-steel-shine/20">
               <CardContent className="flex flex-col items-center justify-center py-16 text-center">
                 <BarChart2 className="h-10 w-10 text-gray-500 mb-3" />
                 <p className="text-gray-400">No transaction history yet. Sync your accounts to see charts.</p>
@@ -197,7 +197,7 @@ export function FinancialDashboard() {
             </Card>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="glass-card border-purple-500/20">
+              <Card className="glass-card border-steel-shine/20">
                 <CardHeader>
                   <CardTitle>Revenue vs Expenses</CardTitle>
                   <CardDescription>Monthly comparison</CardDescription>
@@ -218,7 +218,7 @@ export function FinancialDashboard() {
               </Card>
 
               {expenseBreakdown.length > 0 && (
-                <Card className="glass-card border-purple-500/20">
+                <Card className="glass-card border-steel-shine/20">
                   <CardHeader>
                     <CardTitle>Expense Breakdown</CardTitle>
                     <CardDescription>Category distribution</CardDescription>
@@ -242,7 +242,7 @@ export function FinancialDashboard() {
         </TabsContent>
 
         <TabsContent value="transactions" className="space-y-6 mt-6">
-          <Card className="glass-card border-purple-500/20">
+          <Card className="glass-card border-steel-shine/20">
             <CardHeader>
               <CardTitle>Recent Transactions</CardTitle>
               <CardDescription>Latest financial activity from connected accounts</CardDescription>
@@ -256,7 +256,7 @@ export function FinancialDashboard() {
               ) : (
                 <div className="space-y-4">
                   {transactions.slice(0, 20).map((t) => (
-                    <div key={t.id} className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10 hover:border-purple-500/30 transition-colors">
+                    <div key={t.id} className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10 hover:border-steel-shine/30 transition-colors">
                       <div className="flex items-center gap-4">
                         <div className={`p-2 rounded-lg ${t.amount > 0 ? "bg-green-500/20" : "bg-red-500/20"}`}>
                           {t.amount > 0 ? <TrendingUp className="h-5 w-5 text-green-400" /> : <TrendingDown className="h-5 w-5 text-red-400" />}
@@ -281,7 +281,7 @@ export function FinancialDashboard() {
         </TabsContent>
 
         <TabsContent value="pl-report" className="space-y-6 mt-6">
-          <Card className="glass-card border-purple-500/20">
+          <Card className="glass-card border-steel-shine/20">
             <CardHeader>
               <CardTitle>Profit & Loss Statement</CardTitle>
               <CardDescription>Based on connected account data</CardDescription>
@@ -327,13 +327,13 @@ export function FinancialDashboard() {
                   </div>
 
                   <div className="pt-4 border-t border-white/20">
-                    <div className="flex justify-between p-4 bg-purple-500/20 rounded-lg border border-purple-500/30">
+                    <div className="flex justify-between p-4 bg-steel-shine/20 rounded-lg border border-steel-shine/30">
                       <div>
                         <p className="text-white font-bold text-xl">Net Income</p>
                         <p className="text-gray-400 text-sm mt-1">Profit Margin: {profitMargin}%</p>
                       </div>
                       <div className="text-right">
-                        <p className={`font-bold text-2xl ${netIncome >= 0 ? "text-purple-400" : "text-red-400"}`}>${netIncome.toFixed(2)}</p>
+                        <p className={`font-bold text-2xl ${netIncome >= 0 ? "text-steel-shine" : "text-red-400"}`}>${netIncome.toFixed(2)}</p>
                       </div>
                     </div>
                   </div>

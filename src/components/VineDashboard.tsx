@@ -65,7 +65,7 @@ export function VineDashboard() {
     return (
       <div className="flex items-center justify-center p-12">
         <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <div className="animate-spin h-8 w-8 border-4 border-steel-shine border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading Vine items...</p>
         </div>
       </div>
@@ -280,7 +280,7 @@ export function VineDashboard() {
 
       {/* Review Template */}
       {selectedItem && (
-        <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-transparent">
+        <Card className="border-steel-shine/20 bg-gradient-to-br from-steel-shine/5 to-transparent">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>Review Template: {selectedItem.product_name}</span>

@@ -59,7 +59,7 @@ export function InventoryManager() {
     in_use: "bg-blue-100 text-blue-800",
     reviewed: "bg-green-100 text-green-800",
     ready_to_resell: "bg-yellow-100 text-yellow-800",
-    listed_for_sale: "bg-purple-100 text-purple-800",
+    listed_for_sale: "bg-steel-shine/20 text-steel-shine",
     sold: "bg-emerald-100 text-emerald-800",
     donated: "bg-pink-100 text-pink-800",
     rented_out: "bg-orange-100 text-orange-800",
@@ -141,7 +141,7 @@ export function InventoryManager() {
 
       {/* Add Item Form */}
       {showAddForm && (
-        <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-transparent">
+        <Card className="border-steel-shine/20 bg-gradient-to-br from-steel-shine/5 to-transparent">
           <CardHeader>
             <CardTitle>Add New Item</CardTitle>
           </CardHeader>
@@ -359,10 +359,10 @@ export function InventoryManager() {
                 <div className="text-center text-gray-400">↓</div>
 
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <h3 className="font-semibold text-purple-900 text-sm mb-2">Resale</h3>
-                    <p className="text-xs text-purple-800">Sell on marketplace</p>
-                    <p className="text-xs text-purple-800 mt-1">Track capital gains/losses</p>
+                  <div className="p-4 bg-steel-shine/10 rounded-lg border border-steel-shine/30">
+                    <h3 className="font-semibold text-steel-shine text-sm mb-2">Resale</h3>
+                    <p className="text-xs text-steel-mid">Sell on marketplace</p>
+                    <p className="text-xs text-steel-mid mt-1">Track capital gains/losses</p>
                   </div>
                   <div className="p-4 bg-pink-50 rounded-lg border border-pink-200">
                     <h3 className="font-semibold text-pink-900 text-sm mb-2">Donate</h3>

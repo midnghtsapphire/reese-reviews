@@ -168,7 +168,7 @@ export function AvatarReviewOverlay({
           <img
             src={avatar.imageUrl}
             alt={avatar.displayName}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-top"
             onError={() => setImageError(true)}
           />
         ) : (
@@ -243,7 +243,7 @@ export function InlineAvatarOverlay({
             <img
               src={avatar.imageUrl}
               alt={avatar.displayName}
-              className="h-14 w-14 rounded-full object-cover border-2 border-amber-500"
+              className="h-14 w-14 rounded-full object-cover object-top border-2 border-amber-500"
               onError={() => setImageError(true)}
             />
           ) : (
@@ -324,7 +324,7 @@ export function VideoPiPOverlay({
           <img
             src={avatar.imageUrl}
             alt={avatar.displayName}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-top"
             onError={() => setImageError(true)}
           />
         ) : (

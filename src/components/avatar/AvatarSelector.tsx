@@ -153,7 +153,7 @@ export function AvatarSelector({
               <img
                 src={avatar.imageUrl}
                 alt={avatar.displayName}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-top"
                 onError={() => handleImageError(avatar.id)}
               />
             ) : (
@@ -265,7 +265,7 @@ export function AvatarSelector({
                     <img
                       src={uploadPreview}
                       alt="Preview"
-                      className="h-16 w-16 rounded-full object-cover border-2 border-amber-500"
+                      className="h-16 w-16 rounded-full object-cover object-top border-2 border-amber-500"
                     />
                     <Button
                       variant="ghost"
