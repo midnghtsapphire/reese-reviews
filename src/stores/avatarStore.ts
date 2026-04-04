@@ -172,6 +172,9 @@ export function getAvatar(id: string): AvatarProfile | undefined {
   return getAvatars().find((a) => a.id === id);
 }
 
+/** Alias for getAvatar — used by wizard components */
+export const getAvatarById = getAvatar;
+
 export function getDefaultAvatar(): AvatarProfile {
   const selected = loadFromStorage<string>(STORAGE_KEY_SELECTED, "");
   if (selected) {

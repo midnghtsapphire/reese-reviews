@@ -35,6 +35,8 @@ const AdminPanelPage = lazy(() => import("@/pages/AdminPanelPage"));
 const SEOPage = lazy(() => import("@/pages/SEOPage"));
 const PaymentsPage = lazy(() => import("@/pages/PaymentsPage"));
 const MusicVideoPage = lazy(() => import("@/pages/MusicVideoPage"));
+const PublishWizardPage = lazy(() => import("@/pages/PublishWizardPage"));
+const YouTubeManagerPage = lazy(() => import("@/pages/YouTubeManagerPage"));
 
 const queryClient = new QueryClient();
 
@@ -90,6 +92,8 @@ const AuthenticatedApp = () => {
             <Route path="/seo" element={<SEOPage />} />
             <Route path="/payments" element={<PaymentsPage />} />
             <Route path="/music-video" element={<MusicVideoPage />} />
+            <Route path="/publish-wizard" element={<PublishWizardPage />} />
+            <Route path="/youtube" element={<YouTubeManagerPage />} />
 
             {/* 404 */}
             <Route path="*" element={<NotFound />} />

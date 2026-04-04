@@ -5,6 +5,7 @@ import StarRating from "@/components/StarRating";
 import { ReviewSEO } from "@/components/SEOHead";
 import SEOHead from "@/components/SEOHead";
 import { getReviewBySlug, generateAffiliateLink, CATEGORIES } from "@/lib/reviewStore";
+import { AvatarReviewOverlay } from "@/components/avatar";
 
 const ReviewDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -168,6 +169,13 @@ const ReviewDetail = () => {
               )}
             </div>
           )}
+
+          {/* Reese's Quick Take — Avatar Overlay */}
+          <AvatarReviewOverlay
+            reviewTitle={review.title}
+            rating={review.rating}
+            quickTake={review.verdict || review.excerpt}
+          />
 
           {/* Verdict */}
           {review.verdict && (
