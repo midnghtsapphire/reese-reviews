@@ -2,7 +2,17 @@
 // VINE REVIEW AUTO-GENERATOR — STORE
 // Manages Vine items, review generation queue, deadlines,
 // CSV import, and review status tracking.
+// Supabase-backed with localStorage fallback for offline.
 // ============================================================
+
+import {
+  loadFromSupabase,
+  deleteFromSupabase,
+  bulkSaveToSupabase,
+  loadFromLocalStorage,
+  saveToLocalStorage,
+  type SupabaseStoreOptions,
+} from "@/lib/supabasePersistence";
 
 export type VineItemStatus = "pending" | "generating" | "generated" | "edited" | "submitted" | "overdue";
 export type StarRating = 1 | 1.5 | 2 | 2.5 | 3 | 3.5 | 4 | 4.5 | 5;
@@ -35,7 +45,7 @@ export interface GeneratedReview {
   photos: ReviewPhoto[];
   videoUrl: string | null;
   videoScript: string | null;
-  videoLengthSeconds: number; // total video duration in seconds
+  videoLengthSeconds: number;
   avatarId: string | null;
   ftcDisclosure: string;
   isEdited: boolean;
@@ -58,7 +68,7 @@ export interface ScrapedProductData {
   totalReviews: number;
   commonPros: string[];
   commonCons: string[];
-  sentimentScore: number; // -1 to 1
+  sentimentScore: number;
   scrapedAt: string;
 }
 
@@ -91,33 +101,96 @@ export const STOCK_AVATARS: AvatarProfile[] = [
   { id: "avatar-sam", name: "Sam", imageUrl: "/avatars/sam.jpg", type: "stock", gender: "neutral" },
 ];
 
+// ─── SUPABASE STORE OPTIONS ─────────────────────────────────
+
+const vineItemStoreOpts: SupabaseStoreOptions<VineItem> = {
+  table: "vine_review_items",
+  localStorageKey: STORAGE_KEY_ITEMS,
+  fromRow: (row) => ({
+    id: row.id as string,
+    productName: row.product_name as string,
+    asin: (row.asin as string) || "",
+    category: (row.category as string) || "other",
+    orderDate: row.order_date as string,
+    reviewDeadline: row.review_deadline as string,
+    etv: Number(row.etv) || 0,
+    imageUrl: (row.image_url as string) || "",
+    status: (row.status as VineItemStatus) || "pending",
+    generatedReview: row.generated_review as GeneratedReview | null,
+    scrapedData: row.scraped_data as ScrapedProductData | null,
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
+  }),
+  toRow: (item, userId) => ({
+    id: item.id,
+    user_id: userId,
+    product_name: item.productName,
+    asin: item.asin,
+    category: item.category,
+    order_date: item.orderDate || null,
+    review_deadline: item.reviewDeadline || null,
+    etv: item.etv,
+    image_url: item.imageUrl,
+    status: item.status,
+    generated_review: item.generatedReview as unknown as Record<string, unknown> | null,
+    scraped_data: item.scrapedData as unknown as Record<string, unknown> | null,
+  }),
+  getId: (item) => item.id,
+};
+
+const avatarStoreOpts: SupabaseStoreOptions<AvatarProfile> = {
+  table: "review_avatars",
+  localStorageKey: STORAGE_KEY_AVATARS,
+  fromRow: (row) => ({
+    id: row.id as string,
+    name: row.name as string,
+    imageUrl: row.image_url as string,
+    type: (row.avatar_type as "stock" | "custom") || "custom",
+    gender: (row.gender as "male" | "female" | "neutral") || "neutral",
+  }),
+  toRow: (item, userId) => ({
+    id: item.id,
+    user_id: userId,
+    name: item.name,
+    image_url: item.imageUrl,
+    avatar_type: item.type,
+    gender: item.gender,
+  }),
+  getId: (item) => item.id,
+};
+
 // ─── HELPERS ────────────────────────────────────────────────
 function generateId(): string {
   return `vine-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 function loadItems(): VineItem[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY_ITEMS);
-    if (stored) return JSON.parse(stored);
-  } catch {}
-  return [];
+  return loadFromLocalStorage<VineItem>(STORAGE_KEY_ITEMS, []);
 }
 
 function saveItems(items: VineItem[]): void {
-  localStorage.setItem(STORAGE_KEY_ITEMS, JSON.stringify(items));
+  saveToLocalStorage(STORAGE_KEY_ITEMS, items);
+  // Fire-and-forget Supabase sync
+  bulkSaveToSupabase(vineItemStoreOpts, items).catch(() => {});
 }
 
 function loadAvatars(): AvatarProfile[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY_AVATARS);
-    if (stored) return JSON.parse(stored);
-  } catch {}
-  return [...STOCK_AVATARS];
+  return loadFromLocalStorage<AvatarProfile>(STORAGE_KEY_AVATARS, [...STOCK_AVATARS]);
 }
 
 function saveAvatars(avatars: AvatarProfile[]): void {
-  localStorage.setItem(STORAGE_KEY_AVATARS, JSON.stringify(avatars));
+  saveToLocalStorage(STORAGE_KEY_AVATARS, avatars);
+  bulkSaveToSupabase(avatarStoreOpts, avatars).catch(() => {});
+}
+
+// ─── ASYNC LOADERS (Supabase-first) ────────────────────────
+
+export async function getVineItemsAsync(): Promise<VineItem[]> {
+  return loadFromSupabase(vineItemStoreOpts, []);
+}
+
+export async function getAvatarsAsync(): Promise<AvatarProfile[]> {
+  return loadFromSupabase(avatarStoreOpts, [...STOCK_AVATARS]);
 }
 
 // ─── VINE ITEM CRUD ─────────────────────────────────────────
@@ -170,6 +243,7 @@ export function deleteVineItem(id: string): boolean {
   const filtered = items.filter((i) => i.id !== id);
   if (filtered.length === items.length) return false;
   saveItems(filtered);
+  deleteFromSupabase(vineItemStoreOpts, id, filtered).catch(() => {});
   return true;
 }
 
@@ -274,6 +348,7 @@ export function deleteAvatar(id: string): boolean {
   const filtered = avatars.filter((a) => a.id !== id || a.type === "stock");
   if (filtered.length === avatars.length) return false;
   saveAvatars(filtered);
+  deleteFromSupabase(avatarStoreOpts, id, filtered).catch(() => {});
   return true;
 }
 

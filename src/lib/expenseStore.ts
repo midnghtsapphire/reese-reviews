@@ -2,7 +2,17 @@
 // EXPENSE & WRITE-OFF TRACKER
 // FOSS alternative to Keeper Tax
 // Tracks business expenses and auto-categorizes tax deductions
+// Supabase-backed with localStorage fallback for offline.
 // ============================================================
+
+import {
+  loadFromSupabase,
+  deleteFromSupabase,
+  bulkSaveToSupabase,
+  loadFromLocalStorage,
+  saveToLocalStorage,
+  type SupabaseStoreOptions,
+} from "@/lib/supabasePersistence";
 
 const EXPENSE_STORAGE_KEY = "reese-expenses";
 
@@ -35,6 +45,7 @@ export interface Expense {
   receipt_url?: string;
   notes: string;
   tax_year: number;
+  business_entity_id?: string;
 }
 
 export const WRITE_OFF_CATEGORIES: Record<WriteOffCategory, { label: string; description: string; typical_pct: number }> = {
@@ -68,13 +79,53 @@ const MERCHANT_RULES: Array<{ pattern: RegExp; category: WriteOffCategory; write
 
 export function suggestCategory(
   merchant: string,
-  // description is reserved for future content-based categorization rules
   _description: string
 ): { category: WriteOffCategory | "personal" | "uncategorized"; is_write_off: boolean } {
   const rule = MERCHANT_RULES.find((r) => r.pattern.test(merchant));
   if (rule) return { category: rule.category, is_write_off: rule.write_off };
   return { category: "uncategorized", is_write_off: false };
 }
+
+// ─── SUPABASE STORE OPTIONS ─────────────────────────────────
+
+const expenseStoreOpts: SupabaseStoreOptions<Expense> = {
+  table: "expenses",
+  localStorageKey: EXPENSE_STORAGE_KEY,
+  fromRow: (row) => ({
+    id: row.id as string,
+    date: row.date as string,
+    merchant: row.merchant as string,
+    description: (row.description as string) || "",
+    amount: Number(row.amount) || 0,
+    category: row.category as Expense["category"],
+    is_write_off: Boolean(row.is_write_off),
+    write_off_percentage: Number(row.write_off_percentage) || 0,
+    source: (row.source as ExpenseSource) || "manual",
+    receipt_url: row.receipt_url as string | undefined,
+    notes: (row.notes as string) || "",
+    tax_year: row.tax_year as number,
+    business_entity_id: row.business_entity_id as string | undefined,
+  }),
+  toRow: (item, userId) => ({
+    id: item.id,
+    user_id: userId,
+    date: item.date,
+    merchant: item.merchant,
+    description: item.description,
+    amount: item.amount,
+    category: item.category,
+    is_write_off: item.is_write_off,
+    write_off_percentage: item.write_off_percentage,
+    source: item.source,
+    receipt_url: item.receipt_url || null,
+    notes: item.notes,
+    tax_year: item.tax_year,
+    business_entity_id: item.business_entity_id || null,
+  }),
+  getId: (item) => item.id,
+};
+
+// ─── CRUD OPERATIONS ────────────────────────────────────────
 
 export const DEMO_EXPENSES: Expense[] = [];
 
@@ -89,8 +140,16 @@ export function getExpenses(tax_year?: number): Expense[] {
   }
 }
 
+export async function getExpensesAsync(tax_year?: number): Promise<Expense[]> {
+  const filters: Record<string, unknown> = {};
+  if (tax_year !== undefined) filters.tax_year = tax_year;
+  return loadFromSupabase(expenseStoreOpts, [], filters);
+}
+
 export function saveExpenses(expenses: Expense[]): void {
-  localStorage.setItem(EXPENSE_STORAGE_KEY, JSON.stringify(expenses));
+  saveToLocalStorage(EXPENSE_STORAGE_KEY, expenses);
+  // Fire-and-forget Supabase sync
+  bulkSaveToSupabase(expenseStoreOpts, expenses).catch(() => {});
 }
 
 export function addExpense(expense: Omit<Expense, "id">): Expense {
@@ -110,8 +169,12 @@ export function updateExpense(id: string, updates: Partial<Expense>): void {
 }
 
 export function deleteExpense(id: string): void {
-  saveExpenses(getExpenses().filter((e) => e.id !== id));
+  const remaining = getExpenses().filter((e) => e.id !== id);
+  saveExpenses(remaining);
+  deleteFromSupabase(expenseStoreOpts, id, remaining).catch(() => {});
 }
+
+// ─── SUMMARY ────────────────────────────────────────────────
 
 export function getWriteOffSummary(tax_year: number): {
   total_expenses: number;
