@@ -35,6 +35,8 @@ const AdminPanelPage = lazy(() => import("@/pages/AdminPanelPage"));
 const SEOPage = lazy(() => import("@/pages/SEOPage"));
 const PaymentsPage = lazy(() => import("@/pages/PaymentsPage"));
 const MusicVideoPage = lazy(() => import("@/pages/MusicVideoPage"));
+const PublishWizardPage = lazy(() => import("@/pages/PublishWizardPage"));
+const YouTubeManagerPage = lazy(() => import("@/pages/YouTubeManagerPage"));
 
 // ─── Auth pages ─────────────────────────────────────────────
 const LoginPageRoute = lazy(() => import("@/pages/LoginPageRoute"));
@@ -168,6 +170,24 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <AuthenticatedLayout><ProfilePage /></AuthenticatedLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ─── Team B: Publishing Wizard & YouTube ────── */}
+        <Route
+          path="/publish-wizard"
+          element={
+            <ProtectedRoute>
+              <AuthenticatedLayout><PublishWizardPage /></AuthenticatedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/youtube"
+          element={
+            <ProtectedRoute>
+              <AuthenticatedLayout><YouTubeManagerPage /></AuthenticatedLayout>
             </ProtectedRoute>
           }
         />

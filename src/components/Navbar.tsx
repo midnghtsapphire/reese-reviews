@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu, X, LogOut, Zap, LayoutDashboard, Grape, Shield,
   Search, CreditCard, Briefcase, Megaphone, ChevronDown, Music,
+  Wand2, Youtube,
 } from "lucide-react";
 import AccessibilityToggle from "./AccessibilityToggle";
 import { useAuth } from "@/contexts/AuthContext";
@@ -21,6 +22,8 @@ const moreLinks = [
   { label: "SEO",            href: "/seo",       icon: Search },
   { label: "Payments",       href: "/payments",  icon: CreditCard },
   { label: "Music Video",    href: "/music-video", icon: Music },
+  { label: "Publish Wizard", href: "/publish-wizard", icon: Wand2 },
+  { label: "YouTube",        href: "/youtube",   icon: Youtube },
   { label: "Admin",          href: "/admin",     icon: Shield },
 ];
 
