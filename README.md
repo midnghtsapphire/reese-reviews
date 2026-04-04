@@ -1,122 +1,84 @@
-# Reese-Reviews — Unified Business Dashboard
+# Reese Reviews — Unified Business Dashboard
 
-A cohesive, single-dashboard platform built for **Reese**, combining Amazon Vine tax tracking, inventory management, review pipeline, ERP Tax Center, and social media content publishing.
+A cohesive, single-dashboard platform built for **Reese**, combining Amazon Vine tax tracking, inventory management, an AI-powered review pipeline, an ERP Tax Center, and social media content publishing.
 
-**Live at:** https://reesereviews.com
-
----
-
-## 🚀 New Features Added
-
-### Priority 1: Vine Review Auto-Generator (`/vine`)
-- **CSV Import:** Upload Amazon Vine order CSVs or enter items manually.
-- **AI Review Generation:** Integrates with OpenRouter to auto-generate authentic, high-quality reviews.
-- **Star Rating Algorithm:** Calculates weighted average ratings with sentiment analysis and recency bias.
-- **Avatar System:** Stock avatars (male/female/neutral) and custom avatar upload support.
-- **Video Generation:** Creates slideshow-style video reviews using HTML5 Canvas and browser APIs.
-- **Queue Management:** Track pending, generated, and overdue reviews with deadline color-coding.
-
-### Admin Panel (`/admin`)
-- Theme and UI customization settings.
-- User management and roles.
-- Analytics dashboard overview.
-- API integration settings (OpenRouter, Stripe, Plaid).
-
-### SEO & Marketing Dashboard (`/seo`)
-- SEO score checker and meta tags management.
-- Backlink tracking and analytics.
-- Social media content scheduling with Meta Business API stubs.
-
-### Payments & Subscriptions (`/payments`)
-- Subscription tiers (Free, Pro, Business).
-- Shopping cart functionality.
-- Stripe checkout integration.
-- Plaid bank linking integration.
+**Live at:** [https://reesereviews.com](https://reesereviews.com)
 
 ---
 
-## 🗺️ Navigation Routes
+## 🚀 Features
 
-| Route | Page | Description |
-|---|---|---|
-| `/` | **Dashboard** | Main hub — quick draft + all business operations |
-| `/vine` | **Vine AI** | Amazon Vine Review Auto-Generator |
-| `/business` | **Business** | Full business operations tabs (Tax Center, Inventory, etc.) |
-| `/generate` | **Create Content** | Social media publishing with platform selection |
-| `/seo` | **SEO** | SEO and Marketing Dashboard |
-| `/payments` | **Payments** | Subscriptions, Stripe, and Plaid integrations |
-| `/admin` | **Admin** | Admin Panel for site management |
+### 1. Avatar-Based Review Generation
+- **Publishing Wizard:** 6-step guided process for creating review videos.
+- **Stock Avatars:** Multiple personas (Professional, Casual, Unboxing) for "Caresse".
+- **AI Content:** OpenRouter integration for generating scripts and metadata stripping.
+- **YouTube Auto-Posting:** Direct OAuth2 integration for publishing and scheduling.
 
----
+### 2. Amazon Vine & Tax Tracking
+- **Native Vine Scraper:** Imports Vine orders and tracks review deadlines.
+- **ETV Tracking:** IRS-compliant Estimated Tax Value tracking.
+- **Tax Dashboard:** 1099-NEC reconciliation, Schedule C calculations, and multi-entity support.
 
-## 🎨 Brand & Color System
+### 3. Business Management
+- **Multi-Entity Support:** Manage Freedom Angel Corp, Angel Reporter LLC, and other subsidiaries.
+- **Inventory Management:** Track product lifecycle from "Ordered" to "Sold" or "Donated".
+- **Financial Integrations:** Scaffolded support for Plaid (bank linking) and Stripe (subscriptions).
 
-Palette is **steel / neutral only**:
-
-| Token | Tailwind | Hex |
-|---|---|---|
-| Light surface | `slate-50` | `#f8fafc` |
-| Mid accent | `slate-600` | `#475569` |
-| Dark background | `slate-900` | `#0f172a` |
-
-CSS utility classes: `gradient-steel`, `gradient-steel-text`, `gradient-dark-surface`, `glass-card`, `glass-nav`, `steel-border`, `steel-glow`.
+### 4. Technical Foundation
+- **Architecture:** React 18, Vite, TypeScript, Tailwind CSS (Glassmorphism).
+- **Data Persistence:** Supabase (PostgreSQL, Auth, Storage) with offline fallback.
+- **CI/CD:** GitHub Actions (Lint, Typecheck, Test, Build, Deploy) and CodeRabbit AI PR reviews.
+- **Accessibility:** WCAG 2.1 AA compliant, featuring Neurodivergent and ECO modes.
 
 ---
 
-## ♿ Accessibility Modes
+## 🛠️ Setup Instructions
 
-Activated via the accessibility toggle in the navbar:
+### Prerequisites
+- Node.js v22+
+- Supabase Project (URL and Anon Key)
+- OpenRouter API Key
 
-| Mode | Description |
-|---|---|
-| **Neurodivergent** | Atkinson Hyperlegible font, no animations, generous line spacing |
-| **ECO CODE** | Near-black background, no animations, no shadows |
-| **No Blue Light** | Warm amber/sepia palette, filtered images |
-| **ADHD** | No animations, high-contrast focus rings, larger line spacing |
-| **Dyslexic** | Atkinson Hyperlegible, extra letter/word spacing |
-
----
-
-## 🚀 Quick Start
-
+### Installation
 ```bash
-# Install dependencies
-npm install
-
-# Start dev server
-npm run dev
-
-# Production build
-npm run build
-
-# Run tests
-npm test
+git clone https://github.com/midnghtsapphire/reese-reviews.git
+cd reese-reviews
+npm ci
 ```
 
 ### Environment Variables
-Copy `.env.example` to `.env` and fill in:
+Copy `.env.example` to `.env` and configure your keys:
+```bash
+cp .env.example .env
+```
+*Note: Never commit `.env` to version control.*
 
-```env
-VITE_SUPABASE_URL=...
-VITE_SUPABASE_ANON_KEY=...
-VITE_OPENROUTER_API_KEY=...    # Required for AI review generation
-VITE_AMAZON_AFFILIATE_TAG=...  # optional
-AMAZON_SESSION_COOKIE=...      # optional — for live Vine scraper
+### Run Locally
+```bash
+npm run dev
 ```
 
 ---
 
-## 🏗️ Tech Stack
+## 📚 Documentation
 
-- **Frontend:** React 18 + TypeScript + Vite
-- **UI:** Tailwind CSS + shadcn/ui + Framer Motion
-- **Styling:** Steel/glass dark theme with 5 accessibility modes
-- **State:** Zustand + React hooks + localStorage + Supabase
-- **Testing:** Vitest + React Testing Library (120+ tests passing)
-- **AI:** OpenRouter API
+- [Changelog](CHANGELOG.md)
+- [Scrum & Agile Docs](docs/scrum/)
+- [Branch Protection Rules](docs/BRANCH_PROTECTION.md)
+- [Deployment Guide](docs/DIGITALOCEAN_DEPLOYMENT.md)
+- [Security Audit](docs/SECURITY_AUDIT.md)
 
 ---
 
-## 📝 License
+## 🏗️ Architecture
 
-Proprietary — All Rights Reserved, Audrey Evans / GlowStarLabs.
+- **Frontend:** React (Vite)
+- **Backend:** Supabase (Auth, Postgres, Storage)
+- **Hosting:** DigitalOcean App Platform
+- **CI/CD:** GitHub Actions
+
+---
+
+## 📄 License
+All Rights Reserved © 2026 Audrey Evans / GlowStarLabs.
+This software is proprietary and confidential.
