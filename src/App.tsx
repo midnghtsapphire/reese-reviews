@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import LoginPage from "@/components/LoginPage";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { lazy, Suspense } from "react";
@@ -36,6 +36,10 @@ const SEOPage = lazy(() => import("@/pages/SEOPage"));
 const PaymentsPage = lazy(() => import("@/pages/PaymentsPage"));
 const MusicVideoPage = lazy(() => import("@/pages/MusicVideoPage"));
 
+// ─── Auth pages ─────────────────────────────────────────────
+const LoginPageRoute = lazy(() => import("@/pages/LoginPageRoute"));
+const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
+
 const queryClient = new QueryClient();
 
 const PageLoader = () => (
@@ -47,57 +51,149 @@ const PageLoader = () => (
   </div>
 );
 
-const AuthenticatedApp = () => {
+// ─── Layout wrapper for authenticated pages ─────────────────
+
+const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => (
+  <>
+    <a href="#main-content" className="skip-link">
+      Skip to main content
+    </a>
+    <Navbar />
+    <main id="main-content">{children}</main>
+    <Footer />
+  </>
+);
+
+// ─── Public layout (no navbar/footer) ───────────────────────
+
+const PublicLayout = ({ children }: { children: React.ReactNode }) => (
+  <>
+    <a href="#main-content" className="skip-link">
+      Skip to main content
+    </a>
+    <Navbar />
+    <main id="main-content">{children}</main>
+    <Footer />
+  </>
+);
+
+const AppRoutes = () => {
   const { isAuthenticated } = useAuth();
 
-  if (!isAuthenticated) {
-    return <LoginPage />;
-  }
-
   return (
-    <>
-      <a href="#main-content" className="skip-link">
-        Skip to main content
-      </a>
-      <Navbar />
-      <main id="main-content">
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            {/* Core pages */}
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/generate" element={<Generate />} />
-            <Route path="/home" element={<Index />} />
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        {/* ─── Auth routes (no layout) ─────────────────── */}
+        <Route path="/login" element={<LoginPageRoute />} />
+        <Route path="/email-confirmation" element={<EmailConfirmation />} />
 
-            {/* Public content pages */}
-            <Route path="/about" element={<About />} />
-            <Route path="/reviews" element={<Reviews />} />
-            <Route path="/reviews/:slug" element={<ReviewDetail />} />
-            <Route path="/categories" element={<Categories />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/submit" element={<SubmitReview />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/email-confirmation" element={<EmailConfirmation />} />
+        {/* ─── Public content pages ────────────────────── */}
+        <Route path="/home" element={<PublicLayout><Index /></PublicLayout>} />
+        <Route path="/about" element={<PublicLayout><About /></PublicLayout>} />
+        <Route path="/reviews" element={<PublicLayout><Reviews /></PublicLayout>} />
+        <Route path="/reviews/:slug" element={<PublicLayout><ReviewDetail /></PublicLayout>} />
+        <Route path="/categories" element={<PublicLayout><Categories /></PublicLayout>} />
+        <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
+        <Route path="/submit" element={<PublicLayout><SubmitReview /></PublicLayout>} />
+        <Route path="/blog" element={<PublicLayout><Blog /></PublicLayout>} />
+        <Route path="/faq" element={<PublicLayout><FAQ /></PublicLayout>} />
 
-            {/* Business & management */}
-            <Route path="/business" element={<Business />} />
-            <Route path="/marketing" element={<Marketing />} />
-            <Route path="/admin-legacy" element={<AdminPage />} />
+        {/* ─── Protected dashboard routes ──────────────── */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <AuthenticatedLayout><Dashboard /></AuthenticatedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/generate"
+          element={
+            <ProtectedRoute>
+              <AuthenticatedLayout><Generate /></AuthenticatedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/business"
+          element={
+            <ProtectedRoute>
+              <AuthenticatedLayout><Business /></AuthenticatedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/marketing"
+          element={
+            <ProtectedRoute>
+              <AuthenticatedLayout><Marketing /></AuthenticatedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/vine"
+          element={
+            <ProtectedRoute>
+              <AuthenticatedLayout><VinePage /></AuthenticatedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/seo"
+          element={
+            <ProtectedRoute>
+              <AuthenticatedLayout><SEOPage /></AuthenticatedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payments"
+          element={
+            <ProtectedRoute>
+              <AuthenticatedLayout><PaymentsPage /></AuthenticatedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/music-video"
+          element={
+            <ProtectedRoute>
+              <AuthenticatedLayout><MusicVideoPage /></AuthenticatedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <AuthenticatedLayout><ProfilePage /></AuthenticatedLayout>
+            </ProtectedRoute>
+          }
+        />
 
-            {/* NEW feature routes */}
-            <Route path="/vine" element={<VinePage />} />
-            <Route path="/admin" element={<AdminPanelPage />} />
-            <Route path="/seo" element={<SEOPage />} />
-            <Route path="/payments" element={<PaymentsPage />} />
-            <Route path="/music-video" element={<MusicVideoPage />} />
+        {/* ─── Admin-only routes ───────────────────────── */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute requireAdmin>
+              <AuthenticatedLayout><AdminPanelPage /></AuthenticatedLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin-legacy"
+          element={
+            <ProtectedRoute requireAdmin>
+              <AuthenticatedLayout><AdminPage /></AuthenticatedLayout>
+            </ProtectedRoute>
+          }
+        />
 
-            {/* 404 */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-      </main>
-      <Footer />
-    </>
+        {/* ─── 404 ─────────────────────────────────────── */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   );
 };
 
@@ -110,7 +206,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <AuthenticatedApp />
+              <AppRoutes />
             </BrowserRouter>
           </TooltipProvider>
         </AccessibilityProvider>
