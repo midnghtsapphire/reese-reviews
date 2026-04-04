@@ -11,7 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import reeseLogo from "@/assets/reese-logo.png";
 
 const mainLinks = [
-  { label: "Dashboard",  href: "/",         icon: LayoutDashboard },
+  { label: "Dashboard",  href: "/dashboard", icon: LayoutDashboard },
   { label: "Vine AI",    href: "/vine",     icon: Grape },
   { label: "Business",   href: "/business", icon: Briefcase },
 ];
@@ -47,7 +47,7 @@ const Navbar = () => {
   }, [location]);
 
   const isActive = (href: string) => {
-    if (href === "/") return location.pathname === "/";
+    if (href === "/dashboard") return location.pathname === "/dashboard";
     return location.pathname.startsWith(href);
   };
 

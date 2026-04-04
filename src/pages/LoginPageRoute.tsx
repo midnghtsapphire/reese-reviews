@@ -1,6 +1,6 @@
 // ============================================================
 // LOGIN PAGE ROUTE
-// Standalone route for /login — redirects to / if already authed.
+// Standalone route for /login — redirects to /dashboard if already authed.
 // ============================================================
 
 import { Navigate } from "react-router-dom";
@@ -22,7 +22,7 @@ const LoginPageRoute = () => {
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <LoginPage />;

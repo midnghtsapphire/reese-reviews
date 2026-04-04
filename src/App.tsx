@@ -93,6 +93,7 @@ const AppRoutes = () => {
         <Route path="/email-confirmation" element={<EmailConfirmation />} />
 
         {/* ─── Public content pages ────────────────────── */}
+        <Route path="/" element={<PublicLayout><Index /></PublicLayout>} />
         <Route path="/home" element={<PublicLayout><Index /></PublicLayout>} />
         <Route path="/about" element={<PublicLayout><About /></PublicLayout>} />
         <Route path="/reviews" element={<PublicLayout><Reviews /></PublicLayout>} />
@@ -105,7 +106,7 @@ const AppRoutes = () => {
 
         {/* ─── Protected dashboard routes ──────────────── */}
         <Route
-          path="/"
+          path="/dashboard"
           element={
             <ProtectedRoute>
               <AuthenticatedLayout><Dashboard /></AuthenticatedLayout>

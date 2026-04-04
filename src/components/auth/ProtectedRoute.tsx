@@ -37,7 +37,7 @@ const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps)
         <div className="text-center">
           <h2 className="text-2xl font-bold text-red-400 mb-2">Access Denied</h2>
           <p className="text-muted-foreground">You need admin privileges to access this page.</p>
-          <a href="/" className="text-primary hover:underline mt-4 inline-block">
+          <a href="/dashboard" className="text-primary hover:underline mt-4 inline-block">
             Return to Dashboard
           </a>
         </div>
