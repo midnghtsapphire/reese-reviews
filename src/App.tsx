@@ -38,6 +38,9 @@ const MusicVideoPage = lazy(() => import("@/pages/MusicVideoPage"));
 const PublishWizardPage = lazy(() => import("@/pages/PublishWizardPage"));
 const YouTubeManagerPage = lazy(() => import("@/pages/YouTubeManagerPage"));
 
+// ─── Team C: Marketing Hub & Social Calendar ────────────────
+const MarketingHub = lazy(() => import("@/pages/MarketingHub"));
+
 // ─── Auth pages ─────────────────────────────────────────────
 const LoginPageRoute = lazy(() => import("@/pages/LoginPageRoute"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
@@ -170,6 +173,16 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <AuthenticatedLayout><ProfilePage /></AuthenticatedLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ─── Team C: Marketing Hub ─────────────────── */}
+        <Route
+          path="/marketing-hub"
+          element={
+            <ProtectedRoute>
+              <AuthenticatedLayout><MarketingHub /></AuthenticatedLayout>
             </ProtectedRoute>
           }
         />
