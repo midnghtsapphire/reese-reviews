@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- **CI/CD:** GitHub Actions workflows (`ci.yml`, `deploy.yml`) for linting, type-checking, testing, and auto-deployment to DigitalOcean.
+- **Code Review:** CodeRabbit AI PR review configuration (`.coderabbit.yaml`).
+- **Scrum Docs:** Full suite of agile documentation (`SPRINT_BACKLOG.md`, `DARE.md`, `RAID.md`, `RELEASE_NOTES.md`, `HANDOFF.md`, `RETROSPECTIVE.md`).
+- **Standards:** Branch protection rules documentation (`BRANCH_PROTECTION.md`).
+
+# Changelog
+
 All notable changes to Reese Reviews are documented in this file.
 
 ## [3.0.0] - 2026-04-03 - VINE AUTO-GENERATOR & DASHBOARDS
