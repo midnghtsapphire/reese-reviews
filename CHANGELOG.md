@@ -2,8 +2,19 @@
 
 ## [Unreleased]
 
-### Added
-- **Backlog System:** `docs/BACKLOG.md` — master product backlog (26 items across 4 sprints) serving as single source of truth for both human contributors and AI agents. Includes user/agent input protocol, status tracking, and acceptance criteria for every item.
+### Security
+- **RR-401:** Removed API key storage from browser `localStorage`. Admin Panel Integrations tab now shows read-only env-var status (configured/not set) sourced from `import.meta.env.*`. Removed `openRouterKey`, `stripeKey`, `plaidClientId` from `AdminSettings` interface. Added security notice directing users to `.env` / DigitalOcean dashboard.
+
+### Fixed
+- **RR-402:** Fixed 22 ESLint `no-explicit-any` violations across 8 files:
+  - Typed `vine-review-items` localStorage filters in `AdminPanel.tsx` and `Dashboard.tsx`
+  - Added `eslint-disable` comments (with explanations) for unavoidable dynamic Supabase table name casts in `supabasePersistence.ts`, `AuthContext.tsx`, `reviewStore.ts`
+  - `Admin.tsx` `ReviewForm` props typed with `Partial<ReviewData>` and `keyof ReviewData`
+  - `MusicVideoCreator.tsx`: `err: any` → `err: unknown`, step cast typed as `1|2|3|4|5`
+  - `InventoryManager.tsx`: added `InventoryItem` interface with optional `sale_price`/`estimated_value`
+  - `VineReviewDashboard.tsx`: imported `StarRating` type, removed unnecessary `as any` on `generatedReview.videoLengthSeconds`, typed gender select
+
+ (26 items across 4 sprints) serving as single source of truth for both human contributors and AI agents. Includes user/agent input protocol, status tracking, and acceptance criteria for every item.
 - **Agent Completion Guide:** `docs/AGENT_COMPLETION_GUIDE.md` — root cause analysis of why AI agents fail to finish apps, with enforcement playbook and completion checklist.
 - **Rollout Plan:** `docs/ROLLOUT_PLAN.md` — risk-tiered deployment strategy for the live app, with 4-scenario rollback procedures, smoke test checklist, feature flag template, and maintenance window schedule.
 

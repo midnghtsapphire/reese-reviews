@@ -41,10 +41,10 @@ import { ReviewPipeline } from "@/components/business/ReviewPipeline";
 function getRealAnalytics() {
   let vineItems = 0, pendingReviews = 0, submittedReviews = 0;
   try {
-    const items = JSON.parse(localStorage.getItem("vine-review-items") || "[]");
+    const items = JSON.parse(localStorage.getItem("vine-review-items") || "[]") as Array<{ status: string }>;
     vineItems = items.length;
-    pendingReviews = items.filter((i: any) => i.status === "pending").length;
-    submittedReviews = items.filter((i: any) => i.status === "submitted").length;
+    pendingReviews = items.filter((i) => i.status === "pending").length;
+    submittedReviews = items.filter((i) => i.status === "submitted").length;
   } catch {}
   return { vineItems, pendingReviews, submittedReviews };
 }

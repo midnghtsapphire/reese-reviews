@@ -102,8 +102,8 @@ export default function MusicVideoCreator() {
       saveMusicVideo(video);
       setPreviousVideos(loadMusicVideos());
       setStep(5);
-    } catch (err: any) {
-      setError(err.message || "Video generation failed. Please try again.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Video generation failed. Please try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -154,7 +154,7 @@ export default function MusicVideoCreator() {
         ].map(({ num, label, icon: Icon }, i) => (
           <React.Fragment key={num}>
             <button
-              onClick={() => !isGenerating && setStep(num as any)}
+              onClick={() => !isGenerating && setStep(num as 1 | 2 | 3 | 4 | 5)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                 step === num
                   ? "bg-primary text-primary-foreground"

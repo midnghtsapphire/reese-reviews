@@ -9,12 +9,25 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertCircle, Package, TrendingUp, Gift, Trash2, Plus } from "lucide-react";
 
+interface InventoryItem {
+  id: string;
+  product_name: string;
+  status: string;
+  acquisition_cost: number;
+  acquisition_date: string;
+  source: string;
+  reviewed_date?: string;
+  sale_price?: number;
+  sale_date?: string;
+  estimated_value?: number;
+}
+
 export function InventoryManager() {
   const [activeTab, setActiveTab] = useState("overview");
   const [showAddForm, setShowAddForm] = useState(false);
 
   // Demo inventory items
-  const inventoryItems = [
+  const inventoryItems: InventoryItem[] = [
     {
       id: "inv-001",
       product_name: "Anker 3-in-1 Charging Cable",
@@ -247,12 +260,12 @@ export function InventoryManager() {
                         <>
                           <div>
                             <p className="text-gray-600">Sale Price</p>
-                            <p className="font-semibold">${(item as any).sale_price?.toFixed(2) || "N/A"}</p>
+                            <p className="font-semibold">${item.sale_price?.toFixed(2) || "N/A"}</p>
                           </div>
                           <div>
                             <p className="text-gray-600">Gain/Loss</p>
-                            <p className={`font-semibold ${((item as any).sale_price || 0) - item.acquisition_cost >= 0 ? "text-green-600" : "text-red-600"}`}>
-                              ${(((item as any).sale_price || 0) - item.acquisition_cost).toFixed(2)}
+                            <p className={`font-semibold ${(item.sale_price || 0) - item.acquisition_cost >= 0 ? "text-green-600" : "text-red-600"}`}>
+                              ${((item.sale_price || 0) - item.acquisition_cost).toFixed(2)}
                             </p>
                           </div>
                         </>
@@ -260,7 +273,7 @@ export function InventoryManager() {
                       {item.status !== "sold" && (
                         <div>
                           <p className="text-gray-600">Est. Value</p>
-                          <p className="font-semibold">${(item as any).estimated_value?.toFixed(2) || "TBD"}</p>
+                          <p className="font-semibold">${item.estimated_value?.toFixed(2) || "TBD"}</p>
                         </div>
                       )}
                     </div>

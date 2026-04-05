@@ -49,8 +49,8 @@ This is the **single source of truth** for all outstanding work on Reese Reviews
 
 | ID | Priority | Title | Owner | Status | Acceptance Criteria | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| RR-401 | 🔴 Critical | Migrate Admin Panel API keys from localStorage to env vars | Agent/Team C | To Do | Admin panel reads keys from `import.meta.env.*` — no key stored in `localStorage`. | See `src/components/admin/AdminPanel.tsx`. Security risk I-002 in RAID.md. |
-| RR-402 | 🔴 Critical | Fix top 20 ESLint `no-explicit-any` violations | Agent/Team A | To Do | `npm run lint` shows ≤63 errors (reduce by 20); no new `any` types introduced. | See STANDARDS_COMPLIANCE.md issue #19. Start with `src/lib/plaidClient.ts`. |
+| RR-401 | 🔴 Critical | Migrate Admin Panel API keys from localStorage to env vars | Agent/Team C | Done (2026-04-05) | Admin panel reads keys from `import.meta.env.*` — no key stored in `localStorage`. | Integrations tab now shows read-only env-var status. Security warning added. |
+| RR-402 | 🔴 Critical | Fix top 20 ESLint `no-explicit-any` violations | Agent/Team A | Done (2026-04-05) | 22 violations fixed across 8 files (AdminPanel, Dashboard, supabasePersistence, AuthContext, reviewStore, Admin, MusicVideoCreator, InventoryManager, VineReviewDashboard). | See STANDARDS_COMPLIANCE.md issue #19. |
 | RR-403 | 🟠 High | Finalize Plaid bank-link backend | Agent/Team C | To Do | Plaid Link token exchange completes; transactions sync to Supabase `plaid_transactions` table; test with sandbox. | UI exists in `src/components/business/PlaidBankConnect.tsx`. See `src/lib/plaidClient.ts`. |
 | RR-404 | 🟠 High | Finalize Stripe subscription checkout | Agent/Team C | To Do | Stripe Checkout session creates successfully; webhook handler verifies payment; subscription tier updates in Supabase. | Stripe keys are in `.env.example` (commented). See `src/pages/PaymentsPage.tsx`. |
 | RR-405 | 🟡 Medium | Implement Meta Business API auto-post | Agent/Team B | To Do | Posts can be scheduled and auto-published to a linked Instagram Business or Facebook Page. | See `src/components/marketing/MetaAutoPost.tsx` (scaffolded). RAID D-006 (future dep). |
@@ -131,4 +131,6 @@ This is the **single source of truth** for all outstanding work on Reese Reviews
 | RR-302 | CodeRabbit AI PR review | 2026-04-03 | `feat/team-d-cicd-docs` |
 | RR-303 | Scrum documentation suite | 2026-04-03 | `feat/team-d-cicd-docs` |
 | RR-304 | Branch protection rules documented | 2026-04-03 | `feat/team-d-cicd-docs` |
+| RR-401 | Migrate Admin Panel API keys from localStorage to env vars | 2026-04-05 | `fix: RR-401 + RR-402` |
+| RR-402 | Fix 22 ESLint `no-explicit-any` violations across 8 files | 2026-04-05 | `fix: RR-401 + RR-402` |
 | RR-410 | Add `typecheck` npm script to `package.json` | 2026-04-05 | `docs: document and upgrade reese-reviews` |
