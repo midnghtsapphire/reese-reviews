@@ -33,11 +33,17 @@ All code in this repository belongs to Audrey Evans, operating under the MIDNGHT
 
 ## First Steps — Before Writing Any Code
 
+> ⚠️ **This repository uses a mandatory backlog + handoff protocol.** Skipping steps 3–4 is the #1 cause of incomplete work.
+
 1. **Read this entire file.**
-2. **Assess the repo state.** Run the commands in the "Assess Repo State" section below. Understand what exists, what works, what is broken, and what is missing.
-3. **Check for a HANDOFF.md or TODO.md.** If one exists, it was left by the last agent or human. Follow its instructions as your primary task list.
-4. **Check open issues and PRs.** If there are open issues, they are your task list.
-5. **If no handoff, no issues, and no explicit instructions:** analyze the codebase, identify what is incomplete or broken, fix it, and ship it.
+2. **Assess the repo state.** Run the commands in the "Assess Repo State" section below.
+3. **Read `docs/scrum/HANDOFF.md`** — always. It tells you what the last agent did and what's next.
+4. **Read `docs/BACKLOG.md`** — pick the highest-priority `To Do` item. Update its status to `In Progress` with today's date.
+5. **Check open issues and PRs.** If there are open issues, cross-reference them with the backlog.
+6. **If no backlog item applies to your task:** add a new item to `docs/BACKLOG.md` Inbox section before writing any code.
+7. **Before ending your session:** update the backlog item status and update `docs/scrum/HANDOFF.md` with what you did and what's next.
+
+> See `docs/AGENT_COMPLETION_GUIDE.md` for the complete protocol and why it matters.
 
 ## Assess Repo State
 

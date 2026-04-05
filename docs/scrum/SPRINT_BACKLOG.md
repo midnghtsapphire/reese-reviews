@@ -1,6 +1,6 @@
 # Sprint Backlog — Reese Reviews
 
-**Date:** April 3, 2026
+**Date:** April 5, 2026 (updated from April 3, 2026)
 **Standard:** revvel-standards/MASTER_APP_TEMPLATE.md (Phase 4: Scrum Docs)
 
 ---
@@ -44,13 +44,21 @@
 
 ---
 
-## Sprint 4: Future Enhancements (Backlog)
+## Sprint 4: Security, Integrations & Documentation (Active)
 
-**Goal:** Implement remaining features from the Master App Template and initial specifications.
+**Goal:** Address critical security gaps (Admin Panel localStorage keys), fix ESLint violations, finalize Plaid/Stripe backend wiring, and complete documentation gaps identified in the STANDARDS_COMPLIANCE audit.
+
+> **Full backlog with all items, priorities, and acceptance criteria: [`docs/BACKLOG.md`](../BACKLOG.md)**
 
 | Story ID | User Story | Story Points | Status | Acceptance Criteria |
 | :--- | :--- | :--- | :--- | :--- |
-| RR-401 | As a user, I need Plaid integration finalized so that my bank transactions are automatically imported. | 8 | To Do | Plaid Link implemented; transactions synced to Supabase; categorized by entity. |
-| RR-402 | As a user, I need Stripe subscriptions finalized so that I can manage my billing plan. | 5 | To Do | Stripe Checkout implemented; webhook handler created; customer portal enabled. |
-| RR-403 | As a marketer, I need Meta Business API integration so that I can auto-post to Instagram and Facebook. | 8 | To Do | Meta API connected; scheduling system implemented; auto-posting verified. |
-| RR-404 | As a developer, I need automated API documentation generation so that the API is easily understood. | 3 | To Do | Swagger/OpenAPI or TypeDoc integrated into the build pipeline. |
+| RR-401 | As an admin, I need API keys stored securely so that they are not accessible via browser DevTools. | 5 | To Do | Admin panel reads keys from `import.meta.env.*`; no API key written to `localStorage`; existing stored keys migrated to env-based config. |
+| RR-402 | As a developer, I need the top ESLint violations fixed so that CI runs clean. | 3 | To Do | `npm run lint` shows ≤63 errors; no new `any` types introduced; at least 20 violations resolved. |
+| RR-403 | As a user, I need Plaid bank-link finalized so that my transactions import automatically. | 8 | To Do | Plaid Link token exchange completes in sandbox; transactions sync to Supabase `plaid_transactions` table; transactions categorized by entity. |
+| RR-404 | As a user, I need Stripe subscriptions finalized so that I can manage my billing plan. | 5 | To Do | Stripe Checkout session creates successfully; webhook handler verifies payment; subscription tier updates in Supabase. |
+| RR-405 | As a marketer, I need Meta Business API integration so that I can auto-post to Instagram and Facebook. | 8 | To Do | Meta API connected; scheduling system implemented; auto-posting verified in sandbox. |
+| RR-406 | As a developer, I need TypeDoc integrated into the build pipeline so that the API is auto-documented. | 3 | To Do | `npm run docs` generates HTML documentation from TSDoc comments into `/docs/api/`; CI step added. |
+| RR-407 | As a developer, I need Mermaid architecture diagrams so that onboarding is faster. | 2 | To Do | `README.md` contains at least one Mermaid diagram showing component/data-flow architecture. |
+| RR-408 | As a developer, I need a gitleaks pre-commit hook so that secrets are never committed. | 2 | To Do | `gitleaks` runs on every `git commit`; a test commit containing a dummy secret is blocked. |
+| RR-409 | As a developer, I need large bundle chunks split so that initial load is faster. | 3 | To Do | `ReviewPipeline` and `index` chunks each below 500KB after applying `React.lazy()`. |
+| RR-410 | As a developer, I need a `typecheck` npm script so that I can verify TypeScript locally. | 1 | To Do | `package.json` contains `"typecheck": "tsc --noEmit"`; `npm run typecheck` exits 0. |

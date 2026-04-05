@@ -136,10 +136,10 @@ export default function MetaAutoPost() {
   return (
     <div className="space-y-6">
       {/* Post Creator */}
-      <Card className="glass-card border-purple-500/20">
+      <Card className="glass-card steel-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-purple-400" />
+            <Sparkles className="h-5 w-5 text-primary" />
             Auto-Generate Social Post
           </CardTitle>
           <CardDescription>
@@ -151,7 +151,7 @@ export default function MetaAutoPost() {
             <div>
               <Label>Select Review</Label>
               <Select value={selectedReviewId} onValueChange={setSelectedReviewId}>
-                <SelectTrigger className="bg-slate-800 border-purple-500/30 text-white">
+                <SelectTrigger className="glass-card steel-border">
                   <SelectValue placeholder="Choose a review..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -166,7 +166,7 @@ export default function MetaAutoPost() {
             <div>
               <Label>Platform</Label>
               <Select value={platform} onValueChange={(v) => setPlatform(v as typeof platform)}>
-                <SelectTrigger className="bg-slate-800 border-purple-500/30 text-white">
+                <SelectTrigger className="glass-card steel-border">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -179,7 +179,7 @@ export default function MetaAutoPost() {
           </div>
 
           {selectedReview && (
-            <div className="p-3 rounded-lg bg-slate-800/50">
+            <div className="p-3 rounded-lg glass-card">
               <div className="flex items-center gap-2 mb-1">
                 <Badge variant="outline">{selectedReview.category}</Badge>
                 <span className="text-yellow-400 text-sm">
@@ -214,7 +214,7 @@ export default function MetaAutoPost() {
                 value={generatedContent}
                 onChange={(e) => setGeneratedContent(e.target.value)}
                 rows={6}
-                className="bg-slate-800 border-purple-500/30 text-white"
+                className="glass-card steel-border"
                 placeholder="Generated content will appear here..."
               />
               <div className="flex gap-2">
@@ -258,7 +258,7 @@ export default function MetaAutoPost() {
       </Card>
 
       {/* Peak Engagement Times */}
-      <Card className="glass-card border-purple-500/20">
+      <Card className="glass-card steel-border">
         <CardHeader>
           <CardTitle className="text-lg">Peak Engagement Times</CardTitle>
           <CardDescription>Best times to post based on engagement data</CardDescription>
@@ -266,14 +266,14 @@ export default function MetaAutoPost() {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {peakTimes.slice(0, 8).map((peak, idx) => (
-              <div key={idx} className="p-2 rounded-lg bg-slate-800/50 text-center">
+              <div key={idx} className="p-2 rounded-lg glass-card text-center">
                 <p className="text-xs font-medium text-gray-400">{peak.day}</p>
                 <p className="text-sm font-bold text-white">
                   {peak.hour > 12 ? `${peak.hour - 12}:00 PM` : `${peak.hour}:00 AM`}
                 </p>
-                <div className="w-full bg-slate-700 rounded-full h-1.5 mt-1">
+                <div className="w-full bg-muted rounded-full h-1.5 mt-1">
                   <div
-                    className="bg-purple-500 h-1.5 rounded-full"
+                    className="bg-primary h-1.5 rounded-full"
                     style={{ width: `${peak.engagement_score * 100}%` }}
                   />
                 </div>
@@ -285,20 +285,20 @@ export default function MetaAutoPost() {
 
       {/* Recent Posts */}
       {recentPosts.length > 0 && (
-        <Card className="glass-card border-purple-500/20">
+        <Card className="glass-card steel-border">
           <CardHeader>
             <CardTitle className="text-lg">Recent Posts</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {recentPosts.map((post) => (
-              <div key={post.id} className="p-3 rounded-lg bg-slate-800/50 flex items-center justify-between">
+              <div key={post.id} className="p-3 rounded-lg glass-card flex items-center justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span>{post.platform === "facebook" ? "📘" : post.platform === "instagram" ? "📸" : "📘📸"}</span>
                     <Badge variant="outline" className={`text-xs ${
                       post.status === "posted" ? "text-green-400 border-green-400/30" :
                       post.status === "scheduled" ? "text-blue-400 border-blue-400/30" :
-                      "text-purple-400 border-purple-400/30"
+                      "text-primary border-primary/30"
                     }`}>
                       {post.status}
                     </Badge>

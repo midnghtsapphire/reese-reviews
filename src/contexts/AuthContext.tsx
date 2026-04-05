@@ -102,6 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loadProfile = useCallback(async (userId: string) => {
     try {
       // Check admin status
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- table not in generated types
       const { data: adminRow } = await (supabase.from("admins") as any)
         .select("id")
         .eq("user_id", userId)
@@ -109,6 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsAdmin(!!adminRow);
 
       // Load or create profile
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- table not in generated types
       const { data: profileRow } = await (supabase.from("user_profiles") as any)
         .select("*")
         .eq("user_id", userId)
@@ -124,6 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role: "user",
           preferences: {},
         };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- table not in generated types
         const { data: created } = await (supabase.from("user_profiles") as any)
           .insert(newProfile)
           .select()
@@ -268,6 +271,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   ): Promise<{ error: string | null }> => {
     if (!user) return { error: "Not authenticated" };
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- table not in generated types
       const { error } = await (supabase.from("user_profiles") as any)
         .update(updates)
         .eq("user_id", user.id);

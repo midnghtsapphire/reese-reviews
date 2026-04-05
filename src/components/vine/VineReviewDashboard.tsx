@@ -25,7 +25,7 @@ import {
   importFromCSV, parseCSVText, getPendingQueue, getItemStats,
   getDaysUntilDeadline, getDeadlineColor, getDeadlineBadgeVariant,
   getAvatars, addCustomAvatar, deleteAvatar,
-  type VineItem, type GeneratedReview, type AvatarProfile, type ReviewPhoto,
+  type VineItem, type GeneratedReview, type AvatarProfile, type ReviewPhoto, type StarRating,
 } from "@/stores/vineReviewStore";
 import {
   generateReview, scrapeProductReviews, calculateStarRating,
@@ -147,7 +147,7 @@ export default function VineReviewDashboard() {
   const [avatars, setAvatars] = useState<AvatarProfile[]>([]);
   const [selectedAvatar, setSelectedAvatar] = useState<string>("avatar-reese");
   const [showAvatarUpload, setShowAvatarUpload] = useState(false);
-  const [avatarForm, setAvatarForm] = useState({ name: "", gender: "female" as const });
+  const [avatarForm, setAvatarForm] = useState<{ name: string; gender: "male" | "female" | "neutral" }>({ name: "", gender: "female" });
 
   // Video preview
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -256,7 +256,7 @@ export default function VineReviewDashboard() {
         vineItemId: item.id,
         title: reviewData.title,
         body: reviewData.body,
-        rating: ratingAnalysis.calculatedRating as any,
+        rating: ratingAnalysis.calculatedRating as StarRating,
         ratingJustification: reviewData.ratingJustification,
         pros: reviewData.pros,
         cons: reviewData.cons,
@@ -288,8 +288,8 @@ export default function VineReviewDashboard() {
 
       setSuccess(`Review generated for "${item.productName}" (${preset.label} video)!`);
       refresh();
-    } catch (err: any) {
-      setError(`Failed to generate review: ${err.message}`);
+    } catch (err: unknown) {
+      setError(`Failed to generate review: ${err instanceof Error ? err.message : "Unknown error"}`);
       updateVineItem(item.id, { status: "pending" });
       refresh();
     } finally {
@@ -335,7 +335,7 @@ export default function VineReviewDashboard() {
         ...editingReview,
         title: editForm.title,
         body: editForm.body,
-        rating: editForm.rating as any,
+        rating: editForm.rating as StarRating,
         isEdited: true,
         editedAt: new Date().toISOString(),
       },
@@ -397,7 +397,7 @@ export default function VineReviewDashboard() {
   // ─── VIDEO PREVIEW ─────────────────────────────────────
   const previewVideo = (item: VineItem) => {
     if (!item.generatedReview?.videoScript || !canvasRef.current) return;
-    const itemLength = (item.generatedReview as any).videoLengthSeconds ?? videoLengthSeconds;
+    const itemLength = item.generatedReview.videoLengthSeconds ?? videoLengthSeconds;
     const preset = getPresetBySeconds(itemLength);
     const scenes = parseScriptToScenes(item.generatedReview.videoScript, [item.imageUrl], preset);
     setVideoScenes(scenes);
@@ -740,7 +740,7 @@ export default function VineReviewDashboard() {
                   item={item}
                   avatars={avatars}
                   isGenerating={isGenerating}
-                  videoLength={itemVideoLengths[item.id] ?? ((item.generatedReview as any)?.videoLengthSeconds ?? videoLengthSeconds)}
+                  videoLength={itemVideoLengths[item.id] ?? (item.generatedReview?.videoLengthSeconds ?? videoLengthSeconds)}
                   onVideoLengthChange={(s) => setItemVideoLengths((prev) => ({ ...prev, [item.id]: s }))}
                   onGenerate={() => handleGenerateReview(item)}
                   onDelete={() => { deleteVineItem(item.id); refresh(); }}
@@ -779,7 +779,7 @@ export default function VineReviewDashboard() {
                     </div>
                     <div>
                       <Label>Gender</Label>
-                      <Select value={avatarForm.gender} onValueChange={(v: any) => setAvatarForm({ ...avatarForm, gender: v })}>
+                      <Select value={avatarForm.gender} onValueChange={(v: "male" | "female" | "neutral") => setAvatarForm({ ...avatarForm, gender: v })}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="female">Female</SelectItem>
@@ -845,7 +845,7 @@ export default function VineReviewDashboard() {
               </CardTitle>
               <CardDescription>
                 {previewItem
-                  ? `Previewing: ${previewItem.productName} · ${getPresetBySeconds((previewItem.generatedReview as any)?.videoLengthSeconds ?? videoLengthSeconds).label}`
+                  ? `Previewing: ${previewItem.productName} · ${getPresetBySeconds(previewItem.generatedReview?.videoLengthSeconds ?? videoLengthSeconds).label}`
                   : "Select a generated review and click Preview to see the video"}
               </CardDescription>
             </CardHeader>
@@ -854,7 +854,7 @@ export default function VineReviewDashboard() {
                 <>
                   <div className="flex items-center gap-3 flex-wrap">
                     <VideoLengthSelector
-                      value={previewItem ? ((previewItem.generatedReview as any)?.videoLengthSeconds ?? videoLengthSeconds) : videoLengthSeconds}
+                      value={previewItem ? (previewItem.generatedReview?.videoLengthSeconds ?? videoLengthSeconds) : videoLengthSeconds}
                       onChange={(s) => {
                         if (previewItem) {
                           setItemVideoLengths((prev) => ({ ...prev, [previewItem.id]: s }));
@@ -895,7 +895,7 @@ export default function VineReviewDashboard() {
                           const next = Math.max(0, currentScene - 1);
                           setCurrentScene(next);
                           if (canvasRef.current && previewItem?.generatedReview) {
-                            const preset = getPresetBySeconds((previewItem.generatedReview as any)?.videoLengthSeconds ?? videoLengthSeconds);
+                            const preset = getPresetBySeconds(previewItem.generatedReview?.videoLengthSeconds ?? videoLengthSeconds);
                             const avatar = avatars.find((a) => a.id === previewItem.generatedReview?.avatarId);
                             renderVideoPreview(canvasRef.current, {
                               productName: previewItem.productName,
@@ -903,7 +903,7 @@ export default function VineReviewDashboard() {
                               script: previewItem.generatedReview.videoScript ?? "",
                               productImages: [previewItem.imageUrl],
                               avatarImage: avatar?.imageUrl ?? "",
-                              duration: (previewItem.generatedReview as any)?.videoLengthSeconds ?? videoLengthSeconds,
+                              duration: previewItem.generatedReview?.videoLengthSeconds ?? videoLengthSeconds,
                               width: 640, height: 360, preset,
                             }, videoScenes, next);
                           }
@@ -922,7 +922,7 @@ export default function VineReviewDashboard() {
                           const next = Math.min(videoScenes.length - 1, currentScene + 1);
                           setCurrentScene(next);
                           if (canvasRef.current && previewItem?.generatedReview) {
-                            const preset = getPresetBySeconds((previewItem.generatedReview as any)?.videoLengthSeconds ?? videoLengthSeconds);
+                            const preset = getPresetBySeconds(previewItem.generatedReview?.videoLengthSeconds ?? videoLengthSeconds);
                             const avatar = avatars.find((a) => a.id === previewItem.generatedReview?.avatarId);
                             renderVideoPreview(canvasRef.current, {
                               productName: previewItem.productName,
@@ -930,7 +930,7 @@ export default function VineReviewDashboard() {
                               script: previewItem.generatedReview.videoScript ?? "",
                               productImages: [previewItem.imageUrl],
                               avatarImage: avatar?.imageUrl ?? "",
-                              duration: (previewItem.generatedReview as any)?.videoLengthSeconds ?? videoLengthSeconds,
+                              duration: previewItem.generatedReview?.videoLengthSeconds ?? videoLengthSeconds,
                               width: 640, height: 360, preset,
                             }, videoScenes, next);
                           }

@@ -181,6 +181,7 @@ async function submitReviewToSupabase(review: ReviewData): Promise<void> {
     const { data: { user } } = await supabase.auth.getUser();
     const userId = user?.id;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- table not in generated types
     await (supabase.from("review_submissions") as any).insert({
       id: review.id,
       user_id: userId || null,

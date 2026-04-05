@@ -134,3 +134,33 @@ jobs:
         run: npm audit --audit-level=high || true
         # Non-blocking: logs vulnerabilities but does not fail the build.
         # Critical vulnerabilities should be addressed manually.
+
+  # ── 6. TypeDoc API Docs ───────────────────────────────────
+  docs:
+    name: Generate TypeDoc API Docs
+    runs-on: ubuntu-latest
+    needs: [typecheck]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate API docs
+        run: npm run docs
+
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-docs
+          path: docs/api/
+          retention-days: 14

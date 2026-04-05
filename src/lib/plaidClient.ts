@@ -18,6 +18,8 @@
 import type { PlaidAccount, BankTransaction, TransactionCategory } from "./businessTypes";
 import { addExpense, suggestCategory } from "./expenseStore";
 import type { WriteOffCategory } from "./expenseStore";
+import { supabase } from "@/integrations/supabase/client";
+import { getCurrentUserId } from "./supabasePersistence";
 
 // ─── STORAGE KEYS ────────────────────────────────────────────
 
@@ -348,8 +350,53 @@ export function getPlaidTransactions(): ClassifiedTransaction[] {
   }
 }
 
+/**
+ * Persist classified transactions to localStorage (immediate) and
+ * Supabase `plaid_transactions` table (async, best-effort).
+ * Upserts on (user_id, plaid_transaction_id) to avoid duplicates.
+ */
 export function savePlaidTransactions(txns: ClassifiedTransaction[]): void {
   localStorage.setItem(SK_PLAID_TXNS, JSON.stringify(txns));
+  // Async Supabase sync — do not await to keep caller synchronous
+  void _syncTransactionsToSupabase(txns);
+}
+
+async function _syncTransactionsToSupabase(txns: ClassifiedTransaction[]): Promise<void> {
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId || txns.length === 0) return;
+
+    const rows = txns.map((t) => ({
+      user_id: userId,
+      plaid_transaction_id: t.plaid_transaction_id,
+      account_id: t.account_id,
+      date: t.date,
+      amount: t.amount,
+      merchant_name: t.merchant_name ?? null,
+      description: t.description,
+      category: t.category,
+      tax_deductible: t.tax_deductible,
+      write_off_category: t.tax_write_off_category ?? null,
+      is_vine_related: t.matched_rules.some((r) => r.is_vine_related),
+      is_amazon_purchase: t.matched_rules.some((r) => r.is_amazon_related),
+      credit_eligible: t.matched_rules.some((r) => (r as AutoFlagRule & { credit_eligible?: boolean }).credit_eligible === true),
+      auto_flagged: t.matched_rules.length > 0,
+      flag_reason: t.matched_rules.map((r) => r.label).join(", ") || null,
+      notes: t.notes ?? "",
+      is_manual: t.is_manual,
+      pending: t.user_classification === "pending",
+    }));
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- table not in generated types
+    const { error } = await (supabase.from("plaid_transactions") as any).upsert(rows, {
+      onConflict: "user_id,plaid_transaction_id",
+    });
+    if (error) {
+      console.warn("[PlaidClient] Failed to sync transactions to Supabase:", error.message);
+    }
+  } catch (err) {
+    console.warn("[PlaidClient] Supabase transaction sync error:", err);
+  }
 }
 
 export function updatePlaidTransaction(
@@ -375,8 +422,45 @@ export function getPlaidAccounts(): PlaidAccount[] {
   }
 }
 
+/**
+ * Persist linked bank accounts to localStorage (immediate) and
+ * Supabase `plaid_accounts` table (async, best-effort).
+ */
 export function savePlaidAccounts(accounts: PlaidAccount[]): void {
   localStorage.setItem(SK_PLAID_ACCOUNTS, JSON.stringify(accounts));
+  void _syncAccountsToSupabase(accounts);
+}
+
+async function _syncAccountsToSupabase(accounts: PlaidAccount[]): Promise<void> {
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId || accounts.length === 0) return;
+
+    const rows = accounts.map((a) => ({
+      user_id: userId,
+      account_id: a.plaid_account_id,
+      item_id: a.id,
+      name: a.account_name,
+      official_name: null,
+      type: a.account_type,
+      subtype: null,
+      mask: a.mask ?? null,
+      balance: a.balance_current ?? 0,
+      currency: a.currency ?? "USD",
+      institution: a.institution_name ?? null,
+      last_synced: a.last_synced ?? new Date().toISOString(),
+    }));
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- table not in generated types
+    const { error } = await (supabase.from("plaid_accounts") as any).upsert(rows, {
+      onConflict: "user_id,account_id",
+    });
+    if (error) {
+      console.warn("[PlaidClient] Failed to sync accounts to Supabase:", error.message);
+    }
+  } catch (err) {
+    console.warn("[PlaidClient] Supabase account sync error:", err);
+  }
 }
 
 // ─── SYNC TO EXPENSE TRACKER ─────────────────────────────────

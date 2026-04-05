@@ -61,6 +61,7 @@ export async function loadFromSupabase<T>(
       return loadFromLocalStorage<T>(opts.localStorageKey, fallback);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- dynamic table name: Supabase generated types require a literal table name
     let query = (supabase.from(opts.table) as any).select("*").eq("user_id", userId);
 
     if (filters) {
@@ -106,6 +107,7 @@ export async function saveToSupabase<T>(
     if (!userId) return;
 
     const row = opts.toRow(item, userId);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- dynamic table name
     const { error } = await (supabase.from(opts.table) as any).upsert(row, { onConflict: "id" });
 
     if (error) {
@@ -134,7 +136,7 @@ export async function deleteFromSupabase<T>(
     const { error } = await (supabase.from(opts.table) as any)
       .delete()
       .eq("id", id)
-      .eq("user_id", userId);
+      .eq("user_id", userId); // eslint-disable-line @typescript-eslint/no-explicit-any
 
     if (error) {
       console.warn(`[SupabasePersistence] Error deleting from ${opts.table}:`, error.message);
@@ -161,6 +163,7 @@ export async function bulkSaveToSupabase<T>(
     const rows = items.map((item) => opts.toRow(item, userId));
     if (rows.length === 0) return;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- dynamic table name
     const { error } = await (supabase.from(opts.table) as any).upsert(rows, { onConflict: "id" });
 
     if (error) {
