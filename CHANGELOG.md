@@ -3,10 +3,14 @@
 ## [Unreleased]
 
 ### Added
-- **CI/CD:** GitHub Actions workflows (`ci.yml`, `deploy.yml`) for linting, type-checking, testing, and auto-deployment to DigitalOcean.
-- **Code Review:** CodeRabbit AI PR review configuration (`.coderabbit.yaml`).
-- **Scrum Docs:** Full suite of agile documentation (`SPRINT_BACKLOG.md`, `DARE.md`, `RAID.md`, `RELEASE_NOTES.md`, `HANDOFF.md`, `RETROSPECTIVE.md`).
-- **Standards:** Branch protection rules documentation (`BRANCH_PROTECTION.md`).
+- **Backlog System:** `docs/BACKLOG.md` — master product backlog (26 items across 4 sprints) serving as single source of truth for both human contributors and AI agents. Includes user/agent input protocol, status tracking, and acceptance criteria for every item.
+- **Agent Completion Guide:** `docs/AGENT_COMPLETION_GUIDE.md` — root cause analysis of why AI agents fail to finish apps, with enforcement playbook and completion checklist.
+- **Rollout Plan:** `docs/ROLLOUT_PLAN.md` — risk-tiered deployment strategy for the live app, with 4-scenario rollback procedures, smoke test checklist, feature flag template, and maintenance window schedule.
+
+### Updated
+- `docs/scrum/SPRINT_BACKLOG.md` — Sprint 4 rewritten with 10 stories, story points, and full acceptance criteria. Old "future enhancements" section replaced.
+- `docs/scrum/RAID.md` — Added R-006/R-007/R-008 (new risks), I-005/I-006 (new issues), D-006/D-007 (new dependencies).
+- `docs/scrum/HANDOFF.md` — Added section 6 linking to new documents; next-steps list for incoming agents.
 
 # Changelog
 

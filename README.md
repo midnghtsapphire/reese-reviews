@@ -63,6 +63,9 @@ npm run dev
 ## 📚 Documentation
 
 - [Changelog](CHANGELOG.md)
+- [Product Backlog](docs/BACKLOG.md) — all outstanding work, prioritized for agents and humans
+- [Agent Completion Guide](docs/AGENT_COMPLETION_GUIDE.md) — why agents fail to finish + playbook
+- [Rollout Plan](docs/ROLLOUT_PLAN.md) — safe deployment + rollback procedures
 - [Scrum & Agile Docs](docs/scrum/)
 - [Branch Protection Rules](docs/BRANCH_PROTECTION.md)
 - [Deployment Guide](docs/DIGITALOCEAN_DEPLOYMENT.md)

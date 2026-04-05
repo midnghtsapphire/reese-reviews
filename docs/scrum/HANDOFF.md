@@ -93,7 +93,31 @@ The core value of the application is the automated review generation pipeline.
 
 ---
 
-## 5. Troubleshooting & Resources
+## 6. New Documents Added (April 5, 2026)
+
+The following documents were added to address the compliance and agent-completion issues raised in GitHub Issue #issue:
+
+| Document | Purpose |
+| :--- | :--- |
+| [`docs/BACKLOG.md`](../BACKLOG.md) | **Master product backlog.** Single source of truth for all outstanding work. Agents and users must read this first and update it on every session. |
+| [`docs/AGENT_COMPLETION_GUIDE.md`](../AGENT_COMPLETION_GUIDE.md) | **Why agents don't finish apps.** Root cause analysis + the playbook to guarantee completion. Required reading for all agents. |
+| [`docs/ROLLOUT_PLAN.md`](../ROLLOUT_PLAN.md) | **Safe live-app rollout procedures.** Risk-tiered deployment strategy + rollback procedures for all failure scenarios. |
+
+### What Was Completed This Session
+- `docs/BACKLOG.md` created with 26 backlog items across 4 sprints, covering all STANDARDS_COMPLIANCE gaps and known issues.
+- `docs/AGENT_COMPLETION_GUIDE.md` created with root cause analysis and enforcement playbook.
+- `docs/ROLLOUT_PLAN.md` created with 4-scenario rollback procedures and smoke test checklist.
+- `docs/scrum/SPRINT_BACKLOG.md` updated — Sprint 4 now has 10 stories with acceptance criteria.
+- `docs/scrum/RAID.md` updated — 3 new risks (R-006, R-007, R-008), 2 new issues (I-005, I-006), 2 new dependencies (D-006, D-007).
+
+### What's Next (Highest Priority)
+
+1. **RR-401** — Migrate Admin Panel API keys from localStorage to env vars (Critical security gap)
+2. **RR-402** — Fix top 20 ESLint `no-explicit-any` violations
+3. **RR-403** — Finalize Plaid bank-link backend (High value feature stub)
+4. **RR-410** — Add `typecheck` npm script to `package.json` (1 story point, quick win)
+
+> Any agent picking up work in this repo: **read `docs/BACKLOG.md` first.** Pick the highest-priority `To Do` item. Update its status. Update this HANDOFF.md when done.
 
 *   **Supabase Issues:** Verify your `.env` credentials and ensure RLS policies are correctly configured. Check the Supabase dashboard logs for errors.
 *   **Build Failures:** The CI pipeline runs `npx tsc --noEmit` and `npm run build`. Ensure all TypeScript errors are resolved locally before pushing.
