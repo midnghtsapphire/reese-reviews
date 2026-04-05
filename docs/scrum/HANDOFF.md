@@ -103,25 +103,26 @@ The following documents were added to address the compliance and agent-completio
 | [`docs/AGENT_COMPLETION_GUIDE.md`](../AGENT_COMPLETION_GUIDE.md) | **Why agents don't finish apps.** Root cause analysis + the playbook to guarantee completion. Required reading for all agents. |
 | [`docs/ROLLOUT_PLAN.md`](../ROLLOUT_PLAN.md) | **Safe live-app rollout procedures.** Risk-tiered deployment strategy + rollback procedures for all failure scenarios. |
 
-### What Was Completed This Session (April 5, 2026 — Sprint 4 third iteration)
-- **RR-404 ✅** — Stripe subscription checkout finalized:
-  - New `src/lib/stripeClient.ts`: `getStripe()` lazy singleton, `isStripeConfigured()`, `redirectToCheckout()` (Payment Link redirect + Stripe.js fallback), `getSubscriptionState()`/`saveSubscriptionState()` (localStorage + Supabase `user_profiles.preferences` sync), `activateTier()`, `handleCheckoutReturn()`.
-  - `src/components/payments/PaymentsDashboard.tsx` fully rewritten: `alert()` stub replaced with real async checkout with loading spinner; return-URL handler (`?success=true`/`?canceled=true`); active-plan badge per tier; demo-mode warning banner; Plaid tab now uses full `PlaidBankConnect` component.
-  - `.env.example` updated with `VITE_STRIPE_LINK_PRO` / `VITE_STRIPE_LINK_BUSINESS`.
-  - `@stripe/stripe-js` installed (v9.0.1).
-- **RR-406 ✅** — TypeDoc added to build pipeline:
-  - `typedoc.json` config at repo root; entry points: `src/lib`, `src/stores`, `src/services`.
-  - `"docs": "typedoc"` script added to `package.json`.
-  - `docs/api/` added to `.gitignore`.
-  - New `docs` CI job in `.github/workflows/ci.yml` runs after `typecheck`, generates docs, and uploads as artifact.
-- **RR-409 ✅** — Marked done; `App.tsx` already fully lazy-loads all route-level pages with `React.lazy()` + `Suspense`.
+### What Was Completed This Session (April 5, 2026 — Sprint 4 fourth iteration)
+- **RR-501 ✅** — 38 unit tests for `plaidClient.ts`:
+  - `src/lib/plaidClient.test.ts`: AMAZON_VINE_FLAG_RULES integrity (rule fields, vine/seller/prime specifics), `classifyTransaction` (Vine, AWS, Adobe, BestBuy, unrecognized), `getPlaidTransactions`/`savePlaidTransactions`/`updatePlaidTransaction` CRUD + error paths, `getPlaidAccounts`, `PlaidConfig` lifecycle, `getPlaidDeductionSummary` (taxYear filter, write_off_percentage, by_category grouping), DEMO_ACCOUNTS/DEMO_TRANSACTIONS empty check.
+- **RR-502 ✅** — 65 unit tests for `reviewPipeline.ts`:
+  - `src/lib/reviewPipeline.test.ts`: `extractProsAndCons` (positive/negative/caps/fallback/empty), `generateExcerpt` (short/long/sentence-break/ellipsis/default), `generateVerdict` (sentence extraction/rating fallbacks), `convertToPipelineReview` (full AmazonReview→PipelineReview conversion, AvatarChoice, isFeatured, affiliateLink), `enrichReview` (AvatarChoice: reese|revvel, status advance, enrichedAt), `markEnriched`, `publishReview` (no-dup upsert, reviewStore sync), `bulkPublish`, `unpublishReview`, `overrideCategory`, `deletePipelineReview`, query helpers, `bulkImport`/`incrementalSync`.
+  - Total test suite: **226 tests, all passing**.
+- **RR-405 ✅** — MetaAutoPost.tsx brand color fix:
+  - Replaced off-brand `border-purple-500`, `text-purple-400`, `bg-purple-500`, `bg-slate-800`, `bg-slate-700` with `steel-border`, `text-primary`, `bg-primary`, `glass-card`, `bg-muted` (steel/glass brand palette).
+
+### What Was Completed Last Session (April 5, 2026 — Sprint 4 third iteration)
+- **RR-404 ✅** — Stripe checkout: `src/lib/stripeClient.ts` + `PaymentsDashboard.tsx` rewrite; `@stripe/stripe-js` v9.
+- **RR-406 ✅** — TypeDoc pipeline: `typedoc.json` + `npm run docs` + CI job.
+- **RR-409 ✅** — Marked done (App.tsx already fully lazy-loads all routes).
 
 ### What's Next (Highest Priority for Next Session)
 
-1. **RR-405** — Implement Meta Business API auto-post (Medium) — `src/components/marketing/MetaAutoPost.tsx`
-2. **RR-503** — Add TSDoc comments to all `src/lib/*.ts` files (Medium, required for TypeDoc quality)
-3. **RR-504** — Add TSDoc comments to all `src/services/*.ts` files (Medium)
-4. **RR-505** — Fix remaining ESLint errors (all remaining `any` types)
+1. **RR-503** — Add TSDoc comments to all `src/lib/*.ts` files (Medium, required for TypeDoc quality)
+2. **RR-504** — Add TSDoc comments to all `src/services/*.ts` files (Medium)
+3. **RR-505** — Fix remaining ESLint `any` violations (Medium)
+4. **RR-601** — Wire CrossMarketSeeder to live OpenRouter API (High)
 
 > Next agent: **read `docs/BACKLOG.md` first.** Pick the highest-priority `To Do` item. Update its status. Update this HANDOFF.md when done.
 
