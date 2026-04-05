@@ -103,25 +103,25 @@ The following documents were added to address the compliance and agent-completio
 | [`docs/AGENT_COMPLETION_GUIDE.md`](../AGENT_COMPLETION_GUIDE.md) | **Why agents don't finish apps.** Root cause analysis + the playbook to guarantee completion. Required reading for all agents. |
 | [`docs/ROLLOUT_PLAN.md`](../ROLLOUT_PLAN.md) | **Safe live-app rollout procedures.** Risk-tiered deployment strategy + rollback procedures for all failure scenarios. |
 
-### What Was Completed This Session (April 5, 2026 — Sprint 4 second iteration)
-- **RR-403 ✅** — Plaid bank-link backend finalized:
-  - New Supabase migration: `supabase/migrations/20260405_plaid_tables.sql` — creates `plaid_accounts` and `plaid_transactions` tables with RLS, indexes, and triggers.
-  - `src/lib/plaidClient.ts`: `savePlaidTransactions()` and `savePlaidAccounts()` now fire async upserts to Supabase after every localStorage write. Pattern matches the existing `supabasePersistence.ts` approach (localStorage = immediate, Supabase = best-effort background sync).
-- **RR-407 ✅** — Mermaid architecture diagrams added to `README.md`:
-  - Component/data-flow flowchart showing user → frontend → stores → Supabase/external APIs
-  - ER diagram showing key Supabase tables and their relationships
-- **RR-408 ✅** — gitleaks pre-commit hook added:
-  - Husky installed (`npm install --save-dev husky`)
-  - `.husky/pre-commit` runs `gitleaks protect --staged --redact -v` if gitleaks is installed; warns and passes if not
-  - `.gitleaks.toml` at repo root with custom rules for Supabase/OpenRouter keys and allowlisted doc paths
-  - `"prepare": "husky"` added to `package.json` scripts so hooks auto-install on `npm ci`
+### What Was Completed This Session (April 5, 2026 — Sprint 4 third iteration)
+- **RR-404 ✅** — Stripe subscription checkout finalized:
+  - New `src/lib/stripeClient.ts`: `getStripe()` lazy singleton, `isStripeConfigured()`, `redirectToCheckout()` (Payment Link redirect + Stripe.js fallback), `getSubscriptionState()`/`saveSubscriptionState()` (localStorage + Supabase `user_profiles.preferences` sync), `activateTier()`, `handleCheckoutReturn()`.
+  - `src/components/payments/PaymentsDashboard.tsx` fully rewritten: `alert()` stub replaced with real async checkout with loading spinner; return-URL handler (`?success=true`/`?canceled=true`); active-plan badge per tier; demo-mode warning banner; Plaid tab now uses full `PlaidBankConnect` component.
+  - `.env.example` updated with `VITE_STRIPE_LINK_PRO` / `VITE_STRIPE_LINK_BUSINESS`.
+  - `@stripe/stripe-js` installed (v9.0.1).
+- **RR-406 ✅** — TypeDoc added to build pipeline:
+  - `typedoc.json` config at repo root; entry points: `src/lib`, `src/stores`, `src/services`.
+  - `"docs": "typedoc"` script added to `package.json`.
+  - `docs/api/` added to `.gitignore`.
+  - New `docs` CI job in `.github/workflows/ci.yml` runs after `typecheck`, generates docs, and uploads as artifact.
+- **RR-409 ✅** — Marked done; `App.tsx` already fully lazy-loads all route-level pages with `React.lazy()` + `Suspense`.
 
 ### What's Next (Highest Priority for Next Session)
 
-1. **RR-404** — Finalize Stripe subscription checkout (High) — `src/components/payments/PaymentsDashboard.tsx`
-2. **RR-406** — Add TypeDoc to build pipeline (Medium)
-3. **RR-409** — Code-split large bundle chunks with `React.lazy()` (Low)
-4. **RR-405** — Meta Business API auto-post (Medium, needs Meta App credentials)
+1. **RR-405** — Implement Meta Business API auto-post (Medium) — `src/components/marketing/MetaAutoPost.tsx`
+2. **RR-503** — Add TSDoc comments to all `src/lib/*.ts` files (Medium, required for TypeDoc quality)
+3. **RR-504** — Add TSDoc comments to all `src/services/*.ts` files (Medium)
+4. **RR-505** — Fix remaining ESLint errors (all remaining `any` types)
 
 > Next agent: **read `docs/BACKLOG.md` first.** Pick the highest-priority `To Do` item. Update its status. Update this HANDOFF.md when done.
 

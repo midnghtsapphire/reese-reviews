@@ -3,17 +3,26 @@
 // Shopping cart, subscription tiers, Stripe integration,
 // Plaid bank linking
 // ============================================================
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 import {
   ShoppingCart, CreditCard, Building2, CheckCircle2,
   Star, Zap, Crown, Trash2, Plus, Minus, Lock,
-  ArrowRight, ExternalLink, Shield,
+  ArrowRight, ExternalLink, Shield, Loader2, AlertCircle,
 } from "lucide-react";
+import {
+  redirectToCheckout,
+  getSubscriptionState,
+  activateTier,
+  handleCheckoutReturn,
+  isStripeConfigured,
+  type SubscriptionState,
+} from "@/lib/stripeClient";
+import PlaidBankConnect from "@/components/business/PlaidBankConnect";
 
 // ─── SUBSCRIPTION TIERS ─────────────────────────────────────
 interface SubscriptionTier {
@@ -24,7 +33,7 @@ interface SubscriptionTier {
   features: string[];
   highlighted: boolean;
   icon: React.ReactNode;
-  stripePriceId: string;
+  stripeTierId: "pro" | "business" | null;
 }
 
 const TIERS: SubscriptionTier[] = [
@@ -42,7 +51,7 @@ const TIERS: SubscriptionTier[] = [
     ],
     highlighted: false,
     icon: <Star className="h-5 w-5" />,
-    stripePriceId: "",
+    stripeTierId: null,
   },
   {
     id: "pro",
@@ -61,7 +70,7 @@ const TIERS: SubscriptionTier[] = [
     ],
     highlighted: true,
     icon: <Zap className="h-5 w-5" />,
-    stripePriceId: "price_pro_monthly",
+    stripeTierId: "pro",
   },
   {
     id: "business",
@@ -81,7 +90,7 @@ const TIERS: SubscriptionTier[] = [
     ],
     highlighted: false,
     icon: <Crown className="h-5 w-5" />,
-    stripePriceId: "price_business_monthly",
+    stripeTierId: "business",
   },
 ];
 
@@ -91,15 +100,46 @@ interface CartItem {
   name: string;
   price: number;
   quantity: number;
+  /** Discriminates subscription items from one-off items */
+  type: "subscription" | "item";
+  /** Non-null only when type === "subscription" */
+  stripeTierId: "pro" | "business" | null;
 }
 
 // ─── COMPONENT ──────────────────────────────────────────────
 export default function PaymentsDashboard() {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("subscriptions");
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [selectedTier, setSelectedTier] = useState<string | null>(null);
-  const [plaidConnected, setPlaidConnected] = useState(false);
+  const [checkingOut, setCheckingOut] = useState(false);
+  const [subscription, setSubscription] = useState<SubscriptionState>(getSubscriptionState);
 
+  // ── Handle Stripe Checkout return URL ──────────────────────
+  useEffect(() => {
+    const result = handleCheckoutReturn();
+    if (result === "success") {
+      // Determine which tier was just purchased from cart or URL
+      const params = new URLSearchParams(window.location.search);
+      const tier = (params.get("tier") as "pro" | "business") ?? "pro";
+      activateTier(tier);
+      setSubscription(getSubscriptionState());
+      toast({
+        title: "🎉 Subscription activated!",
+        description: `Welcome to the ${tier === "pro" ? "Pro Reviewer" : "Business Suite"} plan.`,
+      });
+      // Clean up URL params
+      window.history.replaceState({}, "", window.location.pathname);
+    } else if (result === "canceled") {
+      toast({
+        title: "Checkout canceled",
+        description: "No charge was made. You can try again anytime.",
+        variant: "destructive",
+      });
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, [toast]);
+
+  // ── Cart helpers ───────────────────────────────────────────
   const addToCart = (item: CartItem) => {
     setCart((prev) => {
       const existing = prev.find((i) => i.id === item.id);
@@ -116,25 +156,56 @@ export default function PaymentsDashboard() {
 
   const updateQuantity = (id: string, delta: number) => {
     setCart((prev) =>
-      prev.map((i) => {
-        if (i.id !== id) return i;
-        const newQty = Math.max(0, i.quantity + delta);
-        return newQty === 0 ? i : { ...i, quantity: newQty };
-      }).filter((i) => i.quantity > 0)
+      prev
+        .map((i) => {
+          if (i.id !== id) return i;
+          const newQty = Math.max(0, i.quantity + delta);
+          return newQty === 0 ? i : { ...i, quantity: newQty };
+        })
+        .filter((i) => i.quantity > 0)
     );
   };
 
   const cartTotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
-  const handleCheckout = () => {
-    // Stripe checkout stub
-    alert("Stripe checkout would open here. Integration ready for live keys.");
+  // ── Stripe Checkout ────────────────────────────────────────
+  const handleCheckout = async () => {
+    const subscriptionItem = cart.find((i) => i.stripeTierId != null);
+    const tierId = subscriptionItem?.stripeTierId ?? "pro";
+
+    setCheckingOut(true);
+    try {
+      const origin = window.location.origin;
+      const result = await redirectToCheckout(
+        tierId,
+        `${origin}/payments?success=true&tier=${tierId}`,
+        `${origin}/payments?canceled=true`
+      );
+
+      if (result === "demo") {
+        toast({
+          title: "Stripe not configured",
+          description: isStripeConfigured()
+            ? "Set VITE_STRIPE_LINK_PRO / VITE_STRIPE_LINK_BUSINESS in your .env to enable checkout."
+            : "Add VITE_STRIPE_PUBLISHABLE_KEY and payment link env vars to enable Stripe. See .env.example.",
+        });
+      } else if (result === "error") {
+        toast({
+          title: "Checkout unavailable",
+          description:
+            "Stripe Payment Links are not configured. Set VITE_STRIPE_LINK_PRO or VITE_STRIPE_LINK_BUSINESS in your environment.",
+          variant: "destructive",
+        });
+      }
+      // If "redirect", the page navigates away — no further action needed
+    } finally {
+      setCheckingOut(false);
+    }
   };
 
-  const handlePlaidConnect = () => {
-    // Plaid Link stub
-    setPlaidConnected(true);
-  };
+  // ── Derived state ─────────────────────────────────────────
+  const isActiveTier = (tierId: string) =>
+    subscription.status === "active" && subscription.tier === tierId;
 
   return (
     <div className="space-y-6">
@@ -142,6 +213,54 @@ export default function PaymentsDashboard() {
         <h2 className="text-2xl font-bold gradient-steel-text">Payments & Subscriptions</h2>
         <p className="text-sm text-muted-foreground">Manage subscriptions, cart, and bank connections</p>
       </div>
+
+      {/* ── Active subscription banner ──────────────────────── */}
+      {subscription.status === "active" && subscription.tier !== "free" && (
+        <Card className="glass-card steel-border border-green-500/30">
+          <CardContent className="flex items-center gap-3 py-3">
+            <CheckCircle2 className="h-5 w-5 text-green-400 shrink-0" />
+            <div>
+              <p className="text-sm font-medium">
+                Active plan:{" "}
+                <span className="gradient-steel-text">
+                  {subscription.tier === "pro" ? "Pro Reviewer" : "Business Suite"}
+                </span>
+              </p>
+              {subscription.currentPeriodEnd && (
+                <p className="text-xs text-muted-foreground">
+                  Renews {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ── Demo mode banner ─────────────────────────────────── */}
+      {!isStripeConfigured() && (
+        <Card className="glass-card steel-border border-yellow-500/30">
+          <CardContent className="flex items-start gap-3 py-3">
+            <AlertCircle className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-medium text-yellow-400">Stripe is in demo mode</p>
+              <p className="text-muted-foreground text-xs mt-1">
+                Set <code className="bg-muted px-1 rounded">VITE_STRIPE_PUBLISHABLE_KEY</code> and{" "}
+                <code className="bg-muted px-1 rounded">VITE_STRIPE_LINK_PRO</code> /&nbsp;
+                <code className="bg-muted px-1 rounded">VITE_STRIPE_LINK_BUSINESS</code> in{" "}
+                <code className="bg-muted px-1 rounded">.env</code> to enable checkout.{" "}
+                <a
+                  href="https://dashboard.stripe.com/payment-links"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline inline-flex items-center gap-1"
+                >
+                  Create Payment Links <ExternalLink className="h-3 w-3" />
+                </a>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="glass-card">
@@ -166,6 +285,11 @@ export default function PaymentsDashboard() {
                 {tier.highlighted && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <Badge className="gradient-steel">Most Popular</Badge>
+                  </div>
+                )}
+                {isActiveTier(tier.id) && (
+                  <div className="absolute -top-3 right-4">
+                    <Badge className="bg-green-600 text-white">Active</Badge>
                   </div>
                 )}
                 <CardHeader className="text-center">
@@ -194,21 +318,30 @@ export default function PaymentsDashboard() {
                   <Button
                     className={`w-full ${tier.highlighted ? "gradient-steel" : ""}`}
                     variant={tier.highlighted ? "default" : "outline"}
+                    disabled={isActiveTier(tier.id) || tier.price === 0}
                     onClick={() => {
-                      setSelectedTier(tier.id);
-                      if (tier.price > 0) {
+                      if (tier.price > 0 && tier.stripeTierId) {
                         addToCart({
                           id: `sub-${tier.id}`,
                           name: `${tier.name} Subscription`,
                           price: tier.price,
                           quantity: 1,
+                          type: "subscription",
+                          stripeTierId: tier.stripeTierId,
                         });
                         setActiveTab("cart");
                       }
                     }}
                   >
-                    {tier.price === 0 ? "Current Plan" : "Subscribe"}
-                    {tier.price > 0 && <ArrowRight className="h-4 w-4 ml-1" />}
+                    {isActiveTier(tier.id)
+                      ? "Current Plan"
+                      : tier.price === 0
+                      ? "Free Plan"
+                      : (
+                        <>
+                          Subscribe <ArrowRight className="h-4 w-4 ml-1" />
+                        </>
+                      )}
                   </Button>
                 </CardContent>
               </Card>
@@ -229,6 +362,13 @@ export default function PaymentsDashboard() {
                 <div className="text-center py-8">
                   <ShoppingCart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                   <p className="text-muted-foreground">Your cart is empty</p>
+                  <Button
+                    variant="outline"
+                    className="mt-4"
+                    onClick={() => setActiveTab("subscriptions")}
+                  >
+                    Browse Plans
+                  </Button>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -260,10 +400,22 @@ export default function PaymentsDashboard() {
                   <div className="border-t border-border/50 pt-4">
                     <div className="flex items-center justify-between mb-4">
                       <span className="font-bold">Total</span>
-                      <span className="text-xl font-bold">${cartTotal.toFixed(2)}</span>
+                      <span className="text-xl font-bold">${cartTotal.toFixed(2)}/mo</span>
                     </div>
-                    <Button className="w-full gradient-steel" onClick={handleCheckout}>
-                      <Lock className="h-4 w-4 mr-1" /> Checkout with Stripe
+                    <Button
+                      className="w-full gradient-steel"
+                      onClick={handleCheckout}
+                      disabled={checkingOut}
+                    >
+                      {checkingOut ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-1 animate-spin" /> Redirecting to Stripe…
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="h-4 w-4 mr-1" /> Checkout with Stripe
+                        </>
+                      )}
                     </Button>
                     <p className="text-xs text-center text-muted-foreground mt-2">
                       <Shield className="h-3 w-3 inline mr-1" />
@@ -278,30 +430,7 @@ export default function PaymentsDashboard() {
 
         {/* ─── PLAID TAB ─────────────────────────────────── */}
         <TabsContent value="plaid" className="space-y-4">
-          <Card className="glass-card steel-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building2 className="h-5 w-5" /> Bank Account Linking
-              </CardTitle>
-              <CardDescription>Connect your bank account via Plaid for financial tracking</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-center py-8">
-                <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-lg font-medium mb-2">Connect Your Bank</p>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Link your bank account to automatically categorize transactions, track expenses, and sync with the Tax Center.
-                </p>
-                <Button className="gradient-steel" onClick={handlePlaidConnect}>
-                  <Building2 className="h-4 w-4 mr-1" /> Connect with Plaid
-                </Button>
-                <p className="text-xs text-muted-foreground mt-4">
-                  <Shield className="h-3 w-3 inline mr-1" />
-                  Bank-level security · 256-bit encryption · Read-only access
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <PlaidBankConnect />
         </TabsContent>
       </Tabs>
 

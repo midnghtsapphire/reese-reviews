@@ -35,3 +35,6 @@ supabase/.branches/
 
 # OS files
 Thumbs.db
+
+# TypeDoc generated API docs
+docs/api/
