@@ -51,12 +51,12 @@ This is the **single source of truth** for all outstanding work on Reese Reviews
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | RR-401 | 🔴 Critical | Migrate Admin Panel API keys from localStorage to env vars | Agent/Team C | Done (2026-04-05) | Admin panel reads keys from `import.meta.env.*` — no key stored in `localStorage`. | Integrations tab now shows read-only env-var status. Security warning added. |
 | RR-402 | 🔴 Critical | Fix top 20 ESLint `no-explicit-any` violations | Agent/Team A | Done (2026-04-05) | 22 violations fixed across 8 files (AdminPanel, Dashboard, supabasePersistence, AuthContext, reviewStore, Admin, MusicVideoCreator, InventoryManager, VineReviewDashboard). | See STANDARDS_COMPLIANCE.md issue #19. |
-| RR-403 | 🟠 High | Finalize Plaid bank-link backend | Agent/Team C | To Do | Plaid Link token exchange completes; transactions sync to Supabase `plaid_transactions` table; test with sandbox. | UI exists in `src/components/business/PlaidBankConnect.tsx`. See `src/lib/plaidClient.ts`. |
+| RR-403 | 🟠 High | Finalize Plaid bank-link backend | Agent/Team C | Done (2026-04-05) | Plaid Link token exchange completes; transactions sync to Supabase `plaid_transactions` table; test with sandbox. | Migration: `supabase/migrations/20260405_plaid_tables.sql`. `savePlaidTransactions`/`savePlaidAccounts` now upsert to Supabase with localStorage fallback. |
 | RR-404 | 🟠 High | Finalize Stripe subscription checkout | Agent/Team C | To Do | Stripe Checkout session creates successfully; webhook handler verifies payment; subscription tier updates in Supabase. | Stripe keys are in `.env.example` (commented). See `src/pages/PaymentsPage.tsx`. |
 | RR-405 | 🟡 Medium | Implement Meta Business API auto-post | Agent/Team B | To Do | Posts can be scheduled and auto-published to a linked Instagram Business or Facebook Page. | See `src/components/marketing/MetaAutoPost.tsx` (scaffolded). RAID D-006 (future dep). |
 | RR-406 | 🟡 Medium | Add TypeDoc to build pipeline | Agent/Team D | To Do | `npm run docs` generates HTML API documentation from TSDoc comments into `/docs/api/`; CI step added. | Requirement from STANDARDS_COMPLIANCE.md. |
-| RR-407 | 🟡 Medium | Add Mermaid architecture diagrams to README | Agent/Team D | To Do | `README.md` contains at least one Mermaid diagram showing the component/data-flow architecture. | Requirement from STANDARDS_COMPLIANCE.md. |
-| RR-408 | 🟡 Medium | Add gitleaks pre-commit hook | Agent/Team A | To Do | `gitleaks` runs on every `git commit` and blocks commits containing secrets. | See SECURITY_AUDIT.md recommendation 3. |
+| RR-407 | 🟡 Medium | Add Mermaid architecture diagrams to README | Agent/Team D | Done (2026-04-05) | `README.md` contains at least one Mermaid diagram showing the component/data-flow architecture. | 2 diagrams added: component/data-flow flowchart + ER diagram. |
+| RR-408 | 🟡 Medium | Add gitleaks pre-commit hook | Agent/Team A | Done (2026-04-05) | `gitleaks` runs on every `git commit` and blocks commits containing secrets. | Husky installed; `.husky/pre-commit` + `.gitleaks.toml` added; `prepare` script in `package.json`. |
 | RR-409 | 🔵 Low | Code-split large bundle chunks | Agent/Team D | To Do | `ReviewPipeline` and `index` chunks are each below 500KB (use `React.lazy()`). | See STANDARDS_COMPLIANCE.md issue #20. |
 | RR-410 | 🔵 Low | Add `typecheck` npm script | Agent/Team D | Done (2026-04-05, `package.json`) | `package.json` has `"typecheck": "tsc --noEmit"` script. | See RAID I-004 (closed in CI but missing from package.json). |
 
@@ -133,4 +133,7 @@ This is the **single source of truth** for all outstanding work on Reese Reviews
 | RR-304 | Branch protection rules documented | 2026-04-03 | `feat/team-d-cicd-docs` |
 | RR-401 | Migrate Admin Panel API keys from localStorage to env vars | 2026-04-05 | `fix: RR-401 + RR-402` |
 | RR-402 | Fix 22 ESLint `no-explicit-any` violations across 8 files | 2026-04-05 | `fix: RR-401 + RR-402` |
-| RR-410 | Add `typecheck` npm script to `package.json` | 2026-04-05 | `docs: document and upgrade reese-reviews` |
+| RR-410 | Add `typecheck` npm script to `package.json` | 2026-04-05 | `fix: RR-401 + RR-402` |
+| RR-403 | Finalize Plaid bank-link backend (Supabase migration + sync) | 2026-04-05 | `fix: RR-403 RR-407 RR-408` |
+| RR-407 | Add Mermaid architecture diagrams to README | 2026-04-05 | `fix: RR-403 RR-407 RR-408` |
+| RR-408 | Add gitleaks pre-commit hook | 2026-04-05 | `fix: RR-403 RR-407 RR-408` |

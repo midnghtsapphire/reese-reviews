@@ -103,26 +103,25 @@ The following documents were added to address the compliance and agent-completio
 | [`docs/AGENT_COMPLETION_GUIDE.md`](../AGENT_COMPLETION_GUIDE.md) | **Why agents don't finish apps.** Root cause analysis + the playbook to guarantee completion. Required reading for all agents. |
 | [`docs/ROLLOUT_PLAN.md`](../ROLLOUT_PLAN.md) | **Safe live-app rollout procedures.** Risk-tiered deployment strategy + rollback procedures for all failure scenarios. |
 
-### What Was Completed This Session (April 5, 2026 — Sprint 4 iteration)
-- **RR-401 ✅** — Admin Panel API keys migrated out of localStorage. Integrations tab now shows read-only env-var status cards with security notice. Removed `openRouterKey`, `stripeKey`, `plaidClientId` from `AdminSettings` interface and `localStorage`. See `src/components/admin/AdminPanel.tsx`.
-- **RR-402 ✅** — 22 ESLint `no-explicit-any` violations fixed across 8 files:
-  - `AdminPanel.tsx` (2): typed `vine-review-items` filter
-  - `Dashboard.tsx` (2): typed `vine-review-items` filter
-  - `supabasePersistence.ts` (4): `eslint-disable` comments for dynamic Supabase table names (unavoidable — SDK requires literal table names for typing)
-  - `AuthContext.tsx` (4): same pattern for `admins` and `user_profiles` tables
-  - `reviewStore.ts` (1): same pattern for `review_submissions`
-  - `Admin.tsx` (4): `ReviewForm` props typed with `Partial<ReviewData>` and `keyof ReviewData`
-  - `MusicVideoCreator.tsx` (2): `err: unknown`, step cast to `1|2|3|4|5`
-  - `InventoryManager.tsx` (3): `InventoryItem` interface with optional `sale_price`/`estimated_value`
-  - `VineReviewDashboard.tsx` (3+): `StarRating` import, `generatedReview.videoLengthSeconds` direct access, gender union type
-- **RR-410 ✅** — Already done in previous session (`"typecheck": "tsc --noEmit"` in package.json)
+### What Was Completed This Session (April 5, 2026 — Sprint 4 second iteration)
+- **RR-403 ✅** — Plaid bank-link backend finalized:
+  - New Supabase migration: `supabase/migrations/20260405_plaid_tables.sql` — creates `plaid_accounts` and `plaid_transactions` tables with RLS, indexes, and triggers.
+  - `src/lib/plaidClient.ts`: `savePlaidTransactions()` and `savePlaidAccounts()` now fire async upserts to Supabase after every localStorage write. Pattern matches the existing `supabasePersistence.ts` approach (localStorage = immediate, Supabase = best-effort background sync).
+- **RR-407 ✅** — Mermaid architecture diagrams added to `README.md`:
+  - Component/data-flow flowchart showing user → frontend → stores → Supabase/external APIs
+  - ER diagram showing key Supabase tables and their relationships
+- **RR-408 ✅** — gitleaks pre-commit hook added:
+  - Husky installed (`npm install --save-dev husky`)
+  - `.husky/pre-commit` runs `gitleaks protect --staged --redact -v` if gitleaks is installed; warns and passes if not
+  - `.gitleaks.toml` at repo root with custom rules for Supabase/OpenRouter keys and allowlisted doc paths
+  - `"prepare": "husky"` added to `package.json` scripts so hooks auto-install on `npm ci`
 
 ### What's Next (Highest Priority for Next Session)
 
-1. **RR-403** — Finalize Plaid bank-link backend (High) — `src/lib/plaidClient.ts` + `src/components/business/PlaidBankConnect.tsx`
-2. **RR-404** — Finalize Stripe subscription checkout (High) — `src/pages/PaymentsPage.tsx`
-3. **RR-407** — Add Mermaid architecture diagram to README.md (Medium, quick win)
-4. **RR-406** — Add TypeDoc to build pipeline (Medium)
+1. **RR-404** — Finalize Stripe subscription checkout (High) — `src/components/payments/PaymentsDashboard.tsx`
+2. **RR-406** — Add TypeDoc to build pipeline (Medium)
+3. **RR-409** — Code-split large bundle chunks with `React.lazy()` (Low)
+4. **RR-405** — Meta Business API auto-post (Medium, needs Meta App credentials)
 
 > Next agent: **read `docs/BACKLOG.md` first.** Pick the highest-priority `To Do` item. Update its status. Update this HANDOFF.md when done.
 

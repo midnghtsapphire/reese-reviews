@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+# ─── GITLEAKS: Scan staged changes for secrets ───────────────────────────────
+# Install gitleaks: https://github.com/gitleaks/gitleaks#installing
+# macOS:  brew install gitleaks
+# Linux:  See https://github.com/gitleaks/gitleaks/releases
+# Or use the Docker image: docker run -v "$(pwd)":/path zricethezav/gitleaks:latest protect --staged -v
+
+if command -v gitleaks >/dev/null 2>&1; then
+  echo "🔐 Running gitleaks secret scan on staged files..."
+  gitleaks protect --staged --redact -v
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ gitleaks found potential secrets in staged files."
+    echo "   Review the output above, remove any secrets, and re-stage."
+    echo "   If this is a false positive, use: git commit --no-verify"
+    exit 1
+  fi
+  echo "✅ gitleaks: no secrets detected."
+else
+  echo "⚠️  gitleaks is not installed — secret scan skipped."
+  echo "   Install it to enable secret scanning:"
+  echo "     macOS: brew install gitleaks"
+  echo "     Linux: https://github.com/gitleaks/gitleaks/releases"
+fi

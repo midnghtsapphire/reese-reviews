@@ -2,10 +2,15 @@
 
 ## [Unreleased]
 
+### Added
+- **RR-407:** Two Mermaid architecture diagrams in `README.md`: component/data-flow flowchart + ER diagram showing Supabase table relationships.
+- **RR-408:** gitleaks pre-commit hook via Husky. `.husky/pre-commit` scans staged changes for secrets using `gitleaks protect --staged`. `.gitleaks.toml` adds custom rules for Supabase and OpenRouter keys. `"prepare": "husky"` in `package.json` ensures hooks auto-install on `npm ci`.
+
 ### Security
 - **RR-401:** Removed API key storage from browser `localStorage`. Admin Panel Integrations tab now shows read-only env-var status (configured/not set) sourced from `import.meta.env.*`. Removed `openRouterKey`, `stripeKey`, `plaidClientId` from `AdminSettings` interface. Added security notice directing users to `.env` / DigitalOcean dashboard.
 
 ### Fixed
+- **RR-403:** `savePlaidTransactions()` and `savePlaidAccounts()` in `src/lib/plaidClient.ts` now async-upsert to Supabase `plaid_transactions` and `plaid_accounts` tables (best-effort, localStorage remains the immediate/offline store). New migration: `supabase/migrations/20260405_plaid_tables.sql`.
 - **RR-402:** Fixed 22 ESLint `no-explicit-any` violations across 8 files:
   - Typed `vine-review-items` localStorage filters in `AdminPanel.tsx` and `Dashboard.tsx`
   - Added `eslint-disable` comments (with explanations) for unavoidable dynamic Supabase table name casts in `supabasePersistence.ts`, `AuthContext.tsx`, `reviewStore.ts`
