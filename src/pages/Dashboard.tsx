@@ -35,6 +35,17 @@ import { ReviewPipeline } from "@/components/business/ReviewPipeline";
 
 // ─── Flag: set to true when real analytics backend is connected ─────────────
 const HAS_ANALYTICS_DATA = false;
+// Analytics pulled from real localStorage data only
+function getRealAnalytics() {
+  let vineItems = 0, pendingReviews = 0, submittedReviews = 0;
+  try {
+    const items = JSON.parse(localStorage.getItem("vine-review-items") || "[]") as Array<{ status: string }>;
+    vineItems = items.length;
+    pendingReviews = items.filter((i) => i.status === "pending").length;
+    submittedReviews = items.filter((i) => i.status === "submitted").length;
+  } catch {}
+  return { vineItems, pendingReviews, submittedReviews };
+}
 
 const BIZ_TABS = [
   { value: "taxcenter",      label: "🍃 Tax Center" },
@@ -189,6 +200,10 @@ export default function Dashboard() {
                       Analytics will appear once connected.
                     </p>
                   )}
+                  <div className="flex flex-col items-center py-4 text-center">
+                    <BarChart2 size={24} className="text-gray-500 mb-2" />
+                    <p className="text-xs text-gray-400">Connect Google Analytics to see real metrics here.</p>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -233,6 +248,10 @@ export default function Dashboard() {
                       <span className="text-xs text-muted-foreground">—</span>
                     </div>
                   ))}
+                  <div className="flex flex-col items-center py-4 text-center">
+                    <Share2 size={24} className="text-gray-500 mb-2" />
+                    <p className="text-xs text-gray-400">Connect social accounts to see reach data.</p>
+                  </div>
                 </CardContent>
               </Card>
 

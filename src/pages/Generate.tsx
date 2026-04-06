@@ -40,6 +40,8 @@ const PLATFORM_ICONS: Record<SocialPlatformId, React.ElementType> = {
   tiktok:    Music2,
 };
 
+// Analytics will be populated from real data sources
+
 // ─── Post state per platform ────────────────────────────────
 type PostStatus = "idle" | "posting" | "done" | "error";
 type PlatformStatus = Record<SocialPlatformId, PostStatus>;
@@ -304,6 +306,10 @@ export default function Generate() {
                   <p className="text-xs text-muted-foreground text-center py-2">
                     Analytics will appear once connected.
                   </p>
+                  <div className="flex flex-col items-center py-4 text-center">
+                    <BarChart2 size={24} className="text-gray-500 mb-2" />
+                    <p className="text-xs text-gray-400">Connect Google Analytics to see post performance metrics.</p>
+                  </div>
                 </CardContent>
               </Card>
 

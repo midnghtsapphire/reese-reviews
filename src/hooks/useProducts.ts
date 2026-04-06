@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
 export type Product = Tables<"products">;
@@ -8,6 +8,7 @@ export const useProducts = (category?: string) => {
   return useQuery({
     queryKey: ["products", category],
     queryFn: async () => {
+      if (!isSupabaseConfigured()) return [] as Product[];
       let query = supabase
         .from("products")
         .select("*")
@@ -28,6 +29,7 @@ export const useProduct = (slug: string) => {
   return useQuery({
     queryKey: ["product", slug],
     queryFn: async () => {
+      if (!isSupabaseConfigured()) return null;
       const { data, error } = await supabase
         .from("products")
         .select("*")
@@ -45,6 +47,7 @@ export const useProductReviews = (productId: string) => {
   return useQuery({
     queryKey: ["product-reviews", productId],
     queryFn: async () => {
+      if (!isSupabaseConfigured()) return [];
       const { data, error } = await supabase
         .from("reviews")
         .select("*")

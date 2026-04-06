@@ -12,6 +12,9 @@ import { ProductLifecycle } from "@/components/business/ProductLifecycle";
 import { ReviewAutomation } from "@/components/business/ReviewAutomation";
 import { ERPTaxCenter } from "@/components/business/ERPTaxCenter";
 import { ReviewPipeline } from "@/components/business/ReviewPipeline";
+import { AmazonOrdersToInventory } from "@/components/business/AmazonOrdersToInventory";
+import { AllAttachmentForms } from "@/components/business/AllAttachmentForms";
+import { AvatarLibrary } from "@/components/business/AvatarLibrary";
 
 // ─── TOP-LEVEL TABS ───────────────────────────────────────────
 // Consolidated from 12 tabs → 9 tabs.
@@ -38,12 +41,16 @@ const TOP_TABS = [
   { value: "taxcenter",    label: "🍃 Tax Center",   title: "Tax Center ERP — Vine-first" },
   { value: "vine",         label: "🍇 Vine",          title: "Amazon Vine Dashboard" },
   { value: "amazon",       label: "🛒 Amazon",        title: "Amazon Dashboard" },
+  { value: "orders",       label: "📋 Orders",        title: "Amazon Orders → Inventory" },
   { value: "inventory",    label: "📦 Inventory",     title: "Inventory Manager" },
   { value: "financial",    label: "💵 Financial",     title: "Financial Dashboard" },
-  { value: "integrations", label: "⚙️ Integrations", title: "Integrations & Settings" },
+  { value: "integrations", label: "⚙️ Settings",     title: "Integrations & Settings" },
   { value: "lifecycle",    label: "⚡ Lifecycle",     title: "Product Lifecycle Tracker" },
   { value: "reviews",      label: "🎬 Reviews",       title: "Review Automation" },
   { value: "reviewpipeline", label: "🔀 Review Pipeline", title: "Review Pipeline" },
+  { value: "forms",        label: "📋 Forms",         title: "Tax & Attachment Forms" },
+  { value: "reviews",      label: "🎬 Reviews",       title: "Review Automation + Avatars" },
+  { value: "reviewpipeline", label: "🔀 Pipeline",    title: "Review Pipeline" },
 ] as const;
 
 export default function Business() {
@@ -107,8 +114,43 @@ export default function Business() {
 
             {/* ── AMAZON DASHBOARD ─────────────────────────────
                 Amazon seller metrics, ASIN tracking, BSR.
+                Includes Order Import with demo/real badges and
+                Push to Lifecycle Tracker.
+                Amazon seller metrics, ASIN tracking, BSR,
+                plus Order CSV importer.
             ─────────────────────────────────────────────────── */}
             <TabsContent value="amazon" className="space-y-6">
+              <Tabs defaultValue="orders" className="w-full">
+                <TabsList className="bg-white/10 border border-white/20 mb-4">
+                  <TabsTrigger value="orders" className="text-white data-[state=active]:bg-purple-600 data-[state=active]:text-white text-sm">
+                    📥 Import Orders
+                  </TabsTrigger>
+                  <TabsTrigger value="dashboard" className="text-white data-[state=active]:bg-purple-600 data-[state=active]:text-white text-sm">
+                    📊 Dashboard
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="orders">
+                  <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                    <AmazonOrdersToInventory />
+                  </div>
+                </TabsContent>
+                <TabsContent value="dashboard">
+                  <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                    <AmazonDashboard />
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </TabsContent>
+
+            {/* ── AMAZON ORDERS → INVENTORY ────────────────────
+                Track Amazon orders as inventory. Record charged
+                amount as income (Freedom Angel Corps) and sold
+                amount as revenue (NoCo Nook).
+            ─────────────────────────────────────────────────── */}
+            <TabsContent value="orders" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <AmazonOrdersToInventory />
+              </div>
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <AmazonDashboard />
               </div>
@@ -162,6 +204,9 @@ export default function Business() {
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <ReviewAutomation />
               </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <AvatarLibrary />
+              </div>
             </TabsContent>
 
             {/* ── REVIEW PIPELINE ──────────────────────────────
@@ -171,6 +216,17 @@ export default function Business() {
             <TabsContent value="reviewpipeline" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <ReviewPipeline />
+              </div>
+            </TabsContent>
+
+            {/* ── TAX & ATTACHMENT FORMS ───────────────────────
+                Comprehensive list of all IRS forms and schedules
+                relevant to a review business Corp & 1099 filer,
+                including EV purchase, trade-in, write-offs.
+            ─────────────────────────────────────────────────── */}
+            <TabsContent value="forms" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <AllAttachmentForms />
               </div>
             </TabsContent>
           </Tabs>

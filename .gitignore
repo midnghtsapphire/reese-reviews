@@ -1,3 +1,8 @@
+# Environment variables — never commit real credentials
+.env
+.env.local
+.env.*.local
+
 # Logs
 logs
 *.log
@@ -22,3 +27,38 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+*.pyc
+
+# Environment
+.env
+app-spec.yaml
+
+# Environment variables — NEVER commit secrets
+.env
+.env.*
+!.env.example
+
+# Supabase local config (may contain secrets)
+supabase/.temp/
+supabase/.branches/
+
+# OS files
+Thumbs.db
+
+# TypeDoc generated API docs
+docs/api/

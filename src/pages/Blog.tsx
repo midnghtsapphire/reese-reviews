@@ -8,6 +8,8 @@ import { Calendar, User, Eye, Rss } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import { getBlogPosts, generateRSSXML } from "@/lib/seoStore";
 
+const DEMO_POSTS = [];
+
 export default function Blog() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");

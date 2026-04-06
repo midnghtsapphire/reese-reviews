@@ -1,23 +1,25 @@
 name: reese-reviews
 region: nyc
 
-static_sites:
-  - name: reese-reviews-frontend
+services:
+  - name: reese-reviews-web
     github:
       repo: MIDNGHTSAPPHIRE/reese-reviews
       branch: main
       deploy_on_push: true
-    build_command: npm run build
-    output_dir: dist
-    index_document: index.html
-    error_document: index.html   # SPA fallback — all routes serve index.html
-    environment_slug: node-js
+    dockerfile_path: Dockerfile
+    http_port: 8080
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    instance_count: 1
     envs:
       - key: VITE_SUPABASE_URL
         value: "https://nythypgelkmyoawdnkjv.supabase.co"
         scope: BUILD_TIME
       - key: VITE_SUPABASE_PUBLISHABLE_KEY
         value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55dGh5cGdlbGtteW9hd2Rua2p2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1OTgyNDAsImV4cCI6MjA4NjE3NDI0MH0.riw-nGz6mWclmRY8o311KEaajy2HjkND1doxFFtFHhI"
+        scope: BUILD_TIME
+      - key: VITE_OPENROUTER_API_KEY
+        value: "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"
         scope: BUILD_TIME
     routes:
       - path: /

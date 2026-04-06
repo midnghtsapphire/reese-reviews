@@ -26,9 +26,8 @@ export interface AmazonReview {
   status: ReviewStatus;
 }
 
-// ─── DEMO DATA ───────────────────────────────────────────────
-
-export const DEMO_REVIEWS: AmazonReview[] = DEMO_DATA as AmazonReview[];
+// No demo/placeholder data — app starts clean
+export const DEMO_REVIEWS: AmazonReview[] = [];
 
 // ─── STORAGE HELPERS ─────────────────────────────────────────
 
@@ -39,7 +38,7 @@ export function getAmazonReviews(): AmazonReview[] {
   } catch {
     // ignore parse errors
   }
-  return DEMO_REVIEWS;
+  return [];
 }
 
 export function saveAmazonReviews(reviews: AmazonReview[]): void {
@@ -52,10 +51,9 @@ export function clearAmazonReviews(): void {
 
 // ─── IMPORT FUNCTIONS ────────────────────────────────────────
 
-/** Load the built-in demo reviews into the local store. */
+/** No-op: demo reviews removed. Returns empty array. */
 export function importDemoReviews(): AmazonReview[] {
-  saveAmazonReviews(DEMO_REVIEWS);
-  return DEMO_REVIEWS;
+  return [];
 }
 
 /**

@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Upload, X, CheckCircle, Camera } from "lucide-react";
 import StarRating from "@/components/StarRating";
 import SEOHead from "@/components/SEOHead";
+import { ConfettiCelebration } from "@/components/ConfettiCelebration";
 import { submitReview, CATEGORIES, type ReviewCategory } from "@/lib/reviewStore";
 
 interface FormData {
@@ -40,6 +41,8 @@ const SubmitReview = () => {
   const [hoverRating, setHoverRating] = useState(0);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [submittedName, setSubmittedName] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -94,7 +97,9 @@ const SubmitReview = () => {
         reviewer_name: form.reviewer_name,
         reviewer_email: form.reviewer_email,
       });
+      setSubmittedName(form.reviewer_name);
       setStatus("success");
+      setShowConfetti(true);
       setForm(initialForm);
       setImagePreview(null);
     } catch {
@@ -106,6 +111,15 @@ const SubmitReview = () => {
     return (
       <main id="main-content" className="min-h-screen pt-24 pb-16">
         <SEOHead title="Review Submitted" noIndex />
+        {showConfetti && (
+          <ConfettiCelebration
+            reviewerName={submittedName}
+            onDismiss={() => {
+              setShowConfetti(false);
+              setStatus("idle");
+            }}
+          />
+        )}
         <div className="container mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}

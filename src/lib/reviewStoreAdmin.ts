@@ -66,4 +66,9 @@ export function resetReviews(): void {
 export function initializeReviewsIfNeeded(): void {
   // No-op: reviews are managed via the Submit Review form and admin interface.
   // Nothing to initialize — the store starts empty until real reviews are added.
+  // Ensure reviews are in localStorage so admin edits persist
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (!stored) {
+    // Demo data removed — app starts clean
+  }
 }

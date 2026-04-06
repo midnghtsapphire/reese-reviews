@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input";
 import { ChevronDown, Search, ThumbsUp, ThumbsDown } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import { getFAQs } from "@/lib/seoStore";
+import { getFAQs, searchFAQs } from "@/lib/seoStore";
+
+const DEMO_FAQS = [];
 
 export default function FAQ() {
   const [searchQuery, setSearchQuery] = useState("");

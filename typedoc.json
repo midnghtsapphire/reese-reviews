@@ -1,0 +1,15 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/lib", "src/stores", "src/services"],
+  "entryPointStrategy": "expand",
+  "out": "docs/api",
+  "name": "Reese Reviews — API Reference",
+  "readme": "none",
+  "includeVersion": true,
+  "excludeExternals": true,
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "plugin": [],
+  "tsconfig": "tsconfig.json",
+  "skipErrorChecking": true
+}

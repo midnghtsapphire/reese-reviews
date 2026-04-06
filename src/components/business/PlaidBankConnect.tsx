@@ -243,38 +243,7 @@ export function PlaidBankConnect({
     }, []),
   });
 
-  // ── Demo mode connect ─────────────────────────────────────
-  const handleDemoConnect = async () => {
-    setLoading(true);
-    try {
-      await new Promise((r) => setTimeout(r, 1200)); // Simulate loading
-
-      const demoConfig: PlaidConfig = {
-        client_id: "demo",
-        environment: "sandbox",
-        access_token: "access-sandbox-demo",
-        item_id: "item-sandbox-demo",
-        connected: true,
-        last_synced: new Date().toISOString(),
-        scan_year: taxYear,
-        auto_sync_expenses: true,
-      };
-      savePlaidConfig(demoConfig);
-      setConfig(demoConfig);
-      setIsDemoMode(false);
-      savePlaidAccounts(DEMO_ACCOUNTS);
-      setAccounts(DEMO_ACCOUNTS);
-
-      const txns = await importTransactions("access-sandbox-demo", taxYear);
-      setMessage({
-        type: "success",
-        text: `Demo mode: Loaded ${txns.length} sample transactions from Jan 1, ${taxYear}.`,
-      });
-      onTransactionsImported?.(txns.length);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Demo mode removed — users must connect a real bank account via Plaid Link
 
   // ── Manual sync ───────────────────────────────────────────
   const handleSync = async () => {
@@ -468,19 +437,7 @@ export function PlaidBankConnect({
                 )}
                 Connect Real Bank Account
               </Button>
-              <Button
-                onClick={handleDemoConnect}
-                disabled={loading}
-                variant="outline"
-                className="border-white/20 text-gray-300 hover:bg-white/10"
-              >
-                {loading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Zap className="w-4 h-4 mr-2" />
-                )}
-                Load Demo Data
-              </Button>
+
             </div>
           </CardContent>
         </Card>

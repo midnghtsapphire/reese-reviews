@@ -3,7 +3,7 @@
 // Automatically falls back to demo mode if Supabase is not configured
 
 import type { VineItem } from "./businessTypes";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 
 const STORAGE_KEY = "reese-vine-items";
 const VINE_CONFIG_KEY = "reese-vine-config";
@@ -38,64 +38,7 @@ export interface VineScraperConfig {
 
 // ─── DEMO DATA ───────────────────────────────────────────────
 
-export const DEMO_VINE_ITEMS: VineItem[] = [
-  {
-    id: "vine-001",
-    asin: "B0D8XYZABC",
-    product_name: "Anker 3-in-1 Charging Cable",
-    category: "tech",
-    image_url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-    received_date: "2026-02-15",
-    review_deadline: "2026-03-15",
-    estimated_value: 24.99,
-    review_status: "pending",
-    vine_enrollment_date: "2025-12-01",
-    notes: "Received via Vine",
-    template_used: false,
-  },
-  {
-    id: "vine-002",
-    asin: "B0CXYZDEF1",
-    product_name: "Wireless Mouse Ergonomic",
-    category: "tech",
-    image_url: "https://images.unsplash.com/photo-1527814050087-3793815479db?w=400",
-    received_date: "2026-02-10",
-    review_deadline: "2026-03-10",
-    estimated_value: 19.99,
-    review_status: "pending",
-    vine_enrollment_date: "2025-12-01",
-    notes: "Received via Vine",
-    template_used: false,
-  },
-  {
-    id: "vine-003",
-    asin: "B0BXYZGHI2",
-    product_name: "USB-C Hub 7-in-1",
-    category: "tech",
-    image_url: "https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400",
-    received_date: "2026-02-05",
-    review_deadline: "2026-03-05",
-    estimated_value: 34.99,
-    review_status: "in_progress",
-    vine_enrollment_date: "2025-12-01",
-    notes: "Received via Vine",
-    template_used: true,
-  },
-  {
-    id: "vine-004",
-    asin: "B0AXYZKL3",
-    product_name: "Portable SSD 1TB",
-    category: "tech",
-    image_url: "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=400",
-    received_date: "2026-01-28",
-    review_deadline: "2026-02-28",
-    estimated_value: 89.99,
-    review_status: "overdue",
-    vine_enrollment_date: "2025-12-01",
-    notes: "Received via Vine",
-    template_used: false,
-  },
-];
+export const DEMO_VINE_ITEMS: VineItem[] = [];
 
 // ─── MODE DETECTION ──────────────────────────────────────────
 
@@ -116,7 +59,7 @@ export function setBackendMode(enabled: boolean): void {
 
 export async function getVineItems(): Promise<VineItem[]> {
   // If backend mode is enabled, try Supabase first
-  if (isBackendMode()) {
+  if (isBackendMode() && isSupabaseConfigured()) {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -157,7 +100,7 @@ export async function getVineItems(): Promise<VineItem[]> {
     console.error('Error reading localStorage:', error);
   }
   
-  return DEMO_VINE_ITEMS;
+  return [];
 }
 
 export async function saveVineItems(items: VineItem[]): Promise<void> {
@@ -166,7 +109,7 @@ export async function saveVineItems(items: VineItem[]): Promise<void> {
   localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
 
   // If backend mode, also save to Supabase
-  if (isBackendMode()) {
+  if (isBackendMode() && isSupabaseConfigured()) {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -291,7 +234,7 @@ export interface VineScraperResult {
 }
 
 /**
- * Scrape Vine items from Amazon Vine dashboard
+ * Scrape Vine items from Amazon Vine dashboard (https://www.amazon.com/vine/vine-reviews)
  * In BACKEND MODE: Calls Supabase Edge Function
  * In DEMO MODE: Returns simulated data
  */
@@ -301,7 +244,7 @@ export async function scrapeVineItems(
 ): Promise<VineScraperResult> {
   try {
     // Backend mode - call Supabase Edge Function
-    if (isBackendMode()) {
+    if (isBackendMode() && isSupabaseConfigured()) {
       const { data, error } = await supabase.functions.invoke('sync-vine-items', {
         body: { cookies, queues }
       });
