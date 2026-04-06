@@ -103,7 +103,12 @@ The following documents were added to address the compliance and agent-completio
 | [`docs/AGENT_COMPLETION_GUIDE.md`](../AGENT_COMPLETION_GUIDE.md) | **Why agents don't finish apps.** Root cause analysis + the playbook to guarantee completion. Required reading for all agents. |
 | [`docs/ROLLOUT_PLAN.md`](../ROLLOUT_PLAN.md) | **Safe live-app rollout procedures.** Risk-tiered deployment strategy + rollback procedures for all failure scenarios. |
 
-### What Was Completed This Session (April 5, 2026 — Sprint 4 fourth iteration)
+### What Was Completed This Session (April 6, 2026 — Sprint 4 fifth iteration)
+- **RR-411 ✅** — Matched site background to the logo backdrop:
+  - Added shared page gradient variables using the logo colors (#0f0f1a → #1a1a2e → #16213e), applied to the body and `gradient-dark-surface`, and mirrored into accessibility modes so the whole page matches the logo background.
+  - Tests: `npm test` (226 passing). Build: `npm run build` (success; existing chunk size warning remains).
+
+### What Was Completed Last Session (April 5, 2026 — Sprint 4 fourth iteration)
 - **RR-501 ✅** — 38 unit tests for `plaidClient.ts`:
   - `src/lib/plaidClient.test.ts`: AMAZON_VINE_FLAG_RULES integrity (rule fields, vine/seller/prime specifics), `classifyTransaction` (Vine, AWS, Adobe, BestBuy, unrecognized), `getPlaidTransactions`/`savePlaidTransactions`/`updatePlaidTransaction` CRUD + error paths, `getPlaidAccounts`, `PlaidConfig` lifecycle, `getPlaidDeductionSummary` (taxYear filter, write_off_percentage, by_category grouping), DEMO_ACCOUNTS/DEMO_TRANSACTIONS empty check.
 - **RR-502 ✅** — 65 unit tests for `reviewPipeline.ts`:

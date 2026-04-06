@@ -6,7 +6,11 @@
 
 @layer base {
   :root {
-    --background: 220 20% 10%;
+    --page-bg-1: 240 27% 8%;
+    --page-bg-2: 240 28% 14%;
+    --page-bg-3: 224 48% 16%;
+    --page-gradient: linear-gradient(180deg, hsl(var(--page-bg-1)) 0%, hsl(var(--page-bg-2)) 50%, hsl(var(--page-bg-3)) 100%);
+    --background: 240 28% 14%;
     --foreground: 0 0% 95%;
     --card: 220 18% 14%;
     --card-foreground: 0 0% 93%;
@@ -37,7 +41,7 @@
     --danger-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
-    --sidebar-background: 220 20% 10%;
+    --sidebar-background: 240 27% 8%;
     --sidebar-foreground: 0 0% 93%;
     --sidebar-primary: 220 10% 72%;
     --sidebar-primary-foreground: 220 20% 10%;
@@ -83,6 +87,10 @@
   /* ECO CODE MODE */
   [data-a11y-mode="eco"] {
     --background: 0 0% 2%;
+    --page-bg-1: 0 0% 2%;
+    --page-bg-2: 0 0% 2%;
+    --page-bg-3: 0 0% 2%;
+    --page-gradient: linear-gradient(180deg, hsl(var(--page-bg-1)) 0%, hsl(var(--page-bg-3)) 100%);
     --foreground: 0 0% 85%;
     --card: 0 0% 5%;
     --card-foreground: 0 0% 80%;
@@ -113,6 +121,10 @@
   /* NO BLUE LIGHT MODE */
   [data-a11y-mode="no-blue-light"] {
     --background: 30 30% 8%;
+    --page-bg-1: 30 30% 8%;
+    --page-bg-2: 30 30% 8%;
+    --page-bg-3: 30 30% 8%;
+    --page-gradient: linear-gradient(180deg, hsl(var(--page-bg-1)) 0%, hsl(var(--page-bg-3)) 100%);
     --foreground: 40 30% 90%;
     --card: 30 25% 12%;
     --card-foreground: 40 25% 88%;
@@ -192,6 +204,8 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    background: var(--page-gradient);
+    background-color: hsl(var(--background));
     font-family: 'Inter', sans-serif;
   }
   h1, h2, h3, h4, h5, h6 {
@@ -230,7 +244,7 @@
     background-clip: text;
   }
   .gradient-dark-surface {
-    background: linear-gradient(180deg, hsl(220 20% 10%) 0%, hsl(220 22% 6%) 100%);
+    background: var(--page-gradient);
   }
   .glass-card {
     background: var(--glass-bg);
