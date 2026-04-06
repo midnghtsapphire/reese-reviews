@@ -2,11 +2,9 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, User, Eye, Share2, Rss, Sparkles, Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Calendar, User, Eye, Rss } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import { getBlogPosts, generateRSSXML } from "@/lib/seoStore";
 
@@ -15,12 +13,6 @@ const DEMO_POSTS = [];
 export default function Blog() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
-  const [numPosts, setNumPosts] = useState("5");
-  const [selectedGenCategory, setSelectedGenCategory] = useState("how-to");
-  const [apiKey, setApiKey] = useState("");
-  const { toast } = useToast();
 
   const posts = getBlogPosts();
 
@@ -54,150 +46,39 @@ export default function Blog() {
     document.body.removeChild(a);
   };
 
-  const handleGeneratePosts = async () => {
-    if (!apiKey.trim()) {
-      toast({
-        title: "API Key Required",
-        description: "Please enter your OpenRouter API key. The field cannot be empty.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsGenerating(true);
-
-    // Mock generation with delay
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    toast({
-      title: "Generation Complete (Mock)",
-      description: `Successfully generated ${numPosts} blog posts in the ${selectedGenCategory} category. Note: This is a placeholder - actual LLM integration not implemented.`,
-    });
-
-    setIsGenerating(false);
-    setGenerateDialogOpen(false);
-    setApiKey("");
-  };
-
   return (
     <>
       <SEOHead
         title="Blog | Reese Reviews"
         description="Read the latest reviews, tips, and insights from Reese. How-to guides, industry news, and product updates."
       />
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-900 to-slate-950 pt-24 pb-12">
+      <div className="min-h-screen gradient-dark-surface pt-24 pb-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-12">
-            <h1 className="text-4xl font-bold text-white mb-2">Blog</h1>
-            <p className="text-gray-300 mb-6">Reviews, tips, and insights from Reese</p>
+            <h1 className="text-4xl font-bold text-foreground mb-2">Blog</h1>
+            <p className="text-muted-foreground mb-6">Reviews, tips, and insights from Reese</p>
 
             {/* Search and RSS */}
             <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
-              <input
+              <Input
                 type="text"
                 placeholder="Search articles..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 px-4 py-2 bg-slate-800 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                className="flex-1"
               />
-              <Button onClick={handleDownloadRSS} variant="outline" className="glass-nav border border-purple-500/30 flex items-center gap-2">
+              <Button onClick={handleDownloadRSS} variant="outline" className="glass-nav steel-border flex items-center gap-2">
                 <Rss className="h-4 w-4" />
                 RSS Feed
               </Button>
-              <Dialog open={generateDialogOpen} onOpenChange={setGenerateDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button className="gradient-steel flex items-center gap-2">
-                    <Sparkles className="h-4 w-4" />
-                    Generate Posts
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="glass-card border-purple-500/20 sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle className="text-white">Generate Blog Posts</DialogTitle>
-                    <DialogDescription className="text-gray-400">
-                      Use AI to generate blog posts for your site. This is a placeholder for OpenRouter LLM integration.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Number of Posts</label>
-                      <Select value={numPosts} onValueChange={setNumPosts}>
-                        <SelectTrigger className="bg-slate-800 border-purple-500/30 text-white">
-                          <SelectValue placeholder="Select number" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-slate-800 border-purple-500/30">
-                          <SelectItem value="5">5 posts</SelectItem>
-                          <SelectItem value="10">10 posts</SelectItem>
-                          <SelectItem value="20">20 posts</SelectItem>
-                          <SelectItem value="50">50 posts</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">Category</label>
-                      <Select value={selectedGenCategory} onValueChange={setSelectedGenCategory}>
-                        <SelectTrigger className="bg-slate-800 border-purple-500/30 text-white">
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-slate-800 border-purple-500/30">
-                          <SelectItem value="how-to">How-To</SelectItem>
-                          <SelectItem value="industry-news">Industry News</SelectItem>
-                          <SelectItem value="product-updates">Product Updates</SelectItem>
-                          <SelectItem value="tips-tricks">Tips & Tricks</SelectItem>
-                          <SelectItem value="case-studies">Case Studies</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-white">OpenRouter API Key</label>
-                      <Input
-                        type="password"
-                        placeholder="sk-or-..."
-                        value={apiKey}
-                        onChange={(e) => setApiKey(e.target.value)}
-                        className="bg-slate-800 border-purple-500/30 text-white"
-                      />
-                      <p className="text-xs text-gray-400">
-                        Your API key is not stored and only used for this generation
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={() => setGenerateDialogOpen(false)}
-                      disabled={isGenerating}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      className="gradient-steel"
-                      onClick={handleGeneratePosts}
-                      disabled={isGenerating}
-                    >
-                      {isGenerating ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Generating...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="h-4 w-4 mr-2" />
-                          Generate
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Sidebar */}
             <div className="lg:col-span-1">
-              <Card className="glass-card border-purple-500/20 sticky top-24">
+              <Card className="glass-card steel-border sticky top-24">
                 <CardHeader>
                   <CardTitle className="text-lg">Categories</CardTitle>
                 </CardHeader>
@@ -227,7 +108,7 @@ export default function Blog() {
             <div className="lg:col-span-3 space-y-6">
               {filteredPosts.length > 0 ? (
                 filteredPosts.map((post) => (
-                  <Card key={post.id} className="glass-card border-purple-500/20 overflow-hidden hover:border-purple-500/50 transition-colors">
+                  <Card key={post.id} className="glass-card steel-border overflow-hidden hover:border-border/60 transition-colors">
                     <div className="md:flex">
                       {post.featured_image && (
                         <div className="md:w-1/3">
@@ -238,19 +119,19 @@ export default function Blog() {
                           />
                         </div>
                       )}
-                      <div className="md:w-2/3">
+                      <div className={post.featured_image ? "md:w-2/3" : "w-full"}>
                         <CardHeader>
                           <div className="flex items-center gap-2 mb-2">
                             <Badge variant="secondary">{post.category.replace("-", " ")}</Badge>
-                            <span className="text-xs text-gray-400">{post.read_time_minutes} min read</span>
+                            <span className="text-xs text-muted-foreground">{post.read_time_minutes} min read</span>
                           </div>
-                          <CardTitle className="text-xl hover:text-purple-400 transition-colors cursor-pointer">
+                          <CardTitle className="text-xl hover:text-foreground transition-colors cursor-pointer">
                             {post.title}
                           </CardTitle>
                           <CardDescription>{post.description}</CardDescription>
                         </CardHeader>
                         <CardContent>
-                          <div className="flex flex-wrap gap-4 text-sm text-gray-400">
+                          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <User className="h-4 w-4" />
                               {post.author}
@@ -264,23 +145,25 @@ export default function Blog() {
                               {post.view_count} views
                             </div>
                           </div>
-                          <div className="flex gap-2 mt-4">
+                          <div className="flex gap-2 mt-4 flex-wrap">
                             {post.tags.map((tag) => (
                               <Badge key={tag} variant="outline" className="text-xs">
                                 #{tag}
                               </Badge>
                             ))}
                           </div>
-                          <Button className="mt-4 gradient-steel">Read Article</Button>
+                          <Button className="mt-4 gradient-steel text-primary-foreground">Read Article</Button>
                         </CardContent>
                       </div>
                     </div>
                   </Card>
                 ))
               ) : (
-                <Card className="glass-card border-purple-500/20">
-                  <CardContent className="py-12 text-center">
-                    <p className="text-gray-400">No articles found matching your search.</p>
+                <Card className="glass-card steel-border">
+                  <CardContent className="py-12 text-center" aria-label="No blog articles available yet">
+                    <p className="text-5xl mb-4" aria-hidden="true">📝</p>
+                    <p className="text-muted-foreground font-medium">No articles yet.</p>
+                    <p className="text-muted-foreground text-sm mt-1">Check back soon — Reese is writing!</p>
                   </CardContent>
                 </Card>
               )}

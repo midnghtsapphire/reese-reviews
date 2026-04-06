@@ -19,10 +19,6 @@ import {
   DollarSign,
   Send,
   BarChart2,
-  Eye,
-  ThumbsUp,
-  Share2,
-  FileText,
   CheckCircle2,
   Loader2,
   AlertCircle,
@@ -307,6 +303,9 @@ export default function Generate() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
+                  <p className="text-xs text-muted-foreground text-center py-2">
+                    Analytics will appear once connected.
+                  </p>
                   <div className="flex flex-col items-center py-4 text-center">
                     <BarChart2 size={24} className="text-gray-500 mb-2" />
                     <p className="text-xs text-gray-400">Connect Google Analytics to see post performance metrics.</p>

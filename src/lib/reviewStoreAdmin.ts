@@ -2,7 +2,7 @@
  * Admin-level review CRUD operations.
  * Works on top of the existing reviewStore.
  */
-import { ReviewData, getReviews, DEMO_REVIEWS } from "./reviewStore";
+import { ReviewData, getReviews } from "./reviewStore";
 
 const STORAGE_KEY = "reese-reviews-data";
 
@@ -64,6 +64,8 @@ export function resetReviews(): void {
 }
 
 export function initializeReviewsIfNeeded(): void {
+  // No-op: reviews are managed via the Submit Review form and admin interface.
+  // Nothing to initialize — the store starts empty until real reviews are added.
   // Ensure reviews are in localStorage so admin edits persist
   const stored = localStorage.getItem(STORAGE_KEY);
   if (!stored) {
