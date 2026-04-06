@@ -30,22 +30,9 @@ export interface PDFillerFill {
   download_url?: string;
 }
 
-export const DEMO_PDFFILLER_DOCS: PDFillerDocument[] = [
-  { id: 101, name: "IRS Schedule C (Form 1040) - Profit or Loss from Business", created: "2026-01-01", updated: "2026-01-01", total_pages: 2, type: "pdf", status: "ready" },
-  { id: 102, name: "IRS Form 1099-NEC - Nonemployee Compensation", created: "2026-01-01", updated: "2026-01-15", total_pages: 1, type: "pdf", status: "ready" },
-  { id: 103, name: "IRS Form 8829 - Home Office Deduction", created: "2026-01-01", updated: "2026-02-01", total_pages: 2, type: "pdf", status: "ready" },
-  { id: 104, name: "IRS Form 4562 - Depreciation and Amortization", created: "2026-01-01", updated: "2026-02-01", total_pages: 2, type: "pdf", status: "ready" },
-  { id: 105, name: "IRS Schedule SE - Self-Employment Tax", created: "2026-01-01", updated: "2026-02-10", total_pages: 1, type: "pdf", status: "ready" },
-  { id: 106, name: "IRS Form W-9 - Request for Taxpayer Identification", created: "2025-12-01", updated: "2025-12-01", total_pages: 1, type: "pdf", status: "ready" },
-  { id: 107, name: "Content Creator Service Agreement Template", created: "2025-11-01", updated: "2026-01-05", total_pages: 4, type: "pdf", status: "ready" },
-  { id: 108, name: "Amazon Affiliate Disclosure Template", created: "2025-10-15", updated: "2026-01-10", total_pages: 1, type: "pdf", status: "ready" },
-];
+export const DEMO_PDFFILLER_DOCS: PDFillerDocument[] = [];
 
-export const DEMO_PDFFILLER_FILLS: PDFillerFill[] = [
-  { id: 201, document_id: 101, document_name: "IRS Schedule C (Form 1040) - 2025", created: "2026-02-15", status: "complete", download_url: "#" },
-  { id: 202, document_id: 102, document_name: "IRS Form 1099-NEC - Amazon 2025", created: "2026-02-01", status: "complete", download_url: "#" },
-  { id: 203, document_id: 106, document_name: "W-9 for Reese Reviews LLC", created: "2026-01-20", status: "awaiting_signature" },
-];
+export const DEMO_PDFFILLER_FILLS: PDFillerFill[] = [];
 
 export function getPDFillerConfig(): PDFillerConfig | null {
   try {

@@ -1,0 +1,38 @@
+# ─── GITLEAKS CONFIGURATION ──────────────────────────────────────────────────
+# https://github.com/gitleaks/gitleaks#configuration
+# This file customizes gitleaks secret detection for the reese-reviews repo.
+# Place at repo root so gitleaks auto-discovers it.
+# ─────────────────────────────────────────────────────────────────────────────
+
+title = "reese-reviews gitleaks config"
+
+[extend]
+# Extend the default gitleaks ruleset
+useDefault = true
+
+[[rules]]
+description = "Supabase Anon Key"
+id = "supabase-anon-key"
+regex = '''eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+'''
+tags = ["supabase", "jwt"]
+
+[[rules]]
+description = "OpenRouter API Key"
+id = "openrouter-api-key"
+regex = '''sk-or-v1-[a-f0-9]{64}'''
+tags = ["openrouter", "ai"]
+
+# ── Allowlisted paths ────────────────────────────────────────────────────────
+# Files that are safe to contain key-like patterns (placeholders only)
+
+[allowlist]
+paths = [
+  ".env.example",
+  "docs/",
+  "README.md",
+  "CHANGELOG.md",
+  "*.md",
+]
+
+# Allowlist specific commits that contain only placeholder values
+commits = []

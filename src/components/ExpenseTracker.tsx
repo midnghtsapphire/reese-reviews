@@ -32,11 +32,11 @@ import type { Expense, WriteOffCategory } from "@/lib/expenseStore";
 const CURRENT_YEAR = new Date().getFullYear();
 
 const CATEGORY_BADGE_COLORS: Record<string, string> = {
-  home_office: "bg-indigo-600 text-white",
-  equipment: "bg-blue-600 text-white",
+  home_office: "bg-steel-mid text-white",
+  equipment: "bg-steel-mid text-white",
   software_subscriptions: "bg-cyan-600 text-white",
   advertising_marketing: "bg-orange-600 text-white",
-  professional_services: "bg-violet-600 text-white",
+  professional_services: "bg-steel-dark text-white",
   shipping_postage: "bg-teal-600 text-white",
   office_supplies: "bg-green-600 text-white",
   travel_vehicle: "bg-yellow-600 text-white",
@@ -188,20 +188,20 @@ export function ExpenseTracker() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <PiggyBank className="w-5 h-5 text-purple-400" />
+            <PiggyBank className="w-5 h-5 text-steel-shine" />
           </CardContent>
         </Card>
       </div>
 
       <Tabs defaultValue="writeoffs" className="w-full">
         <TabsList className="bg-white/10 border border-white/20">
-          <TabsTrigger value="writeoffs" className="text-white data-[state=active]:bg-purple-600">
+          <TabsTrigger value="writeoffs" className="text-white data-[state=active]:bg-steel-mid">
             Write-Offs
           </TabsTrigger>
-          <TabsTrigger value="all" className="text-white data-[state=active]:bg-purple-600">
+          <TabsTrigger value="all" className="text-white data-[state=active]:bg-steel-mid">
             All Expenses
           </TabsTrigger>
-          <TabsTrigger value="add" className="text-white data-[state=active]:bg-purple-600">
+          <TabsTrigger value="add" className="text-white data-[state=active]:bg-steel-mid">
             Add Expense
           </TabsTrigger>
         </TabsList>
@@ -411,7 +411,7 @@ export function ExpenseTracker() {
                             : 0,
                       }))
                     }
-                    className="w-full h-10 rounded-md border border-white/20 bg-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full h-10 rounded-md border border-white/20 bg-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-steel-shine"
                   >
                     {ALL_CATEGORY_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value} className="bg-slate-800 text-white">
@@ -451,7 +451,7 @@ export function ExpenseTracker() {
 
               <Button
                 onClick={handleAddExpense}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
+                className="bg-steel-mid hover:bg-steel-dark text-white"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Expense
