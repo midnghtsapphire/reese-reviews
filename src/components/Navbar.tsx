@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, LogOut, Settings, LayoutDashboard } from "lucide-react";
 import {
   Menu, X, LogOut, Zap, LayoutDashboard, Grape, Shield,
   Search, CreditCard, Briefcase, Megaphone, ChevronDown, Music,
@@ -131,6 +132,29 @@ const Navbar = () => {
 
         <div className="flex items-center gap-3">
           <AccessibilityToggle />
+
+          {/* Business Dashboard link */}
+          <Link
+            to="/business"
+            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-accent md:inline-flex"
+            style={{ color: "#a78bfa" }}
+            title="Business Dashboard"
+            aria-current={location.pathname === "/business" ? "page" : undefined}
+          >
+            <LayoutDashboard size={15} />
+            <span className="hidden lg:inline">Business</span>
+          </Link>
+
+          {/* Admin Panel link */}
+          <Link
+            to="/admin"
+            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-accent md:inline-flex"
+            style={{ color: "#FF6B2B" }}
+            title="Admin Panel"
+          >
+            <Settings size={15} />
+            <span className="hidden lg:inline">Admin</span>
+          </Link>
 
           {/* Create Content CTA */}
           <Link

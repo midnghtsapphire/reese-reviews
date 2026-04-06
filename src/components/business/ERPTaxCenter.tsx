@@ -71,6 +71,7 @@ import {
 import {
   getETVRecords,
   get1099Forms,
+  save1099Form,
   reconcile1099,
   getCapitalEvents,
   getDonations,
@@ -111,6 +112,7 @@ import { TransactionScanner } from "./TransactionScanner";
 import { ExpenseTracker } from "@/components/ExpenseTracker";
 import { OdooIntegration } from "@/components/OdooIntegration";
 import { PDFillerIntegration } from "@/components/PDFillerIntegration";
+import { IndustryWriteOffHelper } from "./IndustryWriteOffHelper";
 
 // ─── BRAND ───────────────────────────────────────────────────
 const BRAND = {
@@ -156,6 +158,35 @@ function VineETVOverview({ taxYear }: { taxYear: number }) {
   const form1099 = forms1099[0] ?? null;
   const reconciled = form1099?.filing_status === "reconciled";
   const discrepancy = form1099?.discrepancy_amount ?? 0;
+
+  // Inline 1099 edit state
+  const [editing1099, setEditing1099] = useState(false);
+  const [draft1099, setDraft1099] = useState({ box_1a: "", received_date: "", account_number: "", recipient_tin: "" });
+  const [draft1099Error, setDraft1099Error] = useState("");
+
+  const handleSave1099 = () => {
+    if (!form1099) return;
+    const amount = parseFloat(draft1099.box_1a);
+    if (isNaN(amount) || amount < 0) {
+      setDraft1099Error("Please enter a valid dollar amount (e.g. 89.97).");
+      return;
+    }
+    setDraft1099Error("");
+    const updated: Form1099NEC = {
+      ...form1099,
+      box_1_misc_income: amount,
+      box_1a_etv_vine: amount,
+      received_date: draft1099.received_date || form1099.received_date,
+      account_number: draft1099.account_number || form1099.account_number,
+      recipient_tin: draft1099.recipient_tin || form1099.recipient_tin,
+      filing_status: "received",
+    };
+    save1099Form(updated);
+    // immediately reconcile so discrepancy is recalculated
+    reconcile1099(updated);
+    setForms1099(get1099Forms().filter((f) => f.tax_year === taxYear));
+    setEditing1099(false);
+  };
 
   // Capital events
   const totalGains = capitalEvents.filter((e) => e.gain_loss > 0).reduce((s, e) => s + e.gain_loss, 0);
@@ -276,20 +307,107 @@ function VineETVOverview({ taxYear }: { taxYear: number }) {
                 <FileText className="w-4 h-4" style={{ color: BRAND.amber }} />
                 1099-NEC Reconciliation
               </CardTitle>
-              <Badge
-                className={
-                  reconciled
-                    ? "bg-green-600/20 text-green-400 border-green-600/30"
-                    : discrepancy !== 0
-                    ? "bg-red-600/20 text-red-400 border-red-600/30"
-                    : "bg-yellow-600/20 text-yellow-400 border-yellow-600/30"
-                }
-              >
-                {reconciled ? "Reconciled" : discrepancy !== 0 ? "Discrepancy" : "Pending"}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge
+                  className={
+                    reconciled
+                      ? "bg-green-600/20 text-green-400 border-green-600/30"
+                      : discrepancy !== 0
+                      ? "bg-red-600/20 text-red-400 border-red-600/30"
+                      : "bg-yellow-600/20 text-yellow-400 border-yellow-600/30"
+                  }
+                >
+                  {reconciled ? "Reconciled" : discrepancy !== 0 ? "Discrepancy" : "Pending"}
+                </Badge>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    if (!editing1099 && form1099) {
+                      setDraft1099({
+                        box_1a: String(form1099.box_1a_etv_vine),
+                        received_date: form1099.received_date,
+                        account_number: form1099.account_number ?? "",
+                        recipient_tin: form1099.recipient_tin,
+                      });
+                      setDraft1099Error("");
+                    }
+                    setEditing1099((v) => !v);
+                  }}
+                  className="text-xs border-white/20 text-gray-300 hover:text-white"
+                >
+                  {editing1099 ? "Cancel" : "Enter My 1099"}
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Inline 1099 entry form */}
+            {editing1099 && (
+              <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 space-y-3">
+                <p className="text-amber-300 text-xs font-semibold uppercase tracking-wide">
+                  Enter what your Amazon 1099-NEC says
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-gray-300 text-xs">Box 1 — Nonemployee Compensation ($)</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={draft1099.box_1a}
+                      onChange={(e) => setDraft1099((d) => ({ ...d, box_1a: e.target.value }))}
+                      placeholder="e.g. 89.97"
+                      className="bg-black/30 border-white/20 text-white text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-gray-300 text-xs">Date Received</Label>
+                    <Input
+                      type="date"
+                      value={draft1099.received_date}
+                      onChange={(e) => setDraft1099((d) => ({ ...d, received_date: e.target.value }))}
+                      className="bg-black/30 border-white/20 text-white text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-gray-300 text-xs">Account Number (optional)</Label>
+                    <Input
+                      value={draft1099.account_number}
+                      onChange={(e) => setDraft1099((d) => ({ ...d, account_number: e.target.value }))}
+                      placeholder="e.g. A12345678"
+                      className="bg-black/30 border-white/20 text-white text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-gray-300 text-xs">Your SSN / TIN (for your records)</Label>
+                    <Input
+                      value={draft1099.recipient_tin}
+                      onChange={(e) => setDraft1099((d) => ({ ...d, recipient_tin: e.target.value }))}
+                      placeholder="XXX-XX-XXXX"
+                      className="bg-black/30 border-white/20 text-white text-sm"
+                    />
+                  </div>
+                </div>
+                {draft1099Error && (
+                  <p className="text-red-400 text-xs flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3 shrink-0" />
+                    {draft1099Error}
+                  </p>
+                )}
+                <Button
+                  size="sm"
+                  onClick={handleSave1099}
+                  disabled={!draft1099.box_1a}
+                  className="font-bold text-black text-xs w-full"
+                  style={{ background: BRAND.amber }}
+                >
+                  <CheckCircle2 className="w-3 h-3 mr-1" />
+                  Save & Reconcile
+                </Button>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
                 { label: "Amazon Reports (Box 1a)", value: `$${form1099.box_1a_etv_vine.toFixed(2)}`, color: BRAND.amber },
@@ -316,7 +434,7 @@ function VineETVOverview({ taxYear }: { taxYear: number }) {
               </div>
             )}
 
-            {!reconciled && (
+            {!reconciled && !editing1099 && (
               <Button
                 size="sm"
                 onClick={handleReconcile}
@@ -647,6 +765,159 @@ function QuarterlyTracker({ taxYear }: { taxYear: number }) {
   );
 }
 
+// ─── BACKUP / RESTORE ────────────────────────────────────────
+/** All localStorage keys that contain tax / business data for this app. */
+const BACKUP_KEYS = [
+  // taxStore (stores/)
+  "taxmod-persons",
+  "taxmod-income-sources",
+  "taxmod-documents",
+  "taxmod-writeoffs",
+  "taxmod-receipts",
+  "taxmod-quarterly-estimates",
+  // taxStore (lib/)
+  "reese-tax-etv-records",
+  "reese-tax-1099-forms",
+  "reese-tax-capital-events",
+  "reese-tax-donations",
+  "reese-tax-documents",
+  // expenses
+  "reese-expenses",
+  // Plaid
+  "reese-plaid-config",
+  "reese-plaid-accounts",
+  "reese-plaid-transactions",
+  // Vine
+  "reese-vine-items",
+  "reese-vine-config",
+  "reese-vine-cookies",
+  // Amazon
+  "reese-amazon-orders",
+  "reese-amazon-config",
+  // Product lifecycle
+  "reese-product-lifecycle",
+  // Review pipeline
+  "reese-review-pipeline",
+  "reese-pipeline-stats",
+  // Automation settings
+  "rr-automation-settings",
+  "rr-avatar-library",
+] as const;
+
+function BackupRestore() {
+  const [restoreStatus, setRestoreStatus] = useState<"idle" | "success" | "error">("idle");
+  const [restoreMsg, setRestoreMsg]       = useState("");
+  const fileRef = React.useRef<HTMLInputElement>(null);
+
+  const handleBackup = () => {
+    const snapshot: Record<string, unknown> = {
+      _meta: {
+        app: "Reese Reviews Tax Center",
+        exported_at: new Date().toISOString(),
+        version: 1,
+      },
+    };
+    for (const key of BACKUP_KEYS) {
+      const val = localStorage.getItem(key);
+      if (val !== null) {
+        try { snapshot[key] = JSON.parse(val); }
+        catch { snapshot[key] = val; }
+      }
+    }
+    const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: "application/json" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = `ReeseReviews_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleRestore = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target?.result as string) as Record<string, unknown>;
+        let count = 0;
+        for (const key of BACKUP_KEYS) {
+          if (key in data) {
+            localStorage.setItem(key, JSON.stringify(data[key]));
+            count++;
+          }
+        }
+        setRestoreStatus("success");
+        setRestoreMsg(`✅ Restored ${count} data sets. Reloading…`);
+        setTimeout(() => window.location.reload(), 1500);
+      } catch {
+        setRestoreStatus("error");
+        setRestoreMsg("❌ Could not read backup file. Make sure it's a valid Reese Reviews backup JSON.");
+      }
+    };
+    reader.readAsText(file);
+    // reset so same file can be re-selected
+    e.target.value = "";
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Backup */}
+        <button
+          onClick={handleBackup}
+          className="flex flex-col items-start gap-2 p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all text-left"
+        >
+          <Download className="w-5 h-5" style={{ color: BRAND.volt }} />
+          <p className="text-white text-sm font-semibold">💾 Save Backup File</p>
+          <p className="text-gray-400 text-xs">
+            Downloads all income sources, SSA data, ETV records, write-offs, and business data to a
+            JSON file you can save to email or a USB drive.
+          </p>
+        </button>
+
+        {/* Restore */}
+        <button
+          onClick={() => fileRef.current?.click()}
+          className="flex flex-col items-start gap-2 p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all text-left"
+        >
+          <Upload className="w-5 h-5" style={{ color: BRAND.amber }} />
+          <p className="text-white text-sm font-semibold">📥 Restore from Backup</p>
+          <p className="text-gray-400 text-xs">
+            Open a backup file from your old computer to restore all your tax and business data on
+            this device.
+          </p>
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".json,application/json"
+          className="hidden"
+          onChange={handleRestore}
+        />
+      </div>
+
+      {restoreStatus !== "idle" && (
+        <div
+          className="p-3 rounded-lg text-sm font-medium"
+          style={{
+            background: restoreStatus === "success" ? "#16a34a22" : "#dc262622",
+            border: `1px solid ${restoreStatus === "success" ? "#16a34a66" : "#dc262666"}`,
+            color: restoreStatus === "success" ? "#4ade80" : "#f87171",
+          }}
+        >
+          {restoreMsg}
+        </div>
+      )}
+
+      <p className="text-gray-600 text-xs">
+        Tip: email the backup file to audrey@freedomangelcorps.com to keep a safe copy, or save it
+        to your iCloud / Google Drive.
+      </p>
+    </div>
+  );
+}
+
 // ─── AUDIT TRAIL ─────────────────────────────────────────────
 function AuditTrail({ taxYear }: { taxYear: number }) {
   const etvRecords = getETVRecords().filter((r) => r.tax_year === taxYear);
@@ -772,6 +1043,22 @@ function AuditTrail({ taxYear }: { taxYear: number }) {
               </button>
             ))}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Backup & Restore */}
+      <Card className="bg-white/5 border-white/10">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-white text-sm flex items-center gap-2">
+            <RefreshCw className="w-4 h-4" style={{ color: BRAND.volt }} />
+            Backup &amp; Restore — Transfer to New Computer
+          </CardTitle>
+          <CardDescription className="text-gray-400 text-xs">
+            Save all your tax data to a file, then import it on any device. Your income sources, write-offs, ETV records, and all business data are included.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <BackupRestore />
         </CardContent>
       </Card>
 
@@ -929,13 +1216,28 @@ function PeopleManager({ taxYear, onNavigate }: { taxYear: number; onNavigate: (
                   ✕
                 </button>
               </div>
+              {p.businesses.length > 0 && (
+                <div className="space-y-1">
+                  <p className="text-gray-500 text-xs uppercase tracking-wider">Business Entities</p>
+                  <div className="flex flex-wrap gap-2">
+                    {p.businesses.map((biz) => (
+                      <div key={biz.id} className="px-2 py-1 rounded-lg bg-white/5 border border-white/10">
+                        <p className="text-gray-300 text-xs font-medium">{biz.name}</p>
+                        <p className="text-gray-500 text-xs">{biz.schedule.replace("_", " ").toUpperCase()}</p>
+                        {biz.ein && <p className="text-gray-500 text-xs font-mono">EIN {biz.ein}</p>}
+                        {biz.email && <p className="text-gray-500 text-xs">{biz.email}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="flex flex-wrap gap-3 text-xs">
                 <span className="text-gray-400">{sources.length} income source{sources.length !== 1 ? "s" : ""}</span>
                 <span className="text-gray-400">Gross: <span style={{ color: BRAND.amber }}>${summary.total_gross.toFixed(2)}</span></span>
                 <span className="text-gray-400">Deductions: <span style={{ color: BRAND.green }}>${summary.total_deductible.toFixed(2)}</span></span>
               </div>
               <div className="flex gap-2">
-                <Button size="sm" className="text-xs font-bold text-black" style={{ background: BRAND.amber }} onClick={() => onNavigate("income", p.id)}>Manage Income</Button>
+                <Button size="sm" className="text-xs font-bold text-black" style={{ background: BRAND.amber }} onClick={() => onNavigate("people", p.id)}>Income &amp; Write-Offs ↓</Button>
                 <Button size="sm" variant="outline" className="text-xs border-white/20 text-gray-300 hover:bg-white/10" onClick={() => onNavigate("forms", p.id)}>View Forms</Button>
               </div>
             </div>
@@ -957,6 +1259,7 @@ type ERPTab =
   | "documents"
   | "quarterly"
   | "people"
+  | "writeoffs"
   | "audit";
 
 const ERP_TABS: Array<{
@@ -971,6 +1274,7 @@ const ERP_TABS: Array<{
   { value: "bank",         label: "Bank Accounts",  shortLabel: "Bank",     icon: <Link2 className="w-4 h-4" />,       color: BRAND.amber },
   { value: "transactions", label: "Transactions",   shortLabel: "Txns",     icon: <Zap className="w-4 h-4" />,         color: BRAND.gold },
   { value: "expenses",     label: "Expenses",       shortLabel: "Expenses", icon: <Receipt className="w-4 h-4" />,     color: BRAND.green },
+  { value: "writeoffs",    label: "Write-Off Helper", shortLabel: "Write-Offs", icon: <TrendingDown className="w-4 h-4" />, color: BRAND.gold, badge: "NEW" },
   { value: "forms",        label: "Tax Forms",      shortLabel: "Forms",    icon: <FileText className="w-4 h-4" />,    color: BRAND.crimson },
   { value: "accounting",   label: "Accounting",     shortLabel: "Odoo",     icon: <Building2 className="w-4 h-4" />,   color: "#06b6d4" },
   { value: "documents",    label: "Documents",      shortLabel: "Docs",     icon: <Upload className="w-4 h-4" />,      color: BRAND.volt },
@@ -1159,7 +1463,7 @@ export function ERPTaxCenter({
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="viewer">
-                  <TaxFormViewer defaultPersonId={focusedPersonId} taxYear={selectedYear} />
+                  <TaxFormViewer key={focusedPersonId ?? "default"} defaultPersonId={focusedPersonId} taxYear={selectedYear} />
                 </TabsContent>
                 <TabsContent value="pdfiller">
                   <PDFillerIntegration />
@@ -1199,6 +1503,13 @@ export function ERPTaxCenter({
           </div>
         </TabsContent>
 
+        {/* ── WRITE-OFF HELPER ────────────────────────────── */}
+        <TabsContent value="writeoffs">
+          <div className="space-y-4">
+            <IndustryWriteOffHelper taxYear={selectedYear} />
+          </div>
+        </TabsContent>
+
         {/* ── PEOPLE ────────────────────────────────────────── */}
         <TabsContent value="people">
           <div className="space-y-6">
@@ -1206,7 +1517,7 @@ export function ERPTaxCenter({
               <PeopleManager taxYear={selectedYear} onNavigate={handleNavigate} />
             </div>
             <div className="bg-white/5 backdrop-blur-md rounded-xl border border-white/10 p-6">
-              <IncomeSourceManager defaultPersonId={focusedPersonId} taxYear={selectedYear} />
+              <IncomeSourceManager key={focusedPersonId ?? "default"} defaultPersonId={focusedPersonId} taxYear={selectedYear} />
             </div>
           </div>
         </TabsContent>

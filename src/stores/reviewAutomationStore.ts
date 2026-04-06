@@ -151,6 +151,19 @@ export interface AutomationSettings {
   autoStripMetadata: boolean;
   variantsToGenerate: number;
   includeVideoInPackage: boolean;
+  // ── AI Video & Voice Integration ──────────────────────────
+  /** HeyGen API key for avatar video generation */
+  heygenApiKey: string;
+  /** HeyGen avatar ID — loaded from avatar library */
+  heygenAvatarId: string;
+  /** ElevenLabs API key for AI voice synthesis */
+  elevenLabsApiKey: string;
+  /** ElevenLabs voice ID — loaded from voice library */
+  elevenLabsVoiceId: string;
+  /** OpenAI API key for review text generation */
+  openaiApiKey: string;
+  /** Picasso / DALL-E: still image generation */
+  picassoApiKey: string;
 }
 
 // ─── DEFAULT SETTINGS ───────────────────────────────────────
@@ -163,6 +176,12 @@ const DEFAULT_SETTINGS: AutomationSettings = {
   autoStripMetadata: true,
   variantsToGenerate: 3,
   includeVideoInPackage: true,
+  heygenApiKey: "",
+  heygenAvatarId: "",
+  elevenLabsApiKey: "",
+  elevenLabsVoiceId: "",
+  openaiApiKey: "",
+  picassoApiKey: "",
 };
 
 // No demo/placeholder data — app starts clean
