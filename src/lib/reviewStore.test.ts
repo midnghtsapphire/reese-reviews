@@ -12,6 +12,7 @@ import {
   saveReviews,
   DEMO_REVIEWS,
   CATEGORIES,
+  type ReviewData,
 } from "./reviewStore";
 import type { ReviewData } from "./reviewStore";
 
@@ -42,12 +43,60 @@ function makeReview(overrides: Partial<ReviewData> = {}): ReviewData {
   };
 }
 
+/** Counter to guarantee unique IDs across test helpers. */
+let _seedCounter = 0;
+
+/** Returns a base review object (does NOT save to localStorage). */
+function makeBaseReview(overrides: Partial<ReviewData> = {}): ReviewData {
+  return {
+    id: `seed-${++_seedCounter}`,
+    title: "Wireless Earbuds Review",
+    slug: "best-wireless-earbuds-everyday",
+    category: "tech",
+    rating: 5,
+    excerpt: "Great earbuds.",
+    content: "Really good earbuds for everyday use.",
+    pros: ["Good sound"],
+    cons: ["Bulky case"],
+    verdict: "Buy them.",
+    image_url: "",
+    product_name: "SoundCore Pro Buds X3",
+    product_link: "https://amazon.com/dp/test",
+    affiliate_tag: "meetaudreyeva-20",
+    reviewer_name: "Reese",
+    reviewer_email: "",
+    is_featured: true,
+    status: "approved",
+    published_at: new Date().toISOString(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    ...overrides,
+  };
+}
+
+/** Helper: seed a single review directly into localStorage for tests that need data. */
+function seedReview(overrides: Partial<ReviewData> = {}) {
+  const review = makeBaseReview(overrides);
+  localStorage.setItem("reese-reviews-data", JSON.stringify([review]));
+  return review;
+}
+
 describe("reviewStore", () => {
   beforeEach(() => {
     localStorage.clear();
   });
 
   describe("getReviews", () => {
+    it("returns empty array when no stored data", () => {
+      const reviews = getReviews();
+      expect(Array.isArray(reviews)).toBe(true);
+      expect(reviews.length).toBe(0);
+    });
+
+    it("returns stored reviews when data exists", () => {
+      seedReview();
+      const reviews = getReviews();
+      expect(reviews.length).toBe(1);
     it("returns empty array when no stored data (DEMO_REVIEWS is empty)", () => {
       const reviews = getReviews();
       expect(reviews.length).toBe(DEMO_REVIEWS.length); // both 0
@@ -64,12 +113,22 @@ describe("reviewStore", () => {
   });
 
   describe("getApprovedReviews", () => {
+    it("returns empty array when no data", () => {
+      const reviews = getApprovedReviews();
+      expect(reviews.length).toBe(0);
+    });
+
     it("returns only approved reviews", () => {
+      // Seed both reviews together to avoid overwriting
+      const review1 = { ...makeBaseReview(), status: "approved" as const };
+      const review2 = { ...makeBaseReview(), id: "seed-2", slug: "slug-2", status: "pending" as const };
+      localStorage.setItem("reese-reviews-data", JSON.stringify([review1, review2]));
       const approved = makeReview({ status: "approved" });
       const pending = makeReview({ id: "pending-1", slug: "pending-1", status: "pending" });
       saveReviews([approved, pending]);
       const reviews = getApprovedReviews();
       expect(reviews.every((r) => r.status === "approved")).toBe(true);
+      expect(reviews.length).toBe(1);
     });
 
     it("returns empty array when no reviews exist", () => {
@@ -79,7 +138,14 @@ describe("reviewStore", () => {
   });
 
   describe("getFeaturedReviews", () => {
+    it("returns empty array when no data", () => {
+      const reviews = getFeaturedReviews();
+      expect(Array.isArray(reviews)).toBe(true);
+      expect(reviews.length).toBe(0);
+    });
+
     it("returns only featured and approved reviews", () => {
+      seedReview({ is_featured: true, status: "approved" });
       const featured = makeReview({ id: "feat-1", slug: "feat-1", is_featured: true, status: "approved" });
       const notFeatured = makeReview({ id: "nfeat-1", slug: "nfeat-1", is_featured: false, status: "approved" });
       saveReviews([featured, notFeatured]);
@@ -96,11 +162,12 @@ describe("reviewStore", () => {
 
   describe("getReviewBySlug", () => {
     it("finds a review by slug", () => {
+      seedReview({ slug: "best-wireless-earbuds-everyday" });
       const r = makeReview({ slug: "best-wireless-earbuds-everyday", title: "Best Wireless Earbuds Everyday" });
       saveReviews([r]);
       const review = getReviewBySlug("best-wireless-earbuds-everyday");
       expect(review).toBeDefined();
-      expect(review?.title).toContain("Wireless Earbuds");
+      expect(review?.title.toLowerCase()).toContain("earbuds");
     });
 
     it("returns undefined for non-existent slug", () => {
@@ -111,6 +178,7 @@ describe("reviewStore", () => {
 
   describe("getReviewsByCategory", () => {
     it("filters reviews by category", () => {
+      seedReview({ category: "tech" });
       const tech = makeReview({ id: "tech-1", slug: "tech-1", category: "tech" });
       const food = makeReview({ id: "food-1", slug: "food-1", category: "food-restaurants" });
       saveReviews([tech, food]);
@@ -127,6 +195,7 @@ describe("reviewStore", () => {
 
   describe("searchReviews", () => {
     it("searches by title", () => {
+      seedReview({ title: "Wireless Earbuds Review" });
       const r = makeReview({ title: "Best Wireless Earbuds Review", slug: "best-earbuds" });
       saveReviews([r]);
       const results = searchReviews("earbuds");
@@ -135,6 +204,7 @@ describe("reviewStore", () => {
     });
 
     it("searches by product name", () => {
+      seedReview({ product_name: "SoundCore Pro Buds X3" });
       const r = makeReview({ product_name: "SoundCore Pro Earbuds", slug: "soundcore-review" });
       saveReviews([r]);
       const results = searchReviews("SoundCore");

@@ -10,6 +10,7 @@
 // ============================================================
 
 import React, { useState, useRef, useCallback } from "react";
+import { parseFileToRows, readAsDataUrl } from "@/lib/fileParser";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -213,6 +214,104 @@ function simulateOcrExtraction(
   }
 }
 
+// ─── TEXT-BASED FIELD EXTRACTION ─────────────────────────────
+// Called after real PDF / Excel text has been extracted.
+// Searches the flat text for dollar amounts and known labels
+// to pre-fill form fields. Falls back to simulateOcrExtraction
+// for any fields that can't be detected.
+
+function extractFieldsFromText(
+  docType: DocumentType,
+  text: string,
+  fallbackFileName: string
+): Record<string, string> {
+  const base = simulateOcrExtraction(docType, fallbackFileName);
+  const t = text;
+
+  /** Find the first dollar amount after a pattern */
+  const amt = (pattern: RegExp): string => {
+    const m = t.match(pattern);
+    if (!m) return "0.00";
+    const raw = m[1].replace(/[$,\s]/g, "");
+    const n = parseFloat(raw);
+    return isNaN(n) ? "0.00" : n.toFixed(2);
+  };
+
+  /** Find a text value after a label */
+  const str = (pattern: RegExp): string => {
+    const m = t.match(pattern);
+    return m ? m[1].trim() : "";
+  };
+
+  // EIN pattern: XX-XXXXXXX
+  const einMatch = t.match(/\b(\d{2}-\d{7})\b/);
+  const ein = einMatch ? einMatch[1] : "";
+
+  switch (docType) {
+    case "w2": {
+      // Box 1: "Wages, tips" or "1  Wages" followed by a dollar amount
+      const wages    = amt(/(?:box\s*1|wages,?\s*tips)[^\d$]*?([\d,]+\.?\d*)/i);
+      const fedWH    = amt(/(?:box\s*2|federal\s*income\s*tax\s*withheld)[^\d$]*?([\d,]+\.?\d*)/i);
+      const ssWages  = amt(/(?:box\s*3|social\s*security\s*wages)[^\d$]*?([\d,]+\.?\d*)/i);
+      const ssWH     = amt(/(?:box\s*4|social\s*security\s*tax\s*withheld)[^\d$]*?([\d,]+\.?\d*)/i);
+      const medWages = amt(/(?:box\s*5|medicare\s*wages)[^\d$]*?([\d,]+\.?\d*)/i);
+      // Employer name: first non-empty line before "employer" or EIN block
+      const empName  = str(/employer'?s?\s+name[^\n]*\n([^\n]+)/i) ||
+                       str(/(?:^|\n)([A-Z][A-Za-z ,&.'-]{5,60})\s*\n/m);
+      return {
+        ...base,
+        ...(empName && { employer_name: empName }),
+        ...(ein     && { employer_ein:  ein    }),
+        ...(wages   !== "0.00" && { box_1_wages:        wages    }),
+        ...(fedWH   !== "0.00" && { box_2_fed_withheld: fedWH   }),
+        ...(ssWages !== "0.00" && { box_3_ss_wages:     ssWages  }),
+        ...(ssWH    !== "0.00" && { box_4_ss_withheld:  ssWH    }),
+        ...(medWages!== "0.00" && { box_5_medicare:     medWages }),
+      };
+    }
+    case "1099_nec": {
+      const nec   = amt(/(?:box\s*1|nonemployee\s*comp(?:ensation)?)[^\d$]*?([\d,]+\.?\d*)/i);
+      const fedWH = amt(/(?:box\s*4|federal\s*income\s*tax)[^\d$]*?([\d,]+\.?\d*)/i);
+      const payer = str(/payer'?s?\s+name[^\n]*\n([^\n]+)/i) ||
+                   (fallbackFileName.toLowerCase().includes("amazon") ? "Amazon.com Services LLC" : "");
+      const payerEin = ein || (fallbackFileName.toLowerCase().includes("amazon") ? "91-1646860" : "");
+      return {
+        ...base,
+        ...(payer    && { payer_name:         payer    }),
+        ...(payerEin && { payer_ein:           payerEin }),
+        ...(nec      !== "0.00" && { box_1_nec:          nec     }),
+        ...(fedWH    !== "0.00" && { box_4_fed_withheld: fedWH   }),
+      };
+    }
+    case "1099_misc": {
+      const rents   = amt(/(?:box\s*1|rents)[^\d$]*?([\d,]+\.?\d*)/i);
+      const royalty = amt(/(?:box\s*2|royalties)[^\d$]*?([\d,]+\.?\d*)/i);
+      const other   = amt(/(?:box\s*3|other\s*income)[^\d$]*?([\d,]+\.?\d*)/i);
+      const payer   = str(/payer'?s?\s+name[^\n]*\n([^\n]+)/i);
+      return {
+        ...base,
+        ...(payer   && { payer_name:   payer   }),
+        ...(ein     && { payer_ein:    ein     }),
+        ...(rents   !== "0.00" && { box_1_rents:   rents   }),
+        ...(royalty !== "0.00" && { box_2_royalty: royalty }),
+        ...(other   !== "0.00" && { box_3_other:   other   }),
+      };
+    }
+    case "ssa_1099": {
+      const benefits = amt(/(?:net\s*benefits?|box\s*5)[^\d$]*?([\d,]+\.?\d*)/i);
+      const fedWH    = amt(/(?:box\s*6|federal\s*income\s*tax)[^\d$]*?([\d,]+\.?\d*)/i);
+      return {
+        ...base,
+        payer_name: "Social Security Administration",
+        ...(benefits !== "0.00" && { box_5_net_benefits: benefits }),
+        ...(fedWH    !== "0.00" && { box_6_fed_withheld: fedWH    }),
+      };
+    }
+    default:
+      return { ...base, ...(ein && { payer_ein: ein }) };
+  }
+}
+
 // ─── COMPONENT ───────────────────────────────────────────────
 
 interface TaxDocumentUploadProps {
@@ -260,23 +359,42 @@ export function TaxDocumentUpload({
 
     setPendingFileName(file.name);
     setPendingFileSize(file.size);
-    setPendingMime(file.type);
+    setPendingMime(file.type || (file.name.endsWith(".pdf") ? "application/pdf" : "application/octet-stream"));
     setUploadStep("extracting");
 
-    // Read file as data URL for preview
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const dataUrl = ev.target?.result as string;
-      setPendingDataUrl(dataUrl);
+    // Always capture a data-URL so we can preview images and store PDF blobs
+    readAsDataUrl(file)
+      .then((dataUrl) => {
+        setPendingDataUrl(dataUrl);
+      })
+      .catch(() => {
+        // non-critical — preview just won't show
+      });
 
-      // Simulate OCR delay
-      setTimeout(() => {
-        const fields = simulateOcrExtraction(pendingDocType, file.name);
-        setExtractedFields(fields);
-        setUploadStep("confirm");
-      }, 1200);
-    };
-    reader.readAsDataURL(file);
+    // Real extraction for PDF and Excel; simulated for images
+    parseFileToRows(file)
+      .then((result) => {
+        setTimeout(() => {
+          if (result.kind === "image") {
+            // Images → simulated OCR (no text to parse)
+            const fields = simulateOcrExtraction(pendingDocType, file.name);
+            setExtractedFields(fields);
+          } else {
+            // PDF or Excel → real text extraction
+            const text = result.rawText ?? result.rows.flat().join(" ");
+            const fields = extractFieldsFromText(pendingDocType, text, file.name);
+            setExtractedFields(fields);
+          }
+          setUploadStep("confirm");
+        }, 800);
+      })
+      .catch(() => {
+        // Parsing failed — fall back to simulated extraction
+        setTimeout(() => {
+          setExtractedFields(simulateOcrExtraction(pendingDocType, file.name));
+          setUploadStep("confirm");
+        }, 800);
+      });
 
     // Reset input so same file can be re-selected
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -346,7 +464,7 @@ export function TaxDocumentUpload({
         <div>
           <h3 className="text-lg font-bold text-white">Tax Document Upload</h3>
           <p className="text-sm text-gray-400">
-            Upload W-2s, 1099s, SSA-1099 — fields are extracted and confirmed before saving
+            Upload W-2s, 1099s, SSA-1099 — upload PDF, Excel, or photo; fields are extracted and confirmed before saving
           </p>
         </div>
       </div>
@@ -379,7 +497,7 @@ export function TaxDocumentUpload({
           <CardHeader>
             <CardTitle className="text-white text-base">Upload New Document</CardTitle>
             <CardDescription className="text-gray-400">
-              Select document type, then choose a file (PDF, JPG, PNG)
+              Select document type, then choose a file (PDF, Excel, JPG, PNG)
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -432,15 +550,18 @@ export function TaxDocumentUpload({
                     Drop your {DOC_TYPE_CONFIG[pendingDocType].label} here
                   </p>
                   <p className="text-gray-400 text-sm mt-1">
-                    or click to browse — PDF, JPG, PNG supported
+                    or click to browse — PDF, Excel, JPG, PNG supported
                   </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap justify-center">
                   <Badge variant="outline" className="text-gray-400 border-white/20">
                     <Camera className="w-3 h-3 mr-1" /> Photo
                   </Badge>
                   <Badge variant="outline" className="text-gray-400 border-white/20">
                     <FileText className="w-3 h-3 mr-1" /> PDF
+                  </Badge>
+                  <Badge variant="outline" className="text-gray-400 border-white/20">
+                    <Upload className="w-3 h-3 mr-1" /> Excel
                   </Badge>
                 </div>
               </div>
@@ -448,7 +569,7 @@ export function TaxDocumentUpload({
             <input
               ref={fileInputRef}
               type="file"
-              accept=".pdf,.jpg,.jpeg,.png,.webp"
+              accept=".pdf,.xlsx,.xls,.jpg,.jpeg,.png,.webp,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
               className="hidden"
               onChange={handleFileChange}
             />

@@ -1,5 +1,7 @@
 /**
  * Local review data store for Reese Reviews.
+ * Reviews are persisted in localStorage and submitted via the SubmitReview form.
+ * When Supabase is connected, this will be replaced by real database queries.
  * Provides demo data and local storage persistence for reviews.
  * When Supabase is connected, this serves as fallback/demo data.
  * Supabase-backed with localStorage fallback for offline.
@@ -114,6 +116,11 @@ export function saveReviews(reviews: ReviewData[]): void {
 }
 
 export function getReviews(): ReviewData[] {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch {}
+  return [];
   return loadFromLocalStorage<ReviewData>(STORAGE_KEY, []);
 }
 

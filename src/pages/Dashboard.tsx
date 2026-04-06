@@ -14,14 +14,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
   BarChart2,
-  FileText,
   Users,
   TrendingUp,
   Zap,
   ArrowRight,
-  Eye,
-  ThumbsUp,
-  Share2,
 } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import { Logo } from "@/components/Logo";
@@ -37,6 +33,8 @@ import { ReviewAutomation } from "@/components/business/ReviewAutomation";
 import { ERPTaxCenter } from "@/components/business/ERPTaxCenter";
 import { ReviewPipeline } from "@/components/business/ReviewPipeline";
 
+// ─── Flag: set to true when real analytics backend is connected ─────────────
+const HAS_ANALYTICS_DATA = false;
 // Analytics pulled from real localStorage data only
 function getRealAnalytics() {
   let vineItems = 0, pendingReviews = 0, submittedReviews = 0;
@@ -194,6 +192,14 @@ export default function Dashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
+                  {HAS_ANALYTICS_DATA ? (
+                    /* Future: map real analytics data here */
+                    null
+                  ) : (
+                    <p className="text-xs text-muted-foreground text-center py-2">
+                      Analytics will appear once connected.
+                    </p>
+                  )}
                   <div className="flex flex-col items-center py-4 text-center">
                     <BarChart2 size={24} className="text-gray-500 mb-2" />
                     <p className="text-xs text-gray-400">Connect Google Analytics to see real metrics here.</p>
@@ -236,6 +242,12 @@ export default function Dashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
+                  {["Facebook", "LinkedIn", "Instagram", "TikTok"].map((p) => (
+                    <div key={p} className="flex justify-between items-center">
+                      <span className="text-muted-foreground">{p}</span>
+                      <span className="text-xs text-muted-foreground">—</span>
+                    </div>
+                  ))}
                   <div className="flex flex-col items-center py-4 text-center">
                     <Share2 size={24} className="text-gray-500 mb-2" />
                     <p className="text-xs text-gray-400">Connect social accounts to see reach data.</p>

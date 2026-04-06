@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, LogOut, Zap, LayoutDashboard, Star, Grid3X3, BookOpen, HelpCircle, Info, Mail, Settings } from "lucide-react";
+import { Menu, X, LogOut, Settings, BarChart2, Megaphone } from "lucide-react";
+import { Menu, X, LogOut, Settings, LayoutDashboard } from "lucide-react";
 import {
   Menu, X, LogOut, Zap, LayoutDashboard, Grape, Shield,
   Search, CreditCard, Briefcase, Megaphone, ChevronDown, Music,
@@ -10,6 +13,19 @@ import AccessibilityToggle from "./AccessibilityToggle";
 import { useAuth } from "@/contexts/AuthContext";
 import reeseLogo from "@/assets/reese-logo.png";
 
+const publicLinks = [
+  { label: "Reviews",    href: "/reviews",    icon: Star },
+  { label: "Categories", href: "/categories", icon: Grid3X3 },
+  { label: "Blog",       href: "/blog",       icon: BookOpen },
+  { label: "FAQ",        href: "/faq",        icon: HelpCircle },
+  { label: "About",      href: "/about",      icon: Info },
+  { label: "Contact",    href: "/contact",    icon: Mail },
+];
+
+const privateLinks = [
+  { label: "Dashboard",      href: "/dashboard", icon: LayoutDashboard },
+  { label: "Create Content", href: "/generate",  icon: Zap },
+  { label: "Admin",          href: "/admin",     icon: Settings },
 const mainLinks = [
   { label: "Dashboard",  href: "/dashboard", icon: LayoutDashboard },
   { label: "Vine AI",    href: "/vine",     icon: Grape },
@@ -33,7 +49,9 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const location = useLocation();
-  const { logout } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
+
+  const navLinks = isAuthenticated ? privateLinks : publicLinks;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -132,6 +150,61 @@ const Navbar = () => {
         <div className="flex items-center gap-3">
           <AccessibilityToggle />
 
+          {isAuthenticated ? (
+            <>
+              {/* Create Content CTA (private) */}
+              <Link
+                to="/generate"
+                className="hidden rounded-lg gradient-steel px-4 py-2 text-sm font-semibold text-primary-foreground transition-transform hover:scale-105 md:inline-flex items-center gap-1.5"
+              >
+                <Zap size={14} />
+                Create
+              </Link>
+          {/* Business Dashboard link */}
+          <Link
+            to="/business"
+            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-accent md:inline-flex"
+            style={{ color: "#a78bfa" }}
+            title="Business Dashboard"
+            aria-current={location.pathname === "/business" ? "page" : undefined}
+          >
+            <LayoutDashboard size={15} />
+            <span className="hidden lg:inline">Business</span>
+          </Link>
+
+          {/* Admin Panel link */}
+          <Link
+            to="/admin"
+            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground md:inline-flex"
+            title="Admin Panel"
+          >
+            <Settings size={15} />
+            <span className="hidden lg:inline">Admin</span>
+          </Link>
+
+          {/* Business Dashboard link */}
+          <Link
+            to="/business"
+            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-accent md:inline-flex"
+            style={{ color: "#a78bfa" }}
+            title="Business Dashboard"
+            aria-current={undefined}
+          >
+            <BarChart2 size={15} />
+            <span className="hidden lg:inline">Business</span>
+          </Link>
+
+          {/* Marketing Hub link */}
+          <Link
+            to="/marketing"
+            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-accent md:inline-flex"
+            style={{ color: "#60a5fa" }}
+            title="Marketing Hub"
+          >
+            <Megaphone size={15} />
+            <span className="hidden lg:inline">Marketing</span>
+          </Link>
+
           {/* Create Content CTA */}
           <Link
             to="/vine"
@@ -141,16 +214,27 @@ const Navbar = () => {
             Vine AI
           </Link>
 
-          {/* Logout */}
-          <button
-            onClick={logout}
-            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground md:inline-flex"
-            title="Logout"
-            aria-label="Logout"
-          >
-            <LogOut size={15} />
-            <span className="hidden lg:inline">Logout</span>
-          </button>
+              {/* Logout */}
+              <button
+                onClick={logout}
+                className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground md:inline-flex"
+                title="Logout"
+                aria-label="Logout"
+              >
+                <LogOut size={15} />
+                <span className="hidden lg:inline">Logout</span>
+              </button>
+            </>
+          ) : (
+            /* Submit Review CTA (public) */
+            <Link
+              to="/submit"
+              className="hidden rounded-lg gradient-steel px-4 py-2 text-sm font-semibold text-primary-foreground transition-transform hover:scale-105 md:inline-flex items-center gap-1.5"
+            >
+              <Star size={14} />
+              Submit Review
+            </Link>
+          )}
 
           {/* Mobile hamburger */}
           <button
@@ -190,8 +274,75 @@ const Navbar = () => {
                   </Link>
                 </li>
               ))}
+              {isAuthenticated ? (
+                <>
+                  <li role="none">
+                    <Link
+                      to="/generate"
+                      role="menuitem"
+                      onClick={() => setOpen(false)}
+                      className="mt-2 flex items-center justify-center gap-2 rounded-lg gradient-steel px-4 py-3 text-sm font-semibold text-primary-foreground"
+                    >
+                      <Zap size={15} /> Create Content
+                    </Link>
+                  </li>
+                  <li role="none">
+                    <button
+                      onClick={() => { setOpen(false); logout(); }}
+                      className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                    >
+                      <LogOut size={16} /> Logout
+                    </button>
+                  </li>
+                </>
+              ) : (
+                <li role="none">
+                  <Link
+                    to="/submit"
+                    role="menuitem"
+                    onClick={() => setOpen(false)}
+                    className="mt-2 flex items-center justify-center gap-2 rounded-lg gradient-steel px-4 py-3 text-sm font-semibold text-primary-foreground"
+                  >
+                    <Star size={15} /> Submit Review
+                  </Link>
+                </li>
+              )}
               <li role="none">
                 <Link
+                  to="/submit"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="mt-2 block rounded-lg gradient-steel px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
+                >
+                  Submit Review
+                </Link>
+              </li>
+              <li role="none">
+                <Link
+                  to="/admin"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="mt-2 flex items-center justify-center gap-2 rounded-lg steel-border px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-accent hover:text-foreground"
+                >
+                  <Settings size={16} /> Admin Panel
+                </Link>
+              </li>
+              <li role="none">
+                <Link
+                  to="/business"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="mt-2 block rounded-lg gradient-steel px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
+                >
+                  Business Dashboard
+                </Link>
+              </li>
+              <li role="none">
+                <Link
+                  to="/marketing"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="mt-2 block rounded-lg steel-border px-4 py-3 text-center text-sm font-semibold text-foreground hover:bg-accent"
                   to="/vine"
                   role="menuitem"
                   onClick={() => setOpen(false)}

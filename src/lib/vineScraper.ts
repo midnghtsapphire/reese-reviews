@@ -11,6 +11,14 @@ const VINE_CONFIG_KEY = "reese-vine-config";
 const VINE_COOKIES_KEY = "reese-vine-cookies";
 const LAST_SYNC_KEY = "reese-vine-last-sync";
 
+/** Canonical Amazon Vine & account URLs */
+export const VINE_URLS = {
+  reviews:  "https://www.amazon.com/vine/vine-reviews",
+  orders:   "https://www.amazon.com/vine/orders",
+  account:  "https://www.amazon.com/vine/account",
+  amazonAccount: "https://www.amazon.com/gp/css/homepage.html?ref_=nav_AccountFlyout_ya",
+} as const;
+
 export type VineQueue = "potluck" | "additional_items" | "last_chance";
 
 export interface VineCookies {
@@ -140,7 +148,7 @@ export interface VineScraperResult {
 }
 
 /**
- * Scrape Vine items from Amazon Vine dashboard
+ * Scrape Vine items from Amazon Vine dashboard (https://www.amazon.com/vine/vine-reviews)
  * In production: POST /api/vine/scrape with cookies
  * Client-side: Simulates the scrape with demo data
  */
