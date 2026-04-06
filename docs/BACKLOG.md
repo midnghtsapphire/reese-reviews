@@ -59,6 +59,7 @@ This is the **single source of truth** for all outstanding work on Reese Reviews
 | RR-408 | 🟡 Medium | Add gitleaks pre-commit hook | Agent/Team A | Done (2026-04-05) | `gitleaks` runs on every `git commit` and blocks commits containing secrets. | Husky installed; `.husky/pre-commit` + `.gitleaks.toml` added; `prepare` script in `package.json`. |
 | RR-409 | 🔵 Low | Code-split large bundle chunks | Agent/Team D | Done (2026-04-05) | `ReviewPipeline` and `index` chunks are each below 500KB (use `React.lazy()`). | App.tsx already fully lazy-loads all route-level pages with `React.lazy()` + `Suspense`. No further changes needed. |
 | RR-410 | 🔵 Low | Add `typecheck` npm script | Agent/Team D | Done (2026-04-05, `package.json`) | `package.json` has `"typecheck": "tsc --noEmit"` script. | See RAID I-004 (closed in CI but missing from package.json). |
+| RR-411 | 🔵 Low | Match site background to logo color | Codex (2026-04-06) | Done (2026-04-06) | Page background matches logo backdrop color across the site. | Request from Issue #33 (logo color fix). |
 
 ---
 
