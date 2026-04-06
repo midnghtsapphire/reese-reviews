@@ -10,50 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import SEOHead from "@/components/SEOHead";
 import { getBlogPosts, generateRSSXML } from "@/lib/seoStore";
 
-const DEMO_POSTS = [
-  {
-    id: "1",
-    slug: "best-productivity-tools-2024",
-    title: "The Best Productivity Tools for Remote Workers in 2024",
-    description: "Discover the top tools that will transform your remote work setup and boost your efficiency.",
-    category: "tips-tricks" as const,
-    author: "Reese",
-    featured_image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800",
-    tags: ["productivity", "remote-work", "tools"],
-    published_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    read_time_minutes: 8,
-    view_count: 342,
-  },
-  {
-    id: "2",
-    slug: "amazon-vine-review-guide",
-    title: "Complete Guide to Amazon Vine Reviews: How to Get Free Products",
-    description: "Learn everything about Amazon Vine, how to qualify, and how to maximize your free product reviews.",
-    category: "how-to" as const,
-    author: "Reese",
-    featured_image: "https://images.unsplash.com/photo-1516321318423-f06f70504c11?w=800",
-    tags: ["amazon", "vine", "reviews", "free-products"],
-    published_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-    read_time_minutes: 12,
-    view_count: 1205,
-  },
-  {
-    id: "3",
-    slug: "review-monetization-strategies",
-    title: "How to Monetize Your Reviews: 5 Proven Strategies",
-    description: "Turn your review business into a profitable venture with these affiliate and sponsorship strategies.",
-    category: "product-updates" as const,
-    author: "Reese",
-    featured_image: "https://images.unsplash.com/photo-1554224311-beee415c15c7?w=800",
-    tags: ["monetization", "affiliate", "business"],
-    published_at: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
-    updated_at: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
-    read_time_minutes: 10,
-    view_count: 892,
-  },
-];
+const DEMO_POSTS = [];
 
 export default function Blog() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -65,7 +22,7 @@ export default function Blog() {
   const [apiKey, setApiKey] = useState("");
   const { toast } = useToast();
 
-  const posts = getBlogPosts().length > 0 ? getBlogPosts() : DEMO_POSTS;
+  const posts = getBlogPosts();
 
   const filteredPosts = posts.filter((post) => {
     const matchesCategory = !selectedCategory || post.category === selectedCategory;

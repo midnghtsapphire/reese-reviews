@@ -249,7 +249,7 @@ serve(async (req) => {
 
 async function scrapeVineItems(cookies: any, queues: string[]) {
   // TODO: Implement Puppeteer scraping
-  // This would run Puppeteer in Deno to scrape vine.amazon.com
+  // This would run Puppeteer in Deno to scrape https://www.amazon.com/vine/vine-reviews
   // For now, return empty array
   return []
 }
@@ -402,9 +402,18 @@ export function VineDashboard() {
 
 ### For Vine Scraping
 
+**Amazon Vine & Account URLs:**
+| Page | URL |
+|------|-----|
+| Vine Reviews (main queue) | https://www.amazon.com/vine/vine-reviews |
+| Vine Orders | https://www.amazon.com/vine/orders |
+| Vine Account | https://www.amazon.com/vine/account |
+| Amazon Account (login) | https://www.amazon.com/gp/css/homepage.html?ref_=nav_AccountFlyout_ya |
+
 1. **Export Cookies:**
    - Install "Cookie Editor" browser extension
-   - Go to vine.amazon.com and log in
+   - Log in at https://www.amazon.com/gp/css/homepage.html?ref_=nav_AccountFlyout_ya
+   - Go to https://www.amazon.com/vine/vine-reviews
    - Click Cookie Editor → Export → Copy as JSON
 
 2. **Paste in App:**
@@ -431,7 +440,7 @@ export function VineDashboard() {
 ## Troubleshooting
 
 ### "No items found"
-- Check if you have Vine items in your queue at vine.amazon.com
+- Check if you have Vine items in your queue at https://www.amazon.com/vine/vine-reviews
 - Verify cookies are valid (not expired)
 - Check browser console for errors
 
@@ -443,7 +452,7 @@ export function VineDashboard() {
 ### "Scraping failed"
 - Amazon may have changed their HTML structure
 - Cookies may have expired (re-export them)
-- Check if you're logged into vine.amazon.com
+- Check if you're logged into https://www.amazon.com/vine/vine-reviews
 
 ## Next Steps
 

@@ -5,6 +5,7 @@
 // ============================================================
 
 import type { AmazonOrder } from "./businessTypes";
+export type { AmazonOrder };
 
 const STORAGE_KEY = "reese-amazon-orders";
 const AMAZON_CONFIG_KEY = "reese-amazon-config";
@@ -20,80 +21,7 @@ export interface AmazonConfig {
 
 // ─── DEMO DATA ───────────────────────────────────────────────
 
-export const DEMO_AMAZON_ORDERS: AmazonOrder[] = [
-  {
-    id: "amz-001",
-    amazon_order_id: "114-2847391-0293847",
-    asin: "B09JQMJHXY",
-    product_name: "Anker Soundcore Life Q30 Wireless Headphones",
-    category: "tech",
-    image_url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-    purchase_date: "2025-12-15",
-    price: 79.99,
-    quantity: 1,
-    status: "delivered",
-    review_status: "published",
-    review_id: "best-wireless-earbuds-everyday",
-    affiliate_link: "https://amazon.com/dp/B09JQMJHXY?tag=meetaudreyeva-20",
-    source: "purchased",
-  },
-  {
-    id: "amz-002",
-    amazon_order_id: "114-9283746-1029384",
-    asin: "B0BDHX8Z63",
-    product_name: "Ninja Creami Ice Cream Maker",
-    category: "food-restaurants",
-    image_url: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400",
-    purchase_date: "2026-01-08",
-    price: 199.99,
-    quantity: 1,
-    status: "delivered",
-    review_status: "draft",
-    source: "purchased",
-  },
-  {
-    id: "amz-003",
-    amazon_order_id: "114-3847261-9182736",
-    asin: "B0C2QWXYZ1",
-    product_name: "Ring Video Doorbell 4",
-    category: "tech",
-    image_url: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400",
-    purchase_date: "2026-01-22",
-    price: 149.99,
-    quantity: 1,
-    status: "delivered",
-    review_status: "not_reviewed",
-    source: "purchased",
-  },
-  {
-    id: "amz-004",
-    amazon_order_id: "114-7261839-4728361",
-    asin: "B0BW2JQXYZ",
-    product_name: "Stanley Quencher H2.0 Tumbler 40oz",
-    category: "products",
-    image_url: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400",
-    purchase_date: "2026-02-01",
-    price: 45.00,
-    quantity: 1,
-    status: "delivered",
-    review_status: "not_reviewed",
-    source: "purchased",
-  },
-  {
-    id: "amz-005",
-    amazon_order_id: "114-8374619-2837461",
-    asin: "B0BXYZ1234",
-    product_name: "Kindle Paperwhite 11th Gen",
-    category: "entertainment",
-    image_url: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400",
-    purchase_date: "2026-02-10",
-    price: 139.99,
-    quantity: 1,
-    status: "delivered",
-    review_status: "not_reviewed",
-    source: "purchased",
-  },
-];
+export const DEMO_AMAZON_ORDERS: AmazonOrder[] = [];
 
 // ─── STORAGE HELPERS ─────────────────────────────────────────
 
@@ -102,7 +30,7 @@ export function getAmazonOrders(): AmazonOrder[] {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) return JSON.parse(stored);
   } catch {}
-  return DEMO_AMAZON_ORDERS;
+  return [];
 }
 
 export function saveAmazonOrders(orders: AmazonOrder[]): void {
@@ -199,6 +127,6 @@ export async function syncAmazonOrders(config: AmazonConfig): Promise<AmazonOrde
   return orders;
 }
 
-export function getAmazonAffiliateLink(asin: string, tag: string): string {
+export function getAmazonAffiliateLink(asin: string, tag: string = "meetaudreyeva-20"): string {
   return `https://www.amazon.com/dp/${asin}?tag=${tag}`;
 }

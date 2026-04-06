@@ -10,68 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import SEOHead from "@/components/SEOHead";
 import { getFAQs, searchFAQs } from "@/lib/seoStore";
 
-const DEMO_FAQS = [
-  {
-    id: "1",
-    question: "How do I submit a review?",
-    answer: "Click the 'Submit Review' button in the navigation menu. Fill out the form with your review details, upload photos if you'd like, and select your star rating. Your review will be published immediately.",
-    category: "getting-started" as const,
-    tags: ["submission", "reviews"],
-    helpful_count: 45,
-    not_helpful_count: 2,
-    related_faqs: ["2", "3"],
-  },
-  {
-    id: "2",
-    question: "Can I edit my review after submitting?",
-    answer: "Yes! You can edit your review anytime by going to your profile and clicking 'Edit' on the review you want to modify. Changes will be reflected immediately.",
-    category: "features" as const,
-    tags: ["editing", "reviews"],
-    helpful_count: 32,
-    not_helpful_count: 1,
-    related_faqs: ["1"],
-  },
-  {
-    id: "3",
-    question: "What are the accessibility features?",
-    answer: "We offer three accessibility modes: Neurodivergent (simplified layout), ECO CODE (reduced animations and data), and No Blue Light (warm color scheme). Toggle these in the accessibility menu in the top navigation.",
-    category: "accessibility" as const,
-    tags: ["accessibility", "features"],
-    helpful_count: 78,
-    not_helpful_count: 3,
-    related_faqs: [],
-  },
-  {
-    id: "4",
-    question: "How do you make money from reviews?",
-    answer: "We use affiliate links for products we recommend. When you click an affiliate link and make a purchase, we earn a small commission at no extra cost to you. This helps us maintain the platform.",
-    category: "legal" as const,
-    tags: ["monetization", "affiliate"],
-    helpful_count: 56,
-    not_helpful_count: 4,
-    related_faqs: [],
-  },
-  {
-    id: "5",
-    question: "Is my personal information safe?",
-    answer: "Yes. We use industry-standard encryption and never sell your data. Your email is only used for notifications you've opted into. See our Privacy Policy for full details.",
-    category: "legal" as const,
-    tags: ["privacy", "security"],
-    helpful_count: 89,
-    not_helpful_count: 2,
-    related_faqs: [],
-  },
-  {
-    id: "6",
-    question: "Can I download my data?",
-    answer: "Yes! You can request a data export from your account settings. We'll compile all your reviews, profile information, and activity into a downloadable file within 24 hours.",
-    category: "technical" as const,
-    tags: ["data", "export"],
-    helpful_count: 23,
-    not_helpful_count: 1,
-    related_faqs: [],
-  },
-];
+const DEMO_FAQS = [];
 
 export default function FAQ() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -85,7 +24,7 @@ export default function FAQ() {
   const [apiKey, setApiKey] = useState("");
   const { toast } = useToast();
 
-  const faqs = getFAQs().length > 0 ? getFAQs() : DEMO_FAQS;
+  const faqs = getFAQs();
 
   const filteredFAQs = faqs.filter((faq) => {
     const matchesCategory = !selectedCategory || faq.category === selectedCategory;

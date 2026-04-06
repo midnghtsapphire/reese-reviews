@@ -45,8 +45,8 @@ export function OdooIntegration() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  const expenses: OdooExpense[] = DEMO_ODOO_EXPENSES;
-  const products: OdooProduct[] = DEMO_ODOO_PRODUCTS;
+  const expenses: OdooExpense[] = [];
+  const products: OdooProduct[] = [];
 
   const totalSpent = expenses.reduce((s, e) => s + e.total_amount, 0);
   const inStockCount = products.filter((p) => p.qty_available > 0).length;
@@ -90,7 +90,7 @@ export function OdooIntegration() {
           <span className="text-sm text-gray-300">
             {config?.connected
               ? `Connected to ${config.url}`
-              : "Not connected — showing demo data"}
+              : "Not connected — connect Odoo to see your data"}
           </span>
         </div>
         <div className="flex gap-2">
@@ -236,7 +236,7 @@ export function OdooIntegration() {
             <Card className="bg-white/10 border-white/20">
               <CardHeader className="pb-3">
                 <CardDescription className="text-gray-400 text-xs">Connection</CardDescription>
-                <CardTitle className="text-white text-lg">{config?.connected ? "Live" : "Demo"}</CardTitle>
+                <CardTitle className="text-white text-lg">{config?.connected ? "Live" : "Offline"}</CardTitle>
               </CardHeader>
               <CardContent>
                 {config?.connected ? (
