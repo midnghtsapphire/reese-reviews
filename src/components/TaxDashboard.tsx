@@ -120,7 +120,7 @@ export function TaxDashboard() {
       </div>
 
       {/* Period Selection */}
-      <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-transparent">
+      <Card className="border-steel-shine/20 bg-gradient-to-br from-steel-shine/5 to-transparent">
         <CardContent className="pt-6">
           <div className="flex gap-4 flex-wrap">
             <div className="flex gap-2">
@@ -412,7 +412,7 @@ export function TaxDashboard() {
                       <p className="text-sm text-gray-600">Amazon Reported (Box 1a)</p>
                       <p className="text-2xl font-bold">${form.box_1a_etv_vine.toFixed(2)}</p>
                     </div>
-                    <div className="p-3 bg-purple-50 rounded-lg">
+                    <div className="p-3 bg-steel-shine/10 rounded-lg">
                       <p className="text-sm text-gray-600">App Calculated</p>
                       <p className="text-2xl font-bold">${form.app_total_etv.toFixed(2)}</p>
                     </div>

@@ -393,7 +393,8 @@ export function ReviewAutomation() {
           <CardHeader>
             <CardTitle className="text-white text-lg">Automation Settings</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-6">
+            {/* Review defaults */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <Label className="text-gray-300 text-xs mb-1 block">Default Tone</Label>
@@ -463,6 +464,80 @@ export function ReviewAutomation() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+
+            {/* AI API Keys */}
+            <div className="border-t border-white/10 pt-4">
+              <p className="text-white text-sm font-semibold mb-3 flex items-center gap-2">
+                <span>🤖</span> AI Integration Keys
+                <span className="text-xs text-gray-400 font-normal">(stored in your browser only — never sent to our servers)</span>
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-gray-300 text-xs mb-1 block">HeyGen API Key</Label>
+                  <Input
+                    type="password"
+                    value={settings.heygenApiKey}
+                    onChange={(e) => updateSettings({ heygenApiKey: e.target.value })}
+                    placeholder="Paste HeyGen API key..."
+                    className="bg-white/10 border-white/20 text-white placeholder:text-gray-600 text-sm"
+                  />
+                  <p className="text-[10px] text-gray-500 mt-0.5">app.heygen.com → Settings → API</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300 text-xs mb-1 block">HeyGen Avatar ID</Label>
+                  <Input
+                    value={settings.heygenAvatarId}
+                    onChange={(e) => updateSettings({ heygenAvatarId: e.target.value })}
+                    placeholder="avatar_id from HeyGen or Avatar Library..."
+                    className="bg-white/10 border-white/20 text-white placeholder:text-gray-600 text-sm"
+                  />
+                  <p className="text-[10px] text-gray-500 mt-0.5">Load from Business → Reviews → Avatar Library</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300 text-xs mb-1 block">ElevenLabs API Key</Label>
+                  <Input
+                    type="password"
+                    value={settings.elevenLabsApiKey}
+                    onChange={(e) => updateSettings({ elevenLabsApiKey: e.target.value })}
+                    placeholder="Paste ElevenLabs API key..."
+                    className="bg-white/10 border-white/20 text-white placeholder:text-gray-600 text-sm"
+                  />
+                  <p className="text-[10px] text-gray-500 mt-0.5">elevenlabs.io → Settings → API Keys</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300 text-xs mb-1 block">ElevenLabs Voice ID</Label>
+                  <Input
+                    value={settings.elevenLabsVoiceId}
+                    onChange={(e) => updateSettings({ elevenLabsVoiceId: e.target.value })}
+                    placeholder="voice_id from ElevenLabs or Avatar Library..."
+                    className="bg-white/10 border-white/20 text-white placeholder:text-gray-600 text-sm"
+                  />
+                  <p className="text-[10px] text-gray-500 mt-0.5">Load from Business → Reviews → Avatar Library</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300 text-xs mb-1 block">OpenAI API Key</Label>
+                  <Input
+                    type="password"
+                    value={settings.openaiApiKey}
+                    onChange={(e) => updateSettings({ openaiApiKey: e.target.value })}
+                    placeholder="sk-..."
+                    className="bg-white/10 border-white/20 text-white placeholder:text-gray-600 text-sm"
+                  />
+                  <p className="text-[10px] text-gray-500 mt-0.5">platform.openai.com → API Keys</p>
+                </div>
+                <div>
+                  <Label className="text-gray-300 text-xs mb-1 block">Picasso / DALL-E Key</Label>
+                  <Input
+                    type="password"
+                    value={settings.picassoApiKey}
+                    onChange={(e) => updateSettings({ picassoApiKey: e.target.value })}
+                    placeholder="Uses OpenAI key if blank..."
+                    className="bg-white/10 border-white/20 text-white placeholder:text-gray-600 text-sm"
+                  />
+                  <p className="text-[10px] text-gray-500 mt-0.5">Leave blank to use OpenAI key above</p>
+                </div>
               </div>
             </div>
           </CardContent>

@@ -44,63 +44,9 @@ export interface OdooTaxReport {
   lines: Array<{ name: string; base: number; tax: number }>;
 }
 
-export const DEMO_ODOO_EXPENSES: OdooExpense[] = [
-  {
-    id: 1,
-    name: "INV/2026/001",
-    date: "2026-01-15",
-    total_amount: 127.50,
-    account_name: "Marketing Expenses",
-    partner_name: "Amazon Services",
-    reference: "Sponsored Products Jan",
-    move_type: "in_invoice",
-    payment_state: "paid",
-    tax_ids: [],
-  },
-  {
-    id: 2,
-    name: "INV/2026/002",
-    date: "2026-02-01",
-    total_amount: 49.99,
-    account_name: "Office Supplies",
-    partner_name: "Staples",
-    reference: "Photo backdrop & props",
-    move_type: "in_invoice",
-    payment_state: "paid",
-    tax_ids: [],
-  },
-  {
-    id: 3,
-    name: "INV/2026/003",
-    date: "2026-02-10",
-    total_amount: 299.00,
-    account_name: "Equipment",
-    partner_name: "Best Buy",
-    reference: "Ring light studio kit",
-    move_type: "in_invoice",
-    payment_state: "paid",
-    tax_ids: [],
-  },
-  {
-    id: 4,
-    name: "INV/2026/004",
-    date: "2026-03-01",
-    total_amount: 15.99,
-    account_name: "Software & Subscriptions",
-    partner_name: "Adobe",
-    reference: "Lightroom subscription",
-    move_type: "in_invoice",
-    payment_state: "not_paid",
-    tax_ids: [],
-  },
-];
+export const DEMO_ODOO_EXPENSES: OdooExpense[] = [];
 
-export const DEMO_ODOO_PRODUCTS: OdooProduct[] = [
-  { id: 1, name: "Anker 3-in-1 Charging Cable", qty_available: 1, virtual_available: 1, list_price: 24.99, standard_price: 0, categ_id: [5, "Electronics"], type: "product" },
-  { id: 2, name: "Ninja Creami Ice Cream Maker", qty_available: 1, virtual_available: 1, list_price: 199.99, standard_price: 0, categ_id: [3, "Kitchen"], type: "product" },
-  { id: 3, name: "Ring Video Doorbell 4", qty_available: 0, virtual_available: 0, list_price: 149.99, standard_price: 149.99, categ_id: [5, "Electronics"], type: "product" },
-  { id: 4, name: "USB-C Hub 7-in-1", qty_available: 1, virtual_available: 1, list_price: 34.99, standard_price: 0, categ_id: [5, "Electronics"], type: "product" },
-];
+export const DEMO_ODOO_PRODUCTS: OdooProduct[] = [];
 
 export function getOdooConfig(): OdooConfig | null {
   try {

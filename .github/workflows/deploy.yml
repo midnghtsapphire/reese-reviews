@@ -26,6 +26,52 @@ jobs:
         with:
           node-version: '20.x'
           cache: 'npm'
+# ============================================================
+# Reese Reviews — Deploy to DigitalOcean App Platform
+# ============================================================
+# Triggers on merge to main. Runs the full CI pipeline first,
+# then triggers a DigitalOcean App Platform deployment.
+#
+# Note: DigitalOcean App Platform has native deploy_on_push
+# enabled in .do/app.yaml. This workflow provides an additional
+# programmatic trigger and deployment verification step.
+#
+# Required GitHub Secrets:
+#   - DO_API_TOKEN: DigitalOcean API token
+#   - VITE_SUPABASE_URL: Supabase project URL
+#   - VITE_SUPABASE_PUBLISHABLE_KEY: Supabase anon key
+# ============================================================
+
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '22'
+  VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+  VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+
+jobs:
+  # ── 1. CI Gate — must pass before deploy ───────────────────
+  ci:
+    name: CI Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
@@ -73,3 +119,73 @@ jobs:
           publish_dir: ./dist
           publish_branch: gh-pages
           force_orphan: true
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Vitest
+        run: npm run test
+
+      - name: Production build
+        run: npm run build
+
+  # ── 2. Deploy to DigitalOcean App Platform ─────────────────
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: ci
+    environment:
+      name: production
+      url: https://reese-reviews-uniwo.ondigitalocean.app
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_API_TOKEN }}
+
+      - name: Get App ID
+        id: app_id
+        run: |
+          APP_ID=$(doctl apps list --format ID,Spec.Name --no-header | grep reese-reviews | awk '{print $1}')
+          echo "app_id=$APP_ID" >> $GITHUB_OUTPUT
+          echo "Found App ID: $APP_ID"
+
+      - name: Trigger deployment
+        if: steps.app_id.outputs.app_id != ''
+        run: |
+          doctl apps create-deployment ${{ steps.app_id.outputs.app_id }} --wait
+          echo "Deployment triggered successfully"
+
+      - name: Verify deployment health
+        if: steps.app_id.outputs.app_id != ''
+        run: |
+          sleep 30
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://reese-reviews-uniwo.ondigitalocean.app)
+          echo "Health check status: $STATUS"
+          if [ "$STATUS" -ne 200 ]; then
+            echo "WARNING: Site returned HTTP $STATUS"
+          else
+            echo "Site is live and healthy"
+          fi
+
+  # ── 3. Post-Deploy Notification ────────────────────────────
+  notify:
+    name: Post-Deploy Summary
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: always()
+    steps:
+      - name: Deployment summary
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Actor:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** ${{ needs.deploy.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** https://reese-reviews-uniwo.ondigitalocean.app" >> $GITHUB_STEP_SUMMARY
+          echo "- **Custom Domain:** https://reesereviews.com" >> $GITHUB_STEP_SUMMARY

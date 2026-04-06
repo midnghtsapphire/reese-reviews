@@ -62,8 +62,8 @@ export function PDFillerIntegration() {
   const [fillLoading, setFillLoading] = useState<number | null>(null);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  const docs: PDFillerDocument[] = DEMO_PDFFILLER_DOCS;
-  const fills: PDFillerFill[] = DEMO_PDFFILLER_FILLS;
+  const docs: PDFillerDocument[] = config?.connected ? [] : [];
+  const fills: PDFillerFill[] = config?.connected ? [] : [];
 
   const handleConnect = async () => {
     if (!tokenInput.trim()) {
@@ -121,7 +121,7 @@ export function PDFillerIntegration() {
           <span className="text-sm text-gray-300">
             {config?.connected
               ? "Connected to PDFiller"
-              : "Not connected — showing demo documents"}
+              : "Not connected — connect PDFiller to see your documents"}
           </span>
         </div>
         <div className="flex gap-2">
@@ -212,6 +212,13 @@ export function PDFillerIntegration() {
 
         {/* My Documents */}
         <TabsContent value="documents" className="mt-4">
+          {docs.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <FileText className="h-10 w-10 text-gray-500 mb-3" />
+              <p className="text-white font-medium mb-1">{config?.connected ? "No documents yet" : "Not connected"}</p>
+              <p className="text-gray-400 text-sm">{config?.connected ? "Your PDFiller documents will appear here once synced." : "Connect your PDFiller account to access your tax forms and documents."}</p>
+            </div>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {docs.map((doc) => (
               <Card key={doc.id} className="bg-white/10 border-white/20">
@@ -262,6 +269,7 @@ export function PDFillerIntegration() {
               </Card>
             ))}
           </div>
+          )}
         </TabsContent>
 
         {/* Completed Forms */}
@@ -282,7 +290,13 @@ export function PDFillerIntegration() {
                     </tr>
                   </thead>
                   <tbody>
-                    {fills.map((fill) => (
+                    {fills.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="py-8 text-center text-gray-400 text-sm">
+                          {config?.connected ? "No completed forms yet." : "Connect PDFiller to see your completed forms."}
+                        </td>
+                      </tr>
+                    ) : fills.map((fill) => (
                       <tr key={fill.id} className="border-b border-white/5 hover:bg-white/5">
                         <td className="py-2 px-3 text-white">{fill.document_name}</td>
                         <td className="py-2 px-3 text-gray-300">

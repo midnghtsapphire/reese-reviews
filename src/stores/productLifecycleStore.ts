@@ -2,8 +2,18 @@
 // PRODUCT LIFECYCLE STORE
 // Reese Reviews — Freedom Angel Corps / Rocky Mountain Rentals
 // Tracks products from Amazon order through resale/rental
+// Supabase-backed with localStorage fallback for offline.
 // All Rights Reserved — Audrey Evans / GlowStar Labs
 // ============================================================
+
+import {
+  loadFromSupabase,
+  deleteFromSupabase,
+  bulkSaveToSupabase,
+  loadFromLocalStorage,
+  saveToLocalStorage,
+  type SupabaseStoreOptions,
+} from "@/lib/supabasePersistence";
 
 const STORAGE_KEY = "reese-product-lifecycle";
 
@@ -168,28 +178,25 @@ export type ReturnStatus = "not_returned" | "returned_good" | "returned_damaged"
 
 export interface BuyerRenterInfo {
   transaction_type: TransactionType;
-  // Contact
   full_name: string;
   phone_number: string;
-  social_media_handle: string;       // e.g. @username or profile URL
-  social_media_platform: string;     // Instagram, Facebook, etc.
-  // Transaction
+  social_media_handle: string;
+  social_media_platform: string;
   amount_paid: number;
   payment_method: PaymentMethod;
-  payment_reference?: string;        // Venmo transaction ID, check number, etc.
+  payment_reference?: string;
   transaction_date: string;
   sale_platform: SalePlatform;
   shipping_or_pickup: "shipping" | "pickup" | "delivery";
   tracking_number_out?: string;
   notes?: string;
-  // Rental-only fields
   rental_start_date?: string;
   rental_end_date?: string;
   deposit_amount?: number;
   deposit_returned?: boolean;
   return_status?: ReturnStatus;
   condition_on_return?: string;
-  rental_company?: string;           // e.g. Rocky Mountain Rentals
+  rental_company?: string;
 }
 
 // ─── STAGE DATA INTERFACES ───────────────────────────────────
@@ -200,9 +207,9 @@ export interface StageOrdered {
   order_date: string;
   order_id: string;
   price_paid: number;
-  product_images: string[];          // URLs or base64
+  product_images: string[];
   description: string;
-  ein_registered: boolean;           // Freedom Angel Corps EIN
+  ein_registered: boolean;
 }
 
 export interface StageShipped {
@@ -230,14 +237,14 @@ export interface StageTransferred {
   transfer_date: string;
   fair_market_value: number;
   transfer_document_ref: string;
-  recipient: string;                 // Rocky Mountain Rentals
+  recipient: string;
   transfer_type: "capital_income" | "donation" | "loan";
   notes?: string;
 }
 
 export interface StageListed {
   listing_price: number;
-  discount_percentage: number;       // Default 30%, editable
+  discount_percentage: number;
   platforms: PlatformListing[];
   listed_date: string;
   listing_title?: string;
@@ -256,7 +263,6 @@ export interface ProductLifecycle {
   current_stage: LifecycleStage;
   created_at: string;
   updated_at: string;
-  // Stage data — each is optional until that stage is reached
   ordered?: StageOrdered;
   shipped?: StageShipped;
   received?: StageReceived;
@@ -264,13 +270,13 @@ export interface ProductLifecycle {
   transferred?: StageTransferred;
   listed?: StageListed;
   sold?: StageSold;
-  // Meta
   tags: string[];
   is_archived: boolean;
   internal_notes: string;
+  business_entity_id?: string;
 }
 
-// ─── DEMO DATA ───────────────────────────────────────────────
+// No demo/placeholder data — app starts clean
 
 export const DEMO_PRODUCTS: ProductLifecycle[] = [
   {
@@ -430,19 +436,69 @@ export const DEMO_PRODUCTS: ProductLifecycle[] = [
   },
 ];
 
+// Clear the demo products — start empty
+DEMO_PRODUCTS.length = 0;
+
+// ─── SUPABASE STORE OPTIONS ─────────────────────────────────
+
+const productStoreOpts: SupabaseStoreOptions<ProductLifecycle> = {
+  table: "product_lifecycle",
+  localStorageKey: STORAGE_KEY,
+  fromRow: (row) => ({
+    id: row.id as string,
+    current_stage: row.current_stage as LifecycleStage,
+    created_at: row.created_at as string,
+    updated_at: row.updated_at as string,
+    ordered: row.ordered as StageOrdered | undefined,
+    shipped: row.shipped as StageShipped | undefined,
+    received: row.received as StageReceived | undefined,
+    reviewed: row.reviewed as StageReviewed | undefined,
+    transferred: row.transferred as StageTransferred | undefined,
+    listed: row.listed as StageListed | undefined,
+    sold: row.sold as StageSold | undefined,
+    tags: (row.tags as string[]) || [],
+    is_archived: Boolean(row.is_archived),
+    internal_notes: (row.internal_notes as string) || "",
+    business_entity_id: row.business_entity_id as string | undefined,
+  }),
+  toRow: (item, userId) => ({
+    id: item.id,
+    user_id: userId,
+    current_stage: item.current_stage,
+    ordered: item.ordered as unknown as Record<string, unknown> | null,
+    shipped: item.shipped as unknown as Record<string, unknown> | null,
+    received: item.received as unknown as Record<string, unknown> | null,
+    reviewed: item.reviewed as unknown as Record<string, unknown> | null,
+    transferred: item.transferred as unknown as Record<string, unknown> | null,
+    listed: item.listed as unknown as Record<string, unknown> | null,
+    sold: item.sold as unknown as Record<string, unknown> | null,
+    tags: item.tags,
+    is_archived: item.is_archived,
+    internal_notes: item.internal_notes,
+    business_entity_id: item.business_entity_id || null,
+  }),
+  getId: (item) => item.id,
+};
+
 // ─── STORE FUNCTIONS ─────────────────────────────────────────
 
 export function getProducts(): ProductLifecycle[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? (JSON.parse(stored) as ProductLifecycle[]) : DEMO_PRODUCTS;
+    return stored ? (JSON.parse(stored) as ProductLifecycle[]) : [];
   } catch {
-    return DEMO_PRODUCTS;
+    return [];
   }
 }
 
+export async function getProductsAsync(): Promise<ProductLifecycle[]> {
+  return loadFromSupabase(productStoreOpts, []);
+}
+
 export function saveProducts(products: ProductLifecycle[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+  saveToLocalStorage(STORAGE_KEY, products);
+  // Fire-and-forget Supabase sync
+  bulkSaveToSupabase(productStoreOpts, products).catch(() => {});
 }
 
 export function addProduct(product: Omit<ProductLifecycle, "id" | "created_at" | "updated_at">): ProductLifecycle {
@@ -472,7 +528,9 @@ export function updateProduct(id: string, updates: Partial<ProductLifecycle>): v
 }
 
 export function deleteProduct(id: string): void {
-  saveProducts(getProducts().filter((p) => p.id !== id));
+  const remaining = getProducts().filter((p) => p.id !== id);
+  saveProducts(remaining);
+  deleteFromSupabase(productStoreOpts, id, remaining).catch(() => {});
 }
 
 export function advanceStage(id: string): void {
@@ -493,6 +551,7 @@ export function filterProducts(
     stage?: LifecycleStage | "ALL";
     search?: string;
     showArchived?: boolean;
+    businessEntityId?: string;
   }
 ): ProductLifecycle[] {
   let result = [...products];
@@ -503,6 +562,10 @@ export function filterProducts(
 
   if (opts.stage && opts.stage !== "ALL") {
     result = result.filter((p) => p.current_stage === opts.stage);
+  }
+
+  if (opts.businessEntityId) {
+    result = result.filter((p) => p.business_entity_id === opts.businessEntityId);
   }
 
   if (opts.search && opts.search.trim()) {

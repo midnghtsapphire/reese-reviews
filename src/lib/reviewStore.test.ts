@@ -9,9 +9,38 @@ import {
   submitReview,
   getSubmissions,
   generateAffiliateLink,
+  saveReviews,
   DEMO_REVIEWS,
   CATEGORIES,
 } from "./reviewStore";
+import type { ReviewData } from "./reviewStore";
+
+// Helper: create a minimal approved review for testing
+function makeReview(overrides: Partial<ReviewData> = {}): ReviewData {
+  return {
+    id: `test-${Date.now()}-${Math.random()}`,
+    title: "Test Wireless Earbuds Review",
+    slug: "test-wireless-earbuds-review",
+    category: "tech",
+    rating: 4,
+    excerpt: "Great earbuds for everyday use",
+    content: "Full review content here",
+    pros: ["Good sound"],
+    cons: ["Short battery"],
+    verdict: "Worth it",
+    image_url: "",
+    product_name: "SoundCore Earbuds",
+    product_link: "https://amazon.com/dp/B09TEST",
+    affiliate_tag: "reesereviews-20",
+    reviewer_name: "Reese",
+    reviewer_email: "reese@test.com",
+    status: "approved",
+    is_featured: false,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    ...overrides,
+  };
+}
 
 describe("reviewStore", () => {
   beforeEach(() => {
@@ -19,29 +48,56 @@ describe("reviewStore", () => {
   });
 
   describe("getReviews", () => {
-    it("returns demo reviews when no stored data", () => {
+    it("returns empty array when no stored data (DEMO_REVIEWS is empty)", () => {
       const reviews = getReviews();
-      expect(reviews.length).toBe(DEMO_REVIEWS.length);
+      expect(reviews.length).toBe(DEMO_REVIEWS.length); // both 0
+      expect(Array.isArray(reviews)).toBe(true);
+    });
+
+    it("returns stored reviews when data exists", () => {
+      const r = makeReview();
+      saveReviews([r]);
+      const reviews = getReviews();
+      expect(reviews.length).toBe(1);
+      expect(reviews[0].id).toBe(r.id);
     });
   });
 
   describe("getApprovedReviews", () => {
     it("returns only approved reviews", () => {
+      const approved = makeReview({ status: "approved" });
+      const pending = makeReview({ id: "pending-1", slug: "pending-1", status: "pending" });
+      saveReviews([approved, pending]);
       const reviews = getApprovedReviews();
       expect(reviews.every((r) => r.status === "approved")).toBe(true);
+    });
+
+    it("returns empty array when no reviews exist", () => {
+      const reviews = getApprovedReviews();
+      expect(Array.isArray(reviews)).toBe(true);
     });
   });
 
   describe("getFeaturedReviews", () => {
     it("returns only featured and approved reviews", () => {
+      const featured = makeReview({ id: "feat-1", slug: "feat-1", is_featured: true, status: "approved" });
+      const notFeatured = makeReview({ id: "nfeat-1", slug: "nfeat-1", is_featured: false, status: "approved" });
+      saveReviews([featured, notFeatured]);
       const reviews = getFeaturedReviews();
       expect(reviews.every((r) => r.is_featured && r.status === "approved")).toBe(true);
       expect(reviews.length).toBeGreaterThan(0);
+    });
+
+    it("returns empty array when no featured reviews exist", () => {
+      const reviews = getFeaturedReviews();
+      expect(Array.isArray(reviews)).toBe(true);
     });
   });
 
   describe("getReviewBySlug", () => {
     it("finds a review by slug", () => {
+      const r = makeReview({ slug: "best-wireless-earbuds-everyday", title: "Best Wireless Earbuds Everyday" });
+      saveReviews([r]);
       const review = getReviewBySlug("best-wireless-earbuds-everyday");
       expect(review).toBeDefined();
       expect(review?.title).toContain("Wireless Earbuds");
@@ -55,12 +111,15 @@ describe("reviewStore", () => {
 
   describe("getReviewsByCategory", () => {
     it("filters reviews by category", () => {
+      const tech = makeReview({ id: "tech-1", slug: "tech-1", category: "tech" });
+      const food = makeReview({ id: "food-1", slug: "food-1", category: "food-restaurants" });
+      saveReviews([tech, food]);
       const techReviews = getReviewsByCategory("tech");
       expect(techReviews.every((r) => r.category === "tech")).toBe(true);
+      expect(techReviews.length).toBe(1);
     });
 
     it("returns empty array for category with no reviews", () => {
-      // All categories should have at least some reviews in demo data
       const reviews = getReviewsByCategory("products");
       expect(Array.isArray(reviews)).toBe(true);
     });
@@ -68,12 +127,16 @@ describe("reviewStore", () => {
 
   describe("searchReviews", () => {
     it("searches by title", () => {
+      const r = makeReview({ title: "Best Wireless Earbuds Review", slug: "best-earbuds" });
+      saveReviews([r]);
       const results = searchReviews("earbuds");
       expect(results.length).toBeGreaterThan(0);
       expect(results[0].title.toLowerCase()).toContain("earbuds");
     });
 
     it("searches by product name", () => {
+      const r = makeReview({ product_name: "SoundCore Pro Earbuds", slug: "soundcore-review" });
+      saveReviews([r]);
       const results = searchReviews("SoundCore");
       expect(results.length).toBeGreaterThan(0);
     });

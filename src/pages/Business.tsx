@@ -13,6 +13,7 @@ import { ReviewAutomation } from "@/components/business/ReviewAutomation";
 import { ERPTaxCenter } from "@/components/business/ERPTaxCenter";
 import { ReviewPipeline } from "@/components/business/ReviewPipeline";
 import { AmazonOrdersToInventory } from "@/components/business/AmazonOrdersToInventory";
+import { AvatarLibrary } from "@/components/business/AvatarLibrary";
 
 // ─── TOP-LEVEL TABS ───────────────────────────────────────────
 // Consolidated from 12 tabs → 9 tabs.
@@ -39,12 +40,13 @@ const TOP_TABS = [
   { value: "taxcenter",    label: "🍃 Tax Center",   title: "Tax Center ERP — Vine-first" },
   { value: "vine",         label: "🍇 Vine",          title: "Amazon Vine Dashboard" },
   { value: "amazon",       label: "🛒 Amazon",        title: "Amazon Dashboard" },
+  { value: "orders",       label: "📋 Orders",        title: "Amazon Orders → Inventory" },
   { value: "inventory",    label: "📦 Inventory",     title: "Inventory Manager" },
   { value: "financial",    label: "💵 Financial",     title: "Financial Dashboard" },
-  { value: "integrations", label: "⚙️ Integrations", title: "Integrations & Settings" },
+  { value: "integrations", label: "⚙️ Settings",     title: "Integrations & Settings" },
   { value: "lifecycle",    label: "⚡ Lifecycle",     title: "Product Lifecycle Tracker" },
-  { value: "reviews",      label: "🎬 Reviews",       title: "Review Automation" },
-  { value: "reviewpipeline", label: "🔀 Review Pipeline", title: "Review Pipeline" },
+  { value: "reviews",      label: "🎬 Reviews",       title: "Review Automation + Avatars" },
+  { value: "reviewpipeline", label: "🔀 Pipeline",    title: "Review Pipeline" },
 ] as const;
 
 export default function Business() {
@@ -133,6 +135,17 @@ export default function Business() {
               </Tabs>
             </TabsContent>
 
+            {/* ── AMAZON ORDERS → INVENTORY ────────────────────
+                Track Amazon orders as inventory. Record charged
+                amount as income (Freedom Angel Corps) and sold
+                amount as revenue (NoCo Nook).
+            ─────────────────────────────────────────────────── */}
+            <TabsContent value="orders" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <AmazonOrdersToInventory />
+              </div>
+            </TabsContent>
+
             {/* ── INVENTORY ────────────────────────────────────
                 Vine item inventory — received, reviewed,
                 transferred, resold, donated.
@@ -180,6 +193,9 @@ export default function Business() {
             <TabsContent value="reviews" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <ReviewAutomation />
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <AvatarLibrary />
               </div>
             </TabsContent>
 

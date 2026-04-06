@@ -594,7 +594,7 @@ export function TaxFormViewer({
                 : { background: "rgba(255,255,255,0.1)", color: "#ccc" }
             }
           >
-            {p.name}
+            {p.role === "primary" ? "⭐ " : ""}{p.name}{p.role === "primary" ? " (You)" : ""}
           </button>
         ))}
       </div>

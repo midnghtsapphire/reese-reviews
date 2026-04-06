@@ -5,6 +5,11 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 import ReviewCard from "@/components/ReviewCard";
 import SEOHead from "@/components/SEOHead";
 import { getApprovedReviews, CATEGORIES, type ReviewCategory } from "@/lib/reviewStore";
+import SchemaJsonLd from "@/components/seo/SchemaJsonLd";
+import {
+  generateCollectionPageSchema,
+  generateBreadcrumbSchema,
+} from "@/services/schemaOrgService";
 
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest First" },
@@ -60,6 +65,18 @@ const Reviews = () => {
         title="All Reviews"
         description="Browse all of Reese's honest reviews on products, food, services, entertainment, and tech."
       />
+      <SchemaJsonLd schemas={[
+        generateCollectionPageSchema(
+          "All Reviews",
+          "Browse all of Reese's honest reviews on products, food, services, entertainment, and tech.",
+          "/reviews",
+          allReviews.length
+        ),
+        generateBreadcrumbSchema([
+          { name: "Home", url: "/" },
+          { name: "Reviews", url: "/reviews" },
+        ]),
+      ]} />
       <div className="container mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

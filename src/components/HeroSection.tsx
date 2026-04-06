@@ -32,7 +32,8 @@ const HeroSection = () => {
           <img
             src={reeseLogo}
             alt="Reese Reviews — From Box to Beautiful"
-            className="mx-auto h-[260px] w-[260px] rounded-full border-4 border-steel-shine/20 object-cover drop-shadow-2xl md:h-[380px] md:w-[380px]"
+            className="mx-auto max-h-[65vh] w-auto max-w-[85vw] object-contain mix-blend-screen sm:max-h-[70vh] md:max-h-[75vh]"
+            className="mx-auto h-[260px] w-[260px] rounded-full border-4 border-steel-shine/20 object-contain object-top drop-shadow-2xl md:h-[380px] md:w-[380px]"
           />
         </motion.div>
 
