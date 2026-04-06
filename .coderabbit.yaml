@@ -1,0 +1,76 @@
+# ============================================================
+# CodeRabbit Configuration — AI-Powered PR Reviews
+# ============================================================
+# Integrates with GitHub PRs to provide automated code review.
+# Per revvel-standards CODE_REVIEW_STANDARD.md Section 2.3.
+#
+# Setup: Install CodeRabbit GitHub App at https://coderabbit.ai
+# The app is already connected to the MIDNGHTSAPPHIRE org.
+# ============================================================
+
+language: en-US
+
+reviews:
+  # Enable automated reviews on all PRs
+  auto_review:
+    enabled: true
+    # Review every PR regardless of size
+    ignore_title_keywords: []
+
+  # Review profile — assertive catches more issues
+  profile: assertive
+
+  # Request changes on critical issues
+  request_changes_workflow: true
+
+  # High-level summary at the top of each review
+  high_level_summary: true
+  high_level_summary_placeholder: "@coderabbitai summary"
+
+  # Generate a poem? No — keep it professional.
+  poem: false
+
+  # Review scope
+  path_filters:
+    - "!dist/**"
+    - "!node_modules/**"
+    - "!*.lock"
+    - "!pnpm-lock.yaml"
+    - "!package-lock.json"
+    - "!public/avatars/**"
+
+  # Tools to use during review
+  tools:
+    eslint:
+      enabled: true
+    biome:
+      enabled: false
+    shellcheck:
+      enabled: true
+    markdownlint:
+      enabled: true
+
+chat:
+  auto_reply: true
+
+# Instructions for the AI reviewer
+tone_instructions: >
+  You are reviewing code for a Revvel/MIDNGHTSAPPHIRE application.
+  Enforce the following standards:
+  1. No hardcoded secrets or API keys in source code.
+  2. All new components must include TypeScript types (no `any`).
+  3. Glassmorphism UI aesthetic with Tailwind CSS.
+  4. WCAG 2.1 AA accessibility compliance.
+  5. No force-push to main — flag if detected.
+  6. All localStorage usage should have Supabase sync fallback.
+  7. FTC disclosures required on all review-related content.
+  8. Check for console.log statements that should be removed.
+
+# Knowledge base for context
+knowledge_base:
+  learnings:
+    scope: auto
+  issues:
+    scope: auto
+  pull_requests:
+    scope: auto

@@ -67,6 +67,6 @@ export function initializeReviewsIfNeeded(): void {
   // Ensure reviews are in localStorage so admin edits persist
   const stored = localStorage.getItem(STORAGE_KEY);
   if (!stored) {
-    saveReviews(DEMO_REVIEWS);
+    // Demo data removed — app starts clean
   }
 }

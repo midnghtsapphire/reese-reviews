@@ -23,54 +23,7 @@ const STORAGE_KEY_DOCUMENTS = "reese-tax-documents";
 
 // ─── DEMO DATA ───────────────────────────────────────────────
 
-export const DEMO_ETV_RECORDS: ETVRecord[] = [
-  {
-    id: "etv-001",
-    vine_item_id: "vine-001",
-    asin: "B0D8XYZABC",
-    product_name: "Anker 3-in-1 Charging Cable",
-    etv_amount: 24.99,
-    received_date: "2025-12-15",
-    review_deadline: "2026-01-15",
-    review_status: "completed",
-    review_date: "2026-01-10",
-    tax_year: 2025,
-    tax_quarter: 4,
-    reported_on_1099: true,
-    amazon_1099_reference: "1099-NEC-2025-001",
-    notes: "Reported on 2025 1099-NEC",
-  },
-  {
-    id: "etv-002",
-    vine_item_id: "vine-002",
-    asin: "B0CXYZDEF1",
-    product_name: "Wireless Mouse Ergonomic",
-    etv_amount: 19.99,
-    received_date: "2025-12-20",
-    review_deadline: "2026-01-20",
-    review_status: "completed",
-    review_date: "2026-01-15",
-    tax_year: 2025,
-    tax_quarter: 4,
-    reported_on_1099: true,
-    amazon_1099_reference: "1099-NEC-2025-001",
-    notes: "Reported on 2025 1099-NEC",
-  },
-  {
-    id: "etv-003",
-    vine_item_id: "vine-003",
-    asin: "B0BXYZGHI2",
-    product_name: "USB-C Hub 7-in-1",
-    etv_amount: 34.99,
-    received_date: "2026-01-05",
-    review_deadline: "2026-02-05",
-    review_status: "pending",
-    tax_year: 2026,
-    tax_quarter: 1,
-    reported_on_1099: false,
-    notes: "Pending review",
-  },
-];
+export const DEMO_ETV_RECORDS: ETVRecord[] = [];
 
 export const DEMO_1099_FORM: Form1099NEC = {
   id: "1099-001",
@@ -89,44 +42,9 @@ export const DEMO_1099_FORM: Form1099NEC = {
   reconciliation_date: "2026-02-15",
 };
 
-export const DEMO_CAPITAL_EVENTS: CapitalEvent[] = [
-  {
-    id: "cap-001",
-    inventory_item_id: "inv-001",
-    product_name: "Ring Video Doorbell 4",
-    event_type: "resale",
-    acquisition_date: "2025-10-15",
-    acquisition_cost: 149.99,
-    disposition_date: "2026-02-01",
-    disposition_amount: 120.0,
-    gain_loss: -29.99,
-    holding_period_days: 109,
-    long_term: false,
-    tax_year: 2026,
-    tax_category: "short_term_loss",
-    notes: "Sold on Facebook Marketplace",
-  },
-];
+export const DEMO_CAPITAL_EVENTS: CapitalEvent[] = [];
 
-export const DEMO_DONATIONS: DonationForTax[] = [
-  {
-    id: "don-001",
-    inventory_item_id: "inv-002",
-    product_name: "Ninja Creami Ice Cream Maker",
-    acquisition_date: "2025-08-10",
-    acquisition_cost: 199.99,
-    donation_date: "2026-02-15",
-    fair_market_value: 175.0,
-    recipient: "Reese's Rental Company",
-    recipient_type: "related_party",
-    tax_year: 2026,
-    tax_deductible: true,
-    deduction_amount: 175.0,
-    form_8283_required: false,
-    receipt_obtained: true,
-    notes: "Capital contribution to rental company after 6+ months",
-  },
-];
+export const DEMO_DONATIONS: DonationForTax[] = [];
 
 // ─── ETV STORAGE ─────────────────────────────────────────────
 
@@ -135,7 +53,7 @@ export function getETVRecords(): ETVRecord[] {
     const stored = localStorage.getItem(STORAGE_KEY_ETV);
     if (stored) return JSON.parse(stored);
   } catch {}
-  return DEMO_ETV_RECORDS;
+  return [];
 }
 
 export function saveETVRecords(records: ETVRecord[]): void {
@@ -164,7 +82,7 @@ export function get1099Forms(): Form1099NEC[] {
     const stored = localStorage.getItem(STORAGE_KEY_1099);
     if (stored) return JSON.parse(stored);
   } catch {}
-  return [DEMO_1099_FORM];
+  return [];
 }
 
 export function save1099Form(form: Form1099NEC): void {
@@ -196,7 +114,7 @@ export function getCapitalEvents(): CapitalEvent[] {
     const stored = localStorage.getItem(STORAGE_KEY_CAPITAL);
     if (stored) return JSON.parse(stored);
   } catch {}
-  return DEMO_CAPITAL_EVENTS;
+  return [];
 }
 
 export function saveCapitalEvents(events: CapitalEvent[]): void {
@@ -216,7 +134,7 @@ export function getDonations(): DonationForTax[] {
     const stored = localStorage.getItem(STORAGE_KEY_DONATIONS);
     if (stored) return JSON.parse(stored);
   } catch {}
-  return DEMO_DONATIONS;
+  return [];
 }
 
 export function saveDonations(donations: DonationForTax[]): void {

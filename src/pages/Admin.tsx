@@ -593,34 +593,34 @@ function ReviewForm({
   isEdit = false,
 }: {
   review: Partial<ReviewData>;
-  onChange: (r: any) => void;
-  onSave: (r: any) => void;
+  onChange: (r: Partial<ReviewData>) => void;
+  onSave: (r: Partial<ReviewData>) => void;
   onCancel: () => void;
   saveLabel: string;
   isEdit?: boolean;
 }) {
-  const [form, setForm] = useState<any>({ ...review });
+  const [form, setForm] = useState<Partial<ReviewData>>({ ...review });
 
-  const set = (key: string, val: any) => {
-    setForm((f: any) => {
+  const set = (key: keyof ReviewData, val: unknown) => {
+    setForm((f) => {
       const updated = { ...f, [key]: val };
       if (!isEdit) onChange(updated);
       return updated;
     });
   };
 
-  const handleListChange = (key: string, idx: number, val: string) => {
-    const list = [...(form[key] || [])];
+  const handleListChange = (key: keyof ReviewData, idx: number, val: string) => {
+    const list = [...((form[key] as string[] | undefined) || [])];
     list[idx] = val;
     set(key, list);
   };
 
-  const addListItem = (key: string) => {
-    set(key, [...(form[key] || []), ""]);
+  const addListItem = (key: keyof ReviewData) => {
+    set(key, [...((form[key] as string[] | undefined) || []), ""]);
   };
 
-  const removeListItem = (key: string, idx: number) => {
-    const list = [...(form[key] || [])];
+  const removeListItem = (key: keyof ReviewData, idx: number) => {
+    const list = [...((form[key] as string[] | undefined) || [])];
     list.splice(idx, 1);
     set(key, list);
   };

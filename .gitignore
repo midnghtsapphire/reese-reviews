@@ -41,3 +41,19 @@ htmlcov/
 
 # Environment
 .env
+app-spec.yaml
+
+# Environment variables — NEVER commit secrets
+.env
+.env.*
+!.env.example
+
+# Supabase local config (may contain secrets)
+supabase/.temp/
+supabase/.branches/
+
+# OS files
+Thumbs.db
+
+# TypeDoc generated API docs
+docs/api/

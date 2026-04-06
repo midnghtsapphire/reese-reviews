@@ -22,6 +22,8 @@ export interface AmazonOrder {
   review_id?: string;
   affiliate_link?: string;
   source: "purchased" | "vine";
+  /** Internal notes — used to store entity label (fac, reese_reviews, noconook) */
+  notes?: string;
 }
 
 // ─── AMAZON VINE ─────────────────────────────────────────────
