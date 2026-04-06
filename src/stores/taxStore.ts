@@ -76,7 +76,13 @@ export type IrsForm =
   | "schedule_d"
   | "form_8829"
   | "form_8283"
-  | "form_4562";
+  | "form_4562"
+  | "form_8936"
+  | "form_4797"
+  | "form_2106"
+  | "form_8582"
+  | "form_1065"
+  | "form_1120s";
 
 export type WriteOffCategory =
   | "home_office"
@@ -86,11 +92,20 @@ export type WriteOffCategory =
   | "shipping"
   | "product_costs"
   | "vehicle_mileage"
+  | "vehicle_actual"
+  | "vehicle_ev_purchase"
+  | "vehicle_trade_in"
   | "advertising"
   | "professional_services"
   | "equipment"
   | "education"
   | "meals_entertainment"
+  | "health_insurance"
+  | "platform_fees"
+  | "licensing_certs"
+  | "uniform_ppe"
+  | "charitable_donations"
+  | "retirement_contributions"
   | "uniform_ppe"
   | "pet_supplies"
   | "vehicle_actual"
@@ -266,6 +281,28 @@ export const WRITEOFF_CATEGORY_META: Record<WriteOffCategory, {
   default_pct: number;
   icon: string;
 }> = {
+  home_office:             { label: "Home Office",                  description: "Dedicated workspace sq ft / total sq ft of home",                  default_pct: 100, icon: "🏠" },
+  supplies:                { label: "Office Supplies",              description: "Paper, ink, pens, props, organizers",                              default_pct: 100, icon: "📎" },
+  internet:                { label: "Internet",                     description: "Business portion of internet bill",                                default_pct: 50,  icon: "🌐" },
+  phone:                   { label: "Phone",                        description: "Business portion of cell/phone bill",                              default_pct: 50,  icon: "📱" },
+  shipping:                { label: "Shipping & Postage",           description: "Packaging, postage, return shipping",                              default_pct: 100, icon: "📦" },
+  product_costs:           { label: "Product / COGS",               description: "Cost of goods sold, product purchases",                           default_pct: 100, icon: "🛍️" },
+  vehicle_mileage:         { label: "Vehicle / Mileage (Standard)", description: "Business mileage at IRS standard rate (use Form 2106 or Sch C)",  default_pct: 100, icon: "🚗" },
+  vehicle_actual:          { label: "Vehicle Actual Expenses",      description: "Actual gas, insurance, repairs, depreciation (business %)",       default_pct: 100, icon: "🔧" },
+  vehicle_ev_purchase:     { label: "Electric Vehicle Purchase",    description: "Business EV purchase — Form 8936 clean vehicle credit (up to $7,500)",  default_pct: 100, icon: "⚡" },
+  vehicle_trade_in:        { label: "Vehicle Trade-In / Sale",      description: "Trade-in value or gain/loss on business vehicle — Form 4797",     default_pct: 100, icon: "🔄" },
+  advertising:             { label: "Advertising & Marketing",      description: "Ads, promotions, social media tools",                             default_pct: 100, icon: "📣" },
+  professional_services:   { label: "Professional Services",        description: "Accountant, attorney, bookkeeper",                                default_pct: 100, icon: "💼" },
+  equipment:               { label: "Equipment & Tech",             description: "Computers, cameras, peripherals, software",                       default_pct: 100, icon: "💻" },
+  education:               { label: "Education & Training",         description: "Courses, books, conferences",                                     default_pct: 100, icon: "📚" },
+  meals_entertainment:     { label: "Meals & Entertainment",        description: "Business meals (50% deductible)",                                 default_pct: 50,  icon: "🍽️" },
+  health_insurance:        { label: "Health Insurance Premiums",    description: "Self-employed health insurance deduction (Schedule 1, Line 17)",  default_pct: 100, icon: "🏥" },
+  platform_fees:           { label: "Platform / Marketplace Fees",  description: "Amazon, eBay, Etsy, subscription/SaaS fees",                     default_pct: 100, icon: "🖥️" },
+  licensing_certs:         { label: "Licenses & Certifications",    description: "Business licenses, professional certs, permits",                  default_pct: 100, icon: "📜" },
+  uniform_ppe:             { label: "Uniforms & PPE",               description: "Required work clothing, safety gear not suitable for everyday use", default_pct: 100, icon: "👔" },
+  charitable_donations:    { label: "Charitable Donations",         description: "Cash/non-cash donations to qualified orgs — Form 8283 if >$500",  default_pct: 100, icon: "🎁" },
+  retirement_contributions:{ label: "Retirement Contributions",     description: "SEP-IRA, Solo 401(k), SIMPLE IRA contributions",                  default_pct: 100, icon: "💰" },
+  other:                   { label: "Other Business Expense",       description: "Ordinary and necessary business expenses",                        default_pct: 100, icon: "📋" },
   home_office:           { label: "Home Office",             description: "Dedicated workspace sq ft / total sq ft of home",  default_pct: 100, icon: "🏠" },
   supplies:              { label: "Office Supplies",          description: "Paper, ink, pens, props, organizers",              default_pct: 100, icon: "📎" },
   internet:              { label: "Internet",                 description: "Business portion of internet bill",                default_pct: 50,  icon: "🌐" },
@@ -294,14 +331,20 @@ export const IRS_FORM_META: Record<IrsForm, {
   description: string;
   triggered_by: IncomeType[];
 }> = {
-  "1040":        { label: "Form 1040",      description: "U.S. Individual Income Tax Return — required for everyone",                        triggered_by: ["w2","1099_nec","1099_misc","1099_k","1099_div","1099_int","ssa_1099","rental","self_employ","other"] },
-  "schedule_c":  { label: "Schedule C",     description: "Profit or Loss from Business — for self-employment / gig / Vine / review income",  triggered_by: ["1099_nec","1099_misc","1099_k","self_employ"] },
-  "schedule_se": { label: "Schedule SE",    description: "Self-Employment Tax — required when Schedule C net profit > $400",                 triggered_by: ["1099_nec","1099_misc","1099_k","self_employ"] },
-  "schedule_e":  { label: "Schedule E",     description: "Supplemental Income — rental income (Rocky Mountain Rentals)",                     triggered_by: ["rental"] },
-  "schedule_d":  { label: "Schedule D",     description: "Capital Gains and Losses — if any assets sold",                                    triggered_by: ["1099_div","other"] },
-  "form_8829":   { label: "Form 8829",      description: "Home Office Deduction — business use of home",                                     triggered_by: ["1099_nec","self_employ"] },
-  "form_8283":   { label: "Form 8283",      description: "Noncash Charitable Contributions — if donated property > $500",                    triggered_by: ["other"] },
-  "form_4562":   { label: "Form 4562",      description: "Depreciation and Amortization — for business equipment",                           triggered_by: ["1099_nec","self_employ","rental"] },
+  "1040":        { label: "Form 1040",       description: "U.S. Individual Income Tax Return — required for everyone",                                          triggered_by: ["w2","1099_nec","1099_misc","1099_k","1099_div","1099_int","ssa_1099","rental","self_employ","other"] },
+  "schedule_c":  { label: "Schedule C",      description: "Profit or Loss from Business — for self-employment / gig / Vine / review income",                   triggered_by: ["1099_nec","1099_misc","1099_k","self_employ"] },
+  "schedule_se": { label: "Schedule SE",     description: "Self-Employment Tax — required when Schedule C net profit > $400",                                   triggered_by: ["1099_nec","1099_misc","1099_k","self_employ"] },
+  "schedule_e":  { label: "Schedule E",      description: "Supplemental Income — rental income (Rocky Mountain Rentals)",                                       triggered_by: ["rental"] },
+  "schedule_d":  { label: "Schedule D",      description: "Capital Gains and Losses — if any assets sold",                                                      triggered_by: ["1099_div","other"] },
+  "form_8829":   { label: "Form 8829",       description: "Home Office Deduction — business use of home",                                                       triggered_by: ["1099_nec","self_employ"] },
+  "form_8283":   { label: "Form 8283",       description: "Noncash Charitable Contributions — if donated property > $500",                                      triggered_by: ["other"] },
+  "form_4562":   { label: "Form 4562",       description: "Depreciation and Amortization — for business equipment",                                             triggered_by: ["1099_nec","self_employ","rental"] },
+  "form_8936":   { label: "Form 8936",       description: "Clean Vehicle Credit — EV/plug-in hybrid purchase credit (up to $7,500 for business EV)",           triggered_by: ["self_employ","1099_nec"] },
+  "form_4797":   { label: "Form 4797",       description: "Sale of Business Property — trade-in or sale of business vehicle, real property, or other assets",  triggered_by: ["self_employ","1099_nec","rental"] },
+  "form_2106":   { label: "Form 2106",       description: "Employee Business Expenses — unreimbursed vehicle/travel/uniform expenses (W-2 employees)",          triggered_by: ["w2"] },
+  "form_8582":   { label: "Form 8582",       description: "Passive Activity Loss Limitations — for rental/passive activity losses",                             triggered_by: ["rental"] },
+  "form_1065":   { label: "Form 1065",       description: "U.S. Return of Partnership Income — if operating as a partnership",                                  triggered_by: ["rental","other"] },
+  "form_1120s":  { label: "Form 1120-S",     description: "U.S. Income Tax Return for an S Corporation — if entity is an S-Corp",                              triggered_by: ["self_employ","other"] },
 };
 
 // ─── PRE-SEEDED PERSON PROFILES ──────────────────────────────
@@ -1178,6 +1221,7 @@ export function determineRequiredForms(personId: string, taxYear: number): IrsFo
   // Schedule E: rental income
   if (incomeTypes.has("rental")) {
     forms.add("schedule_e");
+    forms.add("form_8582");
   }
 
   // Schedule D: dividends or capital events
@@ -1195,6 +1239,40 @@ export function determineRequiredForms(personId: string, taxYear: number): IrsFo
   const hasEquipment = writeoffs.some((w) => w.category === "equipment" && w.amount > 500);
   if (hasEquipment) {
     forms.add("form_4562");
+  }
+
+  // Form 8936: EV clean vehicle credit
+  const hasEV = writeoffs.some((w) => w.category === "vehicle_ev_purchase");
+  if (hasEV) {
+    forms.add("form_8936");
+  }
+
+  // Form 4797: vehicle trade-in or sale of business property
+  const hasTradeIn = writeoffs.some((w) => w.category === "vehicle_trade_in");
+  if (hasTradeIn) {
+    forms.add("form_4797");
+  }
+
+  // Form 2106: W-2 employee unreimbursed expenses
+  // NOTE: Post-TCJA (2018), Form 2106 is only for Armed Forces reservists,
+  // qualified performing artists, and fee-basis state/local government officials.
+  // Most W-2 employees can no longer claim unreimbursed employee expenses.
+  // Users must verify they qualify before using this form.
+  if (incomeTypes.has("w2")) {
+    const hasEmployeeExpenses = writeoffs.some((w) =>
+      ["vehicle_mileage", "vehicle_actual", "uniform_ppe"].includes(w.category)
+    );
+    if (hasEmployeeExpenses) {
+      forms.add("form_2106");
+    }
+  }
+
+  // Form 8283: charitable donations > $500
+  const donationTotal = writeoffs
+    .filter((w) => w.category === "charitable_donations")
+    .reduce((s, w) => s + w.amount, 0);
+  if (donationTotal > 500) {
+    forms.add("form_8283");
   }
 
   return Array.from(forms);

@@ -13,6 +13,7 @@ import { ReviewAutomation } from "@/components/business/ReviewAutomation";
 import { ERPTaxCenter } from "@/components/business/ERPTaxCenter";
 import { ReviewPipeline } from "@/components/business/ReviewPipeline";
 import { AmazonOrdersToInventory } from "@/components/business/AmazonOrdersToInventory";
+import { AllAttachmentForms } from "@/components/business/AllAttachmentForms";
 import { AvatarLibrary } from "@/components/business/AvatarLibrary";
 
 // ─── TOP-LEVEL TABS ───────────────────────────────────────────
@@ -45,6 +46,9 @@ const TOP_TABS = [
   { value: "financial",    label: "💵 Financial",     title: "Financial Dashboard" },
   { value: "integrations", label: "⚙️ Settings",     title: "Integrations & Settings" },
   { value: "lifecycle",    label: "⚡ Lifecycle",     title: "Product Lifecycle Tracker" },
+  { value: "reviews",      label: "🎬 Reviews",       title: "Review Automation" },
+  { value: "reviewpipeline", label: "🔀 Review Pipeline", title: "Review Pipeline" },
+  { value: "forms",        label: "📋 Forms",         title: "Tax & Attachment Forms" },
   { value: "reviews",      label: "🎬 Reviews",       title: "Review Automation + Avatars" },
   { value: "reviewpipeline", label: "🔀 Pipeline",    title: "Review Pipeline" },
 ] as const;
@@ -109,6 +113,9 @@ export default function Business() {
             </TabsContent>
 
             {/* ── AMAZON DASHBOARD ─────────────────────────────
+                Amazon seller metrics, ASIN tracking, BSR.
+                Includes Order Import with demo/real badges and
+                Push to Lifecycle Tracker.
                 Amazon seller metrics, ASIN tracking, BSR,
                 plus Order CSV importer.
             ─────────────────────────────────────────────────── */}
@@ -143,6 +150,9 @@ export default function Business() {
             <TabsContent value="orders" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <AmazonOrdersToInventory />
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <AmazonDashboard />
               </div>
             </TabsContent>
 
@@ -206,6 +216,17 @@ export default function Business() {
             <TabsContent value="reviewpipeline" className="space-y-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
                 <ReviewPipeline />
+              </div>
+            </TabsContent>
+
+            {/* ── TAX & ATTACHMENT FORMS ───────────────────────
+                Comprehensive list of all IRS forms and schedules
+                relevant to a review business Corp & 1099 filer,
+                including EV purchase, trade-in, write-offs.
+            ─────────────────────────────────────────────────── */}
+            <TabsContent value="forms" className="space-y-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                <AllAttachmentForms />
               </div>
             </TabsContent>
           </Tabs>
