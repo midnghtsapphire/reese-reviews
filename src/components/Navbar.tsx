@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, LogOut, Settings, BarChart2, Megaphone } from "lucide-react";
 import { Menu, X, LogOut, Settings, LayoutDashboard } from "lucide-react";
 import {
   Menu, X, LogOut, Zap, LayoutDashboard, Grape, Shield,
@@ -154,6 +155,29 @@ const Navbar = () => {
           >
             <Settings size={15} />
             <span className="hidden lg:inline">Admin</span>
+          </Link>
+
+          {/* Business Dashboard link */}
+          <Link
+            to="/business"
+            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-accent md:inline-flex"
+            style={{ color: "#a78bfa" }}
+            title="Business Dashboard"
+            aria-current={undefined}
+          >
+            <BarChart2 size={15} />
+            <span className="hidden lg:inline">Business</span>
+          </Link>
+
+          {/* Marketing Hub link */}
+          <Link
+            to="/marketing"
+            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-accent md:inline-flex"
+            style={{ color: "#60a5fa" }}
+            title="Marketing Hub"
+          >
+            <Megaphone size={15} />
+            <span className="hidden lg:inline">Marketing</span>
           </Link>
 
           {/* Create Content CTA */}

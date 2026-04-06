@@ -109,12 +109,30 @@ export default function Business() {
             </TabsContent>
 
             {/* ── AMAZON DASHBOARD ─────────────────────────────
-                Amazon seller metrics, ASIN tracking, BSR.
+                Amazon seller metrics, ASIN tracking, BSR,
+                plus Order CSV importer.
             ─────────────────────────────────────────────────── */}
             <TabsContent value="amazon" className="space-y-6">
-              <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
-                <AmazonDashboard />
-              </div>
+              <Tabs defaultValue="orders" className="w-full">
+                <TabsList className="bg-white/10 border border-white/20 mb-4">
+                  <TabsTrigger value="orders" className="text-white data-[state=active]:bg-purple-600 data-[state=active]:text-white text-sm">
+                    📥 Import Orders
+                  </TabsTrigger>
+                  <TabsTrigger value="dashboard" className="text-white data-[state=active]:bg-purple-600 data-[state=active]:text-white text-sm">
+                    📊 Dashboard
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="orders">
+                  <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                    <AmazonOrdersToInventory />
+                  </div>
+                </TabsContent>
+                <TabsContent value="dashboard">
+                  <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-6">
+                    <AmazonDashboard />
+                  </div>
+                </TabsContent>
+              </Tabs>
             </TabsContent>
 
             {/* ── AMAZON ORDERS → INVENTORY ────────────────────

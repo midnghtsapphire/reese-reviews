@@ -759,3 +759,77 @@ export function getLifecycleSummary(products: ProductLifecycle[]): LifecycleSumm
     avg_discount_pct: discount_count > 0 ? Math.round(discount_sum / discount_count) : 30,
   };
 }
+
+// ─── SOLD EVENT HELPERS ──────────────────────────────────────
+
+/**
+ * Mark a product as SOLD and record the full buyer/transaction info.
+ * Sets current_stage to "SOLD" and stores StageSold data.
+ */
+export function markSold(id: string, buyerInfo: BuyerRenterInfo): void {
+  updateProduct(id, {
+    current_stage: "SOLD",
+    sold: { buyer_renter: buyerInfo },
+  });
+}
+
+/**
+ * Mark a product as rented out (SOLD stage, rental transaction_type).
+ */
+export function markRented(id: string, rentalInfo: BuyerRenterInfo): void {
+  const info: BuyerRenterInfo = { ...rentalInfo, transaction_type: "rental" };
+  updateProduct(id, {
+    current_stage: "SOLD",
+    sold: { buyer_renter: info },
+  });
+}
+
+/**
+ * Get all products that have been sold (SOLD stage with transaction_type === "sale").
+ */
+export function getSoldProducts(): ProductLifecycle[] {
+  return getProducts().filter(
+    (p) => p.current_stage === "SOLD" && p.sold?.buyer_renter?.transaction_type === "sale"
+  );
+}
+
+/**
+ * Get all products that are rented out (SOLD stage with transaction_type === "rental").
+ */
+export function getRentedProducts(): ProductLifecycle[] {
+  return getProducts().filter(
+    (p) => p.current_stage === "SOLD" && p.sold?.buyer_renter?.transaction_type === "rental"
+  );
+}
+
+/**
+ * Calculate total revenue from sales for a given period (ISO date strings).
+ */
+export function getSalesRevenue(fromDate?: string, toDate?: string): number {
+  return getSoldProducts()
+    .filter((p) => {
+      const saleDate = p.sold?.buyer_renter?.transaction_date;
+      if (!saleDate && (fromDate || toDate)) return false;
+      if (!saleDate) return true;
+      if (fromDate && saleDate < fromDate) return false;
+      if (toDate && saleDate > toDate) return false;
+      return true;
+    })
+    .reduce((sum, p) => sum + (p.sold?.buyer_renter?.amount_paid ?? 0), 0);
+}
+
+/**
+ * Calculate total rental income for a given period.
+ */
+export function getRentalIncome(fromDate?: string, toDate?: string): number {
+  return getRentedProducts()
+    .filter((p) => {
+      const saleDate = p.sold?.buyer_renter?.transaction_date;
+      if (!saleDate && (fromDate || toDate)) return false;
+      if (!saleDate) return true;
+      if (fromDate && saleDate < fromDate) return false;
+      if (toDate && saleDate > toDate) return false;
+      return true;
+    })
+    .reduce((sum, p) => sum + (p.sold?.buyer_renter?.amount_paid ?? 0), 0);
+}
