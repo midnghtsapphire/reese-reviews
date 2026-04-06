@@ -149,8 +149,7 @@ const Navbar = () => {
           {/* Admin Panel link */}
           <Link
             to="/admin"
-            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-accent md:inline-flex"
-            style={{ color: "#FF6B2B" }}
+            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground md:inline-flex"
             title="Admin Panel"
           >
             <Settings size={15} />
@@ -240,6 +239,40 @@ const Navbar = () => {
               ))}
               <li role="none">
                 <Link
+                  to="/submit"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="mt-2 block rounded-lg gradient-steel px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
+                >
+                  Submit Review
+                </Link>
+              </li>
+              <li role="none">
+                <Link
+                  to="/admin"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="mt-2 flex items-center justify-center gap-2 rounded-lg steel-border px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-accent hover:text-foreground"
+                >
+                  <Settings size={16} /> Admin Panel
+                </Link>
+              </li>
+              <li role="none">
+                <Link
+                  to="/business"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="mt-2 block rounded-lg gradient-steel px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
+                >
+                  Business Dashboard
+                </Link>
+              </li>
+              <li role="none">
+                <Link
+                  to="/marketing"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="mt-2 block rounded-lg steel-border px-4 py-3 text-center text-sm font-semibold text-foreground hover:bg-accent"
                   to="/vine"
                   role="menuitem"
                   onClick={() => setOpen(false)}
