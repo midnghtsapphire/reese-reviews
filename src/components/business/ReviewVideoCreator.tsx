@@ -56,6 +56,8 @@ import type {
   VideoStatus,
 } from "@/stores/reviewAutomationStore";
 import { stripAllMetadata, buildCleanMetadata } from "@/utils/metadataStripper";
+import { createHeyGenVideo, waitForHeyGenVideo, HeyGenError } from "@/lib/heygenClient";
+import { textToSpeechUrl, buildVoiceOverScript, ElevenLabsError } from "@/lib/elevenLabsClient";
 
 // ─── TYPES ──────────────────────────────────────────────────
 
@@ -136,6 +138,12 @@ export function ReviewVideoCreator({
   const [showPreview, setShowPreview] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
+  const [heygenVideoId, setHeygenVideoId] = useState<string | null>(null);
+  const [heygenStatus, setHeygenStatus] = useState<string | null>(null);
+  const [isHeygenGenerating, setIsHeygenGenerating] = useState(false);
+  const [voiceAudioUrl, setVoiceAudioUrl] = useState<string | null>(null);
+  const [isGeneratingVoice, setIsGeneratingVoice] = useState(false);
+  const [aiMessage, setAiMessage] = useState<{ type: "success" | "error" | "info"; text: string } | null>(null);
 
   // New project form
   const [newProjectForm, setNewProjectForm] = useState({
@@ -374,6 +382,135 @@ export function ReviewVideoCreator({
     if (previewTimerRef.current) {
       clearTimeout(previewTimerRef.current);
       previewTimerRef.current = null;
+    }
+  };
+
+  // ─── HEYGEN AI VIDEO GENERATION ───────────────────────
+
+  const handleHeyGenGenerate = async () => {
+    if (!activeProject) return;
+    const settings = getSettings();
+    if (!settings.heygenApiKey) {
+      setAiMessage({ type: "error", text: "HeyGen API key not configured. Add it in Review Settings → AI Video tab." });
+      return;
+    }
+    if (!settings.heygenAvatarId) {
+      setAiMessage({ type: "error", text: "No HeyGen avatar selected. Open Avatar Library and set a default avatar." });
+      return;
+    }
+
+    // Build script from scenes
+    const script = activeProject.scenes
+      .map((s) => s.voiceoverText)
+      .filter(Boolean)
+      .join(" ");
+    if (!script.trim()) {
+      setAiMessage({ type: "error", text: "Add voice-over text to your scenes before generating with HeyGen." });
+      return;
+    }
+
+    setIsHeygenGenerating(true);
+    setHeygenStatus("Submitting to HeyGen...");
+    setAiMessage(null);
+
+    try {
+      const { video_id } = await createHeyGenVideo(settings.heygenApiKey, {
+        avatar_id: settings.heygenAvatarId,
+        script,
+        voice_id: settings.elevenLabsVoiceId || undefined,
+        title: `Review: ${productName}`,
+        background: "#1e1b4b",
+      });
+
+      setHeygenVideoId(video_id);
+      setHeygenStatus(`Processing… (ID: ${video_id})`);
+
+      // Poll for completion
+      const result = await waitForHeyGenVideo(
+        settings.heygenApiKey,
+        video_id,
+        (status) => setHeygenStatus(`Status: ${status.status}…`),
+        300_000,
+        8_000
+      );
+
+      if (result.status === "completed" && result.video_url) {
+        updateVideoProject(activeProject.id, {
+          status: "exported",
+          exportUrl: result.video_url,
+          thumbnailUrl: result.thumbnail_url || activeProject.thumbnailUrl,
+        });
+        setActiveProject((p) =>
+          p ? { ...p, status: "exported", exportUrl: result.video_url, thumbnailUrl: result.thumbnail_url || p.thumbnailUrl } : p
+        );
+        setHeygenStatus(null);
+        setAiMessage({ type: "success", text: `✅ HeyGen video ready! Duration: ${result.duration ?? "?"}s` });
+        refreshProjects();
+        onVideoUpdate?.();
+      } else {
+        setHeygenStatus(null);
+        setAiMessage({ type: "error", text: `HeyGen generation failed: ${result.error ?? "Unknown error"}` });
+      }
+    } catch (err) {
+      setHeygenStatus(null);
+      setAiMessage({
+        type: "error",
+        text: err instanceof HeyGenError ? err.message : "HeyGen generation failed. Check your API key and try again.",
+      });
+    } finally {
+      setIsHeygenGenerating(false);
+    }
+  };
+
+  // ─── ELEVENLABS VOICE PREVIEW ─────────────────────────
+
+  const handleGenerateVoice = async () => {
+    if (!activeProject) return;
+    const settings = getSettings();
+    if (!settings.elevenLabsApiKey) {
+      setAiMessage({ type: "error", text: "ElevenLabs API key not configured. Add it in Review Settings." });
+      return;
+    }
+    const voiceId = settings.elevenLabsVoiceId;
+    if (!voiceId) {
+      setAiMessage({ type: "error", text: "No ElevenLabs voice selected. Open Avatar Library and select a voice." });
+      return;
+    }
+
+    const scriptText = activeProject.scenes
+      .map((s) => s.voiceoverText)
+      .filter(Boolean)
+      .join(" ");
+    if (!scriptText.trim()) {
+      setAiMessage({ type: "error", text: "Add voice-over text to your scenes first." });
+      return;
+    }
+
+    setIsGeneratingVoice(true);
+    setAiMessage(null);
+    try {
+      // Revoke previous URL
+      if (voiceAudioUrl) URL.revokeObjectURL(voiceAudioUrl);
+
+      const url = await textToSpeechUrl(settings.elevenLabsApiKey, {
+        voice_id: voiceId,
+        text: buildVoiceOverScript(
+          activeProject.title,
+          scriptText,
+          5,
+          productName
+        ),
+        model_id: "eleven_multilingual_v2",
+      });
+      setVoiceAudioUrl(url);
+      setAiMessage({ type: "success", text: "✅ Voice-over generated! Click play to preview." });
+    } catch (err) {
+      setAiMessage({
+        type: "error",
+        text: err instanceof ElevenLabsError ? err.message : "ElevenLabs voice generation failed.",
+      });
+    } finally {
+      setIsGeneratingVoice(false);
     }
   };
 
@@ -1055,6 +1192,89 @@ export function ReviewVideoCreator({
                     </Button>
                   </a>
                 )}
+              </div>
+
+              {/* HeyGen / ElevenLabs AI Actions */}
+              <div className="pt-2 border-t border-white/10">
+                <p className="text-xs text-gray-400 mb-2 flex items-center gap-1">
+                  <Sparkles className="h-3 w-3" /> AI-Powered Generation (HeyGen · ElevenLabs)
+                </p>
+
+                {/* AI Message */}
+                {aiMessage && (
+                  <Alert
+                    className={
+                      aiMessage.type === "success"
+                        ? "mb-2 bg-green-900/20 border-green-500/30"
+                        : aiMessage.type === "error"
+                        ? "mb-2 bg-red-900/20 border-red-500/30"
+                        : "mb-2 bg-blue-900/20 border-blue-500/30"
+                    }
+                  >
+                    <AlertDescription
+                      className={
+                        aiMessage.type === "success"
+                          ? "text-green-200 text-xs"
+                          : aiMessage.type === "error"
+                          ? "text-red-200 text-xs"
+                          : "text-blue-200 text-xs"
+                      }
+                    >
+                      {aiMessage.text}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {/* HeyGen status */}
+                {heygenStatus && (
+                  <p className="text-xs text-yellow-300 mb-2 flex items-center gap-1.5">
+                    <div className="h-2 w-2 rounded-full bg-yellow-400 animate-pulse" />
+                    {heygenStatus}
+                  </p>
+                )}
+
+                <div className="flex flex-wrap gap-2">
+                  {/* ElevenLabs voice preview */}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-purple-500/40 text-purple-300 hover:bg-purple-900/20"
+                    onClick={handleGenerateVoice}
+                    disabled={isGeneratingVoice}
+                  >
+                    {isGeneratingVoice ? (
+                      <div className="animate-spin h-3 w-3 border-2 border-purple-300 border-t-transparent rounded-full mr-1.5" />
+                    ) : (
+                      <span className="mr-1.5">🎙️</span>
+                    )}
+                    {isGeneratingVoice ? "Generating Voice..." : "Generate Voice (ElevenLabs)"}
+                  </Button>
+
+                  {/* Voice playback */}
+                  {voiceAudioUrl && (
+                    <audio controls src={voiceAudioUrl} className="h-8 rounded" />
+                  )}
+
+                  {/* HeyGen avatar video */}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-orange-500/40 text-orange-300 hover:bg-orange-900/20"
+                    onClick={handleHeyGenGenerate}
+                    disabled={isHeygenGenerating}
+                  >
+                    {isHeygenGenerating ? (
+                      <div className="animate-spin h-3 w-3 border-2 border-orange-300 border-t-transparent rounded-full mr-1.5" />
+                    ) : (
+                      <span className="mr-1.5">🎬</span>
+                    )}
+                    {isHeygenGenerating ? "Creating Avatar Video..." : "Create Avatar Video (HeyGen)"}
+                  </Button>
+                </div>
+
+                <p className="text-[10px] text-gray-600 mt-1.5">
+                  Configure API keys in Business → Reviews → Settings tab · Load avatars in Avatar Library
+                </p>
               </div>
 
               {/* Clean Export Notice */}

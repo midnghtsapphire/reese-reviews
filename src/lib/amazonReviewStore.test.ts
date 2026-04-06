@@ -12,6 +12,7 @@ import {
   DEFAULT_AFFILIATE_TAG,
   DEMO_REVIEWS,
 } from "./amazonReviewStore";
+import type { AmazonReview } from "./amazonReviewStore";
 
 // ─── Helpers ─────────────────────────────────────────────────
 
@@ -38,6 +39,24 @@ function makeReviewHtml(opts: {
   `;
 }
 
+/** Create a minimal AmazonReview object for seeding tests */
+function makeReview(overrides: Partial<AmazonReview> = {}): AmazonReview {
+  return {
+    id: `rev-test-${Date.now()}-${Math.random()}`,
+    asin: "B09JQMJHXY",
+    productName: "Test Wireless Earbuds",
+    productLink: "https://www.amazon.com/dp/B09JQMJHXY",
+    title: "Great earbuds",
+    body: "Really enjoyed this product.",
+    rating: 4,
+    date: "2026-01-15",
+    images: [],
+    source: "html",
+    status: "draft",
+    ...overrides,
+  };
+}
+
 // ─── Tests ───────────────────────────────────────────────────
 
 describe("amazonReviewStore", () => {
@@ -45,50 +64,45 @@ describe("amazonReviewStore", () => {
     localStorage.clear();
   });
 
-  // ── getAmazonReviews / demo fallback ──
+  // ── getAmazonReviews / empty fallback ──
 
   describe("getAmazonReviews", () => {
-    it("returns demo reviews when localStorage is empty", () => {
+    it("returns empty array when localStorage is empty (DEMO_REVIEWS is empty)", () => {
       const reviews = getAmazonReviews();
-      expect(reviews.length).toBe(DEMO_REVIEWS.length);
+      expect(reviews.length).toBe(DEMO_REVIEWS.length); // both 0
+      expect(Array.isArray(reviews)).toBe(true);
     });
 
     it("returns stored reviews when localStorage has data", () => {
-      saveAmazonReviews([DEMO_REVIEWS[0]]);
+      const r = makeReview({ id: "stored-rev-1" });
+      saveAmazonReviews([r]);
       const reviews = getAmazonReviews();
       expect(reviews.length).toBe(1);
-      expect(reviews[0].id).toBe(DEMO_REVIEWS[0].id);
+      expect(reviews[0].id).toBe("stored-rev-1");
     });
   });
 
   // ── clearAmazonReviews ──
 
   describe("clearAmazonReviews", () => {
-    it("removes stored reviews and falls back to demo", () => {
-      saveAmazonReviews([DEMO_REVIEWS[0]]);
+    it("removes stored reviews and returns empty array", () => {
+      saveAmazonReviews([makeReview()]);
       clearAmazonReviews();
-      expect(getAmazonReviews().length).toBe(DEMO_REVIEWS.length);
+      expect(getAmazonReviews().length).toBe(0);
     });
   });
 
   // ── importDemoReviews ──
 
   describe("importDemoReviews", () => {
-    it("loads all demo reviews into the store", () => {
+    it("returns empty array since DEMO_REVIEWS is empty", () => {
       const reviews = importDemoReviews();
-      expect(reviews.length).toBe(DEMO_REVIEWS.length);
-      expect(getAmazonReviews().length).toBe(DEMO_REVIEWS.length);
+      expect(reviews.length).toBe(DEMO_REVIEWS.length); // both 0
+      expect(Array.isArray(reviews)).toBe(true);
     });
 
-    it("each demo review has required fields", () => {
-      importDemoReviews();
-      getAmazonReviews().forEach((r) => {
-        expect(r.id).toBeTruthy();
-        expect(r.asin).toBeTruthy();
-        expect(r.productName).toBeTruthy();
-        expect(r.rating).toBeGreaterThanOrEqual(1);
-        expect(r.rating).toBeLessThanOrEqual(5);
-      });
+    it("does not throw when called", () => {
+      expect(() => importDemoReviews()).not.toThrow();
     });
   });
 
@@ -142,7 +156,6 @@ describe("amazonReviewStore", () => {
   describe("importReviewsFromHtml", () => {
     it("returns imported reviews and stores them", () => {
       clearAmazonReviews();
-      // Start with empty store (clear demo)
       saveAmazonReviews([]);
       const html = makeReviewHtml({ asin: "B0HTMLTEST", rating: "4", title: "HTML Test", body: "Test body", date: "Mar 2026" });
       const imported = importReviewsFromHtml(html);
@@ -169,16 +182,14 @@ describe("amazonReviewStore", () => {
 
   describe("publishReview", () => {
     it("marks a review as published", () => {
-      importDemoReviews();
-      const reviews = getAmazonReviews();
-      const target = reviews[0];
-      const updated = publishReview(target.id);
+      const r = makeReview({ id: "pub-test-1", status: "draft" });
+      saveAmazonReviews([r]);
+      const updated = publishReview("pub-test-1");
       expect(updated?.status).toBe("published");
-      expect(getAmazonReviews().find((r) => r.id === target.id)?.status).toBe("published");
+      expect(getAmazonReviews().find((rev) => rev.id === "pub-test-1")?.status).toBe("published");
     });
 
     it("returns null for non-existent review id", () => {
-      importDemoReviews();
       expect(publishReview("non-existent-id")).toBeNull();
     });
   });
@@ -187,14 +198,13 @@ describe("amazonReviewStore", () => {
 
   describe("updateReview", () => {
     it("updates specified fields on a review", () => {
-      importDemoReviews();
-      const target = getAmazonReviews()[0];
-      const updated = updateReview(target.id, { title: "Updated Title" });
+      const r = makeReview({ id: "upd-test-1" });
+      saveAmazonReviews([r]);
+      const updated = updateReview("upd-test-1", { title: "Updated Title" });
       expect(updated?.title).toBe("Updated Title");
     });
 
     it("returns null for non-existent id", () => {
-      importDemoReviews();
       expect(updateReview("fake-id", { title: "x" })).toBeNull();
     });
   });
@@ -226,26 +236,26 @@ describe("amazonReviewStore", () => {
   // ── DEMO_REVIEWS integrity ──
 
   describe("DEMO_REVIEWS", () => {
-    it("has at least 3 reviews", () => {
-      expect(DEMO_REVIEWS.length).toBeGreaterThanOrEqual(3);
+    it("is an empty array (placeholder data removed)", () => {
+      expect(Array.isArray(DEMO_REVIEWS)).toBe(true);
+      expect(DEMO_REVIEWS.length).toBe(0);
     });
 
-    it("each review has a valid rating (1-5)", () => {
+    it("each review in DEMO_REVIEWS has a valid rating (1-5) — vacuously true when empty", () => {
       DEMO_REVIEWS.forEach((r) => {
         expect(r.rating).toBeGreaterThanOrEqual(1);
         expect(r.rating).toBeLessThanOrEqual(5);
       });
     });
 
-    it("each review has a non-empty productName", () => {
+    it("each review in DEMO_REVIEWS has a non-empty productName — vacuously true when empty", () => {
       DEMO_REVIEWS.forEach((r) => {
         expect(r.productName.trim().length).toBeGreaterThan(0);
       });
     });
 
-    it("each review has a valid ASIN format", () => {
+    it("each review in DEMO_REVIEWS has a valid ASIN format — vacuously true when empty", () => {
       DEMO_REVIEWS.forEach((r) => {
-        // ASIN is 10 alphanumeric chars
         expect(r.asin).toMatch(/^[A-Z0-9]{10}$/);
       });
     });

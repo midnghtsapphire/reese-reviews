@@ -924,6 +924,12 @@ export function TaxCenter({
                             >
                               <p className="text-gray-300 text-xs font-medium">{biz.name}</p>
                               <p className="text-gray-500 text-xs">{biz.schedule.replace("_", " ").toUpperCase()}</p>
+                              {biz.ein && (
+                                <p className="text-gray-500 text-xs font-mono">EIN {biz.ein}</p>
+                              )}
+                              {biz.email && (
+                                <p className="text-gray-500 text-xs">{biz.email}</p>
+                              )}
                             </div>
                           ))}
                         </div>
