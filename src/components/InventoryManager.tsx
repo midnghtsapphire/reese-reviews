@@ -9,12 +9,25 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertCircle, Package, TrendingUp, Gift, Trash2, Plus } from "lucide-react";
 
+interface InventoryItem {
+  id: string;
+  product_name: string;
+  status: string;
+  acquisition_cost: number;
+  acquisition_date: string;
+  source: string;
+  reviewed_date?: string;
+  sale_price?: number;
+  sale_date?: string;
+  estimated_value?: number;
+}
+
 export function InventoryManager() {
   const [activeTab, setActiveTab] = useState("overview");
   const [showAddForm, setShowAddForm] = useState(false);
 
   // Demo inventory items
-  const inventoryItems = [
+  const inventoryItems: InventoryItem[] = [
     {
       id: "inv-001",
       product_name: "Anker 3-in-1 Charging Cable",
@@ -59,7 +72,7 @@ export function InventoryManager() {
     in_use: "bg-blue-100 text-blue-800",
     reviewed: "bg-green-100 text-green-800",
     ready_to_resell: "bg-yellow-100 text-yellow-800",
-    listed_for_sale: "bg-purple-100 text-purple-800",
+    listed_for_sale: "bg-steel-shine/20 text-steel-shine",
     sold: "bg-emerald-100 text-emerald-800",
     donated: "bg-pink-100 text-pink-800",
     rented_out: "bg-orange-100 text-orange-800",
@@ -141,7 +154,7 @@ export function InventoryManager() {
 
       {/* Add Item Form */}
       {showAddForm && (
-        <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-transparent">
+        <Card className="border-steel-shine/20 bg-gradient-to-br from-steel-shine/5 to-transparent">
           <CardHeader>
             <CardTitle>Add New Item</CardTitle>
           </CardHeader>
@@ -247,12 +260,12 @@ export function InventoryManager() {
                         <>
                           <div>
                             <p className="text-gray-600">Sale Price</p>
-                            <p className="font-semibold">${(item as any).sale_price?.toFixed(2) || "N/A"}</p>
+                            <p className="font-semibold">${item.sale_price?.toFixed(2) || "N/A"}</p>
                           </div>
                           <div>
                             <p className="text-gray-600">Gain/Loss</p>
-                            <p className={`font-semibold ${((item as any).sale_price || 0) - item.acquisition_cost >= 0 ? "text-green-600" : "text-red-600"}`}>
-                              ${(((item as any).sale_price || 0) - item.acquisition_cost).toFixed(2)}
+                            <p className={`font-semibold ${(item.sale_price || 0) - item.acquisition_cost >= 0 ? "text-green-600" : "text-red-600"}`}>
+                              ${((item.sale_price || 0) - item.acquisition_cost).toFixed(2)}
                             </p>
                           </div>
                         </>
@@ -260,7 +273,7 @@ export function InventoryManager() {
                       {item.status !== "sold" && (
                         <div>
                           <p className="text-gray-600">Est. Value</p>
-                          <p className="font-semibold">${(item as any).estimated_value?.toFixed(2) || "TBD"}</p>
+                          <p className="font-semibold">${item.estimated_value?.toFixed(2) || "TBD"}</p>
                         </div>
                       )}
                     </div>
@@ -359,10 +372,10 @@ export function InventoryManager() {
                 <div className="text-center text-gray-400">↓</div>
 
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <h3 className="font-semibold text-purple-900 text-sm mb-2">Resale</h3>
-                    <p className="text-xs text-purple-800">Sell on marketplace</p>
-                    <p className="text-xs text-purple-800 mt-1">Track capital gains/losses</p>
+                  <div className="p-4 bg-steel-shine/10 rounded-lg border border-steel-shine/30">
+                    <h3 className="font-semibold text-steel-shine text-sm mb-2">Resale</h3>
+                    <p className="text-xs text-steel-mid">Sell on marketplace</p>
+                    <p className="text-xs text-steel-mid mt-1">Track capital gains/losses</p>
                   </div>
                   <div className="p-4 bg-pink-50 rounded-lg border border-pink-200">
                     <h3 className="font-semibold text-pink-900 text-sm mb-2">Donate</h3>

@@ -184,103 +184,7 @@ const DEFAULT_SETTINGS: AutomationSettings = {
   picassoApiKey: "",
 };
 
-// ─── DEMO DATA ──────────────────────────────────────────────
-
-const DEMO_PRODUCT: ProductInput = {
-  id: "demo-prod-001",
-  asin: "B0EXAMPLE1",
-  productName: "ProGrip Wireless Gaming Mouse",
-  description:
-    "Ergonomic wireless gaming mouse with 16K DPI sensor, RGB lighting, 70-hour battery life, and 6 programmable buttons. Lightweight at 63g with honeycomb shell design.",
-  category: "electronics",
-  price: 49.99,
-  imageUrls: [],
-  importedFromOrder: false,
-  createdAt: "2026-03-10T10:00:00Z",
-  updatedAt: "2026-03-10T10:00:00Z",
-};
-
-const DEMO_REVIEWS: ReviewVariant[] = [
-  {
-    id: "demo-rev-001",
-    productId: "demo-prod-001",
-    title: "Finally a wireless mouse that keeps up with my gaming",
-    body: "I've been through at least four wireless gaming mice in the past two years, and this is the first one that actually delivers on all its promises. The sensor tracks flawlessly on my desk pad — no skipping, no jitter, even during fast flick shots. Battery life is genuinely impressive; I charged it once when I got it and I'm still going strong after about three weeks of daily use. The honeycomb design keeps it super light without feeling cheap. My only gripe is the scroll wheel could have a bit more resistance, but that's personal preference. The software for the programmable buttons is straightforward and doesn't require a PhD to figure out. At this price point, it punches way above its weight.",
-    rating: 5,
-    ratingJustification:
-      "Exceptional value for the price. Sensor accuracy, battery life, and build quality all exceed expectations for a sub-$50 wireless gaming mouse.",
-    pros: [
-      "Flawless 16K DPI sensor tracking",
-      "70+ hour battery life is real",
-      "Incredibly lightweight at 63g",
-      "Easy-to-use button programming software",
-      "Great value under $50",
-    ],
-    cons: [
-      "Scroll wheel could use more tactile resistance",
-      "RGB lighting options are somewhat limited",
-    ],
-    tone: "enthusiastic",
-    length: "medium",
-    wordCount: 156,
-    status: "ready",
-    isSelected: true,
-    createdAt: "2026-03-10T10:30:00Z",
-  },
-  {
-    id: "demo-rev-002",
-    productId: "demo-prod-001",
-    title: "Solid wireless mouse — a few things to know before buying",
-    body: "Got this mouse about two weeks ago and overall I'm satisfied with the purchase. The sensor is accurate and responsive, which is the most important thing for gaming. Build quality feels solid despite the lightweight honeycomb design. Battery life has been great — haven't needed to charge yet. Setup was plug-and-play with the USB dongle. A couple things worth mentioning: the side buttons are a little small for my hands, and the feet could be smoother out of the box (they broke in after a few days). The RGB is nice but not a selling point. For the price, this competes with mice costing twice as much. Would recommend for casual to mid-level gamers who want wireless without the premium price tag.",
-    rating: 4,
-    ratingJustification:
-      "Very good mouse with minor ergonomic issues. Excellent value but the small side buttons and initial feet friction keep it from a perfect score.",
-    pros: [
-      "Accurate and responsive sensor",
-      "Excellent battery life",
-      "Lightweight and comfortable for long sessions",
-      "Plug-and-play setup",
-      "Competitive pricing",
-    ],
-    cons: [
-      "Side buttons feel small",
-      "Mouse feet need break-in period",
-      "RGB is basic",
-    ],
-    tone: "balanced",
-    length: "medium",
-    wordCount: 148,
-    status: "ready",
-    isSelected: false,
-    createdAt: "2026-03-10T10:30:00Z",
-  },
-  {
-    id: "demo-rev-003",
-    productId: "demo-prod-001",
-    title: "Good mouse for the money, not perfect",
-    body: "Does what it says on the box. Wireless works fine, battery lasts a long time, and the sensor is decent for gaming. It's light, which I like. The honeycomb pattern looks cool but collects dust. Programming the buttons was easy enough. I knocked off a star because the Bluetooth mode has noticeable latency — stick with the dongle for gaming. Also the charging cable is short. But honestly, for fifty bucks? Hard to complain. It replaced my old wired mouse and I don't miss the cable at all.",
-    rating: 4,
-    ratingJustification:
-      "Good value proposition with reliable core performance. Bluetooth latency and short charging cable are minor but notable drawbacks.",
-    pros: [
-      "Reliable wireless via USB dongle",
-      "Long battery life",
-      "Lightweight design",
-      "Easy button programming",
-    ],
-    cons: [
-      "Bluetooth mode has latency",
-      "Short charging cable",
-      "Honeycomb collects dust",
-    ],
-    tone: "casual",
-    length: "short",
-    wordCount: 107,
-    status: "ready",
-    isSelected: false,
-    createdAt: "2026-03-10T10:30:00Z",
-  },
-];
+// No demo/placeholder data — app starts clean
 
 // ─── STORAGE HELPERS ────────────────────────────────────────
 
@@ -305,7 +209,7 @@ function saveToStorage<T>(key: string, data: T): void {
 // ─── PRODUCT FUNCTIONS ──────────────────────────────────────
 
 export function getProducts(): ProductInput[] {
-  return loadFromStorage<ProductInput[]>(PRODUCTS_KEY, [DEMO_PRODUCT]);
+  return loadFromStorage<ProductInput[]>(PRODUCTS_KEY, []);
 }
 
 export function getProduct(id: string): ProductInput | undefined {
@@ -392,7 +296,7 @@ export function importFromAmazonOrder(order: {
 // ─── REVIEW FUNCTIONS ───────────────────────────────────────
 
 export function getReviewVariants(productId?: string): ReviewVariant[] {
-  const all = loadFromStorage<ReviewVariant[]>(REVIEWS_KEY, DEMO_REVIEWS);
+  const all = loadFromStorage<ReviewVariant[]>(REVIEWS_KEY, []);
   if (productId) return all.filter((r) => r.productId === productId);
   return all;
 }
@@ -417,7 +321,7 @@ export function addReviewVariant(
     createdAt: new Date().toISOString(),
   };
 
-  const variants = loadFromStorage<ReviewVariant[]>(REVIEWS_KEY, DEMO_REVIEWS);
+  const variants = loadFromStorage<ReviewVariant[]>(REVIEWS_KEY, []);
   variants.push(newVariant);
   saveToStorage(REVIEWS_KEY, variants);
   return newVariant;
@@ -427,7 +331,7 @@ export function updateReviewVariant(
   id: string,
   patch: Partial<ReviewVariant>
 ): ReviewVariant | null {
-  const variants = loadFromStorage<ReviewVariant[]>(REVIEWS_KEY, DEMO_REVIEWS);
+  const variants = loadFromStorage<ReviewVariant[]>(REVIEWS_KEY, []);
   const idx = variants.findIndex((r) => r.id === id);
   if (idx === -1) return null;
 
@@ -449,7 +353,7 @@ export function selectReviewVariant(
   productId: string,
   variantId: string
 ): void {
-  const variants = loadFromStorage<ReviewVariant[]>(REVIEWS_KEY, DEMO_REVIEWS);
+  const variants = loadFromStorage<ReviewVariant[]>(REVIEWS_KEY, []);
   const updated = variants.map((r) => {
     if (r.productId === productId) {
       return { ...r, isSelected: r.id === variantId };
@@ -460,7 +364,7 @@ export function selectReviewVariant(
 }
 
 export function deleteReviewVariant(id: string): boolean {
-  const variants = loadFromStorage<ReviewVariant[]>(REVIEWS_KEY, DEMO_REVIEWS);
+  const variants = loadFromStorage<ReviewVariant[]>(REVIEWS_KEY, []);
   const filtered = variants.filter((r) => r.id !== id);
   if (filtered.length === variants.length) return false;
   saveToStorage(REVIEWS_KEY, filtered);

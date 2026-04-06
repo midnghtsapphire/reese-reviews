@@ -666,6 +666,81 @@ export async function verifyClean(file: File): Promise<{
 /**
  * Build clean metadata object with only allowed fields.
  */
+// ─── AI TEXT STRIPPING WRAPPERS ─────────────────────────────
+
+/**
+ * Result from AI fingerprint stripping.
+ */
+export interface StripResult {
+  cleanedText: string;
+  removedPatterns: string[];
+  wasModified: boolean;
+}
+
+/**
+ * Strip AI fingerprints from text and return a detailed result.
+ * Wraps stripAITextFingerprints with structured output.
+ */
+export function stripAIFingerprints(text: string): StripResult {
+  const original = text;
+  const cleaned = stripAITextFingerprints(text);
+  const wasModified = cleaned !== original;
+
+  // Identify which patterns were found
+  const removedPatterns: string[] = [];
+  for (const pattern of AI_TEXT_PATTERNS) {
+    const match = original.match(pattern);
+    if (match) {
+      removedPatterns.push(match[0].trim());
+    }
+  }
+
+  return {
+    cleanedText: cleaned,
+    removedPatterns,
+    wasModified,
+  };
+}
+
+/**
+ * Humanize AI-generated text by applying natural language tweaks.
+ * Removes overly formal phrasing and adds conversational tone.
+ */
+export function humanizeText(text: string): string {
+  let result = text;
+
+  // Replace overly formal AI phrases with natural alternatives
+  const replacements: [RegExp, string][] = [
+    [/\bIn conclusion,?\s*/gi, ""],
+    [/\bFurthermore,?\s*/gi, "Also, "],
+    [/\bMoreover,?\s*/gi, "Plus, "],
+    [/\bAdditionally,?\s*/gi, "Also, "],
+    [/\bIt is worth noting that\s*/gi, ""],
+    [/\bIt should be noted that\s*/gi, ""],
+    [/\bIt is important to note that\s*/gi, ""],
+    [/\bIn summary,?\s*/gi, "Overall, "],
+    [/\bTo summarize,?\s*/gi, "Overall, "],
+    [/\bOverall,?\s*overall,?/gi, "Overall, "],
+    [/\bdelve\b/gi, "dig into"],
+    [/\bleverage\b/gi, "use"],
+    [/\butilize\b/gi, "use"],
+    [/\bfacilitate\b/gi, "help with"],
+    [/\bcommence\b/gi, "start"],
+    [/\bsubsequently\b/gi, "then"],
+    [/\bnevertheless\b/gi, "still"],
+    [/\bnotwithstanding\b/gi, "despite"],
+  ];
+
+  for (const [pattern, replacement] of replacements) {
+    result = result.replace(pattern, replacement);
+  }
+
+  // Clean up double spaces
+  result = result.replace(/\s{2,}/g, " ").trim();
+
+  return result;
+}
+
 export function buildCleanMetadata(
   overrides: Partial<CleanMetadata> = {}
 ): CleanMetadata {
