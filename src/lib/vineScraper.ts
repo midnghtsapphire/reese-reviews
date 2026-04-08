@@ -53,7 +53,9 @@ export function getVineItems(): VineItem[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 
@@ -66,7 +68,9 @@ export function getVineCookies(): VineCookies | null {
   try {
     const stored = localStorage.getItem(VINE_COOKIES_KEY);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return null;
 }
 
@@ -79,7 +83,9 @@ export function getVineConfig(): VineScraperConfig {
   try {
     const stored = localStorage.getItem(VINE_CONFIG_KEY);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return {
     enabled: false,
     cookies_configured: false,

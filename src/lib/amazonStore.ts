@@ -29,7 +29,9 @@ export function getAmazonOrders(): AmazonOrder[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 
@@ -41,7 +43,9 @@ export function getAmazonConfig(): AmazonConfig | null {
   try {
     const stored = localStorage.getItem(AMAZON_CONFIG_KEY);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return null;
 }
 

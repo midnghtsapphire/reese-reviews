@@ -52,7 +52,9 @@ export function getETVRecords(): ETVRecord[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_ETV);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 
@@ -81,7 +83,9 @@ export function get1099Forms(): Form1099NEC[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_1099);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 
@@ -113,7 +117,9 @@ export function getCapitalEvents(): CapitalEvent[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_CAPITAL);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 
@@ -133,7 +139,9 @@ export function getDonations(): DonationForTax[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_DONATIONS);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 
@@ -298,7 +306,9 @@ export function getTaxDocuments(): TaxDocument[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_DOCUMENTS);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 

@@ -77,10 +77,14 @@ function checkFallbackAuth(): boolean {
       localStorage.removeItem(FALLBACK_AUTH_KEY);
       localStorage.removeItem(FALLBACK_TS_KEY);
     }
-  } catch {}
+  } catch {
+    // noop
+  }
   try {
     if (sessionStorage.getItem(FALLBACK_AUTH_KEY) === "true") return true;
-  } catch {}
+  } catch {
+    // noop
+  }
   return false;
 }
 
@@ -243,7 +247,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
-    } catch {}
+    } catch {
+    // noop
+  }
     // Also clear fallback
     clearFallback();
     setUser(null);
@@ -290,10 +296,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         localStorage.setItem(FALLBACK_AUTH_KEY, "true");
         localStorage.setItem(FALLBACK_TS_KEY, Date.now().toString());
-      } catch {}
+      } catch {
+    // noop
+  }
       try {
         sessionStorage.setItem(FALLBACK_AUTH_KEY, "true");
-      } catch {}
+      } catch {
+    // noop
+  }
       setFallbackAuth(true);
       setAuthMode("fallback");
       return true;
@@ -305,10 +315,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.removeItem(FALLBACK_AUTH_KEY);
       localStorage.removeItem(FALLBACK_TS_KEY);
-    } catch {}
+    } catch {
+    // noop
+  }
     try {
       sessionStorage.removeItem(FALLBACK_AUTH_KEY);
-    } catch {}
+    } catch {
+    // noop
+  }
   };
 
   const logout = () => {

@@ -133,10 +133,10 @@ export async function deleteFromSupabase<T>(
     const userId = await getCurrentUserId();
     if (!userId) return;
 
-    const { error } = await (supabase.from(opts.table) as any)
+    const { error } = await (supabase.from(opts.table) as ReturnType<typeof supabase.from>)
       .delete()
       .eq("id", id)
-      .eq("user_id", userId); // eslint-disable-line @typescript-eslint/no-explicit-any
+      .eq("user_id", userId);
 
     if (error) {
       console.warn(`[SupabasePersistence] Error deleting from ${opts.table}:`, error.message);

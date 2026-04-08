@@ -14,7 +14,6 @@ import {
   CATEGORIES,
   type ReviewData,
 } from "./reviewStore";
-import type { ReviewData } from "./reviewStore";
 
 // Helper: create a minimal approved review for testing
 function makeReview(overrides: Partial<ReviewData> = {}): ReviewData {
@@ -296,4 +295,6 @@ describe("reviewStore", () => {
       expect(values).toContain("tech");
     });
   });
+});
+
 });

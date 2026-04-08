@@ -76,7 +76,9 @@ function getScheduledPosts(): ScheduledPost[] {
   try {
     const stored = localStorage.getItem("seo-scheduled-posts");
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 
@@ -144,7 +146,7 @@ export default function SEODashboard() {
                     <p className="text-sm text-muted-foreground">Overall SEO Score</p>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {Object.entries(seoScore).filter(([k]) => k !== "overall").map(([key, data]: [string, any]) => (
+                    {Object.entries(seoScore).filter(([k]) => k !== "overall").map(([key, data]: [string, { score: number; message: string }]) => (
                       <div key={key} className="p-3 rounded-lg glass-card">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-sm font-medium capitalize">{key}</span>

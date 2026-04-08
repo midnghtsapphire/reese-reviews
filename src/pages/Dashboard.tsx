@@ -43,7 +43,9 @@ function getRealAnalytics() {
     vineItems = items.length;
     pendingReviews = items.filter((i) => i.status === "pending").length;
     submittedReviews = items.filter((i) => i.status === "submitted").length;
-  } catch {}
+  } catch {
+    // noop
+  }
   return { vineItems, pendingReviews, submittedReviews };
 }
 

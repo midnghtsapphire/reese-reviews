@@ -287,8 +287,6 @@ export default function Marketing() {
                 </Alert>
               )}
 
-              {showApiKeyInput && (
-                <Card className="glass-card border-white/10">
               {showApiKeyInput && !effectiveApiKey && (
                 <Card className="glass-card border-purple-500/20">
                   <CardHeader>
@@ -298,9 +296,6 @@ export default function Marketing() {
                     <input
                       type="password"
                       placeholder="Paste your OpenRouter API key"
-                      value={apiKey}
-                      onChange={(e) => setApiKey(e.target.value)}
-                      className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-steel-shine/40"
                       value={customApiKey}
                       onChange={(e) => setCustomApiKey(e.target.value)}
                       className="w-full px-4 py-2 bg-slate-800 border border-purple-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
@@ -347,8 +342,6 @@ export default function Marketing() {
                 <CardContent className="space-y-4">
                   <div>
                     <Label htmlFor="campaign-type">Campaign Type</Label>
-                    <Select defaultValue="product">
-                      <SelectTrigger id="campaign-type" className="bg-white/5 border-white/10 text-white">
                     <Select value={campaignType} onValueChange={(v) => setCampaignType(v as CampaignType)}>
                       <SelectTrigger id="campaign-type" className="bg-slate-800 border-purple-500/30 text-white">
                         <SelectValue placeholder="Select campaign type" />
@@ -371,16 +364,13 @@ export default function Marketing() {
                       id="campaign-topic"
                       type="text"
                       placeholder="e.g., Best productivity tools for remote work"
-                      className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+                      className="bg-slate-800 border-purple-500/30 text-white placeholder-gray-500"
                       value={campaignTopic}
                       onChange={(e) => setCampaignTopic(e.target.value)}
-                      className="bg-slate-800 border-purple-500/30 text-white placeholder-gray-500"
                     />
                   </div>
                   <div>
                     <Label htmlFor="campaign-tone">Tone</Label>
-                    <Select defaultValue="professional">
-                      <SelectTrigger id="campaign-tone" className="bg-white/5 border-white/10 text-white">
                     <Select value={campaignTone} onValueChange={(v) => setCampaignTone(v as typeof campaignTone)}>
                       <SelectTrigger id="campaign-tone" className="bg-slate-800 border-purple-500/30 text-white">
                         <SelectValue placeholder="Select tone" />
@@ -447,9 +437,6 @@ export default function Marketing() {
               </Card>
             </TabsContent>
 
-            {/* CAMPAIGNS TAB */}
-            <TabsContent value="campaigns" className="space-y-6">
-              <Card className="glass-card border-white/10">
             {/* QUICK POST FROM REVIEW TAB */}
             <TabsContent value="quick-post" className="space-y-6">
               <Card className="glass-card border-purple-500/20">

@@ -244,7 +244,7 @@ function ReviewedPanel({ product, onUpdate }: { product: ProductLifecycle; onUpd
         <Select
           value={rv?.review_status ?? "pending"}
           onValueChange={(v) => {
-            updateProduct(product.id, { reviewed: { ...product.reviewed!, review_status: v as any } });
+            updateProduct(product.id, { reviewed: { ...product.reviewed!, review_status: v as string } });
             onUpdate();
           }}
         >
@@ -327,7 +327,7 @@ function ListedPanel({ product, onUpdate }: { product: ProductLifecycle; onUpdat
               value={pl.status}
               onValueChange={(v) => {
                 const platforms = [...(product.listed?.platforms ?? [])];
-                platforms[i] = { ...platforms[i], status: v as any };
+                platforms[i] = { ...platforms[i], status: v as string };
                 updateProduct(product.id, { listed: { ...product.listed!, platforms } });
                 onUpdate();
               }}
