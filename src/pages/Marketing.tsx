@@ -632,6 +632,8 @@ export default function Marketing() {
                   </CardContent>
                 </Card>
               </div>
+                </Card>
+              </div>
 
               <Card className="glass-card border-white/10">
                 <CardHeader>
