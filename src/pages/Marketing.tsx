@@ -590,8 +590,6 @@ export default function Marketing() {
 
             {/* ANALYTICS TAB */}
             <TabsContent value="analytics" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="glass-card border-white/10">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <Card className="glass-card border-purple-500/20">
                   <CardHeader>
