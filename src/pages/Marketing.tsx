@@ -6,16 +6,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, Zap, Mail, TrendingUp, Users } from "lucide-react";
-import SEOHead from "@/components/SEOHead";
-import { getAffiliateLinks, trackAffiliateLinkClick } from "@/lib/affiliateStore";
 import { getSubscribers } from "@/lib/emailStore";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  AlertCircle, Zap, TrendingUp, Copy, Download, Send,
-  CheckCircle2, Clock, XCircle, RefreshCw, Sparkles,
+  AlertCircle, Zap, Mail, TrendingUp, Users,
+  Copy, Download, Send, CheckCircle2, Clock, XCircle, RefreshCw, Sparkles,
 } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import { OWNER_AFFILIATE_LINKS, PLATFORM_CONFIGS } from "@/lib/affiliateTypes";
