@@ -354,7 +354,7 @@ export function AmazonOrdersToInventory() {
     // already ISO
     if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
     // MM/DD/YYYY or MM-DD-YYYY
-    const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+    const m = s.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$/);
     if (m) {
       const [, mo, dy, yr] = m;
       const year = yr.length === 2 ? `20${yr}` : yr;
@@ -573,188 +573,426 @@ export function AmazonOrdersToInventory() {
         </Alert>
       )}
 
-      {/* Stats bar */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {[
-          { label: "Total Orders", value: orders.length, color: "text-white" },
-          { label: "Demo", value: demoCount, color: "text-yellow-400" },
-          { label: "Imported", value: importedCount, color: "text-purple-400" },
-          { label: "Unreviewed", value: unreviewedCount, color: "text-orange-400" },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded-xl border border-white/10 bg-white/5 p-3 text-center"
-          >
-            <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
-            <div className="text-xs text-gray-500 mt-0.5">{stat.label}</div>
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
+        <TabsList className="bg-white/10 border border-white/20">
+          <TabsTrigger value="orders" className="data-[state=active]:bg-white/20 text-gray-300">
+            <Package className="h-3.5 w-3.5 mr-1" />
+            Orders
+          </TabsTrigger>
+          <TabsTrigger value="add" className="data-[state=active]:bg-white/20 text-gray-300">
+            <Plus className="h-3.5 w-3.5 mr-1" />
+            {editOrder ? "Edit" : "Add"}
+          </TabsTrigger>
+          <TabsTrigger value="import" className="data-[state=active]:bg-white/20 text-gray-300">
+            <Upload className="h-3.5 w-3.5 mr-1" />
+            Import
+          </TabsTrigger>
+          <TabsTrigger value="summary" className="data-[state=active]:bg-white/20 text-gray-300">
+            <BarChart3 className="h-3.5 w-3.5 mr-1" />
+            Summary
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Orders Tab */}
+        <TabsContent value="orders" className="space-y-3 mt-3">
+          {/* Search + Filter */}
+          <div className="flex flex-col sm:flex-row gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search by product name, order ID, or ASIN..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8 bg-white/5 border-white/20 text-white placeholder:text-gray-500"
+              />
+            </div>
+            <Select value={filterStatus} onValueChange={(v) => setFilterStatus(v as typeof filterStatus)}>
+              <SelectTrigger className="w-full sm:w-44 bg-white/5 border-white/20 text-white">
+                <Filter className="h-3.5 w-3.5 mr-1 text-gray-400" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                {(Object.keys(STATUS_META) as OrderStatus[]).map((s) => (
+                  <SelectItem key={s} value={s}>{STATUS_META[s].label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        ))}
-      </div>
 
-      {/* Filter tabs */}
-      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter orders">
-        {(
-          [
-            { key: "all", label: `All (${orders.length})` },
-            { key: "demo", label: `Demo (${demoCount})` },
-            { key: "imported", label: `Imported (${importedCount})` },
-            { key: "unreviewed", label: `Unreviewed (${unreviewedCount})` },
-          ] as { key: FilterTab; label: string }[]
-        ).map((tab) => (
-          <button
-            key={tab.key}
-            role="tab"
-            aria-selected={filter === tab.key}
-            onClick={() => setFilter(tab.key)}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-              filter === tab.key
-                ? "bg-purple-600 text-white"
-                : "bg-white/10 text-gray-400 hover:bg-white/20 hover:text-white"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-
-        {/* Push all button */}
-        {filteredOrders.length > 0 && (
-          <button
-            onClick={handlePushAll}
-            disabled={pushedAll && filteredOrders.every((o) => pushedIds.has(o.id))}
-            className="ml-auto flex items-center gap-1.5 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50"
-            aria-label={`Push all ${filteredOrders.length} orders to Lifecycle Tracker`}
-          >
-            <Zap size={14} />
-            Push All to Lifecycle
-          </button>
-        )}
-      </div>
-
-      {/* Orders list */}
-      <div className="space-y-3" role="list" aria-label="Amazon orders">
-        {filteredOrders.length === 0 && (
-          <div className="py-12 text-center text-gray-500">
-            <ShoppingCart size={40} className="mx-auto mb-3 opacity-30" />
-            <p>No orders in this filter.</p>
-            <p className="text-xs mt-1">Upload a CSV from Amazon Order History to get started.</p>
-          </div>
-        )}
-
-        {filteredOrders.map((order) => {
-          const pushed = pushedIds.has(order.id);
-          const demo = isDemo(order);
-          const imported = isImported(order);
-
-          return (
-            <div
-              key={order.id}
-              role="listitem"
-              className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/8"
-            >
-              {/* Product image or icon */}
-              {order.image_url ? (
-                <img
-                  src={order.image_url}
-                  alt={order.product_name}
-                  className="h-12 w-12 rounded-lg object-cover flex-shrink-0"
-                />
-              ) : (
-                <div
-                  className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg"
-                  style={{ background: "rgba(124,58,237,0.2)" }}
-                  aria-hidden="true"
-                >
-                  <Package size={22} className="text-purple-400" />
-                </div>
-              )}
-
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-medium text-white text-sm truncate max-w-[280px]">
-                    {order.product_name}
-                  </span>
-                  {/* Demo / Real badge */}
-                  {demo && (
-                    <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30 text-[10px]">
-                      DEMO
-                    </Badge>
-                  )}
-                  {imported && (
-                    <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-[10px]">
-                      IMPORTED
-                    </Badge>
-                  )}
-                  {!demo && !imported && (
-                    <Badge className="bg-green-500/20 text-green-300 border-green-500/30 text-[10px]">
-                      REAL
-                    </Badge>
-                  )}
-                  {/* Review status */}
-                  <Badge
-                    className={
-                      order.review_status === "published"
-                        ? "bg-green-500/20 text-green-300 border-green-500/30 text-[10px]"
-                        : order.review_status === "draft"
-                        ? "bg-blue-500/20 text-blue-300 border-blue-500/30 text-[10px]"
-                        : "bg-orange-500/20 text-orange-300 border-orange-500/30 text-[10px]"
-                    }
+          {/* Orders List */}
+          <div className="space-y-2">
+            {filteredOrders.length === 0 ? (
+              <div className="py-12 text-center text-gray-500">
+                <ShoppingCart size={40} className="mx-auto mb-3 opacity-30" />
+                <p>No orders found.</p>
+                <p className="text-xs mt-1">Use the Import tab to load from an Amazon CSV, or Add to enter manually.</p>
+              </div>
+            ) : (
+              filteredOrders.map((order) => {
+                const sm = STATUS_META[order.status];
+                const em = ENTITY_META[order.entity];
+                return (
+                  <div
+                    key={order.id}
+                    className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3 hover:bg-white/8 transition-colors"
                   >
-                    {order.review_status === "published"
-                      ? "✓ Reviewed"
-                      : order.review_status === "draft"
-                      ? "Draft"
-                      : "Unreviewed"}
-                  </Badge>
+                    {/* Icon */}
+                    <div
+                      className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-orange-500/20"
+                      aria-hidden="true"
+                    >
+                      <Package size={18} className="text-orange-400" />
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-medium text-white text-sm truncate max-w-[240px]">
+                          {order.product_name}
+                        </span>
+                        <Badge className={`${sm.color} flex items-center gap-1 text-[10px]`}>
+                          {sm.icon} {sm.label}
+                        </Badge>
+                        {order.review_written && (
+                          <Badge className="bg-purple-900/30 text-purple-300 text-[10px]">✓ Reviewed</Badge>
+                        )}
+                      </div>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                        <span>{order.order_date}</span>
+                        <span className="font-medium text-gray-400">${order.charged_amount.toFixed(2)}</span>
+                        <span className={em.color}>{em.short}</span>
+                        {order.asin && <span>ASIN: {order.asin}</span>}
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <Select
+                        value={order.status}
+                        onValueChange={(v) => handleStatusChange(order.id, v as OrderStatus)}
+                      >
+                        <SelectTrigger className="h-7 w-32 bg-white/5 border-white/10 text-xs text-white px-2">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(Object.keys(STATUS_META) as OrderStatus[]).map((s) => (
+                            <SelectItem key={s} value={s} className="text-xs">{STATUS_META[s].label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0 text-gray-400 hover:text-white hover:bg-white/10"
+                        onClick={() => handleEdit(order)}
+                        aria-label={`Edit ${order.product_name}`}
+                      >
+                        <Edit3 size={13} />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0 text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                        onClick={() => handleDelete(order.id)}
+                        aria-label={`Delete ${order.product_name}`}
+                      >
+                        <Trash2 size={13} />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </TabsContent>
+
+        {/* Add / Edit Tab */}
+        <TabsContent value="add" className="space-y-3 mt-3">
+          <Card className="bg-white/5 border-white/10">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-white text-base">
+                {editOrder ? "Edit Order" : "Add Order"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-gray-300 text-xs">Product Name *</Label>
+                  <Input
+                    value={form.product_name ?? ""}
+                    onChange={(e) => setForm((f) => ({ ...f, product_name: e.target.value }))}
+                    placeholder="e.g. Wireless Earbuds"
+                    className="bg-white/5 border-white/20 text-white"
+                  />
                 </div>
-                <div className="mt-0.5 flex items-center gap-3 text-xs text-gray-500">
-                  <span>ASIN: {order.asin || "—"}</span>
-                  <span>{order.purchase_date}</span>
-                  <span className="font-medium text-gray-400">${order.price.toFixed(2)}</span>
+                <div className="space-y-1">
+                  <Label className="text-gray-300 text-xs">Amazon Order ID</Label>
+                  <Input
+                    value={form.amazon_order_id ?? ""}
+                    onChange={(e) => setForm((f) => ({ ...f, amazon_order_id: e.target.value }))}
+                    placeholder="113-XXXXXXX-XXXXXXX"
+                    className="bg-white/5 border-white/20 text-white"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-gray-300 text-xs">ASIN</Label>
+                  <Input
+                    value={form.asin ?? ""}
+                    onChange={(e) => setForm((f) => ({ ...f, asin: e.target.value }))}
+                    placeholder="B0XXXXXXXXX"
+                    className="bg-white/5 border-white/20 text-white"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-gray-300 text-xs">Category</Label>
+                  <Input
+                    value={form.category ?? ""}
+                    onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
+                    placeholder="Electronics"
+                    className="bg-white/5 border-white/20 text-white"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-gray-300 text-xs">Order Date *</Label>
+                  <Input
+                    type="date"
+                    value={form.order_date ?? ""}
+                    onChange={(e) => setForm((f) => ({ ...f, order_date: e.target.value }))}
+                    className="bg-white/5 border-white/20 text-white"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-gray-300 text-xs">Charged Amount *</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={form.charged_amount ?? ""}
+                    onChange={(e) => setForm((f) => ({ ...f, charged_amount: parseFloat(e.target.value) || 0 }))}
+                    placeholder="0.00"
+                    className="bg-white/5 border-white/20 text-white"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-gray-300 text-xs">Quantity</Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    value={form.quantity ?? 1}
+                    onChange={(e) => setForm((f) => ({ ...f, quantity: parseInt(e.target.value, 10) || 1 }))}
+                    className="bg-white/5 border-white/20 text-white"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-gray-300 text-xs">Status</Label>
+                  <Select
+                    value={form.status ?? "received"}
+                    onValueChange={(v) => setForm((f) => ({ ...f, status: v as OrderStatus }))}
+                  >
+                    <SelectTrigger className="bg-white/5 border-white/20 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(Object.keys(STATUS_META) as OrderStatus[]).map((s) => (
+                        <SelectItem key={s} value={s}>{STATUS_META[s].label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-gray-300 text-xs">Entity</Label>
+                  <Select
+                    value={form.entity ?? "fac"}
+                    onValueChange={(v) => setForm((f) => ({ ...f, entity: v as AmazonOrderEntry["entity"] }))}
+                  >
+                    <SelectTrigger className="bg-white/5 border-white/20 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(Object.keys(ENTITY_META) as (keyof typeof ENTITY_META)[]).map((k) => (
+                        <SelectItem key={k} value={k}>{ENTITY_META[k].label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
-              {/* Push button */}
-              <button
-                onClick={() => !pushed && handlePushOne(order)}
-                disabled={pushed}
-                aria-label={
-                  pushed
-                    ? `${order.product_name} already pushed to Lifecycle`
-                    : `Push ${order.product_name} to Lifecycle Tracker`
-                }
-                className={`flex flex-shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                  pushed
-                    ? "bg-green-500/20 text-green-400 cursor-default"
-                    : "bg-purple-600/30 text-purple-300 hover:bg-purple-600 hover:text-white"
-                }`}
-              >
-                {pushed ? (
-                  <>
-                    <CheckCircle2 size={12} />
-                    In Lifecycle
-                  </>
-                ) : (
-                  <>
-                    <ArrowRight size={12} />
-                    Push
-                  </>
-                )}
-              </button>
-            </div>
-          );
-        })}
-      </div>
+              <div className="space-y-1">
+                <Label className="text-gray-300 text-xs">Notes</Label>
+                <Textarea
+                  value={form.notes ?? ""}
+                  onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+                  placeholder="Any notes about this order..."
+                  className="bg-white/5 border-white/20 text-white resize-none"
+                  rows={2}
+                />
+              </div>
 
-      {/* Legend */}
-      <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-        <p className="text-xs font-medium text-gray-400 mb-2">Legend</p>
-        <div className="flex flex-wrap gap-3 text-xs text-gray-500">
-          <span><Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30 mr-1 text-[10px]">DEMO</Badge>Pre-loaded sample data</span>
-          <span><Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 mr-1 text-[10px]">IMPORTED</Badge>Uploaded from your file</span>
-          <span><Badge className="bg-green-500/20 text-green-300 border-green-500/30 mr-1 text-[10px]">REAL</Badge>Live Amazon SP-API data</span>
-        </div>
-      </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleSave}
+                  className="bg-orange-600 hover:bg-orange-700 text-white"
+                >
+                  {editOrder ? "Save Changes" : "Add Order"}
+                </Button>
+                {editOrder && (
+                  <Button
+                    variant="outline"
+                    className="border-white/20 text-white hover:bg-white/10"
+                    onClick={() => {
+                      setEditOrder(null);
+                      setForm({ entity: "fac", status: "received", review_written: false, quantity: 1 });
+                      setActiveTab("orders");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Import Tab */}
+        <TabsContent value="import" className="space-y-3 mt-3">
+          <Card className="bg-white/5 border-white/10">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-white text-base">Import from Amazon CSV</CardTitle>
+              <CardDescription className="text-gray-400 text-xs">
+                Download your order history from Amazon → Account → Order History Reports (Items CSV)
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-1">
+                <Label className="text-gray-300 text-xs">Entity</Label>
+                <Select value={importEntity} onValueChange={(v) => setImportEntity(v as AmazonOrderEntry["entity"])}>
+                  <SelectTrigger className="bg-white/5 border-white/20 text-white w-full sm:w-60">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(Object.keys(ENTITY_META) as (keyof typeof ENTITY_META)[]).map((k) => (
+                      <SelectItem key={k} value={k}>{ENTITY_META[k].label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-gray-300 text-xs">Upload File (CSV or Excel)</Label>
+                <div className="flex items-center gap-2">
+                  <label className="cursor-pointer inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white hover:bg-white/10 transition-colors">
+                    <Upload className="h-4 w-4 text-gray-400" />
+                    Choose File
+                    <input type="file" accept=".csv,.xlsx,.xls,.pdf" className="hidden" onChange={handleFileUpload} />
+                  </label>
+                  <span className="text-xs text-gray-500">or paste CSV below</span>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-gray-300 text-xs">Paste CSV Text</Label>
+                <Textarea
+                  value={csvText}
+                  onChange={(e) => setCsvText(e.target.value)}
+                  placeholder={"Order ID,Order Date,Title,ASIN,Category,Quantity,Purchase Price Per Unit\n113-XXX,2025-01-01,My Product,B0XXXXXXX,Electronics,1,29.99"}
+                  className="bg-white/5 border-white/20 text-white resize-none font-mono text-xs"
+                  rows={5}
+                />
+              </div>
+
+              {csvError && (
+                <Alert className="bg-red-900/20 border-red-500/30">
+                  <AlertCircle className="h-4 w-4 text-red-400" />
+                  <AlertDescription className="text-red-200 text-xs">{csvError}</AlertDescription>
+                </Alert>
+              )}
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="border-white/20 text-white hover:bg-white/10"
+                  onClick={() => handleParseCSV(csvText)}
+                >
+                  <RefreshCw className="h-4 w-4 mr-1" /> Parse
+                </Button>
+                {csvParsed.length > 0 && (
+                  <Button
+                    className="bg-orange-600 hover:bg-orange-700 text-white"
+                    onClick={handleImportConfirm}
+                  >
+                    <ArrowRight className="h-4 w-4 mr-1" /> Import {csvParsed.length} Row{csvParsed.length !== 1 ? "s" : ""}
+                  </Button>
+                )}
+              </div>
+
+              {csvParsed.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-xs font-medium text-gray-300">{csvParsed.length} row{csvParsed.length !== 1 ? "s" : ""} ready to import:</p>
+                  <div className="max-h-48 overflow-y-auto space-y-1 rounded-lg border border-white/10 bg-black/20 p-2">
+                    {csvParsed.map((row, i) => (
+                      <div key={i} className="flex items-center gap-2 text-xs text-gray-300">
+                        <span className="w-5 text-gray-600 text-right">{i + 1}.</span>
+                        <span className="flex-1 truncate">{row.product_name ?? "Unknown"}</span>
+                        <span className="text-gray-500 flex-shrink-0">{row.order_date}</span>
+                        <span className="text-gray-400 flex-shrink-0">${(row.charged_amount ?? 0).toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Summary Tab */}
+        <TabsContent value="summary" className="space-y-3 mt-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {(Object.keys(STATUS_META) as OrderStatus[]).map((s) => {
+              const count = orders.filter((o) => o.status === s).length;
+              return (
+                <div key={s} className="rounded-xl border border-white/10 bg-white/5 p-3 text-center">
+                  <div className="text-2xl font-bold text-white">{count}</div>
+                  <div className="text-xs text-gray-500 mt-0.5">{STATUS_META[s].label}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          <Card className="bg-white/5 border-white/10">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-white text-sm">Review Coverage</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-2 rounded-full bg-white/10 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-purple-500"
+                    style={{ width: orders.length ? `${(reviewedCount / orders.length) * 100}%` : "0%" }}
+                  />
+                </div>
+                <span className="text-sm text-white font-medium">
+                  {orders.length ? Math.round((reviewedCount / orders.length) * 100) : 0}%
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {reviewedCount} of {orders.length} orders have a review written
+              </p>
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-white/20 text-white hover:bg-white/10"
+              onClick={handleExportCSV}
+            >
+              <Download className="h-4 w-4 mr-1" /> Export All Orders (CSV)
+            </Button>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
