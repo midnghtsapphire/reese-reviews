@@ -676,6 +676,8 @@ export default function Marketing() {
                   </div>
                 </CardContent>
               </Card>
+                </Card>
+              </div>
             </TabsContent>
 
             {/* SUBSCRIBERS TAB */}
