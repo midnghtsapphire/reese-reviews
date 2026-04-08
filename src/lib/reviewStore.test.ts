@@ -93,16 +93,6 @@ describe("reviewStore", () => {
     });
 
     it("returns stored reviews when data exists", () => {
-      seedReview();
-      const reviews = getReviews();
-      expect(reviews.length).toBe(1);
-    it("returns empty array when no stored data (DEMO_REVIEWS is empty)", () => {
-      const reviews = getReviews();
-      expect(reviews.length).toBe(DEMO_REVIEWS.length); // both 0
-      expect(Array.isArray(reviews)).toBe(true);
-    });
-
-    it("returns stored reviews when data exists", () => {
       const r = makeReview();
       saveReviews([r]);
       const reviews = getReviews();
@@ -295,6 +285,4 @@ describe("reviewStore", () => {
       expect(values).toContain("tech");
     });
   });
-});
-
 });
