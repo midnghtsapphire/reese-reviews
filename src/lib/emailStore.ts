@@ -25,7 +25,9 @@ export function getSubscribers(): Subscriber[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_SUBSCRIBERS);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 
@@ -145,7 +147,9 @@ export function getSegments(): SubscriberSegment[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_SEGMENTS);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 
@@ -207,7 +211,9 @@ export function getNewsletters(): Newsletter[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_NEWSLETTERS);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 
@@ -228,7 +234,9 @@ export function getConfirmationEmails(): ConfirmationEmail[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_CONFIRMATIONS);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 

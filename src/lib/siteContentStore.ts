@@ -75,7 +75,9 @@ export function getSiteContent(): SiteContent {
     if (stored) {
       return { ...DEFAULT_SITE_CONTENT, ...JSON.parse(stored) };
     }
-  } catch {}
+  } catch {
+    // noop
+  }
   return DEFAULT_SITE_CONTENT;
 }
 

@@ -79,7 +79,9 @@ export function getMetaAuth(): MetaAuthConfig | null {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_AUTH);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return null;
 }
 
@@ -95,7 +97,9 @@ export function getMetaPosts(): MetaPost[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_POSTS);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 
@@ -118,7 +122,9 @@ export function getMetaInsights(): MetaInsights | null {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_INSIGHTS);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return null;
 }
 

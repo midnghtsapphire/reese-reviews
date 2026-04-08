@@ -25,7 +25,9 @@ export function getAffiliateLinks(): AffiliateLink[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_LINKS);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return OWNER_AFFILIATE_LINKS;
 }
 
@@ -49,7 +51,9 @@ export function getCampaigns(): CampaignConfig[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_CAMPAIGNS);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 
@@ -70,7 +74,9 @@ export function getGeneratedCampaigns(): GeneratedCampaign[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_GENERATED);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 
@@ -90,7 +96,9 @@ export function getWebhooks(): MakeWebhookConfig[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_WEBHOOKS);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 

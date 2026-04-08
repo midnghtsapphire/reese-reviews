@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LogOut, Zap, LayoutDashboard, Star, Grid3X3, BookOpen, HelpCircle, Info, Mail, Settings } from "lucide-react";
-import { Menu, X, LogOut, Settings, BarChart2, Megaphone } from "lucide-react";
-import { Menu, X, LogOut, Settings, LayoutDashboard } from "lucide-react";
 import {
   Menu, X, LogOut, Zap, LayoutDashboard, Grape, Shield,
   Search, CreditCard, Briefcase, Megaphone, ChevronDown, Music,
-  Wand2, Youtube,
+  Wand2, Youtube, Star, Grid3X3, BookOpen, HelpCircle, Info, Mail,
+  Settings, BarChart2,
 } from "lucide-react";
 import AccessibilityToggle from "./AccessibilityToggle";
 import { useAuth } from "@/contexts/AuthContext";
@@ -26,6 +24,8 @@ const privateLinks = [
   { label: "Dashboard",      href: "/dashboard", icon: LayoutDashboard },
   { label: "Create Content", href: "/generate",  icon: Zap },
   { label: "Admin",          href: "/admin",     icon: Settings },
+];
+
 const mainLinks = [
   { label: "Dashboard",  href: "/dashboard", icon: LayoutDashboard },
   { label: "Vine AI",    href: "/vine",     icon: Grape },

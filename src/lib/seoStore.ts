@@ -28,7 +28,9 @@ export function getBlogPosts(): BlogPost[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_BLOG);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 
@@ -58,7 +60,9 @@ export function getFAQs(): FAQ[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_FAQ);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 
@@ -93,7 +97,9 @@ export function getAboutPages(): AboutPage[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_ABOUT);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 
@@ -119,7 +125,9 @@ export function getBacklinks(): BacklinkTarget[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_BACKLINKS);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 
@@ -158,7 +166,9 @@ export function getLandingPages(): SEOLandingPage[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_LANDING_PAGES);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 

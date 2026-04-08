@@ -52,7 +52,9 @@ export function getOdooConfig(): OdooConfig | null {
   try {
     const stored = localStorage.getItem(ODOO_CONFIG_KEY);
     if (stored) return JSON.parse(stored) as OdooConfig;
-  } catch {}
+  } catch {
+    // noop
+  }
   return null;
 }
 

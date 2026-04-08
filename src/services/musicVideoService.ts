@@ -600,7 +600,9 @@ export function loadMusicVideos(): GeneratedMusicVideo[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 

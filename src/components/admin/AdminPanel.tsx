@@ -52,7 +52,9 @@ function loadSettings(): AdminSettings {
   try {
     const stored = localStorage.getItem("admin-settings");
     if (stored) return { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
-  } catch {}
+  } catch {
+    // noop
+  }
   return DEFAULT_SETTINGS;
 }
 
@@ -82,7 +84,9 @@ function getAnalytics(): AnalyticsData {
     vineItems = items.length;
     reviewsGen = items.filter((i) => ["generated", "edited", "submitted"].includes(i.status)).length;
     reviewsSub = items.filter((i) => i.status === "submitted").length;
-  } catch {}
+  } catch {
+    // noop
+  }
 
   return {
     pageViews: 0,

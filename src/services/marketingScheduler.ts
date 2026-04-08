@@ -68,7 +68,9 @@ export function getScheduledTasks(): ScheduledTask[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_TASKS);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return getDefaultTasks();
 }
 
@@ -91,7 +93,9 @@ export function getTaskExecutions(): TaskExecution[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_EXECUTIONS);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return [];
 }
 
@@ -107,7 +111,9 @@ export function getSchedulerState(): SchedulerState {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_STATE);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return {
     is_running: false,
     tasks: getScheduledTasks(),

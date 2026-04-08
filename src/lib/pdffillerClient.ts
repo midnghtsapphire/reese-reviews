@@ -38,7 +38,9 @@ export function getPDFillerConfig(): PDFillerConfig | null {
   try {
     const stored = localStorage.getItem(PDFFILLER_CONFIG_KEY);
     if (stored) return JSON.parse(stored) as PDFillerConfig;
-  } catch {}
+  } catch {
+    // noop
+  }
   return null;
 }
 

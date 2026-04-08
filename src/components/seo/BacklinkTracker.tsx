@@ -76,7 +76,9 @@ function getReferringDomains(): ReferringDomain[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_DOMAINS);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return getDefaultReferringDomains();
 }
 
@@ -88,7 +90,9 @@ function getBacklinkChanges(): BacklinkChange[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_CHANGES);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return getDefaultChanges();
 }
 
@@ -100,7 +104,9 @@ function getCompetitors(): CompetitorBacklinks[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY_COMPETITORS);
     if (stored) return JSON.parse(stored);
-  } catch {}
+  } catch {
+    // noop
+  }
   return getDefaultCompetitors();
 }
 
