@@ -452,9 +452,12 @@ export default function VineReviewDashboard() {
       });
     }
 
+    const freshItems = getVineItems();
+    const freshItem = freshItems.find(i => i.id === item.id);
+    const freshReview = freshItem?.generatedReview || item.generatedReview;
     updateVineItem(item.id, {
       generatedReview: {
-        ...item.generatedReview,
+        ...freshReview,
         photos: strippedPhotos,
       },
     });
@@ -1255,10 +1258,10 @@ function VineItemCard({
         )}
 
         {/* Photo count indicator */}
-        {review && review.photos.filter(p => p.isSelected).length > 0 && (
+        {review && (review.photos || []).filter(p => p.isSelected).length > 0 && (
           <div className="text-xs text-muted-foreground">
-            {review.photos.filter(p => p.isSelected).length}/8 photos selected
-            {review.photos.some(p => p.url) && " (EXIF stripped)"}
+            {(review.photos || []).filter(p => p.isSelected).length}/8 photos selected
+            {(review.photos || []).some(p => p.url) && " (EXIF stripped)"}
           </div>
         )}
       </CardContent>
