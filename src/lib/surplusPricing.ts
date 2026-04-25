@@ -82,7 +82,7 @@ export function calculateSurplusPrice(input: PricingInput): PricingResult {
   const extraMonths = Math.max(0, ageMonths - 6);
   const ageDepreciation = Math.min(0.20, extraMonths * 0.02);
 
-  let rawPrice = basePrice * categoryMult * conditionMult * demandMult * (1 - ageDepreciation);
+  const rawPrice = basePrice * categoryMult * conditionMult * demandMult * (1 - ageDepreciation);
 
   // Enforce minimum: 50% of ETV (user's max discount rule)
   const minPrice = etv * 0.50;
