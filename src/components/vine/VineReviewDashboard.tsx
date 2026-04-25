@@ -410,7 +410,7 @@ export default function VineReviewDashboard() {
       setBulkProgress(((i + 1) / pending.length) * 100);
     }
     setIsBulkGenerating(false);
-    setSuccess(`Generated reviews for ${pending.length} items!`);
+    setSuccess(`Processed ${pending.length} items!`);
   };
 
   // ─── SCRAPE IMAGES (standalone) ─────────────────────────
