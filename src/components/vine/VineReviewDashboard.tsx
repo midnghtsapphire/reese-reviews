@@ -448,6 +448,7 @@ export default function VineReviewDashboard() {
         reader.onloadend = () => resolve(reader.result as string);
         reader.readAsDataURL(result.blob);
       });
+      URL.revokeObjectURL(result.url);
       strippedPhotos.push({
         id: `photo-${Date.now()}-${i}`,
         url: dataUrl,

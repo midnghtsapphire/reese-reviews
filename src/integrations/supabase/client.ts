@@ -26,7 +26,7 @@ export function isSupabaseConfigured(): boolean {
 // Always check isSupabaseConfigured() before making requests if your
 // feature has a demo/localStorage fallback.
 
-const PLACEHOLDER_URL = 'https://placeholder.supabase.co';
+const PLACEHOLDER_URL = 'http://localhost:0';
 const PLACEHOLDER_KEY = 'placeholder-key';
 
 if (!isSupabaseConfigured()) {
