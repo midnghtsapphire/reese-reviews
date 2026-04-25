@@ -284,7 +284,7 @@ export interface CSVRow {
   etv?: number;
 }
 
-export function importFromCSV(rows: CSVRow[]): VineItem[] {
+export function importFromCSV(rows: CSVRow[], defaultMode?: AutomationMode): VineItem[] {
   const imported: VineItem[] = [];
   for (const row of rows) {
     const asin = row.asin || "";
@@ -297,7 +297,7 @@ export function importFromCSV(rows: CSVRow[]): VineItem[] {
       reviewDeadline: row.reviewDeadline || new Date(Date.now() + 30 * 86400000).toISOString(),
       etv: row.etv || 0,
       imageUrl: "",
-      automationMode: "full_auto",
+      automationMode: defaultMode || "full_auto",
     });
     imported.push(item);
   }

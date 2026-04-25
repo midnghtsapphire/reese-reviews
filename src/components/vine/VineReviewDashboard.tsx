@@ -218,7 +218,7 @@ export default function VineReviewDashboard() {
       setError("No valid rows found in CSV. Ensure headers include: productName, asin, category, orderDate, reviewDeadline");
       return;
     }
-    const imported = importFromCSV(rows);
+    const imported = importFromCSV(rows, defaultAutomationMode);
     setSuccess(`Imported ${imported.length} Vine items successfully!`);
     setCsvText("");
     setShowCSVImport(false);

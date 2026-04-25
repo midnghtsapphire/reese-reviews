@@ -94,7 +94,7 @@ export function casualFilename(index: number, ext = "jpg"): string {
   const now = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
   const datePart = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
-  const timePart = `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds() + index)}`;
+  const timePart = `${pad(now.getHours())}${pad(now.getMinutes())}${pad((now.getSeconds() + index) % 60)}`;
   const styles = [
     `IMG_${datePart}_${timePart}.${ext}`,
     `photo_${index + 1}.${ext}`,
