@@ -245,6 +245,11 @@ export function calculateStarRating(
 
 // ─── PRODUCT RESEARCH ───────────────────────────────────────
 export async function researchProduct(productName: string, asin: string): Promise<string> {
+  if (isOfflineMode()) {
+    console.warn("[OpenRouter] No API key — using demo product research");
+    return `${productName} (ASIN: ${asin}) is a popular product with an average rating of 4.2 stars. Reviewers commonly praise its build quality and value for the price. Some users note minor issues with packaging and occasional quality control inconsistencies. Typical use cases include everyday household use and gifting. The product stands out for its design and functionality at its price point.`;
+  }
+
   const messages: ChatMessage[] = [
     {
       role: "system",
