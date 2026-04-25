@@ -343,6 +343,12 @@ const Navbar = () => {
                   role="menuitem"
                   onClick={() => setOpen(false)}
                   className="mt-2 block rounded-lg steel-border px-4 py-3 text-center text-sm font-semibold text-foreground hover:bg-accent"
+                >
+                  Marketing Hub
+                </Link>
+              </li>
+              <li role="none">
+                <Link
                   to="/vine"
                   role="menuitem"
                   onClick={() => setOpen(false)}

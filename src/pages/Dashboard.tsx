@@ -18,6 +18,8 @@ import {
   TrendingUp,
   Zap,
   ArrowRight,
+  FileText,
+  Share2,
 } from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import { Logo } from "@/components/Logo";
