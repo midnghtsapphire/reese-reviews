@@ -103,7 +103,16 @@ The following documents were added to address the compliance and agent-completio
 | [`docs/AGENT_COMPLETION_GUIDE.md`](../AGENT_COMPLETION_GUIDE.md) | **Why agents don't finish apps.** Root cause analysis + the playbook to guarantee completion. Required reading for all agents. |
 | [`docs/ROLLOUT_PLAN.md`](../ROLLOUT_PLAN.md) | **Safe live-app rollout procedures.** Risk-tiered deployment strategy + rollback procedures for all failure scenarios. |
 
-### What Was Completed This Session (April 6, 2026 — Sprint 4 fifth iteration)
+### What Was Completed This Session (April 25, 2026)
+- **Product Image Scraper** — new `productImageScraper.ts` service scrapes images from Amazon listing, Amazon international reviews (UK/DE/JP/CA/AU/IN), Walmart, and Target. Demo mode fallback when no proxy configured. 19 new tests.
+- **Automation Mode Selector** — 5 modes (Full Auto / Video Only / Photos Only / Review Only / Manual) controlling what gets AI-generated per item. Global default in toolbar + per-item selector in add form. Mode badge on item cards. Generation logic conditionally skips steps based on mode.
+- **`amazonUrl` field** — ASIN auto-extraction from pasted Amazon URLs.
+- **Supabase migration** — `20260425_vine_automation_fields.sql` adds `amazon_url`, `automation_mode`, `scraped_images` columns.
+- **6 Devin Review bug fixes** — image type classification, photos_only mode OpenRouter independence, bulk generate manual item filtering, scrapedData conditional writing, form default sync, migration for new columns.
+- **Tests:** 247 passing (228 existing + 19 new). Build, lint, typecheck all clean.
+- **PR #51:** https://github.com/midnghtsapphire/reese-reviews/pull/51
+
+### What Was Completed Previous Session (April 6, 2026 — Sprint 4 fifth iteration)
 - **RR-411 ✅** — Matched site background to the logo backdrop:
   - Added shared page gradient variables using the logo colors (#0f0f1a → #1a1a2e → #16213e), applied to the body and `gradient-dark-surface`, and mirrored into accessibility modes so the whole page matches the logo background.
   - Tests: `npm test` (226 passing). Build: `npm run build` (success; existing chunk size warning remains).
@@ -124,10 +133,10 @@ The following documents were added to address the compliance and agent-completio
 
 ### What's Next (Highest Priority for Next Session)
 
-1. **RR-503** — Add TSDoc comments to all `src/lib/*.ts` files (Medium, required for TypeDoc quality)
-2. **RR-504** — Add TSDoc comments to all `src/services/*.ts` files (Medium)
-3. **RR-505** — Fix remaining ESLint `any` violations (Medium)
-4. **RR-601** — Wire CrossMarketSeeder to live OpenRouter API (High)
+1. **Backend scraper proxy** — build the proxy service at `VITE_SCRAPER_PROXY_URL` to handle real image scraping (Amazon/Walmart/Target) in production mode
+2. **Webhook endpoints for n8n/Make/Zapier/Gumloop** — trigger automation modes externally
+3. **RR-601** — Wire CrossMarketSeeder to live OpenRouter API (High)
+4. **RR-503** — Add TSDoc comments to all `src/lib/*.ts` files (Medium)
 
 > Next agent: **read `docs/BACKLOG.md` first.** Pick the highest-priority `To Do` item. Update its status. Update this HANDOFF.md when done.
 
