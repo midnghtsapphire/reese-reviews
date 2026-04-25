@@ -342,7 +342,9 @@ export default function VineReviewDashboard() {
       const updatePayload: Partial<VineItem> = {
         status: "generated" as VineItemStatus,
         generatedReview,
-        scrapedData: {
+      };
+      if (doReview || doVideo) {
+        updatePayload.scrapedData = {
           amazonReviews: scraped.reviews,
           redditMentions: [],
           averageRating: scraped.averageRating,
@@ -351,8 +353,8 @@ export default function VineReviewDashboard() {
           commonCons: scraped.commonCons,
           sentimentScore: ratingAnalysis?.sentimentScore ?? 0,
           scrapedAt: new Date().toISOString(),
-        },
-      };
+        };
+      }
       if (imageResult) {
         updatePayload.scrapedImages = {
           listingImages: imageResult.listingImages,
