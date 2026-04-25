@@ -269,14 +269,11 @@ export default function VineReviewDashboard() {
       refresh();
 
       // Conditionally scrape review text + product images in parallel
-      const promises: [
-        Promise<Awaited<ReturnType<typeof scrapeProductReviews>>>,
-        Promise<ProductImageResult | null>,
-      ] = [
-        scrapeProductReviews(item.productName, item.asin),
+      const emptyScraped = { reviews: [], commonPros: [], commonCons: [], averageRating: 0 };
+      const [scraped, imageResult] = await Promise.all([
+        (doReview || doVideo) ? scrapeProductReviews(item.productName, item.asin) : Promise.resolve(emptyScraped),
         doPhotos ? scrapeProductImages(item.asin, item.productName) : Promise.resolve(null),
-      ];
-      const [scraped, imageResult] = await Promise.all(promises);
+      ]);
 
       // Review text + rating (for full_auto, review_only, and video_only which needs text for script)
       let reviewData: GeneratedReviewData | null = null;
@@ -385,9 +382,9 @@ export default function VineReviewDashboard() {
 
   // ─── BULK GENERATE ─────────────────────────────────────
   const handleBulkGenerate = async () => {
-    const pending = getPendingQueue();
+    const pending = getPendingQueue().filter((i) => (i.automationMode || "full_auto") !== "manual");
     if (pending.length === 0) {
-      setError("No pending items to generate.");
+      setError("No pending items to generate (manual items are excluded).");
       return;
     }
     setIsBulkGenerating(true);
