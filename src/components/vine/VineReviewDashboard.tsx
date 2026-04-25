@@ -46,6 +46,18 @@ import {
 import { createHeyGenVideo, waitForHeyGenVideo } from "@/lib/heygenClient";
 import { stripExifFromFile } from "@/lib/exifStripper";
 
+function safeAmazonHref(url: string | undefined, asin: string): string {
+  const fallback = `https://www.amazon.com/dp/${encodeURIComponent(asin)}`;
+  if (!url) return fallback;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return fallback;
+    return parsed.href;
+  } catch {
+    return fallback;
+  }
+}
+
 // ─── VIDEO LENGTH SELECTOR COMPONENT ────────────────────────
 interface VideoLengthSelectorProps {
   value: number; // seconds
@@ -1330,7 +1342,7 @@ function VineItemCard({
             <div className="flex items-center gap-2 mt-1 flex-wrap">
               {item.asin && (
                 <a
-                  href={item.amazonUrl || `https://www.amazon.com/dp/${item.asin}`}
+                  href={safeAmazonHref(item.amazonUrl, item.asin)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs text-blue-400 hover:text-blue-300 font-mono"
