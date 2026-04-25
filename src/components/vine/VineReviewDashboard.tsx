@@ -38,6 +38,8 @@ import {
 } from "@/services/videoService";
 import ProductPhotoFinder from "@/components/vine/ProductPhotoFinder";
 import ReviewSubmissionForm from "@/components/vine/ReviewSubmissionForm";
+import { createHeyGenVideo, waitForHeyGenVideo } from "@/lib/heygenClient";
+import { stripExifFromFile } from "@/lib/exifStripper";
 
 // ─── VIDEO LENGTH SELECTOR COMPONENT ────────────────────────
 interface VideoLengthSelectorProps {
@@ -380,6 +382,83 @@ export default function VineReviewDashboard() {
     refresh();
   };
 
+  // ─── HEYGEN VIDEO GENERATION ─────────────────────────────
+  const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
+  const [videoProgress, setVideoProgress] = useState<string | null>(null);
+
+  const handleGenerateHeyGenVideo = async (item: VineItem) => {
+    if (!item.generatedReview?.videoScript) {
+      setError("Generate a review first to get a video script.");
+      return;
+    }
+    const heygenKey = localStorage.getItem("heygen_api_key") || import.meta.env.VITE_HEYGEN_API_KEY || "";
+    if (!heygenKey) {
+      setError("HeyGen API key not configured. Add it in settings or set VITE_HEYGEN_API_KEY.");
+      return;
+    }
+    setIsGeneratingVideo(true);
+    setVideoProgress("Sending script to HeyGen...");
+    setError(null);
+    try {
+      const avatar = avatars.find((a) => a.id === item.generatedReview?.avatarId) || avatars[0];
+      const { video_id } = await createHeyGenVideo(heygenKey, {
+        avatar_id: avatar?.id || "avatar-reese",
+        script: item.generatedReview.videoScript,
+        title: `Review: ${item.productName}`,
+        background: "#1e1b4b",
+      });
+      setVideoProgress("Video queued — waiting for HeyGen to render...");
+
+      const result = await waitForHeyGenVideo(heygenKey, video_id, (status) => {
+        setVideoProgress(`Video status: ${status.status}...`);
+      });
+
+      if (result.status === "completed" && result.video_url) {
+        updateVineItem(item.id, {
+          generatedReview: {
+            ...item.generatedReview,
+            videoUrl: result.video_url,
+          },
+        });
+        setSuccess(`Video generated for "${item.productName}"!`);
+      } else {
+        setError(`HeyGen video failed: ${result.error || "Unknown error"}`);
+      }
+    } catch (err: unknown) {
+      setError(`HeyGen error: ${err instanceof Error ? err.message : "Unknown error"}`);
+    } finally {
+      setIsGeneratingVideo(false);
+      setVideoProgress(null);
+      refresh();
+    }
+  };
+
+  // ─── EXIF STRIPPING FOR PHOTO UPLOADS ─────────────────
+  const handlePhotoUpload = async (item: VineItem, files: FileList) => {
+    if (!item.generatedReview) return;
+    const strippedPhotos: ReviewPhoto[] = [...(item.generatedReview.photos || [])];
+
+    for (let i = 0; i < files.length && strippedPhotos.length < 8; i++) {
+      const result = await stripExifFromFile(files[i], 0.92);
+      strippedPhotos.push({
+        id: `photo-${Date.now()}-${i}`,
+        url: result.url,
+        caption: `Photo ${strippedPhotos.length + 1}`,
+        type: i === 0 ? "product" : "in-use",
+        isSelected: true,
+      });
+    }
+
+    updateVineItem(item.id, {
+      generatedReview: {
+        ...item.generatedReview,
+        photos: strippedPhotos,
+      },
+    });
+    setSuccess(`${files.length} photo(s) added with EXIF data stripped for privacy!`);
+    refresh();
+  };
+
   // ─── AVATAR UPLOAD ─────────────────────────────────────
   const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -714,6 +793,10 @@ export default function VineReviewDashboard() {
                   onCopy={() => copyReview(item)}
                   onFindPhotos={() => setPhotoFinderItem(item)}
                   onSubmit={() => setSubmissionItem(item)}
+                  onGenerateVideo={() => handleGenerateHeyGenVideo(item)}
+                  onPhotoUpload={(files) => handlePhotoUpload(item, files)}
+                  isGeneratingVideo={isGeneratingVideo}
+                  videoProgress={videoProgress}
                 />
               ))
           )}
@@ -749,6 +832,10 @@ export default function VineReviewDashboard() {
                   onCopy={() => copyReview(item)}
                   onFindPhotos={() => setPhotoFinderItem(item)}
                   onSubmit={() => setSubmissionItem(item)}
+                  onGenerateVideo={() => handleGenerateHeyGenVideo(item)}
+                  onPhotoUpload={(files) => handlePhotoUpload(item, files)}
+                  isGeneratingVideo={isGeneratingVideo}
+                  videoProgress={videoProgress}
                 />
               ))
           )}
@@ -1015,12 +1102,17 @@ interface VineItemCardProps {
   onCopy: () => void;
   onFindPhotos: () => void;
   onSubmit: () => void;
+  onGenerateVideo: () => void;
+  onPhotoUpload: (files: FileList) => void;
+  isGeneratingVideo: boolean;
+  videoProgress: string | null;
 }
 
 function VineItemCard({
   item, avatars, isGenerating, videoLength,
   onVideoLengthChange, onGenerate, onDelete, onPreview, onEdit, onCopy,
-  onFindPhotos, onSubmit,
+  onFindPhotos, onSubmit, onGenerateVideo, onPhotoUpload,
+  isGeneratingVideo, videoProgress,
 }: VineItemCardProps) {
   const days = getDaysUntilDeadline(item.reviewDeadline);
   const deadlineColor = getDeadlineColor(item.reviewDeadline);
@@ -1113,17 +1205,58 @@ function VineItemCard({
               <Button size="sm" variant="outline" onClick={onSubmit}>
                 <FileText className="h-3 w-3 mr-1" /> Submit
               </Button>
-              {review.videoScript && (
-                <Button size="sm" variant="outline" onClick={onPreview}>
-                  <Video className="h-3 w-3 mr-1" /> Preview Video
+              {review.videoScript && !review.videoUrl && (
+                <Button size="sm" variant="outline" onClick={onGenerateVideo} disabled={isGeneratingVideo}>
+                  {isGeneratingVideo ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Video className="h-3 w-3 mr-1" />}
+                  {isGeneratingVideo ? "Generating..." : "HeyGen Video"}
                 </Button>
               )}
+              {review.videoUrl && (
+                <a href={review.videoUrl} target="_blank" rel="noopener noreferrer">
+                  <Button size="sm" variant="outline" className="text-green-400">
+                    <Play className="h-3 w-3 mr-1" /> Watch Video
+                  </Button>
+                </a>
+              )}
+              {review.videoScript && (
+                <Button size="sm" variant="outline" onClick={onPreview}>
+                  <Eye className="h-3 w-3 mr-1" /> Preview
+                </Button>
+              )}
+              <label className="inline-flex">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => e.target.files && onPhotoUpload(e.target.files)}
+                />
+                <Button size="sm" variant="outline" asChild>
+                  <span><Upload className="h-3 w-3 mr-1" /> Upload Photos</span>
+                </Button>
+              </label>
             </>
           )}
           <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 ml-auto" onClick={onDelete}>
             <Trash2 className="h-3 w-3" />
           </Button>
         </div>
+
+        {/* Video generation progress */}
+        {isGeneratingVideo && videoProgress && (
+          <div className="flex items-center gap-2 p-2 bg-purple-900/30 rounded text-xs text-purple-300">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            {videoProgress}
+          </div>
+        )}
+
+        {/* Photo count indicator */}
+        {review && review.photos.filter(p => p.isSelected).length > 0 && (
+          <div className="text-xs text-muted-foreground">
+            {review.photos.filter(p => p.isSelected).length}/8 photos selected
+            {review.photos.some(p => p.url) && " (EXIF stripped)"}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
