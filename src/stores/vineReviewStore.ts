@@ -21,6 +21,7 @@ export interface VineItem {
   id: string;
   productName: string;
   asin: string;
+  amazonUrl: string;
   category: string;
   orderDate: string;
   reviewDeadline: string;
@@ -29,6 +30,7 @@ export interface VineItem {
   status: VineItemStatus;
   generatedReview: GeneratedReview | null;
   scrapedData: ScrapedProductData | null;
+  scrapedImages: ScrapedImageData | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -80,6 +82,14 @@ export interface ScrapedReview {
   helpful: number;
 }
 
+export interface ScrapedImageData {
+  listingImages: Array<{ url: string; source: string; type: string; alt: string }>;
+  reviewImages: Array<{ url: string; source: string; type: string; alt: string }>;
+  sources: string[];
+  scrapedAt: string;
+  isDemo: boolean;
+}
+
 export interface AvatarProfile {
   id: string;
   name: string;
@@ -110,6 +120,7 @@ const vineItemStoreOpts: SupabaseStoreOptions<VineItem> = {
     id: row.id as string,
     productName: row.product_name as string,
     asin: (row.asin as string) || "",
+    amazonUrl: (row.amazon_url as string) || "",
     category: (row.category as string) || "other",
     orderDate: row.order_date as string,
     reviewDeadline: row.review_deadline as string,
@@ -118,6 +129,7 @@ const vineItemStoreOpts: SupabaseStoreOptions<VineItem> = {
     status: (row.status as VineItemStatus) || "pending",
     generatedReview: row.generated_review as GeneratedReview | null,
     scrapedData: row.scraped_data as ScrapedProductData | null,
+    scrapedImages: row.scraped_images as ScrapedImageData | null,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
   }),
@@ -126,6 +138,7 @@ const vineItemStoreOpts: SupabaseStoreOptions<VineItem> = {
     user_id: userId,
     product_name: item.productName,
     asin: item.asin,
+    amazon_url: item.amazonUrl,
     category: item.category,
     order_date: item.orderDate || null,
     review_deadline: item.reviewDeadline || null,
@@ -134,6 +147,7 @@ const vineItemStoreOpts: SupabaseStoreOptions<VineItem> = {
     status: item.status,
     generated_review: item.generatedReview as unknown as Record<string, unknown> | null,
     scraped_data: item.scrapedData as unknown as Record<string, unknown> | null,
+    scraped_images: item.scrapedImages as unknown as Record<string, unknown> | null,
   }),
   getId: (item) => item.id,
 };
@@ -213,13 +227,14 @@ export function getVineItem(id: string): VineItem | undefined {
   return loadItems().find((i) => i.id === id);
 }
 
-export function addVineItem(data: Omit<VineItem, "id" | "status" | "generatedReview" | "scrapedData" | "createdAt" | "updatedAt">): VineItem {
+export function addVineItem(data: Omit<VineItem, "id" | "status" | "generatedReview" | "scrapedData" | "scrapedImages" | "createdAt" | "updatedAt">): VineItem {
   const item: VineItem = {
     ...data,
     id: generateId(),
     status: "pending",
     generatedReview: null,
     scrapedData: null,
+    scrapedImages: null,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -260,9 +275,11 @@ export interface CSVRow {
 export function importFromCSV(rows: CSVRow[]): VineItem[] {
   const imported: VineItem[] = [];
   for (const row of rows) {
+    const asin = row.asin || "";
     const item = addVineItem({
       productName: row.productName || "Unknown Product",
-      asin: row.asin || "",
+      asin,
+      amazonUrl: asin ? `https://www.amazon.com/dp/${asin}` : "",
       category: row.category || "other",
       orderDate: row.orderDate || new Date().toISOString(),
       reviewDeadline: row.reviewDeadline || new Date(Date.now() + 30 * 86400000).toISOString(),

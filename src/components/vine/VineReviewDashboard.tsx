@@ -38,6 +38,10 @@ import {
 } from "@/services/videoService";
 import ProductPhotoFinder from "@/components/vine/ProductPhotoFinder";
 import ReviewSubmissionForm from "@/components/vine/ReviewSubmissionForm";
+import {
+  scrapeProductImages, extractAsinFromUrl, sourceLabel,
+  countBySource, type ProductImageResult, type ScrapedImage,
+} from "@/services/productImageScraper";
 
 // ─── VIDEO LENGTH SELECTOR COMPONENT ────────────────────────
 interface VideoLengthSelectorProps {
@@ -132,11 +136,15 @@ export default function VineReviewDashboard() {
   // Add item form
   const [showAddForm, setShowAddForm] = useState(false);
   const [addForm, setAddForm] = useState({
-    productName: "", asin: "", category: "electronics",
+    productName: "", asin: "", amazonUrl: "", category: "electronics",
     orderDate: new Date().toISOString().split("T")[0],
     reviewDeadline: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
     etv: "",
   });
+
+  // Image scraping
+  const [isScraping, setIsScraping] = useState(false);
+  const [scrapedImageResult, setScrapedImageResult] = useState<ProductImageResult | null>(null);
 
   // CSV import
   const [showCSVImport, setShowCSVImport] = useState(false);
@@ -199,11 +207,23 @@ export default function VineReviewDashboard() {
   };
 
   // ─── ADD ITEM ───────────────────────────────────────────
+  const handleAmazonUrlChange = (url: string) => {
+    setAddForm((prev) => {
+      const updates: typeof prev = { ...prev, amazonUrl: url };
+      const extracted = extractAsinFromUrl(url);
+      if (extracted) updates.asin = extracted;
+      return updates;
+    });
+  };
+
   const handleAddItem = () => {
     if (!addForm.productName.trim()) return;
+    const asin = addForm.asin || extractAsinFromUrl(addForm.amazonUrl) || "";
+    const amazonUrl = addForm.amazonUrl || (asin ? `https://www.amazon.com/dp/${asin}` : "");
     addVineItem({
       productName: addForm.productName,
-      asin: addForm.asin,
+      asin,
+      amazonUrl,
       category: addForm.category,
       orderDate: new Date(addForm.orderDate).toISOString(),
       reviewDeadline: new Date(addForm.reviewDeadline).toISOString(),
@@ -211,7 +231,7 @@ export default function VineReviewDashboard() {
       imageUrl: "",
     });
     setAddForm({
-      productName: "", asin: "", category: "electronics",
+      productName: "", asin: "", amazonUrl: "", category: "electronics",
       orderDate: new Date().toISOString().split("T")[0],
       reviewDeadline: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
       etv: "",
@@ -232,24 +252,45 @@ export default function VineReviewDashboard() {
       updateVineItem(item.id, { status: "generating" });
       refresh();
 
-      const scraped = await scrapeProductReviews(item.productName, item.asin);
+      // Scrape review text + product images in parallel
+      const [scraped, imageResult] = await Promise.all([
+        scrapeProductReviews(item.productName, item.asin),
+        scrapeProductImages(item.asin, item.productName),
+      ]);
       const ratingAnalysis = calculateStarRating(scraped.reviews);
       const context = scraped.reviews.map((r) => `[${r.source}] ${r.rating}★: ${r.text}`).join("\n");
       const reviewData = await generateReview(item.productName, item.asin, item.category, context);
 
-      // Pass preset info to video script generator so it knows to generate more content
       const videoScript = await generateVideoScript(
         item.productName, reviewData.body, reviewData.rating,
         reviewData.pros, reviewData.cons, preset
       );
 
-      const photos: ReviewPhoto[] = [
+      // Build photos from scraped images (listing + reviews from other countries/retailers)
+      const typeMap: Record<string, ReviewPhoto["type"]> = {
+        listing: "product",
+        lifestyle: "lifestyle",
+        review: "in-use",
+      };
+      const scrapedPhotos: ReviewPhoto[] = imageResult.allImages.slice(0, 8).map((img, i) => ({
+        id: `photo-${Date.now()}-${i}`,
+        url: img.url,
+        caption: `${img.alt} (${sourceLabel(img.source)})`,
+        type: typeMap[img.type] || "product",
+        isSelected: i < 5,
+      }));
+
+      // Fallback to empty placeholder photos if no images scraped
+      const photos: ReviewPhoto[] = scrapedPhotos.length > 0 ? scrapedPhotos : [
         { id: `photo-${Date.now()}-1`, url: "", caption: "Product front view", type: "product", isSelected: true },
         { id: `photo-${Date.now()}-2`, url: "", caption: "Product in use", type: "in-use", isSelected: true },
         { id: `photo-${Date.now()}-3`, url: "", caption: "Product detail", type: "detail", isSelected: true },
         { id: `photo-${Date.now()}-4`, url: "", caption: "Unboxing shot", type: "unboxing", isSelected: false },
         { id: `photo-${Date.now()}-5`, url: "", caption: "Lifestyle shot", type: "lifestyle", isSelected: false },
       ];
+
+      const imageSources = countBySource(imageResult.allImages);
+      const sourcesSummary = Object.entries(imageSources).map(([s, n]) => `${n} from ${s}`).join(", ");
 
       const generatedReview: GeneratedReview = {
         id: `review-${Date.now()}`,
@@ -284,9 +325,19 @@ export default function VineReviewDashboard() {
           sentimentScore: ratingAnalysis.sentimentScore,
           scrapedAt: new Date().toISOString(),
         },
+        scrapedImages: {
+          listingImages: imageResult.listingImages,
+          reviewImages: imageResult.reviewImages,
+          sources: imageResult.sources,
+          scrapedAt: imageResult.scrapedAt,
+          isDemo: imageResult.isDemo,
+        },
       });
 
-      setSuccess(`Review generated for "${item.productName}" (${preset.label} video)!`);
+      const imgMsg = imageResult.allImages.length > 0
+        ? ` | ${imageResult.allImages.length} images scraped (${sourcesSummary})`
+        : "";
+      setSuccess(`Review generated for "${item.productName}" (${preset.label} video)${imgMsg}!`);
       refresh();
     } catch (err: unknown) {
       setError(`Failed to generate review: ${err instanceof Error ? err.message : "Unknown error"}`);
@@ -312,6 +363,36 @@ export default function VineReviewDashboard() {
     }
     setIsBulkGenerating(false);
     setSuccess(`Generated reviews for ${pending.length} items!`);
+  };
+
+  // ─── SCRAPE IMAGES (standalone) ─────────────────────────
+  const handleScrapeImages = async (item: VineItem) => {
+    if (!item.asin) {
+      setError("No ASIN — cannot scrape images without a product identifier.");
+      return;
+    }
+    setIsScraping(true);
+    setError(null);
+    try {
+      const result = await scrapeProductImages(item.asin, item.productName);
+      const imageSources = countBySource(result.allImages);
+      const sourcesSummary = Object.entries(imageSources).map(([s, n]) => `${n} from ${s}`).join(", ");
+      updateVineItem(item.id, {
+        scrapedImages: {
+          listingImages: result.listingImages,
+          reviewImages: result.reviewImages,
+          sources: result.sources,
+          scrapedAt: result.scrapedAt,
+          isDemo: result.isDemo,
+        },
+      });
+      setSuccess(`Scraped ${result.allImages.length} images for "${item.productName}" (${sourcesSummary})`);
+      refresh();
+    } catch (err: unknown) {
+      setError(`Failed to scrape images: ${err instanceof Error ? err.message : "Unknown error"}`);
+    } finally {
+      setIsScraping(false);
+    }
   };
 
   // ─── EDIT REVIEW ────────────────────────────────────────
@@ -566,6 +647,24 @@ export default function VineReviewDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div>
+                <Label>Amazon Product URL</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={addForm.amazonUrl}
+                    onChange={(e) => handleAmazonUrlChange(e.target.value)}
+                    placeholder="Paste Amazon URL — ASIN auto-extracted"
+                    className="flex-1"
+                  />
+                  {addForm.asin && (
+                    <Badge variant="outline" className="whitespace-nowrap self-center">
+                      ASIN: {addForm.asin}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label>Product Name *</Label>
@@ -580,7 +679,7 @@ export default function VineReviewDashboard() {
                 <Input
                   value={addForm.asin}
                   onChange={(e) => setAddForm({ ...addForm, asin: e.target.value })}
-                  placeholder="e.g., B0EXAMPLE1"
+                  placeholder="Auto-filled from URL or enter manually"
                 />
               </div>
               <div>
@@ -705,9 +804,11 @@ export default function VineReviewDashboard() {
                   item={item}
                   avatars={avatars}
                   isGenerating={isGenerating}
+                  isScraping={isScraping}
                   videoLength={itemVideoLengths[item.id] ?? videoLengthSeconds}
                   onVideoLengthChange={(s) => setItemVideoLengths((prev) => ({ ...prev, [item.id]: s }))}
                   onGenerate={() => handleGenerateReview(item)}
+                  onScrapeImages={() => handleScrapeImages(item)}
                   onDelete={() => { deleteVineItem(item.id); refresh(); }}
                   onPreview={() => previewVideo(item)}
                   onEdit={() => startEditing(item)}
@@ -740,9 +841,11 @@ export default function VineReviewDashboard() {
                   item={item}
                   avatars={avatars}
                   isGenerating={isGenerating}
+                  isScraping={isScraping}
                   videoLength={itemVideoLengths[item.id] ?? (item.generatedReview?.videoLengthSeconds ?? videoLengthSeconds)}
                   onVideoLengthChange={(s) => setItemVideoLengths((prev) => ({ ...prev, [item.id]: s }))}
                   onGenerate={() => handleGenerateReview(item)}
+                  onScrapeImages={() => handleScrapeImages(item)}
                   onDelete={() => { deleteVineItem(item.id); refresh(); }}
                   onPreview={() => previewVideo(item)}
                   onEdit={() => startEditing(item)}
@@ -1006,9 +1109,11 @@ interface VineItemCardProps {
   item: VineItem;
   avatars: AvatarProfile[];
   isGenerating: boolean;
+  isScraping: boolean;
   videoLength: number;
   onVideoLengthChange: (seconds: number) => void;
   onGenerate: () => void;
+  onScrapeImages: () => void;
   onDelete: () => void;
   onPreview: () => void;
   onEdit: () => void;
@@ -1018,8 +1123,8 @@ interface VineItemCardProps {
 }
 
 function VineItemCard({
-  item, avatars, isGenerating, videoLength,
-  onVideoLengthChange, onGenerate, onDelete, onPreview, onEdit, onCopy,
+  item, avatars, isGenerating, isScraping, videoLength,
+  onVideoLengthChange, onGenerate, onScrapeImages, onDelete, onPreview, onEdit, onCopy,
   onFindPhotos, onSubmit,
 }: VineItemCardProps) {
   const days = getDaysUntilDeadline(item.reviewDeadline);
@@ -1044,7 +1149,16 @@ function VineItemCard({
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-sm truncate">{item.productName}</h3>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
-              {item.asin && <span className="text-xs text-muted-foreground font-mono">{item.asin}</span>}
+              {item.asin && (
+                <a
+                  href={item.amazonUrl || `https://www.amazon.com/dp/${item.asin}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-400 hover:text-blue-300 font-mono"
+                >
+                  {item.asin}
+                </a>
+              )}
               <Badge variant="outline" className="text-xs capitalize">{item.category}</Badge>
               <span className={`text-xs font-medium capitalize ${statusColors[item.status]}`}>{item.status}</span>
               {item.etv > 0 && <span className="text-xs text-muted-foreground">ETV: ${item.etv.toFixed(2)}</span>}
@@ -1076,6 +1190,24 @@ function VineItemCard({
           )}
         </div>
 
+        {/* Scraped image sources */}
+        {item.scrapedImages && item.scrapedImages.sources.length > 0 && (
+          <div className="p-2 bg-slate-800/30 rounded-lg">
+            <p className="text-xs font-medium text-muted-foreground mb-1">Scraped Images:</p>
+            <div className="flex gap-1 flex-wrap">
+              {item.scrapedImages.sources.map((src) => (
+                <Badge key={src} variant="secondary" className="text-xs">
+                  {sourceLabel(src)}
+                </Badge>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {item.scrapedImages.listingImages.length} listing + {item.scrapedImages.reviewImages.length} review images
+              {item.scrapedImages.isDemo && " (demo)"}
+            </p>
+          </div>
+        )}
+
         {/* Review preview */}
         {review && (
           <div className="p-3 bg-slate-800/50 rounded-lg space-y-2">
@@ -1094,10 +1226,18 @@ function VineItemCard({
         {/* Actions */}
         <div className="flex gap-2 flex-wrap">
           {(item.status === "pending" || item.status === "overdue") && (
-            <Button size="sm" className="gradient-steel" onClick={onGenerate} disabled={isGenerating}>
-              {isGenerating ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Zap className="h-3 w-3 mr-1" />}
-              Generate
-            </Button>
+            <>
+              <Button size="sm" className="gradient-steel" onClick={onGenerate} disabled={isGenerating}>
+                {isGenerating ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Zap className="h-3 w-3 mr-1" />}
+                Generate
+              </Button>
+              {!item.scrapedImages && item.asin && (
+                <Button size="sm" variant="outline" onClick={onScrapeImages} disabled={isScraping}>
+                  {isScraping ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Search className="h-3 w-3 mr-1" />}
+                  Scrape Images
+                </Button>
+              )}
+            </>
           )}
           {review && (
             <>
