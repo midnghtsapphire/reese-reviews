@@ -191,7 +191,7 @@ export async function scrapeProductImages(
   }
 
   // Production mode: call backend proxy for each source in parallel
-  const [listingImages, ...intlResults] = await Promise.allSettled([
+  const results = await Promise.allSettled([
     fetchAmazonListingImages(asin, productName),
     ...AMAZON_INTERNATIONAL_DOMAINS.map((intl) =>
       fetchAmazonReviewImages(asin, productName, intl.domain, intl.sourceKey),
@@ -200,19 +200,19 @@ export async function scrapeProductImages(
     fetchTargetImages(asin, productName),
   ]);
 
-  const listing =
-    listingImages.status === "fulfilled" ? listingImages.value : [];
-  const review = intlResults.flatMap((r) =>
+  // Collect all images, then classify by type (not by array position)
+  const allImages = results.flatMap((r) =>
     r.status === "fulfilled" ? r.value : [],
   );
-  const allImages = [...listing, ...review];
+  const listingImgs = allImages.filter((img) => img.type === "listing" || img.type === "lifestyle");
+  const reviewImgs = allImages.filter((img) => img.type === "review");
   const sources = [...new Set(allImages.map((img) => img.source))] as ScrapedImageSource[];
 
   return {
     asin,
     productName,
-    listingImages: listing,
-    reviewImages: review,
+    listingImages: listingImgs,
+    reviewImages: reviewImgs,
     allImages,
     sources,
     scrapedAt: new Date().toISOString(),
