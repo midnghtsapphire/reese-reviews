@@ -10,10 +10,14 @@ interface Section {
 
 const CopyButton = ({ text }: { text: string }) => {
   const [copied, setCopied] = useState(false);
-  const handleCopy = () => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy text:", err);
+    }
   };
   return (
     <button onClick={handleCopy} className="ml-2 text-steel-mid hover:text-white transition-colors" title="Copy">
@@ -556,6 +560,7 @@ export default function DocsPage() {
                 placeholder="Search sections..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label="Search documentation sections"
                 className="w-full pl-10 pr-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white placeholder-steel-mid text-sm focus:outline-none focus:border-primary/50"
               />
             </div>
