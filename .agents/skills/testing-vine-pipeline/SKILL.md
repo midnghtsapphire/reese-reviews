@@ -13,7 +13,7 @@ npm run dev -- --port 8081
 The app runs at `http://localhost:8081`.
 
 ### Authentication
-- Fallback password: `WizOz#123` (used when Supabase auth is not connected)
+- Fallback password: Set via `VITE_FALLBACK_PASSWORD` env var (used when Supabase auth is not connected)
 - Login page is at `/` — enter the password and click Login
 
 ### Demo Mode
