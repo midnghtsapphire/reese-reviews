@@ -548,7 +548,7 @@ export default function VineReviewDashboard() {
           <Button variant="outline" size="sm" onClick={() => setShowCSVImport(true)}>
             <Upload className="h-4 w-4 mr-1" /> Import CSV
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setShowAddForm(true)}>
+          <Button variant="outline" size="sm" onClick={() => { setAddForm((f) => ({ ...f, automationMode: defaultAutomationMode })); setShowAddForm(true); }}>
             <Plus className="h-4 w-4 mr-1" /> Add Item
           </Button>
           <Button
@@ -862,7 +862,7 @@ export default function VineReviewDashboard() {
                   <Button variant="outline" size="sm" onClick={() => setShowCSVImport(true)}>
                     <Upload className="h-4 w-4 mr-1" /> Import CSV
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => setShowAddForm(true)}>
+                  <Button variant="outline" size="sm" onClick={() => { setAddForm((f) => ({ ...f, automationMode: defaultAutomationMode })); setShowAddForm(true); }}>
                     <Plus className="h-4 w-4 mr-1" /> Add Item
                   </Button>
                 </div>
