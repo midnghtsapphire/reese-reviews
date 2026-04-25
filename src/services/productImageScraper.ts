@@ -21,6 +21,7 @@ export interface ScrapedImage {
   alt: string;
   width?: number;
   height?: number;
+  casualName?: string;
 }
 
 export type ScrapedImageSource =
@@ -83,6 +84,40 @@ export function buildAmazonUrl(asin: string, domain = "amazon.com"): string {
   return `https://www.${domain}/dp/${asin}`;
 }
 
+// ─── CASUAL FILE NAMING ─────────────────────────────────────
+
+/**
+ * Generate a casual, phone-style filename so images don't look scraped.
+ * Produces names like IMG_20260425_143022.jpg or photo_3.jpg.
+ */
+export function casualFilename(index: number, ext = "jpg"): string {
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const datePart = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
+  const timePart = `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds() + index)}`;
+  const styles = [
+    `IMG_${datePart}_${timePart}.${ext}`,
+    `photo_${index + 1}.${ext}`,
+    `image${index + 1}.${ext}`,
+    `PXL_${datePart}_${timePart}.${ext}`,
+  ];
+  return styles[index % styles.length];
+}
+
+export function casualVideoFilename(index = 0, ext = "mp4"): string {
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const datePart = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
+  const timePart = `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  const styles = [
+    `VID_${datePart}_${timePart}.${ext}`,
+    `video_${index + 1}.${ext}`,
+    `clip_${datePart}.${ext}`,
+    `MOV_${timePart}.${ext}`,
+  ];
+  return styles[index % styles.length];
+}
+
 // ─── DEMO MODE ──────────────────────────────────────────────
 
 function isOfflineMode(): boolean {
@@ -90,38 +125,15 @@ function isOfflineMode(): boolean {
 }
 
 function generateDemoListingImages(asin: string, productName: string): ScrapedImage[] {
-  return [
-    {
-      url: `https://m.media-amazon.com/images/I/${asin}-main.jpg`,
-      source: "amazon-listing",
-      type: "listing",
-      alt: `${productName} - Main product image`,
-    },
-    {
-      url: `https://m.media-amazon.com/images/I/${asin}-angle.jpg`,
-      source: "amazon-listing",
-      type: "listing",
-      alt: `${productName} - Angle view`,
-    },
-    {
-      url: `https://m.media-amazon.com/images/I/${asin}-back.jpg`,
-      source: "amazon-listing",
-      type: "listing",
-      alt: `${productName} - Back view`,
-    },
-    {
-      url: `https://m.media-amazon.com/images/I/${asin}-detail.jpg`,
-      source: "amazon-listing",
-      type: "listing",
-      alt: `${productName} - Detail closeup`,
-    },
-    {
-      url: `https://m.media-amazon.com/images/I/${asin}-lifestyle.jpg`,
-      source: "amazon-listing",
-      type: "lifestyle",
-      alt: `${productName} - Lifestyle shot`,
-    },
-  ];
+  const names = ["main", "angle", "back", "detail", "lifestyle"];
+  const types: Array<"listing" | "lifestyle"> = ["listing", "listing", "listing", "listing", "lifestyle"];
+  return names.map((name, i) => ({
+    url: `https://m.media-amazon.com/images/I/${asin}-${name}.jpg`,
+    source: "amazon-listing" as const,
+    type: types[i],
+    alt: `${productName} - ${name}`,
+    casualName: casualFilename(i),
+  }));
 }
 
 function generateDemoReviewImages(asin: string, productName: string): ScrapedImage[] {
@@ -133,30 +145,35 @@ function generateDemoReviewImages(asin: string, productName: string): ScrapedIma
     { key: "target-review", label: "Target buyer" },
   ];
 
-  return sources.flatMap((src, srcIdx) => [
-    {
-      url: `https://m.media-amazon.com/images/I/${asin}-review-${src.key}-1.jpg`,
-      source: src.key,
-      type: "review" as const,
-      alt: `${productName} - Photo by ${src.label} (#1)`,
-    },
-    {
-      url: `https://m.media-amazon.com/images/I/${asin}-review-${src.key}-2.jpg`,
-      source: src.key,
-      type: "review" as const,
-      alt: `${productName} - Photo by ${src.label} (#2)`,
-    },
-    ...(srcIdx < 2
-      ? [
-          {
-            url: `https://m.media-amazon.com/images/I/${asin}-review-${src.key}-3.jpg`,
-            source: src.key,
-            type: "review" as const,
-            alt: `${productName} - Photo by ${src.label} (#3)`,
-          },
-        ]
-      : []),
-  ]);
+  let imgCounter = 5; // continue numbering after listing images
+  return sources.flatMap((src, srcIdx) => {
+    const imgs: ScrapedImage[] = [
+      {
+        url: `https://m.media-amazon.com/images/I/${asin}-review-${src.key}-1.jpg`,
+        source: src.key,
+        type: "review" as const,
+        alt: `${productName} - Photo by ${src.label} (#1)`,
+        casualName: casualFilename(imgCounter++),
+      },
+      {
+        url: `https://m.media-amazon.com/images/I/${asin}-review-${src.key}-2.jpg`,
+        source: src.key,
+        type: "review" as const,
+        alt: `${productName} - Photo by ${src.label} (#2)`,
+        casualName: casualFilename(imgCounter++),
+      },
+    ];
+    if (srcIdx < 2) {
+      imgs.push({
+        url: `https://m.media-amazon.com/images/I/${asin}-review-${src.key}-3.jpg`,
+        source: src.key,
+        type: "review" as const,
+        alt: `${productName} - Photo by ${src.label} (#3)`,
+        casualName: casualFilename(imgCounter++),
+      });
+    }
+    return imgs;
+  });
 }
 
 // ─── MAIN SCRAPER ───────────────────────────────────────────
@@ -240,6 +257,7 @@ async function fetchAmazonListingImages(
       source: "amazon-listing" as const,
       type: (i === 0 ? "listing" : i >= data.images.length - 1 ? "lifestyle" : "listing") as ScrapedImage["type"],
       alt: img.alt || `${productName} - Image ${i + 1}`,
+      casualName: casualFilename(i),
     }));
   } catch (err) {
     console.warn("[ImageScraper] Amazon listing fetch failed:", err);
@@ -271,6 +289,7 @@ async function fetchAmazonReviewImages(
       alt:
         img.alt ||
         `${productName} - ${domain} review photo ${i + 1}`,
+      casualName: casualFilename(i + 10),
     }));
   } catch (err) {
     console.warn(`[ImageScraper] ${domain} review fetch failed:`, err);
@@ -301,12 +320,14 @@ async function fetchWalmartImages(
         source: "walmart-listing" as const,
         type: "listing" as const,
         alt: img.alt || `${productName} - Walmart listing ${i + 1}`,
+        casualName: casualFilename(i + 20),
       })),
       ...data.reviewImages.map((img, i) => ({
         url: img.url,
         source: "walmart-review" as const,
         type: "review" as const,
         alt: img.alt || `${productName} - Walmart review photo ${i + 1}`,
+        casualName: casualFilename(i + 25),
       })),
     ];
   } catch (err) {
@@ -338,12 +359,14 @@ async function fetchTargetImages(
         source: "target-listing" as const,
         type: "listing" as const,
         alt: img.alt || `${productName} - Target listing ${i + 1}`,
+        casualName: casualFilename(i + 30),
       })),
       ...data.reviewImages.map((img, i) => ({
         url: img.url,
         source: "target-review" as const,
         type: "review" as const,
         alt: img.alt || `${productName} - Target review photo ${i + 1}`,
+        casualName: casualFilename(i + 35),
       })),
     ];
   } catch (err) {
