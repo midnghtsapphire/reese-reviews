@@ -16,6 +16,15 @@ import {
 
 export type VineItemStatus = "pending" | "generating" | "generated" | "edited" | "submitted" | "overdue";
 export type StarRating = 1 | 1.5 | 2 | 2.5 | 3 | 3.5 | 4 | 4.5 | 5;
+export type AutomationMode = "full_auto" | "video_only" | "photos_only" | "review_only" | "manual";
+
+export const AUTOMATION_MODES: Array<{ value: AutomationMode; label: string; description: string }> = [
+  { value: "full_auto", label: "Full Auto", description: "AI generates review + video + scrapes photos + rating" },
+  { value: "video_only", label: "Video Only", description: "Generates video script + HeyGen video only" },
+  { value: "photos_only", label: "Photos Only", description: "Scrapes images from Amazon/Walmart/Target only" },
+  { value: "review_only", label: "Review Only", description: "AI generates review text + rating, you supply media" },
+  { value: "manual", label: "Manual", description: "No auto-generation, just tracking and organization" },
+];
 
 export interface VineItem {
   id: string;
@@ -27,6 +36,7 @@ export interface VineItem {
   reviewDeadline: string;
   etv: number; // Estimated Tax Value
   imageUrl: string;
+  automationMode: AutomationMode;
   status: VineItemStatus;
   generatedReview: GeneratedReview | null;
   scrapedData: ScrapedProductData | null;
@@ -126,6 +136,7 @@ const vineItemStoreOpts: SupabaseStoreOptions<VineItem> = {
     reviewDeadline: row.review_deadline as string,
     etv: Number(row.etv) || 0,
     imageUrl: (row.image_url as string) || "",
+    automationMode: (row.automation_mode as AutomationMode) || "full_auto",
     status: (row.status as VineItemStatus) || "pending",
     generatedReview: row.generated_review as GeneratedReview | null,
     scrapedData: row.scraped_data as ScrapedProductData | null,
@@ -144,6 +155,7 @@ const vineItemStoreOpts: SupabaseStoreOptions<VineItem> = {
     review_deadline: item.reviewDeadline || null,
     etv: item.etv,
     image_url: item.imageUrl,
+    automation_mode: item.automationMode,
     status: item.status,
     generated_review: item.generatedReview as unknown as Record<string, unknown> | null,
     scraped_data: item.scrapedData as unknown as Record<string, unknown> | null,
@@ -285,6 +297,7 @@ export function importFromCSV(rows: CSVRow[]): VineItem[] {
       reviewDeadline: row.reviewDeadline || new Date(Date.now() + 30 * 86400000).toISOString(),
       etv: row.etv || 0,
       imageUrl: "",
+      automationMode: "full_auto",
     });
     imported.push(item);
   }
