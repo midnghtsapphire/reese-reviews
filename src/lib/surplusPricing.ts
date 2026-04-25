@@ -89,8 +89,8 @@ export function calculateSurplusPrice(input: PricingInput): PricingResult {
   const maxPrice = etv * 0.95;
   const suggestedPrice = Math.max(minPrice, Math.min(maxPrice, rawPrice));
 
-  const discountPercent = Math.round((1 - suggestedPrice / etv) * 100);
-  const pricePercentOfETV = Math.round((suggestedPrice / etv) * 100);
+  const discountPercent = etv > 0 ? Math.round((1 - suggestedPrice / etv) * 100) : 0;
+  const pricePercentOfETV = etv > 0 ? Math.round((suggestedPrice / etv) * 100) : 0;
 
   // Rental pricing: ~10-15% of suggested price per rental period (1-2 weeks)
   const rentalPrice = Math.max(5, Math.round(suggestedPrice * 0.12 * 100) / 100);

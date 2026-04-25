@@ -383,7 +383,7 @@ export default function VineReviewDashboard() {
   };
 
   // ─── HEYGEN VIDEO GENERATION ─────────────────────────────
-  const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
+  const [generatingVideoItemId, setGeneratingVideoItemId] = useState<string | null>(null);
   const [videoProgress, setVideoProgress] = useState<string | null>(null);
 
   const handleGenerateHeyGenVideo = async (item: VineItem) => {
@@ -396,7 +396,7 @@ export default function VineReviewDashboard() {
       setError("HeyGen API key not configured. Add it in settings or set VITE_HEYGEN_API_KEY.");
       return;
     }
-    setIsGeneratingVideo(true);
+    setGeneratingVideoItemId(item.id);
     setVideoProgress("Sending script to HeyGen...");
     setError(null);
     try {
@@ -414,9 +414,12 @@ export default function VineReviewDashboard() {
       });
 
       if (result.status === "completed" && result.video_url) {
+        const freshItems = getVineItems();
+        const freshItem = freshItems.find(i => i.id === item.id);
+        const freshReview = freshItem?.generatedReview || item.generatedReview;
         updateVineItem(item.id, {
           generatedReview: {
-            ...item.generatedReview,
+            ...freshReview,
             videoUrl: result.video_url,
           },
         });
@@ -427,7 +430,7 @@ export default function VineReviewDashboard() {
     } catch (err: unknown) {
       setError(`HeyGen error: ${err instanceof Error ? err.message : "Unknown error"}`);
     } finally {
-      setIsGeneratingVideo(false);
+      setGeneratingVideoItemId(null);
       setVideoProgress(null);
       refresh();
     }
@@ -455,7 +458,8 @@ export default function VineReviewDashboard() {
         photos: strippedPhotos,
       },
     });
-    setSuccess(`${files.length} photo(s) added with EXIF data stripped for privacy!`);
+    const addedCount = strippedPhotos.length - (item.generatedReview.photos || []).length;
+    setSuccess(`${addedCount} photo(s) added with EXIF data stripped for privacy!`);
     refresh();
   };
 
@@ -795,8 +799,8 @@ export default function VineReviewDashboard() {
                   onSubmit={() => setSubmissionItem(item)}
                   onGenerateVideo={() => handleGenerateHeyGenVideo(item)}
                   onPhotoUpload={(files) => handlePhotoUpload(item, files)}
-                  isGeneratingVideo={isGeneratingVideo}
-                  videoProgress={videoProgress}
+                  isGeneratingVideo={generatingVideoItemId === item.id}
+                  videoProgress={generatingVideoItemId === item.id ? videoProgress : null}
                 />
               ))
           )}
@@ -834,8 +838,8 @@ export default function VineReviewDashboard() {
                   onSubmit={() => setSubmissionItem(item)}
                   onGenerateVideo={() => handleGenerateHeyGenVideo(item)}
                   onPhotoUpload={(files) => handlePhotoUpload(item, files)}
-                  isGeneratingVideo={isGeneratingVideo}
-                  videoProgress={videoProgress}
+                  isGeneratingVideo={generatingVideoItemId === item.id}
+                  videoProgress={generatingVideoItemId === item.id ? videoProgress : null}
                 />
               ))
           )}
