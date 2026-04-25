@@ -26,9 +26,16 @@ export function isSupabaseConfigured(): boolean {
 // Always check isSupabaseConfigured() before making requests if your
 // feature has a demo/localStorage fallback.
 
+const PLACEHOLDER_URL = 'http://localhost:0';
+const PLACEHOLDER_KEY = 'placeholder-key';
+
+if (!isSupabaseConfigured()) {
+  console.warn('[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY — running in localStorage-only mode');
+}
+
 export const supabase = createClient<Database>(
-  SUPABASE_URL ?? '',
-  SUPABASE_PUBLISHABLE_KEY ?? '',
+  SUPABASE_URL || PLACEHOLDER_URL,
+  SUPABASE_PUBLISHABLE_KEY || PLACEHOLDER_KEY,
   {
     auth: {
       storage: localStorage,
