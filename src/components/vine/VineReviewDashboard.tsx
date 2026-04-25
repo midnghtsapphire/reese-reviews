@@ -263,14 +263,14 @@ export default function VineReviewDashboard() {
   };
 
   // ─── GENERATE REVIEW ───────────────────────────────────
-  const handleGenerateReview = async (item: VineItem) => {
+  const handleGenerateReview = async (item: VineItem, _bulk = false): Promise<boolean> => {
     const mode = item.automationMode || "full_auto";
     if (mode === "manual") {
       setError("This item is set to Manual mode — nothing to auto-generate.");
-      return;
+      return false;
     }
     setIsGenerating(true);
-    setError(null);
+    if (!_bulk) setError(null);
     const itemLength = itemVideoLengths[item.id] ?? videoLengthSeconds;
     const preset = getPresetBySeconds(itemLength);
 
@@ -387,10 +387,12 @@ export default function VineReviewDashboard() {
       if (imageResult && imageResult.allImages.length > 0) parts.push(`${imageResult.allImages.length} images (${sourcesSummary})`);
       setSuccess(`Generated: ${parts.join(" | ")}`);
       refresh();
+      return true;
     } catch (err: unknown) {
       setError(`Failed to generate review: ${err instanceof Error ? err.message : "Unknown error"}`);
       updateVineItem(item.id, { status: "pending" });
       refresh();
+      return false;
     } finally {
       setIsGenerating(false);
     }
@@ -405,12 +407,20 @@ export default function VineReviewDashboard() {
     }
     setIsBulkGenerating(true);
     setBulkProgress(0);
+    setError(null);
+    let succeeded = 0;
+    let failed = 0;
     for (let i = 0; i < pending.length; i++) {
-      await handleGenerateReview(pending[i]);
+      const ok = await handleGenerateReview(pending[i], true);
+      if (ok) succeeded++; else failed++;
       setBulkProgress(((i + 1) / pending.length) * 100);
     }
     setIsBulkGenerating(false);
-    setSuccess(`Processed ${pending.length} items!`);
+    if (failed === 0) {
+      setSuccess(`Processed ${succeeded} items!`);
+    } else {
+      setSuccess(`Processed ${pending.length} items: ${succeeded} succeeded, ${failed} failed.`);
+    }
   };
 
   // ─── SCRAPE IMAGES (standalone) ─────────────────────────
