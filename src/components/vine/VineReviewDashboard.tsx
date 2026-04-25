@@ -443,9 +443,14 @@ export default function VineReviewDashboard() {
 
     for (let i = 0; i < files.length && strippedPhotos.length < 8; i++) {
       const result = await stripExifFromFile(files[i], 0.92);
+      const dataUrl = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(result.blob);
+      });
       strippedPhotos.push({
         id: `photo-${Date.now()}-${i}`,
-        url: result.url,
+        url: dataUrl,
         caption: `Photo ${strippedPhotos.length + 1}`,
         type: i === 0 ? "product" : "in-use",
         isSelected: true,
