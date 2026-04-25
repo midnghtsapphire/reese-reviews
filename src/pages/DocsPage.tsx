@@ -527,7 +527,7 @@ export default function DocsPage() {
   return (
     <>
       <SEOHead
-        title="User Manual | Reese Reviews"
+        title="User Manual"
         description="Step-by-step guide for using the Vine Review Auto-Generator."
         noIndex
       />
@@ -571,7 +571,7 @@ export default function DocsPage() {
           <div className="mb-8 p-4 rounded-xl bg-white/5 border border-white/10">
             <h3 className="text-sm font-semibold text-steel-mid uppercase tracking-wider mb-3">Contents</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-              {SECTIONS.map((section, i) => (
+              {filteredSections.map((section, i) => (
                 <a
                   key={section.id}
                   href={`#${section.id}`}
