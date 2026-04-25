@@ -601,6 +601,7 @@ export default function DocsPage() {
                 >
                   <button
                     onClick={() => toggleSection(section.id)}
+                    aria-expanded={isExpanded}
                     className="w-full flex items-center gap-3 px-6 py-4 text-left hover:bg-white/5 transition-colors"
                   >
                     {isExpanded ? (
