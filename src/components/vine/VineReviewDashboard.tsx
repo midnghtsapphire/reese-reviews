@@ -270,6 +270,38 @@ export default function VineReviewDashboard() {
     refresh();
   };
 
+  // ─── SCRAPE IMAGES (standalone) ─────────────────────────
+  const handleScrapeImages = async (item: VineItem): Promise<boolean> => {
+    if (!item.asin) {
+      setError("No ASIN — cannot scrape images without a product identifier.");
+      return false;
+    }
+    setIsScraping(true);
+    setError(null);
+    try {
+      const result = await scrapeProductImages(item.asin, item.productName);
+      const imageSources = countBySource(result.allImages);
+      const sourcesSummary = Object.entries(imageSources).map(([s, n]) => `${n} from ${s}`).join(", ");
+      updateVineItem(item.id, {
+        scrapedImages: {
+          listingImages: result.listingImages,
+          reviewImages: result.reviewImages,
+          sources: result.sources,
+          scrapedAt: result.scrapedAt,
+          isDemo: result.isDemo,
+        },
+      });
+      setSuccess(`Scraped ${result.allImages.length} images for "${item.productName}" (${sourcesSummary})`);
+      refresh();
+      return true;
+    } catch (err: unknown) {
+      setError(`Failed to scrape images: ${err instanceof Error ? err.message : "Unknown error"}`);
+      return false;
+    } finally {
+      setIsScraping(false);
+    }
+  };
+
   // ─── GENERATE REVIEW ───────────────────────────────────
   const handleGenerateReview = async (item: VineItem, _bulk = false): Promise<boolean> => {
     const mode = item.automationMode || "full_auto";
@@ -277,13 +309,17 @@ export default function VineReviewDashboard() {
       setError("This item is set to Manual mode — nothing to auto-generate.");
       return false;
     }
+    // photos_only: delegate to standalone scraper (no fake review record)
+    if (mode === "photos_only") {
+      return handleScrapeImages(item);
+    }
     setIsGenerating(true);
     if (!_bulk) setError(null);
     const itemLength = itemVideoLengths[item.id] ?? videoLengthSeconds;
     const preset = getPresetBySeconds(itemLength);
 
     const doReview = mode === "full_auto" || mode === "review_only";
-    const doPhotos = mode === "full_auto" || mode === "photos_only";
+    const doPhotos = mode === "full_auto";
     const doVideo = mode === "full_auto" || mode === "video_only";
 
     try {
@@ -428,36 +464,6 @@ export default function VineReviewDashboard() {
       setSuccess(`Processed ${succeeded} items!`);
     } else {
       setSuccess(`Processed ${pending.length} items: ${succeeded} succeeded, ${failed} failed.`);
-    }
-  };
-
-  // ─── SCRAPE IMAGES (standalone) ─────────────────────────
-  const handleScrapeImages = async (item: VineItem) => {
-    if (!item.asin) {
-      setError("No ASIN — cannot scrape images without a product identifier.");
-      return;
-    }
-    setIsScraping(true);
-    setError(null);
-    try {
-      const result = await scrapeProductImages(item.asin, item.productName);
-      const imageSources = countBySource(result.allImages);
-      const sourcesSummary = Object.entries(imageSources).map(([s, n]) => `${n} from ${s}`).join(", ");
-      updateVineItem(item.id, {
-        scrapedImages: {
-          listingImages: result.listingImages,
-          reviewImages: result.reviewImages,
-          sources: result.sources,
-          scrapedAt: result.scrapedAt,
-          isDemo: result.isDemo,
-        },
-      });
-      setSuccess(`Scraped ${result.allImages.length} images for "${item.productName}" (${sourcesSummary})`);
-      refresh();
-    } catch (err: unknown) {
-      setError(`Failed to scrape images: ${err instanceof Error ? err.message : "Unknown error"}`);
-    } finally {
-      setIsScraping(false);
     }
   };
 
@@ -1446,7 +1452,7 @@ function VineItemCard({
                  item.automationMode === "review_only" ? "Generate Review" :
                  "Generate All"}
               </Button>
-              {!item.scrapedImages && item.asin && (
+              {!item.scrapedImages && item.asin && item.automationMode !== "photos_only" && (
                 <Button size="sm" variant="outline" onClick={onScrapeImages} disabled={isScraping}>
                   {isScraping ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Search className="h-3 w-3 mr-1" />}
                   Scrape Images
