@@ -312,10 +312,12 @@ export default function VineReviewDashboard() {
     // photos_only: delegate to standalone scraper (no fake review record)
     if (mode === "photos_only") {
       if (!_bulk) setError(null);
+      setIsGenerating(true);
       updateVineItem(item.id, { status: "generating" });
       refresh();
       const ok = await handleScrapeImages(item, _bulk);
       updateVineItem(item.id, { status: ok ? "generated" : "pending" });
+      setIsGenerating(false);
       refresh();
       return ok;
     }
