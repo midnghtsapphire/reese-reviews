@@ -10,7 +10,9 @@
 // In production, calls a backend proxy to avoid CORS.
 // ============================================================
 
-const PROXY_BASE = import.meta.env.VITE_SCRAPER_PROXY_URL || "";
+function getProxyBase(): string {
+  return import.meta.env.VITE_SCRAPER_PROXY_URL || "";
+}
 
 // ─── TYPES ──────────────────────────────────────────────────
 
@@ -121,7 +123,7 @@ export function casualVideoFilename(index = 0, ext = "mp4"): string {
 // ─── DEMO MODE ──────────────────────────────────────────────
 
 function isOfflineMode(): boolean {
-  return !PROXY_BASE;
+  return !getProxyBase();
 }
 
 function generateDemoListingImages(asin: string, productName: string): ScrapedImage[] {
@@ -244,7 +246,7 @@ async function fetchAmazonListingImages(
   productName: string,
 ): Promise<ScrapedImage[]> {
   try {
-    const resp = await fetch(`${PROXY_BASE}/api/scrape/amazon-listing`, {
+    const resp = await fetch(`${getProxyBase()}/api/scrape/amazon-listing`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ asin }),
@@ -274,7 +276,7 @@ async function fetchAmazonReviewImages(
   sourceKey: ScrapedImageSource,
 ): Promise<ScrapedImage[]> {
   try {
-    const resp = await fetch(`${PROXY_BASE}/api/scrape/amazon-reviews`, {
+    const resp = await fetch(`${getProxyBase()}/api/scrape/amazon-reviews`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ asin, domain }),
@@ -304,7 +306,7 @@ async function fetchWalmartImages(
   productName: string,
 ): Promise<ScrapedImage[]> {
   try {
-    const resp = await fetch(`${PROXY_BASE}/api/scrape/walmart`, {
+    const resp = await fetch(`${getProxyBase()}/api/scrape/walmart`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ asin, productName }),
@@ -343,7 +345,7 @@ async function fetchTargetImages(
   productName: string,
 ): Promise<ScrapedImage[]> {
   try {
-    const resp = await fetch(`${PROXY_BASE}/api/scrape/target`, {
+    const resp = await fetch(`${getProxyBase()}/api/scrape/target`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ asin, productName }),

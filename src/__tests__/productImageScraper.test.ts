@@ -2,7 +2,7 @@
  * Unit Tests — Product Image Scraper Service
  * Tests: ASIN extraction, demo mode scraping, utility functions
  */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   extractAsinFromUrl,
   buildAmazonUrl,
@@ -62,6 +62,14 @@ describe("Product Image Scraper", () => {
   });
 
   describe("scrapeProductImages (demo mode)", () => {
+    beforeEach(() => {
+      vi.stubEnv("VITE_SCRAPER_PROXY_URL", "");
+    });
+
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
     it("should return demo data when no proxy is configured", async () => {
       const result = await scrapeProductImages("B0TEST123", "Test Product");
 
