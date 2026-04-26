@@ -38,8 +38,6 @@ This guide walks you through using the Vine Review Auto-Generator to manage your
 
 Once logged in, click **"Vine AI"** in the top navigation bar. This is where all the review magic happens.
 
-![Vine AI page](https://app.devin.ai/attachments/3801d3ad-f45e-4449-8f22-894405765ae3/screenshot_8173d22dcb9c4dca9874eac65ef716a6.png)
-
 ---
 
 ## The Dashboard
@@ -76,8 +74,6 @@ When a Vine product arrives and you're ready to start the review process:
 
 1. Click the **"+ Add Item"** button in the top right
 2. Fill in the form:
-
-![Add Item form](https://app.devin.ai/attachments/45a16204-3efc-4c95-869a-52f3aa524f5a/screenshot_a6dd8628a0974a8bbd737e0ba35511bc.png)
 
 ### Form Fields
 
@@ -189,8 +185,6 @@ If your card shows a **"Scrape Images"** button (outline style, next to the main
 ## Reviewing and Editing Generated Content
 
 After a review is generated, the product moves to the **Generated** tab. Each card shows:
-
-![Generated tab](https://app.devin.ai/attachments/b4f2c42a-9c40-4ec9-b9fd-7bbf295f4d13/screenshot_db323720e0984f25a7ed5e8966cb1a12.png)
 
 ### Available Actions
 
