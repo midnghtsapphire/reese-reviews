@@ -64,6 +64,11 @@ divider() {
 # Usage: find_pattern <grep-pattern> [<file-extensions>...]
 # Extensions default to ts,tsx,js,jsx,json,sh,env,md,yaml,yml
 find_pattern() {
+    local grep_flags=""
+    if [ "$1" = "-i" ]; then
+        grep_flags="-i"
+        shift
+    fi
     local pattern="$1"
     shift
     local exts=("${@:-ts tsx js jsx json sh env .env md yaml yml toml}")
@@ -72,7 +77,7 @@ find_pattern() {
         include_args+=(--include="*.$ext" --include="*$ext")
     done
     # Deduplicate include args derived from bare extensions vs dotted ones
-    grep -rn --with-filename "$pattern" "$REPO_DIR" \
+    grep -rn --with-filename $grep_flags "$pattern" "$REPO_DIR" \
         --include="*.ts" --include="*.tsx" \
         --include="*.js" --include="*.jsx" \
         --include="*.json" --include="*.sh" \

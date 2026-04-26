@@ -36,7 +36,7 @@ jobs:
           HIGH=$(echo "$OUTPUT" | grep -c "HIGH" || true)
           if echo "$OUTPUT" | grep -q "No third-party platform artifacts detected"; then
             echo "status=clean" >> $GITHUB_OUTPUT
-          elif [ "$CRITICAL" -gt 2 ] || [ "$HIGH" -gt 2 ]; then
+          elif [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
             echo "status=blocked" >> $GITHUB_OUTPUT
           else
             echo "status=warn" >> $GITHUB_OUTPUT
