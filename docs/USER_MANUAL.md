@@ -287,14 +287,13 @@ The **Video Preview** tab shows a slideshow-style preview of how the review vide
 
 ## Where Your Data Lives
 
-Right now, all your data is saved in your **browser's local storage**. This means:
+Your data is stored in **Supabase** (cloud database) with a **localStorage fallback** for offline use:
 
-- Your data is saved automatically as you work
-- It survives page refreshes and closing/reopening the browser
-- It does NOT sync between different browsers or devices
-- If you clear your browser data, your reviews will be lost
-
-**In the future**, when Supabase is fully connected, your data will sync to the cloud and be available on any device.
+- When you're signed in, data is saved to Supabase and cached locally for fast access
+- If Supabase is unavailable or you're offline, the app falls back to localStorage automatically
+- Writes go to localStorage immediately, then sync to Supabase in the background
+- Your data is protected by row-level security — only you can access your own items
+- If you're not signed in or Supabase isn't configured, the app runs in localStorage-only mode
 
 ---
 
@@ -314,7 +313,7 @@ Right now, all your data is saved in your **browser's local storage**. This mean
 
 7. **Manual mode for tracking** — Use Manual mode for products you want to organize but aren't ready to review yet. You can always change the mode later.
 
-8. **The app works offline** — Since data is in local storage, you don't need an internet connection to view and organize your reviews (but you need internet for AI generation).
+8. **The app works offline** — Data is cached in localStorage, so you can view and organize your reviews without an internet connection. Changes sync to Supabase when you're back online (but you need internet for AI generation).
 
 ---
 
