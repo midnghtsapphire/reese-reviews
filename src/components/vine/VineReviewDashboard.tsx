@@ -271,13 +271,13 @@ export default function VineReviewDashboard() {
   };
 
   // ─── SCRAPE IMAGES (standalone) ─────────────────────────
-  const handleScrapeImages = async (item: VineItem): Promise<boolean> => {
+  const handleScrapeImages = async (item: VineItem, _bulk = false): Promise<boolean> => {
     if (!item.asin) {
       setError("No ASIN — cannot scrape images without a product identifier.");
       return false;
     }
     setIsScraping(true);
-    setError(null);
+    if (!_bulk) setError(null);
     try {
       const result = await scrapeProductImages(item.asin, item.productName);
       const imageSources = countBySource(result.allImages);
@@ -311,7 +311,13 @@ export default function VineReviewDashboard() {
     }
     // photos_only: delegate to standalone scraper (no fake review record)
     if (mode === "photos_only") {
-      return handleScrapeImages(item);
+      if (!_bulk) setError(null);
+      updateVineItem(item.id, { status: "generating" });
+      refresh();
+      const ok = await handleScrapeImages(item, _bulk);
+      updateVineItem(item.id, { status: ok ? "generated" : "pending" });
+      refresh();
+      return ok;
     }
     setIsGenerating(true);
     if (!_bulk) setError(null);
