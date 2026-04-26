@@ -65,7 +65,6 @@ function safeAmazonHref(url: string | undefined, asin: string): string {
     return fallback;
   }
 }
-
 // ─── VIDEO LENGTH SELECTOR COMPONENT ────────────────────────
 interface VideoLengthSelectorProps {
   value: number; // seconds
@@ -283,8 +282,14 @@ export default function VineReviewDashboard() {
     const preset = getPresetBySeconds(itemLength);
 
     const doReview = mode === "full_auto" || mode === "review_only";
-    const doPhotos = mode === "full_auto" || mode === "photos_only";
+    const doPhotos = (mode === "full_auto" || mode === "photos_only") && !!item.asin;
     const doVideo = mode === "full_auto" || mode === "video_only";
+
+    if (mode === "photos_only" && !item.asin) {
+      setError("No ASIN — cannot scrape images without a product identifier.");
+      setIsGenerating(false);
+      return false;
+    }
 
     try {
       updateVineItem(item.id, { status: "generating" });
