@@ -65,7 +65,6 @@ function safeAmazonHref(url: string | undefined, asin: string): string {
     return fallback;
   }
 }
-
 // ─── VIDEO LENGTH SELECTOR COMPONENT ────────────────────────
 interface VideoLengthSelectorProps {
   value: number; // seconds
@@ -327,7 +326,7 @@ export default function VineReviewDashboard() {
     const preset = getPresetBySeconds(itemLength);
 
     const doReview = mode === "full_auto" || mode === "review_only";
-    const doPhotos = mode === "full_auto";
+    const doPhotos = mode === "full_auto" && !!item.asin;
     const doVideo = mode === "full_auto" || mode === "video_only";
 
     try {
