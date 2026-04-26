@@ -46,6 +46,25 @@ import {
 import { createHeyGenVideo, waitForHeyGenVideo } from "@/lib/heygenClient";
 import { stripExifFromFile } from "@/lib/exifStripper";
 
+function isAmazonHost(hostname: string): boolean {
+  const lower = hostname.toLowerCase();
+  return lower === "amazon.com" || lower.endsWith(".amazon.com") ||
+    /^amazon\.[a-z]{2,3}(\.[a-z]{2})?$/.test(lower) ||
+    /\.amazon\.[a-z]{2,3}(\.[a-z]{2})?$/.test(lower);
+}
+
+function safeAmazonHref(url: string | undefined, asin: string): string {
+  const fallback = `https://www.amazon.com/dp/${encodeURIComponent(asin)}`;
+  if (!url) return fallback;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:") return fallback;
+    if (!isAmazonHost(parsed.hostname)) return fallback;
+    return parsed.href;
+  } catch {
+    return fallback;
+  }
+}
 // ─── VIDEO LENGTH SELECTOR COMPONENT ────────────────────────
 interface VideoLengthSelectorProps {
   value: number; // seconds
@@ -206,7 +225,7 @@ export default function VineReviewDashboard() {
       setError("No valid rows found in CSV. Ensure headers include: productName, asin, category, orderDate, reviewDeadline");
       return;
     }
-    const imported = importFromCSV(rows);
+    const imported = importFromCSV(rows, defaultAutomationMode);
     setSuccess(`Imported ${imported.length} Vine items successfully!`);
     setCsvText("");
     setShowCSVImport(false);
@@ -251,14 +270,14 @@ export default function VineReviewDashboard() {
   };
 
   // ─── GENERATE REVIEW ───────────────────────────────────
-  const handleGenerateReview = async (item: VineItem) => {
+  const handleGenerateReview = async (item: VineItem, _bulk = false): Promise<boolean> => {
     const mode = item.automationMode || "full_auto";
     if (mode === "manual") {
       setError("This item is set to Manual mode — nothing to auto-generate.");
-      return;
+      return false;
     }
     setIsGenerating(true);
-    setError(null);
+    if (!_bulk) setError(null);
     const itemLength = itemVideoLengths[item.id] ?? videoLengthSeconds;
     const preset = getPresetBySeconds(itemLength);
 
@@ -381,10 +400,12 @@ export default function VineReviewDashboard() {
       if (imageResult && imageResult.allImages.length > 0) parts.push(`${imageResult.allImages.length} images (${sourcesSummary})`);
       setSuccess(`Generated: ${parts.join(" | ")}`);
       refresh();
+      return true;
     } catch (err: unknown) {
       setError(`Failed to generate review: ${err instanceof Error ? err.message : "Unknown error"}`);
       updateVineItem(item.id, { status: "pending" });
       refresh();
+      return false;
     } finally {
       setIsGenerating(false);
     }
@@ -399,12 +420,20 @@ export default function VineReviewDashboard() {
     }
     setIsBulkGenerating(true);
     setBulkProgress(0);
+    setError(null);
+    let succeeded = 0;
+    let failed = 0;
     for (let i = 0; i < pending.length; i++) {
-      await handleGenerateReview(pending[i]);
+      const ok = await handleGenerateReview(pending[i], true);
+      if (ok) succeeded++; else failed++;
       setBulkProgress(((i + 1) / pending.length) * 100);
     }
     setIsBulkGenerating(false);
-    setSuccess(`Generated reviews for ${pending.length} items!`);
+    if (failed === 0) {
+      setSuccess(`Processed ${succeeded} items!`);
+    } else {
+      setSuccess(`Processed ${pending.length} items: ${succeeded} succeeded, ${failed} failed.`);
+    }
   };
 
   // ─── SCRAPE IMAGES (standalone) ─────────────────────────
@@ -1336,7 +1365,7 @@ function VineItemCard({
             <div className="flex items-center gap-2 mt-1 flex-wrap">
               {item.asin && (
                 <a
-                  href={item.amazonUrl || `https://www.amazon.com/dp/${item.asin}`}
+                  href={safeAmazonHref(item.amazonUrl, item.asin)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs text-blue-400 hover:text-blue-300 font-mono"
