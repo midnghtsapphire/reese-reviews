@@ -1,0 +1,93 @@
+name: Security Gatekeeper
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * 1"  # Weekly Monday 6am UTC
+
+jobs:
+  third-party-audit:
+    name: Third-Party Platform Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run third-party audit
+        id: audit
+        run: |
+          chmod +x scripts/audit-third-party.sh
+          # Run audit and capture output
+          OUTPUT=$(bash scripts/audit-third-party.sh . 2>&1) || true
+          echo "$OUTPUT"
+          # Save output for PR comment
+          echo "$OUTPUT" > /tmp/audit-report.txt
+          # Check for critical/high findings
+          CRITICAL=$(echo "$OUTPUT" | grep -c "CRITICAL" || true)
+          HIGH=$(echo "$OUTPUT" | grep -c "HIGH" || true)
+          if echo "$OUTPUT" | grep -q "No third-party platform artifacts detected"; then
+            echo "status=clean" >> $GITHUB_OUTPUT
+          elif [ "$CRITICAL" -gt 2 ] || [ "$HIGH" -gt 2 ]; then
+            echo "status=blocked" >> $GITHUB_OUTPUT
+          else
+            echo "status=warn" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment audit results on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('/tmp/audit-report.txt', 'utf8');
+            const status = '${{ steps.audit.outputs.status }}';
+            const emoji = status === 'clean' ? '✅' : status === 'blocked' ? '🚨' : '⚠️';
+            const title = status === 'clean' 
+              ? 'Security Gatekeeper: Clean' 
+              : status === 'blocked'
+              ? 'Security Gatekeeper: BLOCKED — Third-party artifacts detected'
+              : 'Security Gatekeeper: Warning — Minor artifacts detected';
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## ${emoji} ${title}\n\n\`\`\`\n${report.slice(0, 60000)}\n\`\`\`\n\n${status === 'blocked' ? '**This PR is blocked until all CRITICAL and HIGH findings are resolved.** See `docs/CLEANUP_GUIDE.md` for fix instructions.' : ''}`
+            });
+
+      - name: Fail if critical/high artifacts found
+        if: steps.audit.outputs.status == 'blocked'
+        run: |
+          echo "🚨 BLOCKED: Third-party platform artifacts detected."
+          echo "See the audit report above and docs/CLEANUP_GUIDE.md for cleanup instructions."
+          exit 1
+
+  secret-scan:
+    name: Secret Detection (Hard Gate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan for secrets with TruffleHog
+        uses: trufflesecurity/trufflehog@v3.88.3
+        with:
+          path: ./
+          base: ${{ github.event_name == 'push' && github.event.before || github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --only-verified --fail
