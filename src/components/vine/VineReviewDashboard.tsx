@@ -25,7 +25,8 @@ import {
   importFromCSV, parseCSVText, getPendingQueue, getItemStats,
   getDaysUntilDeadline, getDeadlineColor, getDeadlineBadgeVariant,
   getAvatars, addCustomAvatar, deleteAvatar,
-  type VineItem, type GeneratedReview, type AvatarProfile, type ReviewPhoto, type StarRating,
+  type VineItem, type VineItemStatus, type GeneratedReview, type AvatarProfile, type ReviewPhoto, type StarRating,
+  type AutomationMode, AUTOMATION_MODES,
 } from "@/stores/vineReviewStore";
 import {
   generateReview, scrapeProductReviews, calculateStarRating,
@@ -38,8 +39,32 @@ import {
 } from "@/services/videoService";
 import ProductPhotoFinder from "@/components/vine/ProductPhotoFinder";
 import ReviewSubmissionForm from "@/components/vine/ReviewSubmissionForm";
+import {
+  scrapeProductImages, extractAsinFromUrl, sourceLabel,
+  countBySource, type ProductImageResult, type ScrapedImage,
+} from "@/services/productImageScraper";
 import { createHeyGenVideo, waitForHeyGenVideo } from "@/lib/heygenClient";
 import { stripExifFromFile } from "@/lib/exifStripper";
+
+function isAmazonHost(hostname: string): boolean {
+  const lower = hostname.toLowerCase();
+  return lower === "amazon.com" || lower.endsWith(".amazon.com") ||
+    /^amazon\.[a-z]{2,3}(\.[a-z]{2})?$/.test(lower) ||
+    /\.amazon\.[a-z]{2,3}(\.[a-z]{2})?$/.test(lower);
+}
+
+function safeAmazonHref(url: string | undefined, asin: string): string {
+  const fallback = `https://www.amazon.com/dp/${encodeURIComponent(asin)}`;
+  if (!url) return fallback;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:") return fallback;
+    if (!isAmazonHost(parsed.hostname)) return fallback;
+    return parsed.href;
+  } catch {
+    return fallback;
+  }
+}
 
 // ─── VIDEO LENGTH SELECTOR COMPONENT ────────────────────────
 interface VideoLengthSelectorProps {
@@ -134,11 +159,19 @@ export default function VineReviewDashboard() {
   // Add item form
   const [showAddForm, setShowAddForm] = useState(false);
   const [addForm, setAddForm] = useState({
-    productName: "", asin: "", category: "electronics",
+    productName: "", asin: "", amazonUrl: "", category: "electronics",
+    automationMode: "full_auto" as AutomationMode,
     orderDate: new Date().toISOString().split("T")[0],
     reviewDeadline: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
     etv: "",
   });
+
+  // Global default automation mode
+  const [defaultAutomationMode, setDefaultAutomationMode] = useState<AutomationMode>("full_auto");
+
+  // Image scraping
+  const [isScraping, setIsScraping] = useState(false);
+  const [scrapedImageResult, setScrapedImageResult] = useState<ProductImageResult | null>(null);
 
   // CSV import
   const [showCSVImport, setShowCSVImport] = useState(false);
@@ -193,7 +226,7 @@ export default function VineReviewDashboard() {
       setError("No valid rows found in CSV. Ensure headers include: productName, asin, category, orderDate, reviewDeadline");
       return;
     }
-    const imported = importFromCSV(rows);
+    const imported = importFromCSV(rows, defaultAutomationMode);
     setSuccess(`Imported ${imported.length} Vine items successfully!`);
     setCsvText("");
     setShowCSVImport(false);
@@ -201,19 +234,33 @@ export default function VineReviewDashboard() {
   };
 
   // ─── ADD ITEM ───────────────────────────────────────────
+  const handleAmazonUrlChange = (url: string) => {
+    setAddForm((prev) => {
+      const updates: typeof prev = { ...prev, amazonUrl: url };
+      const extracted = extractAsinFromUrl(url);
+      if (extracted) updates.asin = extracted;
+      return updates;
+    });
+  };
+
   const handleAddItem = () => {
     if (!addForm.productName.trim()) return;
+    const asin = addForm.asin || extractAsinFromUrl(addForm.amazonUrl) || "";
+    const amazonUrl = addForm.amazonUrl || (asin ? `https://www.amazon.com/dp/${asin}` : "");
     addVineItem({
       productName: addForm.productName,
-      asin: addForm.asin,
+      asin,
+      amazonUrl,
       category: addForm.category,
+      automationMode: addForm.automationMode,
       orderDate: new Date(addForm.orderDate).toISOString(),
       reviewDeadline: new Date(addForm.reviewDeadline).toISOString(),
       etv: parseFloat(addForm.etv) || 0,
       imageUrl: "",
     });
     setAddForm({
-      productName: "", asin: "", category: "electronics",
+      productName: "", asin: "", amazonUrl: "", category: "electronics",
+      automationMode: defaultAutomationMode,
       orderDate: new Date().toISOString().split("T")[0],
       reviewDeadline: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
       etv: "",
@@ -224,48 +271,89 @@ export default function VineReviewDashboard() {
   };
 
   // ─── GENERATE REVIEW ───────────────────────────────────
-  const handleGenerateReview = async (item: VineItem) => {
+  const handleGenerateReview = async (item: VineItem, _bulk = false): Promise<boolean> => {
+    const mode = item.automationMode || "full_auto";
+    if (mode === "manual") {
+      setError("This item is set to Manual mode — nothing to auto-generate.");
+      return false;
+    }
     setIsGenerating(true);
-    setError(null);
+    if (!_bulk) setError(null);
     const itemLength = itemVideoLengths[item.id] ?? videoLengthSeconds;
     const preset = getPresetBySeconds(itemLength);
+
+    const doReview = mode === "full_auto" || mode === "review_only";
+    const doPhotos = mode === "full_auto" || mode === "photos_only";
+    const doVideo = mode === "full_auto" || mode === "video_only";
 
     try {
       updateVineItem(item.id, { status: "generating" });
       refresh();
 
-      const scraped = await scrapeProductReviews(item.productName, item.asin);
-      const ratingAnalysis = calculateStarRating(scraped.reviews);
-      const context = scraped.reviews.map((r) => `[${r.source}] ${r.rating}★: ${r.text}`).join("\n");
-      const reviewData = await generateReview(item.productName, item.asin, item.category, context);
+      // Conditionally scrape review text + product images in parallel
+      const emptyScraped = { reviews: [], commonPros: [], commonCons: [], averageRating: 0 };
+      const [scraped, imageResult] = await Promise.all([
+        (doReview || doVideo) ? scrapeProductReviews(item.productName, item.asin) : Promise.resolve(emptyScraped),
+        doPhotos ? scrapeProductImages(item.asin, item.productName) : Promise.resolve(null),
+      ]);
 
-      // Pass preset info to video script generator so it knows to generate more content
-      const videoScript = await generateVideoScript(
-        item.productName, reviewData.body, reviewData.rating,
-        reviewData.pros, reviewData.cons, preset
-      );
+      // Review text + rating (for full_auto, review_only, and video_only which needs text for script)
+      let reviewData: GeneratedReviewData | null = null;
+      let ratingAnalysis: ReturnType<typeof calculateStarRating> | null = null;
+      if (doReview || doVideo) {
+        ratingAnalysis = calculateStarRating(scraped.reviews);
+        const context = scraped.reviews.map((r) => `[${r.source}] ${r.rating}★: ${r.text}`).join("\n");
+        reviewData = await generateReview(item.productName, item.asin, item.category, context);
+      }
 
-      const photos: ReviewPhoto[] = [
-        { id: `photo-${Date.now()}-1`, url: "", caption: "Product front view", type: "product", isSelected: true },
-        { id: `photo-${Date.now()}-2`, url: "", caption: "Product in use", type: "in-use", isSelected: true },
-        { id: `photo-${Date.now()}-3`, url: "", caption: "Product detail", type: "detail", isSelected: true },
-        { id: `photo-${Date.now()}-4`, url: "", caption: "Unboxing shot", type: "unboxing", isSelected: false },
-        { id: `photo-${Date.now()}-5`, url: "", caption: "Lifestyle shot", type: "lifestyle", isSelected: false },
-      ];
+      // Video script
+      let videoScript: string | null = null;
+      if (doVideo && reviewData) {
+        videoScript = await generateVideoScript(
+          item.productName, reviewData.body, reviewData.rating,
+          reviewData.pros, reviewData.cons, preset
+        );
+      }
+
+      // Build photos from scraped images
+      const typeMap: Record<string, ReviewPhoto["type"]> = {
+        listing: "product",
+        lifestyle: "lifestyle",
+        review: "in-use",
+      };
+      let photos: ReviewPhoto[] = [];
+      if (imageResult && imageResult.allImages.length > 0) {
+        photos = imageResult.allImages.slice(0, 8).map((img, i) => ({
+          id: `photo-${Date.now()}-${i}`,
+          url: img.url,
+          caption: `${img.alt} (${sourceLabel(img.source)})`,
+          type: typeMap[img.type] || "product",
+          isSelected: i < 5,
+        }));
+      } else if (doPhotos || doReview) {
+        photos = [
+          { id: `photo-${Date.now()}-1`, url: "", caption: "Product front view", type: "product", isSelected: true },
+          { id: `photo-${Date.now()}-2`, url: "", caption: "Product in use", type: "in-use", isSelected: true },
+          { id: `photo-${Date.now()}-3`, url: "", caption: "Product detail", type: "detail", isSelected: true },
+        ];
+      }
+
+      const imageSources = imageResult ? countBySource(imageResult.allImages) : {};
+      const sourcesSummary = Object.entries(imageSources).map(([s, n]) => `${n} from ${s}`).join(", ");
 
       const generatedReview: GeneratedReview = {
         id: `review-${Date.now()}`,
         vineItemId: item.id,
-        title: reviewData.title,
-        body: reviewData.body,
-        rating: ratingAnalysis.calculatedRating as StarRating,
-        ratingJustification: reviewData.ratingJustification,
-        pros: reviewData.pros,
-        cons: reviewData.cons,
+        title: reviewData?.title || `${item.productName} Review`,
+        body: reviewData?.body || "",
+        rating: (ratingAnalysis?.calculatedRating ?? 4) as StarRating,
+        ratingJustification: reviewData?.ratingJustification || "",
+        pros: reviewData?.pros || [],
+        cons: reviewData?.cons || [],
         photos,
         videoUrl: null,
-        videoScript,
-        videoLengthSeconds: itemLength,
+        videoScript: videoScript || null,
+        videoLengthSeconds: doVideo ? itemLength : 0,
         avatarId: selectedAvatar,
         ftcDisclosure: "I received this product free through Amazon Vine and am providing my honest opinion.",
         isEdited: false,
@@ -273,27 +361,46 @@ export default function VineReviewDashboard() {
         editedAt: null,
       };
 
-      updateVineItem(item.id, {
-        status: "generated",
+      const updatePayload: Partial<VineItem> = {
+        status: "generated" as VineItemStatus,
         generatedReview,
-        scrapedData: {
+      };
+      if (doReview || doVideo) {
+        updatePayload.scrapedData = {
           amazonReviews: scraped.reviews,
           redditMentions: [],
           averageRating: scraped.averageRating,
           totalReviews: scraped.reviews.length,
           commonPros: scraped.commonPros,
           commonCons: scraped.commonCons,
-          sentimentScore: ratingAnalysis.sentimentScore,
+          sentimentScore: ratingAnalysis?.sentimentScore ?? 0,
           scrapedAt: new Date().toISOString(),
-        },
-      });
+        };
+      }
+      if (imageResult) {
+        updatePayload.scrapedImages = {
+          listingImages: imageResult.listingImages,
+          reviewImages: imageResult.reviewImages,
+          sources: imageResult.sources,
+          scrapedAt: imageResult.scrapedAt,
+          isDemo: imageResult.isDemo,
+        };
+      }
+      updateVineItem(item.id, updatePayload);
 
-      setSuccess(`Review generated for "${item.productName}" (${preset.label} video)!`);
+      const parts: string[] = [];
+      const modeLabel = AUTOMATION_MODES.find((m) => m.value === mode)?.label || mode;
+      parts.push(`"${item.productName}" (${modeLabel})`);
+      if (doVideo) parts.push(`${preset.label} video`);
+      if (imageResult && imageResult.allImages.length > 0) parts.push(`${imageResult.allImages.length} images (${sourcesSummary})`);
+      setSuccess(`Generated: ${parts.join(" | ")}`);
       refresh();
+      return true;
     } catch (err: unknown) {
       setError(`Failed to generate review: ${err instanceof Error ? err.message : "Unknown error"}`);
       updateVineItem(item.id, { status: "pending" });
       refresh();
+      return false;
     } finally {
       setIsGenerating(false);
     }
@@ -301,19 +408,57 @@ export default function VineReviewDashboard() {
 
   // ─── BULK GENERATE ─────────────────────────────────────
   const handleBulkGenerate = async () => {
-    const pending = getPendingQueue();
+    const pending = getPendingQueue().filter((i) => (i.automationMode || "full_auto") !== "manual");
     if (pending.length === 0) {
-      setError("No pending items to generate.");
+      setError("No pending items to generate (manual items are excluded).");
       return;
     }
     setIsBulkGenerating(true);
     setBulkProgress(0);
+    setError(null);
+    let succeeded = 0;
+    let failed = 0;
     for (let i = 0; i < pending.length; i++) {
-      await handleGenerateReview(pending[i]);
+      const ok = await handleGenerateReview(pending[i], true);
+      if (ok) succeeded++; else failed++;
       setBulkProgress(((i + 1) / pending.length) * 100);
     }
     setIsBulkGenerating(false);
-    setSuccess(`Generated reviews for ${pending.length} items!`);
+    if (failed === 0) {
+      setSuccess(`Processed ${succeeded} items!`);
+    } else {
+      setSuccess(`Processed ${pending.length} items: ${succeeded} succeeded, ${failed} failed.`);
+    }
+  };
+
+  // ─── SCRAPE IMAGES (standalone) ─────────────────────────
+  const handleScrapeImages = async (item: VineItem) => {
+    if (!item.asin) {
+      setError("No ASIN — cannot scrape images without a product identifier.");
+      return;
+    }
+    setIsScraping(true);
+    setError(null);
+    try {
+      const result = await scrapeProductImages(item.asin, item.productName);
+      const imageSources = countBySource(result.allImages);
+      const sourcesSummary = Object.entries(imageSources).map(([s, n]) => `${n} from ${s}`).join(", ");
+      updateVineItem(item.id, {
+        scrapedImages: {
+          listingImages: result.listingImages,
+          reviewImages: result.reviewImages,
+          sources: result.sources,
+          scrapedAt: result.scrapedAt,
+          isDemo: result.isDemo,
+        },
+      });
+      setSuccess(`Scraped ${result.allImages.length} images for "${item.productName}" (${sourcesSummary})`);
+      refresh();
+    } catch (err: unknown) {
+      setError(`Failed to scrape images: ${err instanceof Error ? err.message : "Unknown error"}`);
+    } finally {
+      setIsScraping(false);
+    }
   };
 
   // ─── EDIT REVIEW ────────────────────────────────────────
@@ -525,7 +670,7 @@ export default function VineReviewDashboard() {
           <Button variant="outline" size="sm" onClick={() => setShowCSVImport(true)}>
             <Upload className="h-4 w-4 mr-1" /> Import CSV
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setShowAddForm(true)}>
+          <Button variant="outline" size="sm" onClick={() => { setAddForm((f) => ({ ...f, automationMode: defaultAutomationMode })); setShowAddForm(true); }}>
             <Plus className="h-4 w-4 mr-1" /> Add Item
           </Button>
           <Button
@@ -585,7 +730,28 @@ export default function VineReviewDashboard() {
               <Video className="h-4 w-4 text-purple-400" />
               <span>Default Video Settings</span>
             </div>
-            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="space-y-1">
+                <Label className="text-xs">Default Automation Mode</Label>
+                <Select
+                  value={defaultAutomationMode}
+                  onValueChange={(v) => setDefaultAutomationMode(v as AutomationMode)}
+                >
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {AUTOMATION_MODES.map((m) => (
+                      <SelectItem key={m.value} value={m.value}>
+                        {m.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  {AUTOMATION_MODES.find((m) => m.value === defaultAutomationMode)?.description}
+                </p>
+              </div>
               <VideoLengthSelector
                 value={videoLengthSeconds}
                 onChange={setVideoLengthSeconds}
@@ -658,6 +824,24 @@ export default function VineReviewDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div>
+                <Label>Amazon Product URL</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={addForm.amazonUrl}
+                    onChange={(e) => handleAmazonUrlChange(e.target.value)}
+                    placeholder="Paste Amazon URL — ASIN auto-extracted"
+                    className="flex-1"
+                  />
+                  {addForm.asin && (
+                    <Badge variant="outline" className="whitespace-nowrap self-center">
+                      ASIN: {addForm.asin}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label>Product Name *</Label>
@@ -672,7 +856,7 @@ export default function VineReviewDashboard() {
                 <Input
                   value={addForm.asin}
                   onChange={(e) => setAddForm({ ...addForm, asin: e.target.value })}
-                  placeholder="e.g., B0EXAMPLE1"
+                  placeholder="Auto-filled from URL or enter manually"
                 />
               </div>
               <div>
@@ -682,6 +866,25 @@ export default function VineReviewDashboard() {
                   <SelectContent>
                     {["electronics","beauty","home","kitchen","clothing","health","sports","toys","automotive","books","food","pet","office","garden","tools","other"].map((c) => (
                       <SelectItem key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Automation Mode</Label>
+                <Select
+                  value={addForm.automationMode}
+                  onValueChange={(v) => setAddForm({ ...addForm, automationMode: v as AutomationMode })}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {AUTOMATION_MODES.map((m) => (
+                      <SelectItem key={m.value} value={m.value}>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{m.label}</span>
+                          <span className="text-xs text-muted-foreground">{m.description}</span>
+                        </div>
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -781,7 +984,7 @@ export default function VineReviewDashboard() {
                   <Button variant="outline" size="sm" onClick={() => setShowCSVImport(true)}>
                     <Upload className="h-4 w-4 mr-1" /> Import CSV
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => setShowAddForm(true)}>
+                  <Button variant="outline" size="sm" onClick={() => { setAddForm((f) => ({ ...f, automationMode: defaultAutomationMode })); setShowAddForm(true); }}>
                     <Plus className="h-4 w-4 mr-1" /> Add Item
                   </Button>
                 </div>
@@ -797,9 +1000,11 @@ export default function VineReviewDashboard() {
                   item={item}
                   avatars={avatars}
                   isGenerating={isGenerating}
+                  isScraping={isScraping}
                   videoLength={itemVideoLengths[item.id] ?? videoLengthSeconds}
                   onVideoLengthChange={(s) => setItemVideoLengths((prev) => ({ ...prev, [item.id]: s }))}
                   onGenerate={() => handleGenerateReview(item)}
+                  onScrapeImages={() => handleScrapeImages(item)}
                   onDelete={() => { deleteVineItem(item.id); refresh(); }}
                   onPreview={() => previewVideo(item)}
                   onEdit={() => startEditing(item)}
@@ -836,9 +1041,11 @@ export default function VineReviewDashboard() {
                   item={item}
                   avatars={avatars}
                   isGenerating={isGenerating}
+                  isScraping={isScraping}
                   videoLength={itemVideoLengths[item.id] ?? (item.generatedReview?.videoLengthSeconds ?? videoLengthSeconds)}
                   onVideoLengthChange={(s) => setItemVideoLengths((prev) => ({ ...prev, [item.id]: s }))}
                   onGenerate={() => handleGenerateReview(item)}
+                  onScrapeImages={() => handleScrapeImages(item)}
                   onDelete={() => { deleteVineItem(item.id); refresh(); }}
                   onPreview={() => previewVideo(item)}
                   onEdit={() => startEditing(item)}
@@ -1106,9 +1313,11 @@ interface VineItemCardProps {
   item: VineItem;
   avatars: AvatarProfile[];
   isGenerating: boolean;
+  isScraping: boolean;
   videoLength: number;
   onVideoLengthChange: (seconds: number) => void;
   onGenerate: () => void;
+  onScrapeImages: () => void;
   onDelete: () => void;
   onPreview: () => void;
   onEdit: () => void;
@@ -1122,8 +1331,8 @@ interface VineItemCardProps {
 }
 
 function VineItemCard({
-  item, avatars, isGenerating, videoLength,
-  onVideoLengthChange, onGenerate, onDelete, onPreview, onEdit, onCopy,
+  item, avatars, isGenerating, isScraping, videoLength,
+  onVideoLengthChange, onGenerate, onScrapeImages, onDelete, onPreview, onEdit, onCopy,
   onFindPhotos, onSubmit, onGenerateVideo, onPhotoUpload,
   isGeneratingVideo, videoProgress,
 }: VineItemCardProps) {
@@ -1149,9 +1358,21 @@ function VineItemCard({
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-sm truncate">{item.productName}</h3>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
-              {item.asin && <span className="text-xs text-muted-foreground font-mono">{item.asin}</span>}
+              {item.asin && (
+                <a
+                  href={safeAmazonHref(item.amazonUrl, item.asin)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-400 hover:text-blue-300 font-mono"
+                >
+                  {item.asin}
+                </a>
+              )}
               <Badge variant="outline" className="text-xs capitalize">{item.category}</Badge>
               <span className={`text-xs font-medium capitalize ${statusColors[item.status]}`}>{item.status}</span>
+              <Badge variant="outline" className="text-xs">
+                {AUTOMATION_MODES.find((m) => m.value === item.automationMode)?.label || "Full Auto"}
+              </Badge>
               {item.etv > 0 && <span className="text-xs text-muted-foreground">ETV: ${item.etv.toFixed(2)}</span>}
             </div>
           </div>
@@ -1181,6 +1402,24 @@ function VineItemCard({
           )}
         </div>
 
+        {/* Scraped image sources */}
+        {item.scrapedImages && item.scrapedImages.sources.length > 0 && (
+          <div className="p-2 bg-slate-800/30 rounded-lg">
+            <p className="text-xs font-medium text-muted-foreground mb-1">Scraped Images:</p>
+            <div className="flex gap-1 flex-wrap">
+              {item.scrapedImages.sources.map((src) => (
+                <Badge key={src} variant="secondary" className="text-xs">
+                  {sourceLabel(src)}
+                </Badge>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {item.scrapedImages.listingImages.length} listing + {item.scrapedImages.reviewImages.length} review images
+              {item.scrapedImages.isDemo && " (demo)"}
+            </p>
+          </div>
+        )}
+
         {/* Review preview */}
         {review && (
           <div className="p-3 bg-slate-800/50 rounded-lg space-y-2">
@@ -1198,11 +1437,22 @@ function VineItemCard({
 
         {/* Actions */}
         <div className="flex gap-2 flex-wrap">
-          {(item.status === "pending" || item.status === "overdue") && (
-            <Button size="sm" className="gradient-steel" onClick={onGenerate} disabled={isGenerating}>
-              {isGenerating ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Zap className="h-3 w-3 mr-1" />}
-              Generate
-            </Button>
+          {(item.status === "pending" || item.status === "overdue") && item.automationMode !== "manual" && (
+            <>
+              <Button size="sm" className="gradient-steel" onClick={onGenerate} disabled={isGenerating}>
+                {isGenerating ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Zap className="h-3 w-3 mr-1" />}
+                {item.automationMode === "video_only" ? "Generate Video" :
+                 item.automationMode === "photos_only" ? "Scrape Photos" :
+                 item.automationMode === "review_only" ? "Generate Review" :
+                 "Generate All"}
+              </Button>
+              {!item.scrapedImages && item.asin && (
+                <Button size="sm" variant="outline" onClick={onScrapeImages} disabled={isScraping}>
+                  {isScraping ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Search className="h-3 w-3 mr-1" />}
+                  Scrape Images
+                </Button>
+              )}
+            </>
           )}
           {review && (
             <>
