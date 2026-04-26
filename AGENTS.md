@@ -12,6 +12,7 @@
   - Google Jules (GEMINI.md symlink)
   - Windsurf (.windsurfrules symlink)
   - Cline (.clinerules symlink)
+  - Devin (reads repo files including AGENTS.md automatically)
   - Aider, Amp, Replit, and others
   
   SETUP: Run this once per repo to create symlinks:
@@ -208,6 +209,16 @@ Before declaring work complete:
    - What remains
    - Known issues or blockers
    - Exact next steps for the next agent or human
+
+## Multi-Agent Coordination
+
+Multiple AI agents may work on this repo (Devin, Copilot, Claude Code, etc.). To avoid conflicts:
+
+- **Devin** creates branches named `devin/<id>-<description>` and opens PRs as `devin-ai-integration[bot]`. Check open Devin PRs before starting overlapping work.
+- **Copilot Coding Agent** creates branches named `copilot/...`. Check open Copilot PRs similarly.
+- **Before starting work:** Run `git fetch --all && git branch -r | grep -E 'devin/|copilot/'` to see active agent branches.
+- **SHIP_STATUS.md** tracks all active workstreams. If another agent has a workstream `active` or `implementing`, do not start the same work.
+- **ASSUMPTIONS.md** contains assumptions from previous agent sessions. Read it. Do not contradict existing assumptions without good reason.
 
 ## Project-Specific Context
 
