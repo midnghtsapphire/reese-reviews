@@ -484,7 +484,7 @@ USB-C Hub,B0EXAMPLE2,electronics,2026-03-01,2026-04-15,45.00`}
     content: (
       <div className="space-y-4">
         {[
-          ["\"OpenRouter API key not configured\"", "The AI text generation service isn't connected yet. The app will still work in demo mode (generating placeholder reviews). Ask Mom to set up the API key."],
+          ["\"OpenRouter API key not configured\"", "The AI text generation service isn't connected yet. Set the VITE_OPENROUTER_API_KEY in the .env file or ask Mom to set it up. The app requires this key to generate reviews."],
           ["\"Failed to generate review\"", "This usually happens when the AI service is down or the API key is missing. Try again later, or switch to Manual mode and write the review yourself."],
           ["Items disappeared", "Check the Generated tab! Items move there after being processed. If they're truly gone, the browser's local storage may have been cleared."],
           ["Photos not showing after upload", "Make sure your photos are in a standard format (JPG, PNG). Very large files may take a moment to process through the EXIF stripper."],

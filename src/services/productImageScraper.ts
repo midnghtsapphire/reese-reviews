@@ -47,7 +47,6 @@ export interface ProductImageResult {
   allImages: ScrapedImage[];
   sources: ScrapedImageSource[];
   scrapedAt: string;
-  isDemo: boolean;
 }
 
 // Country domains for international Amazon review scraping
@@ -120,62 +119,10 @@ export function casualVideoFilename(index = 0, ext = "mp4"): string {
   return styles[index % styles.length];
 }
 
-// ─── DEMO MODE ──────────────────────────────────────────────
+// ─── PROXY CHECK ────────────────────────────────────────────
 
 function isOfflineMode(): boolean {
   return !getProxyBase();
-}
-
-function generateDemoListingImages(asin: string, productName: string): ScrapedImage[] {
-  const names = ["main", "angle", "back", "detail", "lifestyle"];
-  const types: Array<"listing" | "lifestyle"> = ["listing", "listing", "listing", "listing", "lifestyle"];
-  return names.map((name, i) => ({
-    url: `https://m.media-amazon.com/images/I/${asin}-${name}.jpg`,
-    source: "amazon-listing" as const,
-    type: types[i],
-    alt: `${productName} - ${name}`,
-    casualName: casualFilename(i),
-  }));
-}
-
-function generateDemoReviewImages(asin: string, productName: string): ScrapedImage[] {
-  const sources: Array<{ key: ScrapedImageSource; label: string }> = [
-    { key: "amazon-review-uk", label: "UK reviewer" },
-    { key: "amazon-review-de", label: "DE reviewer" },
-    { key: "amazon-review-jp", label: "JP reviewer" },
-    { key: "walmart-review", label: "Walmart buyer" },
-    { key: "target-review", label: "Target buyer" },
-  ];
-
-  let imgCounter = 5; // continue numbering after listing images
-  return sources.flatMap((src, srcIdx) => {
-    const imgs: ScrapedImage[] = [
-      {
-        url: `https://m.media-amazon.com/images/I/${asin}-review-${src.key}-1.jpg`,
-        source: src.key,
-        type: "review" as const,
-        alt: `${productName} - Photo by ${src.label} (#1)`,
-        casualName: casualFilename(imgCounter++),
-      },
-      {
-        url: `https://m.media-amazon.com/images/I/${asin}-review-${src.key}-2.jpg`,
-        source: src.key,
-        type: "review" as const,
-        alt: `${productName} - Photo by ${src.label} (#2)`,
-        casualName: casualFilename(imgCounter++),
-      },
-    ];
-    if (srcIdx < 2) {
-      imgs.push({
-        url: `https://m.media-amazon.com/images/I/${asin}-review-${src.key}-3.jpg`,
-        source: src.key,
-        type: "review" as const,
-        alt: `${productName} - Photo by ${src.label} (#3)`,
-        casualName: casualFilename(imgCounter++),
-      });
-    }
-    return imgs;
-  });
 }
 
 // ─── MAIN SCRAPER ───────────────────────────────────────────
@@ -183,30 +130,14 @@ function generateDemoReviewImages(asin: string, productName: string): ScrapedIma
 /**
  * Scrape product images from Amazon listing + international reviews + Walmart + Target.
  *
- * In DEMO mode: returns realistic placeholder URLs.
- * In PRODUCTION mode: calls the backend proxy to fetch real images.
+ * Calls the backend proxy to fetch real images from all sources.
  */
 export async function scrapeProductImages(
   asin: string,
   productName: string,
 ): Promise<ProductImageResult> {
   if (isOfflineMode()) {
-    console.warn("[ImageScraper] No proxy configured — using demo image data");
-    const listingImages = generateDemoListingImages(asin, productName);
-    const reviewImages = generateDemoReviewImages(asin, productName);
-    const allImages = [...listingImages, ...reviewImages];
-    const sources = [...new Set(allImages.map((img) => img.source))] as ScrapedImageSource[];
-
-    return {
-      asin,
-      productName,
-      listingImages,
-      reviewImages,
-      allImages,
-      sources,
-      scrapedAt: new Date().toISOString(),
-      isDemo: true,
-    };
+    throw new Error("Image scraper proxy not configured. Set VITE_SCRAPER_PROXY_URL in your .env file to scrape real product images.");
   }
 
   // Production mode: call backend proxy for each source in parallel
@@ -235,7 +166,6 @@ export async function scrapeProductImages(
     allImages,
     sources,
     scrapedAt: new Date().toISOString(),
-    isDemo: false,
   };
 }
 

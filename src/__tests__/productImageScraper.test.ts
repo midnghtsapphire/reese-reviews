@@ -1,6 +1,6 @@
 /**
  * Unit Tests — Product Image Scraper Service
- * Tests: ASIN extraction, demo mode scraping, utility functions
+ * Tests: ASIN extraction, offline error handling, utility functions
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
@@ -61,7 +61,7 @@ describe("Product Image Scraper", () => {
     });
   });
 
-  describe("scrapeProductImages (demo mode)", () => {
+  describe("scrapeProductImages (no proxy configured)", () => {
     beforeEach(() => {
       vi.stubEnv("VITE_SCRAPER_PROXY_URL", "");
     });
@@ -70,38 +70,9 @@ describe("Product Image Scraper", () => {
       vi.unstubAllEnvs();
     });
 
-    it("should return demo data when no proxy is configured", async () => {
-      const result = await scrapeProductImages("B0TEST123", "Test Product");
-
-      expect(result.isDemo).toBe(true);
-      expect(result.asin).toBe("B0TEST123");
-      expect(result.productName).toBe("Test Product");
-      expect(result.listingImages.length).toBeGreaterThan(0);
-      expect(result.reviewImages.length).toBeGreaterThan(0);
-      expect(result.allImages.length).toBe(result.listingImages.length + result.reviewImages.length);
-      expect(result.sources.length).toBeGreaterThan(0);
-    });
-
-    it("should include multiple sources in demo data", async () => {
-      const result = await scrapeProductImages("B0TEST123", "Test Product");
-
-      expect(result.sources).toContain("amazon-listing");
-      expect(result.sources).toContain("amazon-review-uk");
-      expect(result.sources).toContain("walmart-review");
-      expect(result.sources).toContain("target-review");
-    });
-
-    it("should have listing images from Amazon listing", async () => {
-      const result = await scrapeProductImages("B0TEST123", "Test Product");
-      const listingSources = result.listingImages.map((img) => img.source);
-      expect(listingSources.every((s) => s === "amazon-listing")).toBe(true);
-    });
-
-    it("should have review images from international sources", async () => {
-      const result = await scrapeProductImages("B0TEST123", "Test Product");
-      const reviewSources = new Set(result.reviewImages.map((img) => img.source));
-      expect(reviewSources.has("amazon-review-uk")).toBe(true);
-      expect(reviewSources.has("walmart-review")).toBe(true);
+    it("should throw when no proxy is configured", async () => {
+      await expect(scrapeProductImages("B0TEST123", "Test Product"))
+        .rejects.toThrow("Image scraper proxy not configured");
     });
   });
 
@@ -145,7 +116,6 @@ describe("Product Image Scraper", () => {
         ],
         sources: ["amazon-listing", "amazon-review-uk"],
         scrapedAt: new Date().toISOString(),
-        isDemo: true,
       };
 
       const reviewOnly = getReviewOnlyImages(result);

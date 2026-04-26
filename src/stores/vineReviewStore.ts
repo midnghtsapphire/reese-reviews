@@ -97,7 +97,6 @@ export interface ScrapedImageData {
   reviewImages: Array<{ url: string; source: string; type: string; alt: string }>;
   sources: string[];
   scrapedAt: string;
-  isDemo: boolean;
 }
 
 export interface AvatarProfile {
