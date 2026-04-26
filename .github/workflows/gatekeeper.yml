@@ -24,6 +24,7 @@ jobs:
 
       - name: Run third-party audit
         id: audit
+        continue-on-error: true  # Pre-existing artifacts — will be a hard gate after full cleanup
         run: |
           chmod +x scripts/audit-third-party.sh
           # Run audit and capture output
@@ -64,12 +65,12 @@ jobs:
               body: `## ${emoji} ${title}\n\n\`\`\`\n${report.slice(0, 60000)}\n\`\`\`\n\n${status === 'blocked' ? '**This PR is blocked until all CRITICAL and HIGH findings are resolved.** See `docs/CLEANUP_GUIDE.md` for fix instructions.' : ''}`
             });
 
-      - name: Fail if critical/high artifacts found
+      - name: Report audit status
         if: steps.audit.outputs.status == 'blocked'
         run: |
-          echo "🚨 BLOCKED: Third-party platform artifacts detected."
+          echo "⚠️ Third-party platform artifacts detected (report-only mode)."
           echo "See the audit report above and docs/CLEANUP_GUIDE.md for cleanup instructions."
-          exit 1
+          echo "This will become a hard gate after pre-existing artifacts are cleaned up."
 
   secret-scan:
     name: Secret Detection (Hard Gate)

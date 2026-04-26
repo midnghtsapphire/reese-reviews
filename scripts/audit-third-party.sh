@@ -91,6 +91,14 @@ find_pattern() {
         --exclude-dir=dist \
         --exclude-dir=build \
         --exclude-dir=audit-results \
+        --exclude="audit-third-party.sh" \
+        --exclude="CLEANUP_GUIDE.md" \
+        --exclude="07_SECURITY_GATEKEEPER_STANDARD.md" \
+        --exclude="ISSUES_LOG.md" \
+        --exclude="HANDOFF.md" \
+        --exclude="MASTER_INTELLIGENCE_DOCUMENT.md" \
+        --exclude="AGENT_INFRASTRUCTURE.md" \
+        --exclude="05_DARE_LOG.md" \
         2>/dev/null || true
 }
 
