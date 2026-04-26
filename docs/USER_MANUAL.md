@@ -313,7 +313,7 @@ Your data is stored in **Supabase** (cloud database) with a **localStorage fallb
 
 7. **Manual mode for tracking** — Use Manual mode for products you want to organize but aren't ready to review yet. You can always change the mode later.
 
-8. **The app works offline** — Data is cached in localStorage, so you can view and organize your reviews without an internet connection. Changes sync to Supabase when you're back online (but you need internet for AI generation).
+8. **The app works offline** — Data is cached in localStorage, so you can view and organize your reviews without an internet connection. Local changes are saved immediately and will sync to Supabase on a later successful save while you're signed in (but you need internet for AI generation).
 
 ---
 
