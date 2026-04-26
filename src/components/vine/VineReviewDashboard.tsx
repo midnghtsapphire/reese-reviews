@@ -287,7 +287,6 @@ export default function VineReviewDashboard() {
           reviewImages: result.reviewImages,
           sources: result.sources,
           scrapedAt: result.scrapedAt,
-          isDemo: result.isDemo,
         },
       });
       setSuccess(`Scraped ${result.allImages.length} images for "${item.productName}" (${sourcesSummary})`);
@@ -314,11 +313,18 @@ export default function VineReviewDashboard() {
       setIsGenerating(true);
       updateVineItem(item.id, { status: "generating" });
       refresh();
-      const ok = await handleScrapeImages(item, _bulk);
-      updateVineItem(item.id, { status: ok ? "generated" : "pending" });
-      setIsGenerating(false);
-      refresh();
-      return ok;
+      try {
+        const ok = await handleScrapeImages(item, _bulk);
+        updateVineItem(item.id, { status: ok ? "generated" : "pending" });
+        return ok;
+      } catch (err) {
+        updateVineItem(item.id, { status: "pending" });
+        if (!_bulk) setError(`Photos scrape failed: ${err instanceof Error ? err.message : "Unknown error"}`);
+        return false;
+      } finally {
+        setIsGenerating(false);
+        refresh();
+      }
     }
     setIsGenerating(true);
     if (!_bulk) setError(null);
@@ -426,7 +432,6 @@ export default function VineReviewDashboard() {
           reviewImages: imageResult.reviewImages,
           sources: imageResult.sources,
           scrapedAt: imageResult.scrapedAt,
-          isDemo: imageResult.isDemo,
         };
       }
       updateVineItem(item.id, updatePayload);
@@ -1428,7 +1433,7 @@ function VineItemCard({
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               {item.scrapedImages.listingImages.length} listing + {item.scrapedImages.reviewImages.length} review images
-              {item.scrapedImages.isDemo && " (demo)"}
+
             </p>
           </div>
         )}

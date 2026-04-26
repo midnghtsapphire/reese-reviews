@@ -50,41 +50,9 @@ async function callOpenRouter(messages: ChatMessage[], model = "google/gemini-2.
   return data.choices?.[0]?.message?.content || "";
 }
 
-// ─── DEMO / OFFLINE MODE ────────────────────────────────────
+// ─── API KEY CHECK ──────────────────────────────────────────
 function isOfflineMode(): boolean {
   return !OPENROUTER_API_KEY;
-}
-
-function generateDemoReview(productName: string, category: string): GeneratedReviewData {
-  const rating = [3.5, 4, 4, 4.5, 4.5, 5][Math.floor(Math.random() * 6)];
-  return {
-    title: `Honest take on the ${productName} — worth it?`,
-    body: `So I got this ${productName} through Vine and I've been using it for about a week now. First impressions? Pretty solid for a ${category} product.\n\nThe build quality is decent — not premium, but definitely not cheap feeling either. I really like how it ${category === "electronics" ? "performs right out of the box" : category === "clothing" ? "fits and feels on" : "works for everyday use"}. Setup was straightforward and I was up and running in about 5 minutes.\n\nA couple of things that could be better: the ${category === "electronics" ? "instructions could be clearer" : "sizing runs a little small"} and I noticed ${category === "electronics" ? "the battery life is about 80% of what they advertise" : "some loose threads on the seams"}. Nothing deal-breaking but worth mentioning.\n\nOverall, for what you're getting, this is a solid buy. Would I recommend it? Yeah, especially if you're looking for something in this price range.\n\nI received this product free through Amazon Vine and am providing my honest opinion.`,
-    rating,
-    ratingJustification: `Solid ${category} product with good value. Minor issues prevent a perfect score.`,
-    pros: ["Good build quality", "Easy setup", "Great value for the price"],
-    cons: ["Instructions could be better", "Minor quality control issues"],
-  };
-}
-
-function generateDemoScrapedData(productName: string): {
-  reviews: Array<{ source: string; rating: number; text: string; date: string; helpful: number }>;
-  commonPros: string[];
-  commonCons: string[];
-  averageRating: number;
-} {
-  return {
-    reviews: [
-      { source: "Amazon", rating: 5, text: `Love this ${productName}! Works exactly as described.`, date: "2026-03-15", helpful: 12 },
-      { source: "Amazon", rating: 4, text: "Good product, minor issues with packaging.", date: "2026-03-01", helpful: 5 },
-      { source: "Reddit", rating: 4, text: "Solid purchase, recommended by several users in the sub.", date: "2026-02-20", helpful: 8 },
-      { source: "Amazon", rating: 3, text: "Decent but not as good as the premium version.", date: "2026-01-15", helpful: 3 },
-      { source: "YouTube", rating: 5, text: "Featured in a tech review, highly recommended!", date: "2026-02-10", helpful: 20 },
-    ],
-    commonPros: ["Good value", "Easy to use", "Solid build quality"],
-    commonCons: ["Packaging could be better", "Instructions unclear"],
-    averageRating: 4.2,
-  };
 }
 
 // ─── REVIEW GENERATION ──────────────────────────────────────
@@ -104,8 +72,7 @@ export async function generateReview(
   scrapedContext: string
 ): Promise<GeneratedReviewData> {
   if (isOfflineMode()) {
-    console.warn("[OpenRouter] No API key — using demo review data");
-    return generateDemoReview(productName, category);
+    throw new Error("OpenRouter API key not configured. Set VITE_OPENROUTER_API_KEY in your .env file to generate real reviews.");
   }
   const messages: ChatMessage[] = [
     {
@@ -246,8 +213,7 @@ export function calculateStarRating(
 // ─── PRODUCT RESEARCH ───────────────────────────────────────
 export async function researchProduct(productName: string, asin: string): Promise<string> {
   if (isOfflineMode()) {
-    console.warn("[OpenRouter] No API key — using demo product research");
-    return `${productName} (ASIN: ${asin}) is a popular product with an average rating of 4.2 stars. Reviewers commonly praise its build quality and value for the price. Some users note minor issues with packaging and occasional quality control inconsistencies. Typical use cases include everyday household use and gifting. The product stands out for its design and functionality at its price point.`;
+    throw new Error("OpenRouter API key not configured. Set VITE_OPENROUTER_API_KEY in your .env file to research products.");
   }
 
   const messages: ChatMessage[] = [
@@ -274,8 +240,7 @@ export async function generateVideoScript(
   preset?: { label: string; seconds: number; minSlides: number; wordsPerSlide: number; multiSection: boolean }
 ): Promise<string> {
   if (isOfflineMode()) {
-    console.warn("[OpenRouter] No API key — using demo video script");
-    return `Hey everyone! Today I'm reviewing the ${productName}.\n\n[SHOW PRODUCT]\n\nSo I've been using this for about a week and here are my thoughts. ${pros.slice(0, 2).join(", ")} — those are the highlights.\n\nOn the flip side, ${cons.slice(0, 2).join(" and ")}.\n\n[SHOW PRODUCT]\n\nOverall I'm giving this a ${rating} out of 5 stars. ${rating >= 4 ? "Definitely recommend!" : "It's decent but has room for improvement."}\n\nI received this product free through Amazon Vine — honest opinion only. Thanks for watching!`;
+    throw new Error("OpenRouter API key not configured. Set VITE_OPENROUTER_API_KEY in your .env file to generate video scripts.");
   }
   const targetSeconds = preset?.seconds ?? 60;
   const multiSection = preset?.multiSection ?? false;
@@ -330,8 +295,7 @@ export async function scrapeProductReviews(
   averageRating: number;
 }> {
   if (isOfflineMode()) {
-    console.warn("[OpenRouter] No API key — using demo scraped data");
-    return generateDemoScrapedData(productName);
+    throw new Error("OpenRouter API key not configured. Set VITE_OPENROUTER_API_KEY in your .env file to scrape product reviews.");
   }
   const messages: ChatMessage[] = [
     {

@@ -320,7 +320,7 @@ Your data is stored in **Supabase** (cloud database) with a **localStorage fallb
 ## Troubleshooting
 
 ### "OpenRouter API key not configured"
-This error means the AI text generation service isn't connected yet. The app will still work in demo mode (generating placeholder reviews). Ask Mom to set up the API key.
+This error means the AI text generation service isn't connected yet. Set the `VITE_OPENROUTER_API_KEY` in the `.env` file or ask Mom to set it up. The app requires this key to generate reviews — it will not produce placeholder/fake data.
 
 ### "Failed to generate review"
 This usually happens when the AI service is down or the API key is missing. Try again later, or switch to Manual mode and write the review yourself.
