@@ -223,7 +223,7 @@ After a review is generated, the product moves to the **Generated** tab. Each ca
 If you took your own photos of the product (great for authenticity!):
 
 1. Click **Photos** on the product card
-2. Select photos from your phone/computer (up to 8 photos)
+2. Select photos from your phone/computer (up to 10 photos)
 3. The app automatically strips EXIF data from your photos (this removes location data and camera info for privacy)
 4. You'll see a count like "4/8 photos selected (EXIF stripped)"
 
