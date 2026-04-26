@@ -46,12 +46,20 @@ import {
 import { createHeyGenVideo, waitForHeyGenVideo } from "@/lib/heygenClient";
 import { stripExifFromFile } from "@/lib/exifStripper";
 
+function isAmazonHost(hostname: string): boolean {
+  const lower = hostname.toLowerCase();
+  return lower === "amazon.com" || lower.endsWith(".amazon.com") ||
+    /^amazon\.[a-z]{2,3}(\.[a-z]{2})?$/.test(lower) ||
+    /\.amazon\.[a-z]{2,3}(\.[a-z]{2})?$/.test(lower);
+}
+
 function safeAmazonHref(url: string | undefined, asin: string): string {
   const fallback = `https://www.amazon.com/dp/${encodeURIComponent(asin)}`;
   if (!url) return fallback;
   try {
     const parsed = new URL(url);
-    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return fallback;
+    if (parsed.protocol !== "https:") return fallback;
+    if (!isAmazonHost(parsed.hostname)) return fallback;
     return parsed.href;
   } catch {
     return fallback;
