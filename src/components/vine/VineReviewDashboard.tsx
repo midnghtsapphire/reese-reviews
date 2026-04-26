@@ -288,7 +288,7 @@ export default function VineReviewDashboard() {
     if (mode === "photos_only" && !item.asin) {
       setError("No ASIN — cannot scrape images without a product identifier.");
       setIsGenerating(false);
-      return;
+      return false;
     }
 
     try {
