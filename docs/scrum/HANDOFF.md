@@ -112,6 +112,11 @@ The following documents were added to address the compliance and agent-completio
 - **Tests:** 247 passing (228 existing + 19 new). Build, lint, typecheck all clean.
 - **PR #51:** https://github.com/midnghtsapphire/reese-reviews/pull/51
 
+### What Was Completed This Session (April 28, 2026)
+- **Navbar cleanup (Business tabs)** — removed duplicate authenticated-only Business links and off-brand purple inline styling, leaving a single consistent Business entry in the main nav.
+- **Regression test** — added `src/components/Navbar.test.tsx` to ensure only one Business menu item renders.
+- **Tests:** `npm test` passes locally.
+
 ### What Was Completed Previous Session (April 6, 2026 — Sprint 4 fifth iteration)
 - **RR-411 ✅** — Matched site background to the logo backdrop:
   - Added shared page gradient variables using the logo colors (#0f0f1a → #1a1a2e → #16213e), applied to the body and `gradient-dark-surface`, and mirrored into accessibility modes so the whole page matches the logo background.

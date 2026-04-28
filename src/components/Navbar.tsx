@@ -5,7 +5,7 @@ import {
   Menu, X, LogOut, Zap, LayoutDashboard, Grape, Shield,
   Search, CreditCard, Briefcase, Megaphone, ChevronDown, Music,
   Wand2, Youtube, Star, Grid3X3, BookOpen, HelpCircle, Info, Mail,
-  Settings, BarChart2,
+  Settings,
 } from "lucide-react";
 import AccessibilityToggle from "./AccessibilityToggle";
 import { useAuth } from "@/contexts/AuthContext";
@@ -160,60 +160,6 @@ const Navbar = () => {
                 <Zap size={14} />
                 Create
               </Link>
-          {/* Business Dashboard link */}
-          <Link
-            to="/business"
-            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-accent md:inline-flex"
-            style={{ color: "#a78bfa" }}
-            title="Business Dashboard"
-            aria-current={location.pathname === "/business" ? "page" : undefined}
-          >
-            <LayoutDashboard size={15} />
-            <span className="hidden lg:inline">Business</span>
-          </Link>
-
-          {/* Admin Panel link */}
-          <Link
-            to="/admin"
-            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground md:inline-flex"
-            title="Admin Panel"
-          >
-            <Settings size={15} />
-            <span className="hidden lg:inline">Admin</span>
-          </Link>
-
-          {/* Business Dashboard link */}
-          <Link
-            to="/business"
-            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-accent md:inline-flex"
-            style={{ color: "#a78bfa" }}
-            title="Business Dashboard"
-            aria-current={undefined}
-          >
-            <BarChart2 size={15} />
-            <span className="hidden lg:inline">Business</span>
-          </Link>
-
-          {/* Marketing Hub link */}
-          <Link
-            to="/marketing"
-            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-accent md:inline-flex"
-            style={{ color: "#60a5fa" }}
-            title="Marketing Hub"
-          >
-            <Megaphone size={15} />
-            <span className="hidden lg:inline">Marketing</span>
-          </Link>
-
-          {/* Create Content CTA */}
-          <Link
-            to="/vine"
-            className="hidden rounded-lg gradient-steel px-4 py-2 text-sm font-semibold text-primary-foreground transition-transform hover:scale-105 md:inline-flex items-center gap-1.5"
-          >
-            <Grape size={14} />
-            Vine AI
-          </Link>
-
               {/* Logout */}
               <button
                 onClick={logout}
