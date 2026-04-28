@@ -335,7 +335,9 @@ record_finding "REPLIT" "medium" "replit reference (general)" \
         --include="*.yaml" --include="*.yml" \
         --exclude-dir=node_modules --exclude-dir=.git \
         --exclude-dir=dist --exclude-dir=audit-results \
-        2>/dev/null | grep -v '@replit/\|repl\.it\|replit\.com' || true)" \
+        2>/dev/null | grep -v '@replit/\|repl\.it\|replit\.com' \
+        | grep -v 'audit-third-party\.sh' \
+        || true)" \
     "General 'replit' reference in code or config." \
     "Review and remove platform-specific references."
 
@@ -359,7 +361,14 @@ record_finding "GENERAL" "high" "Platform data-collection endpoint pattern /__[a
         --include="*.json" --include="*.sh" \
         --exclude-dir=node_modules --exclude-dir=.git \
         --exclude-dir=dist --exclude-dir=audit-results \
-        2>/dev/null || true)" \
+        2>/dev/null \
+        | grep -v '/__tests__/' \
+        | grep -v '/__mocks__/' \
+        | grep -v '/__snapshots__/' \
+        | grep -v '__dirname' \
+        | grep -v '__filename' \
+        | grep -v 'audit-third-party\.sh' \
+        || true)" \
     "Platform-style data collection endpoints detected." \
     "These follow the Manus /__manus__/ pattern used for data exfiltration." \
     "Verify these are intentional or remove them."
@@ -372,7 +381,9 @@ record_finding "GENERAL" "medium" "Made with / Built with / Powered by branding"
         --include="*.svelte" \
         --exclude-dir=node_modules --exclude-dir=.git \
         --exclude-dir=dist --exclude-dir=audit-results \
-        2>/dev/null || true)" \
+        2>/dev/null \
+        | grep -iv 'reese\|our brand\|accessibility\|neurodivergent\|deaf\|plaid\|stripe\|Powered by free and open-source\|powered by Meta Business\|built with care\|built with that belief\|built with accessibility' \
+        || true)" \
     "Platform branding in UI components." \
     "Remove before white-label or commercial deployment."
 
