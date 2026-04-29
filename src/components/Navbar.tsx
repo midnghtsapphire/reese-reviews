@@ -160,7 +160,6 @@ const Navbar = () => {
                 <Zap size={14} />
                 Create
               </Link>
-
               {/* Logout */}
               <button
                 onClick={logout}

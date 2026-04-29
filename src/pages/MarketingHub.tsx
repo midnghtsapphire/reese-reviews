@@ -55,7 +55,7 @@ export default function MarketingHub() {
           </Tabs>
 
           <p className="text-xs text-center text-gray-500 mt-8">
-            Social media automation provided by Meta Business API · Marketing scheduler powered by client-side cron
+            Social media automation provided by Meta Business API · Automated post scheduling enabled
           </p>
         </div>
       </div>

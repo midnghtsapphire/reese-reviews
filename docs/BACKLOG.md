@@ -113,6 +113,7 @@ This is the **single source of truth** for all outstanding work on Reese Reviews
 | Date Added | Requested By | Title | Description | Priority Guess |
 | :--- | :--- | :--- | :--- | :--- |
 | 2026-04-05 | Issue #issue | Compliance + documentation upgrade | Full analysis, backlog, rollout plan, agent guide | 🔴 Critical |
+| 2026-04-28 | Issue: business tabs mess | Consolidate Business nav + remove purple | Main navbar shows duplicate Business links with off-brand purple. Consolidate to one Business entry, align styling to steel/glass theme, add regression test. | 🟡 Medium |
 
 ---
 
