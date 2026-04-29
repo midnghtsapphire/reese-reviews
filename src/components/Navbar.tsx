@@ -5,7 +5,7 @@ import {
   Menu, X, LogOut, Zap, LayoutDashboard, Grape, Shield,
   Search, CreditCard, Briefcase, Megaphone, ChevronDown, Music,
   Wand2, Youtube, Star, Grid3X3, BookOpen, HelpCircle, Info, Mail,
-  Settings, BarChart2,
+  Settings,
 } from "lucide-react";
 import AccessibilityToggle from "./AccessibilityToggle";
 import { useAuth } from "@/contexts/AuthContext";
@@ -160,59 +160,6 @@ const Navbar = () => {
                 <Zap size={14} />
                 Create
               </Link>
-          {/* Business Dashboard link */}
-          <Link
-            to="/business"
-            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-accent md:inline-flex"
-            style={{ color: "#a78bfa" }}
-            title="Business Dashboard"
-            aria-current={location.pathname === "/business" ? "page" : undefined}
-          >
-            <LayoutDashboard size={15} />
-            <span className="hidden lg:inline">Business</span>
-          </Link>
-
-          {/* Admin Panel link */}
-          <Link
-            to="/admin"
-            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground md:inline-flex"
-            title="Admin Panel"
-          >
-            <Settings size={15} />
-            <span className="hidden lg:inline">Admin</span>
-          </Link>
-
-          {/* Business Dashboard link */}
-          <Link
-            to="/business"
-            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-accent md:inline-flex"
-            style={{ color: "#a78bfa" }}
-            title="Business Dashboard"
-            aria-current={undefined}
-          >
-            <BarChart2 size={15} />
-            <span className="hidden lg:inline">Business</span>
-          </Link>
-
-          {/* Marketing Hub link */}
-          <Link
-            to="/marketing"
-            className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors hover:bg-accent md:inline-flex"
-            style={{ color: "#60a5fa" }}
-            title="Marketing Hub"
-          >
-            <Megaphone size={15} />
-            <span className="hidden lg:inline">Marketing</span>
-          </Link>
-
-          {/* Create Content CTA */}
-          <Link
-            to="/vine"
-            className="hidden rounded-lg gradient-steel px-4 py-2 text-sm font-semibold text-primary-foreground transition-transform hover:scale-105 md:inline-flex items-center gap-1.5"
-          >
-            <Grape size={14} />
-            Vine AI
-          </Link>
 
               {/* Logout */}
               <button
@@ -307,64 +254,6 @@ const Navbar = () => {
                   </Link>
                 </li>
               )}
-              <li role="none">
-                <Link
-                  to="/submit"
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="mt-2 block rounded-lg gradient-steel px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
-                >
-                  Submit Review
-                </Link>
-              </li>
-              <li role="none">
-                <Link
-                  to="/admin"
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="mt-2 flex items-center justify-center gap-2 rounded-lg steel-border px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-accent hover:text-foreground"
-                >
-                  <Settings size={16} /> Admin Panel
-                </Link>
-              </li>
-              <li role="none">
-                <Link
-                  to="/business"
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="mt-2 block rounded-lg gradient-steel px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
-                >
-                  Business Dashboard
-                </Link>
-              </li>
-              <li role="none">
-                <Link
-                  to="/marketing"
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="mt-2 block rounded-lg steel-border px-4 py-3 text-center text-sm font-semibold text-foreground hover:bg-accent"
-                >
-                  Marketing Hub
-                </Link>
-              </li>
-              <li role="none">
-                <Link
-                  to="/vine"
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="mt-2 flex items-center justify-center gap-2 rounded-lg gradient-steel px-4 py-3 text-sm font-semibold text-primary-foreground"
-                >
-                  <Grape size={15} /> Vine AI Generator
-                </Link>
-              </li>
-              <li role="none">
-                <button
-                  onClick={() => { setOpen(false); logout(); }}
-                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                >
-                  <LogOut size={16} /> Logout
-                </button>
-              </li>
             </ul>
           </motion.div>
         )}
