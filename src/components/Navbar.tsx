@@ -253,64 +253,6 @@ const Navbar = () => {
                   </Link>
                 </li>
               )}
-              <li role="none">
-                <Link
-                  to="/submit"
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="mt-2 block rounded-lg gradient-steel px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
-                >
-                  Submit Review
-                </Link>
-              </li>
-              <li role="none">
-                <Link
-                  to="/admin"
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="mt-2 flex items-center justify-center gap-2 rounded-lg steel-border px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-accent hover:text-foreground"
-                >
-                  <Settings size={16} /> Admin Panel
-                </Link>
-              </li>
-              <li role="none">
-                <Link
-                  to="/business"
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="mt-2 block rounded-lg gradient-steel px-4 py-3 text-center text-sm font-semibold text-primary-foreground"
-                >
-                  Business Dashboard
-                </Link>
-              </li>
-              <li role="none">
-                <Link
-                  to="/marketing"
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="mt-2 block rounded-lg steel-border px-4 py-3 text-center text-sm font-semibold text-foreground hover:bg-accent"
-                >
-                  Marketing Hub
-                </Link>
-              </li>
-              <li role="none">
-                <Link
-                  to="/vine"
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="mt-2 flex items-center justify-center gap-2 rounded-lg gradient-steel px-4 py-3 text-sm font-semibold text-primary-foreground"
-                >
-                  <Grape size={15} /> Vine AI Generator
-                </Link>
-              </li>
-              <li role="none">
-                <button
-                  onClick={() => { setOpen(false); logout(); }}
-                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                >
-                  <LogOut size={16} /> Logout
-                </button>
-              </li>
             </ul>
           </motion.div>
         )}
