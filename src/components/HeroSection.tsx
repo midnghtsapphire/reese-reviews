@@ -32,8 +32,8 @@ const HeroSection = () => {
           <img
             src={reeseLogo}
             alt="Reese Reviews — From Box to Beautiful"
-            className="mx-auto h-[260px] w-[260px] rounded-full border-4 border-steel-shine/20 object-contain object-top drop-shadow-2xl bg-[#373e49] md:h-[380px] md:w-[380px]"
-            style={{ background: "radial-gradient(circle, hsl(var(--steel-dark)/0.6) 0%, transparent 70%)" }}
+            className="mx-auto h-[260px] w-[260px] rounded-full border-4 border-steel-shine/20 object-contain object-center p-6 drop-shadow-2xl md:h-[380px] md:w-[380px] md:p-8"
+            style={{ background: "radial-gradient(circle, hsl(var(--steel-dark)/0.6) 0%, hsl(var(--steel-dark)/0.2) 70%, transparent 100%)" }}
           />
         </motion.div>
 

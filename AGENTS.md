@@ -235,6 +235,36 @@ doppler setup  # Interactive — select project and config
 doppler run -- npm run dev
 ```
 
+## Identity & SSO Policy
+
+MIDNGHTSAPPHIRE is a solo operation. Enterprise SSO brokers add failure modes (extra redirects, token expiry, lockouts) without adding security for a single-operator org. Therefore:
+
+1. **Google OAuth is the canonical identity provider** for all services (GitHub, Doppler, Supabase, DigitalOcean, Anthropic Console, OpenAI, Devin, Vercel, etc.).
+2. **Do NOT recommend, configure, or enroll in Okta, Auth0, OneLogin, JumpCloud, or any other SSO broker.** If a "recommended setup" wizard offers SSO, decline.
+3. **Do NOT add Okta/SSO integrations to apps we build** unless Audrey explicitly requests it for a specific enterprise client.
+4. **If you encounter an Okta redirect** while logging into a service: the service was previously configured to broker through Okta. Fix it by going to that service's account settings and switching the auth method back to direct Google OAuth, then remove the app from the Okta tenant.
+5. **DLP (Data Loss Prevention)** is a Google Workspace feature, not an identity provider. Do not confuse DLP policies with auth requirements.
+
+## API Key Rotation & Health
+
+Stale or revoked API keys are the #1 cause of "agent went silent" failures (e.g., `@claude` posts 👀 reaction then never responds — the action authenticated against a dead key and died before cleanup).
+
+### Diagnostic signatures
+
+| Symptom | Likely cause |
+|---|---|
+| GitHub Action posts 👀 then never responds | `ANTHROPIC_API_KEY` revoked/expired in repo or org secrets |
+| Workflow fails with `401` on any AI provider | Key rotated in provider console but not in GitHub/Doppler |
+| "Insufficient credits" or `429` | Billing/rate limit, not a key issue — check provider dashboard first |
+| Devin session starts then stalls | Devin API key revoked, OR MCP server credential expired |
+
+### Required practice
+
+1. **All API keys live in Doppler.** Never paste a raw key directly into GitHub repo secrets — set it in Doppler and let the integration sync. This way "rotate once → propagate everywhere" actually works.
+2. **When you rotate a key in a provider console** (Anthropic, OpenAI, etc.): immediately update Doppler. Doppler auto-syncs to GitHub Actions, DO App Platform, etc.
+3. **If a workflow is silently failing,** before debugging the workflow logic check: (a) is the key in GitHub secrets the same value as in the provider console? (b) when was the GitHub secret last updated? If older than the last provider-side rotation, that's your bug.
+4. **Never assume "rate limits" without checking.** Anthropic/OpenAI consoles show real-time usage. Distinguish `401` (auth) from `429` (rate) from `402` (billing) before recommending a fix.
+
 ## Problem-Solving — Creative Autonomy
 
 Audrey is a solo developer in cancer treatment with AUDHD. She cannot do manual CLI work, SSH, or copy-paste operations. **You are her hands.** This means:
