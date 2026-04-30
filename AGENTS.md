@@ -185,6 +185,104 @@ If the repo already uses something different, use what is already there. Do not 
 - Sanitize all user inputs.
 - If you find a security vulnerability while working, fix it immediately and note it in your commit message.
 
+## Secrets Management — Doppler
+
+All secrets for MIDNGHTSAPPHIRE projects are managed in **Doppler** (https://dashboard.doppler.com). The full standard lives at `growlingeyes/standards/08_SECRETS_MANAGEMENT_STANDARD.md`.
+
+### Rules for Agents
+
+1. **Never hardcode secrets.** All API keys, tokens, passwords, and connection strings live in Doppler. Reference them via environment variables at runtime.
+2. **Never commit `.env` files.** The `.env.example` file documents which variables exist — but real values come from Doppler.
+3. **Never put secret values in documentation.** Use `[REDACTED — managed in Doppler: project/config]` as the placeholder.
+4. **When you need a secret value:** Use the Doppler MCP server (`doppler` MCP) if available, or the Doppler CLI (`doppler secrets get SECRET_NAME`). Do NOT ask the human to paste secrets into chat.
+5. **When you need to ADD a new secret:** Use the Doppler MCP server or CLI to set it: `doppler secrets set SECRET_NAME=value`. Then update `.env.example` with a placeholder for the new variable.
+6. **When you need to ROTATE a secret:** Generate the new value, set it in Doppler, and Doppler auto-syncs to all connected services. Log the rotation in your commit message.
+7. **If Doppler is not accessible:** Document what secret is needed and why, add a `[BLOCKED: needs Doppler access]` note, and continue with other work that doesn't require the secret.
+
+### Doppler Project Map
+
+| Repo | Doppler Project | Environments |
+|---|---|---|
+| growlingeyes | `growlingeyes` | dev · stg · prd |
+| neurooz | `neurooz` | dev · stg · prd |
+| reese-reviews | `reese-reviews` | dev · stg · prd |
+
+### How Secrets Flow
+
+```
+Doppler Dashboard (single source of truth)
+    │
+    ├──► GitHub Actions secrets (auto-synced)
+    ├──► DigitalOcean App Platform env vars (auto-synced, reese-reviews)
+    ├──► Supabase Edge Function secrets (auto-synced, neurooz)
+    ├──► Droplet runtime via `doppler run` (growlingeyes)
+    └──► Agent access via Doppler MCP server or CLI
+```
+
+### Running Locally with Doppler
+
+```bash
+# Install Doppler CLI (one time)
+curl -Ls https://cli.doppler.com/install.sh | sudo sh
+
+# Login (one time)
+doppler login
+
+# Link this repo to its Doppler project (one time per repo)
+doppler setup  # Interactive — select project and config
+
+# Run any command with secrets injected
+doppler run -- npm run dev
+```
+
+## Problem-Solving — Creative Autonomy
+
+Audrey is a solo developer in cancer treatment with AUDHD. She cannot do manual CLI work, SSH, or copy-paste operations. **You are her hands.** This means:
+
+### Think Like an Engineer, Not a Chatbot
+
+When you hit a blocker, do NOT immediately ask the human. Instead:
+
+1. **Investigate first.** Read logs, check configs, search docs, inspect the codebase. Most answers are already in the repo or on the internet.
+2. **Try multiple approaches.** If approach A fails, try B, then C. Document what you tried.
+3. **Use your tools creatively.** You have a browser, a shell, file access, MCP servers, and API access. Combine them in unexpected ways to solve problems.
+4. **Build the infrastructure you need.** If a script doesn't exist, write one. If a workflow is missing, create it. If a config file is wrong, fix it. You have permission to improve the repo.
+5. **Automate the manual step.** If something "requires manual intervention," figure out how to automate it. Write a script, create a GitHub Action, use an API. The goal is zero manual work for the human.
+
+### When You Discover a Problem
+
+Don't just report it — fix it. Or if you can't fix it, create an actionable plan:
+
+1. **Describe** what's wrong (with evidence — logs, screenshots, error messages)
+2. **Diagnose** the root cause (not just the symptom)
+3. **Propose** 2-3 concrete solutions ranked by effort vs. impact
+4. **Implement** the best solution if it's safe and reversible
+5. **Document** what you did in your commit message and HANDOFF.md
+
+### Resourcefulness Checklist
+
+Before asking the human for help, verify you've tried:
+
+- [ ] Read all relevant docs in the repo (`HANDOFF.md`, `standards/`, `docs/`)
+- [ ] Searched the codebase for similar patterns or prior solutions
+- [ ] Checked git history for how similar issues were solved before
+- [ ] Looked up official documentation for the tool/service/API
+- [ ] Tried the Doppler MCP server or CLI for secret access
+- [ ] Checked available MCP integrations for relevant tools
+- [ ] Attempted at least 2 different approaches to the problem
+- [ ] Searched the web for the specific error message or pattern
+
+### Permanent Solutions Over Temporary Fixes
+
+When you solve a problem, make it permanent:
+
+- **Save credentials** to Doppler (not just in your session)
+- **Write scripts** for recurring manual tasks
+- **Update AGENTS.md** or standards with new knowledge
+- **Create GitHub Actions** for automated checks
+- **Update `.env.example`** when you discover new required variables
+- **Add to HANDOFF.md** so the next agent doesn't hit the same blocker
+
 ## What NOT to Do
 
 - **Do not ask unnecessary questions.** If the task is clear, execute it.
