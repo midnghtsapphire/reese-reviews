@@ -208,3 +208,27 @@ erDiagram
 ## 📄 License
 All Rights Reserved © 2026 Audrey Evans / GlowStarLabs.
 This software is proprietary and confidential.
+
+---
+
+## Test
+
+| Feature | Status | URL |
+|--------|--------|-----|
+| Homepage | ✅ Working | https://reesereviews.com |
+| Publishing Wizard | ✅ Working | https://reesereviews.com/publish |
+| Amazon Vine | ✅ Working | https://reesereviews.com/vine |
+| Tax Dashboard | ✅ Working | https://reesereviews.com/tax |
+| Inventory | ✅ Working | https://reesereviews.com/inventory |
+| Build | ✅ Passes | Run: `npm run build` |
+
+**Test Command:** `npm test` — **245 tests** passing
+
+---
+
+## Deployment
+
+**Production:** https://reesereviews.com
+**Build:** `npm run build` ✅ passes
+**Framework:** React + TypeScript + Vite + Tailwind + Supabase
+**Tests:** 245 passing
