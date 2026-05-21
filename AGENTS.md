@@ -321,36 +321,49 @@ Multiple AI agents may work on this repo (Devin, Copilot, Claude Code, etc.). To
 ## Project-Specific Context
 
 ### What This Project Is
-Sessiono — session musician subscription platform. Users browse, book, and pay session musicians. Musicians list their services, set rates, and manage bookings.
+Reese Reviews — unified business management and automated review platform for the "Reese" persona. Combines Amazon Vine tax tracking, inventory management, an AI-powered review pipeline, an ERP Tax Center, and social media content publishing. Live at https://reesereviews.com
 
 ### Architecture
 ```
-app/                    # Expo Router file-based routing
-  (tabs)/               # Bottom tab navigation
-    index.tsx           # Home — browse featured musicians
-    search.tsx          # Search by instrument/genre
-    bookings.tsx        # My bookings list
-    profile.tsx         # User profile + subscription
-  auth/login.tsx        # Login/signup modal
-  musician/[id].tsx     # Musician detail + booking
-components/             # Reusable UI components
-lib/supabase.ts         # Supabase client with SecureStore
-constants/              # Theme, config
+src/
+  components/           # React UI components (Glassmorphism)
+    vine/               # Vine review workflow
+    seo/                # SEO/schema tooling
+    ui/                 # shadcn/ui base components
+  stores/               # State management (Zustand-style custom stores)
+  lib/                  # Business logic (plaid, stripe, reviews)
+  services/             # External API integrations (OpenRouter, YouTube)
+  pages/                # Route-level pages via React Router
+supabase/
+  migrations/           # PostgreSQL schema migrations
+.github/workflows/      # CI (lint + typecheck + test + build) + deploy
 ```
 
 ### Key Commands
 ```bash
-npx expo start          # Dev server (scan QR with Expo Go)
-npx expo start --web    # Web dev server
-eas build --platform all  # Build for iOS + Android
-eas submit --platform ios  # Submit to App Store
+npm run dev             # Local dev server (http://localhost:5173)
+npm test -- --run       # Run Vitest unit tests
+npm run build           # Vite production build
+npm run lint            # ESLint check
+npm run typecheck       # TypeScript type-check (no emit)
+npm run docs            # Generate TypeDoc API docs → docs/api/
 ```
 
 ### Current State
-- UI scaffolding complete with dark cinematic theme
-- Demo data in place — needs Supabase integration
-- Auth screen built — needs Supabase auth wiring
-- Stripe subscription integration not started
-- Musician profile photos not implemented (use expo-image)
-- Push notifications not implemented
-- Search is static — needs Supabase full-text search
+- Full review pipeline implemented (Vine import → AI generation → avatar → YouTube publish)
+- Supabase Auth, Plaid bank link, Stripe checkout all wired
+- Product image scraper with demo fallback (real proxy pending)
+- Meta Business API auto-post wired
+- Outstanding: HeyGen avatar video generation, live YouTube OAuth2 refresh, newsletter email trigger, Odoo ERP sync, TSDoc comments (see docs/BACKLOG.md)
+
+### Revvel Standards — S2M Abbreviation Reference
+
+| Abbreviation | Full Form | Definition |
+| :--- | :--- | :--- |
+| **S2M** | **Ship to Market** | The end-to-end process of taking a feature or product from development complete to live in production and in the hands of real users. Encompasses final QA, documentation, deployment, and launch communications. Used in WRs, PRs, and sprint goals to indicate a full production-ready deliverable — not a staged or partial release. |
+| WR | Work Request | A unit of work requested from an AI agent or developer, equivalent to a user story or GitHub issue. |
+| PR | Pull Request | A GitHub pull request proposing code changes. |
+| ETV | Estimated Tax Value | The IRS-recognized fair market value assigned to Amazon Vine products for tax purposes. |
+| FTC | Federal Trade Commission | Regulatory body requiring disclosure of material connections (e.g., receiving products for free) in reviews. |
+
+> **S2M principle:** Every WR and PR targets a single S2M iteration — one canonical implementation shipped to production. No staged alternatives, no "Phase 1/MVP first" unless explicitly scoped.

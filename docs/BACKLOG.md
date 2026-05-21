@@ -75,7 +75,7 @@ This is the **single source of truth** for all outstanding work on Reese Reviews
 | RR-504 | 🟡 Medium | Add TSDoc comments to all `src/services/*.ts` files | Agent | To Do | Same as above for the services layer. | Required for TypeDoc generation (RR-406). |
 | RR-505 | 🟡 Medium | Fix remaining ESLint errors (all `any` types) | Agent | To Do | `npm run lint` exits 0 with 0 errors. | Continuation of RR-402. |
 | RR-506 | 🔵 Low | Add WCAG 2.1 AA accessibility audit | Agent | To Do | Run `axe-core` against all pages; fix all Critical/Serious violations. | README claims WCAG 2.1 AA compliance but no audit exists. |
-| RR-507 | 🔵 Low | Update CHANGELOG.md to Keep-a-Changelog format | Agent | To Do | `CHANGELOG.md` follows https://keepachangelog.com format consistently. | Current format is inconsistent between entries. |
+| RR-507 | 🔵 Low | Update CHANGELOG.md to Keep-a-Changelog format | Copilot (2026-05-21) | Done (2026-05-21) | `CHANGELOG.md` follows https://keepachangelog.com format consistently. | Single `# Changelog` header, semantic versioning, standard sections (Added/Changed/Fixed/Security), version comparison links at bottom. |
 
 ---
 
@@ -114,6 +114,7 @@ This is the **single source of truth** for all outstanding work on Reese Reviews
 | :--- | :--- | :--- | :--- | :--- |
 | 2026-04-05 | Issue #issue | Compliance + documentation upgrade | Full analysis, backlog, rollout plan, agent guide | 🔴 Critical |
 | 2026-04-28 | Issue: business tabs mess | Consolidate Business nav + remove purple | Main navbar shows duplicate Business links with off-brand purple. Consolidate to one Business entry, align styling to steel/glass theme, add regression test. | 🟡 Medium |
+| 2026-05-21 | Issue: s2m | Add S2M abbreviation + complete S2M docs | Add S2M (Ship to Market) to revvel-standards glossary in AGENTS.md. Create GO_TO_MARKET.md (deep research), BRAND_GUIDELINES.md, SECURITY.md. Fix .github/copilot-setup-steps.yml for WR auto-process. Fix expired vineReviewStore test deadlines. Done this session. | 🔴 Critical |
 
 ---
 
@@ -145,3 +146,10 @@ This is the **single source of truth** for all outstanding work on Reese Reviews
 | RR-405 | Meta Business API auto-post brand color fix | 2026-04-05 | `fix: RR-501 RR-502 RR-405` |
 | RR-501 | Unit tests for plaidClient.ts (38 tests) | 2026-04-05 | `fix: RR-501 RR-502 RR-405` |
 | RR-502 | Unit tests for reviewPipeline.ts (65 tests) | 2026-04-05 | `fix: RR-501 RR-502 RR-405` |
+| RR-507 | Update CHANGELOG.md to Keep-a-Changelog format | 2026-05-21 | `feat: s2m-revvel-standards-and-docs` |
+| S2M-001 | Add S2M abbreviation to AGENTS.md + revvel-standards glossary | 2026-05-21 | `feat: s2m-revvel-standards-and-docs` |
+| S2M-002 | Create GO_TO_MARKET.md with deep research (market size, competitive analysis, pricing, launch strategy) | 2026-05-21 | `feat: s2m-revvel-standards-and-docs` |
+| S2M-003 | Create BRAND_GUIDELINES.md (palette, typography, voice/tone, component standards) | 2026-05-21 | `feat: s2m-revvel-standards-and-docs` |
+| S2M-004 | Create SECURITY.md (vulnerability reporting, architecture, incident response) | 2026-05-21 | `feat: s2m-revvel-standards-and-docs` |
+| S2M-005 | Fix .github/copilot-setup-steps.yml to fix WR auto-process failures | 2026-05-21 | `feat: s2m-revvel-standards-and-docs` |
+| S2M-006 | Fix vineReviewStore tests using expired deadline dates (2026-05-15 → 2099-12-31) | 2026-05-21 | `fix: vineReviewStore test deadline dates` |

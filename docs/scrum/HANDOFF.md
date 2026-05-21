@@ -103,6 +103,16 @@ The following documents were added to address the compliance and agent-completio
 | [`docs/AGENT_COMPLETION_GUIDE.md`](../AGENT_COMPLETION_GUIDE.md) | **Why agents don't finish apps.** Root cause analysis + the playbook to guarantee completion. Required reading for all agents. |
 | [`docs/ROLLOUT_PLAN.md`](../ROLLOUT_PLAN.md) | **Safe live-app rollout procedures.** Risk-tiered deployment strategy + rollback procedures for all failure scenarios. |
 
+### What Was Completed This Session (May 21, 2026 — S2M / Issue: s2m)
+- **S2M Abbreviation** — Added `S2M = Ship to Market` to `AGENTS.md` with full glossary table (S2M, WR, PR, ETV, FTC). Also corrected AGENTS.md project-specific context (was still showing Sessiono template).
+- **GO_TO_MARKET.md ✅** — Created with deep research: Amazon Vine market size, creator economy data ($250B, Goldman Sachs 2023), IRS ETV guidance, FTC AI disclosure requirements, competitive analysis (Helium 10, Jungle Scout, TurboTax), pricing strategy (Free/$9.99/$24.99), launch strategy (Reddit/YouTube/Facebook/TikTok), SEO keyword targets, and 90-day S2M KPIs.
+- **BRAND_GUIDELINES.md ✅** — Created with steel/neutral palette documentation, typography (Playfair Display + Inter), voice/tone guide, logo usage rules, UI component standards, WCAG 2.1 AA requirements, and banned color list.
+- **SECURITY.md ✅** — Created with vulnerability reporting protocol, security architecture (auth, RLS, secrets), pre-commit scanning, CI/CD security gates, known gaps and remediation status, and incident response matrix.
+- **`.github/copilot-setup-steps.yml` ✅** — Created to fix WR auto-process: pre-installs npm deps, runs test baseline, typecheck, and build so the Copilot coding agent environment is ready immediately.
+- **CHANGELOG.md ✅ (RR-507)** — Reformatted to Keep-a-Changelog standard: single `# Changelog` header, consistent `## [X.X.X] - YYYY-MM-DD` version headers, standard sections (Added/Changed/Fixed/Security), version comparison links at bottom.
+- **vineReviewStore.test.ts fix ✅** — 2 tests used `reviewDeadline: "2026-05-15"` (past date); auto-overdue logic caused test failures. Updated to `2099-12-31`. All 245 tests now passing.
+- **BACKLOG.md** — S2M items added as completed; RR-507 marked Done.
+
 ### What Was Completed This Session (April 25, 2026)
 - **Product Image Scraper** — new `productImageScraper.ts` service scrapes images from Amazon listing, Amazon international reviews (UK/DE/JP/CA/AU/IN), Walmart, and Target. Demo mode fallback when no proxy configured. 19 new tests.
 - **Automation Mode Selector** — 5 modes (Full Auto / Video Only / Photos Only / Review Only / Manual) controlling what gets AI-generated per item. Global default in toolbar + per-item selector in add form. Mode badge on item cards. Generation logic conditionally skips steps based on mode.
@@ -138,10 +148,11 @@ The following documents were added to address the compliance and agent-completio
 
 ### What's Next (Highest Priority for Next Session)
 
-1. **Backend scraper proxy** — build the proxy service at `VITE_SCRAPER_PROXY_URL` to handle real image scraping (Amazon/Walmart/Target) in production mode
-2. **Webhook endpoints for n8n/Make/Zapier/Gumloop** — trigger automation modes externally
-3. **RR-601** — Wire CrossMarketSeeder to live OpenRouter API (High)
-4. **RR-503** — Add TSDoc comments to all `src/lib/*.ts` files (Medium)
+1. **RR-601** — Wire CrossMarketSeeder to live OpenRouter API (High)
+2. **RR-602** — Implement real HeyGen avatar video generation (High)
+3. **RR-503** — Add TSDoc comments to all `src/lib/*.ts` files (Medium)
+4. **Backend scraper proxy** — build the proxy service at `VITE_SCRAPER_PROXY_URL` to handle real image scraping (Amazon/Walmart/Target) in production mode
+5. **RR-604** — Newsletter confirmation email via Supabase Edge Function
 
 > Next agent: **read `docs/BACKLOG.md` first.** Pick the highest-priority `To Do` item. Update its status. Update this HANDOFF.md when done.
 
