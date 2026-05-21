@@ -1,38 +1,55 @@
 # Changelog
 
+All notable changes to Reese Reviews are documented here.
+Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
 ## [Unreleased]
 
 ### Added
+- **S2M Docs:** `GO_TO_MARKET.md` — full ship-to-market plan with market research, competitive analysis, pricing, and launch strategy sourced from IRS publications, creator economy research, and platform-specific data.
+- **S2M Docs:** `BRAND_GUIDELINES.md` — color palette, typography, voice/tone, logo usage, and UI component standards per revvel-standards.
+- **S2M Docs:** `SECURITY.md` — vulnerability reporting, security architecture, secret management policy, pre-commit scan setup, and incident response matrix.
+- **S2M Infra:** `.github/copilot-setup-steps.yml` — pre-installs Node.js dependencies and validates test/build baseline so the Copilot coding agent auto-processes WRs correctly.
+- **S2M Glossary:** `AGENTS.md` updated with S2M abbreviation table and correct project-specific context for reese-reviews.
+- **RR-507:** `CHANGELOG.md` reformatted to [Keep a Changelog](https://keepachangelog.com) standard (single header, semantic versioning, consistent sections).
 - **RR-501:** `src/lib/plaidClient.test.ts` — 38 unit tests: `AMAZON_VINE_FLAG_RULES` integrity, `classifyTransaction` (Vine/Seller/AWS/Adobe/BestBuy/unrecognized patterns), storage CRUD error paths, `updatePlaidTransaction`, `getPlaidDeductionSummary` (taxYear filter, write_off_percentage, by_category grouping).
-- **RR-502:** `src/lib/reviewPipeline.test.ts` — 65 unit tests: `extractProsAndCons`, `generateExcerpt`, `generateVerdict`, `convertToPipelineReview`, `enrichReview` (AvatarChoice: reese|revvel), `publishReview` (no-dup upsert), `bulkPublish`, `unpublishReview`, `bulkImport`, `incrementalSync`, all query helpers. Total test suite: 226 tests.
+- **RR-502:** `src/lib/reviewPipeline.test.ts` — 65 unit tests: `extractProsAndCons`, `generateExcerpt`, `generateVerdict`, `convertToPipelineReview`, `enrichReview` (AvatarChoice: reese|revvel), `publishReview` (no-dup upsert), `bulkPublish`, `unpublishReview`, `bulkImport`, `incrementalSync`, all query helpers. Total test suite: 245 tests.
 - **RR-404:** `src/lib/stripeClient.ts` — Stripe integration layer: `getStripe()` lazy singleton, `isStripeConfigured()`, `redirectToCheckout()` (Payment Link redirect with `VITE_STRIPE_LINK_PRO` / `VITE_STRIPE_LINK_BUSINESS` env vars), subscription state persistence (localStorage + Supabase `user_profiles.preferences`), `activateTier()`, `handleCheckoutReturn()`. `@stripe/stripe-js` v9 installed.
 - **RR-406:** `typedoc.json` config + `"docs": "typedoc"` npm script + `docs` CI job in `.github/workflows/ci.yml`. `docs/api/` added to `.gitignore`. `npm run docs` generates HTML API reference from TSDoc comments in `src/lib/`, `src/stores/`, `src/services/`.
 - **RR-407:** Two Mermaid architecture diagrams in `README.md`: component/data-flow flowchart + ER diagram showing Supabase table relationships.
 - **RR-408:** gitleaks pre-commit hook via Husky. `.husky/pre-commit` scans staged changes for secrets using `gitleaks protect --staged`. `.gitleaks.toml` adds custom rules for Supabase and OpenRouter keys. `"prepare": "husky"` in `package.json` ensures hooks auto-install on `npm ci`.
+- **Product Image Scraper:** `productImageScraper.ts` — scrapes product images from Amazon (US + UK/DE/JP/CA/AU/IN), Walmart, and Target. Demo fallback when no proxy is configured. 19 new tests.
+- **Automation Mode Selector:** 5 modes (Full Auto / Video Only / Photos Only / Review Only / Manual) with global default and per-item override. Mode badge on item cards.
+- **`amazonUrl` field:** ASIN auto-extraction from pasted Amazon URLs.
+- **Backlog:** `docs/BACKLOG.md` — 26 items across 4 sprints, single source of truth for all outstanding work.
+- **Agent Completion Guide:** `docs/AGENT_COMPLETION_GUIDE.md` — root cause analysis of why AI agents fail to finish apps + enforcement playbook.
+- **Rollout Plan:** `docs/ROLLOUT_PLAN.md` — risk-tiered deployment strategy with 4-scenario rollback procedures and smoke test checklist.
 
-### Security
-- **RR-401:** Removed API key storage from browser `localStorage`. Admin Panel Integrations tab now shows read-only env-var status (configured/not set) sourced from `import.meta.env.*`. Removed `openRouterKey`, `stripeKey`, `plaidClientId` from `AdminSettings` interface. Added security notice directing users to `.env` / DigitalOcean dashboard.
+### Changed
+- `AGENTS.md` — updated Project-Specific Context section from Sessiono template to Reese Reviews context; added S2M abbreviation glossary.
+- `docs/scrum/SPRINT_BACKLOG.md` — Sprint 4 rewritten with 10 stories, story points, and full acceptance criteria.
+- `docs/scrum/RAID.md` — Added R-006/R-007/R-008 (new risks), I-005/I-006 (new issues), D-006/D-007 (new dependencies).
+- `docs/scrum/HANDOFF.md` — Added section 6 linking to new documents.
+- `supabase/migrations/20260425_vine_automation_fields.sql` — adds `amazon_url`, `automation_mode`, `scraped_images` columns.
 
 ### Fixed
-- **RR-405:** `MetaAutoPost.tsx` off-brand colors replaced with steel/glass palette (`steel-border`, `text-primary`, `glass-card`, `bg-muted`). Component was already wired to MarketingHub.
-- **RR-404:** `PaymentsDashboard.tsx` fully rewritten: `alert()` stub replaced with real async Stripe Checkout redirect + loading spinner; return-URL handler for `?success=true` / `?canceled=true`; active-plan badge; demo-mode warning banner; Plaid tab now mounts full `PlaidBankConnect` component.
-- **RR-403:** `savePlaidTransactions()` and `savePlaidAccounts()` in `src/lib/plaidClient.ts` now async-upsert to Supabase `plaid_transactions` and `plaid_accounts` tables (best-effort, localStorage remains the immediate/offline store). New migration: `supabase/migrations/20260405_plaid_tables.sql`.
-- **RR-402:** Fixed 22 ESLint `no-explicit-any` violations across 8 files.
+- `vineReviewStore.test.ts` — 2 tests used deadline `2026-05-15` (now past); updated to `2099-12-31` so items are not auto-marked overdue.
+- **RR-405:** `MetaAutoPost.tsx` off-brand colors replaced with steel/glass palette.
+- **RR-404:** `PaymentsDashboard.tsx` fully rewritten with async Stripe Checkout, return URL handler, active-plan badge, and demo-mode banner.
+- **RR-403:** `savePlaidTransactions()` and `savePlaidAccounts()` now async-upsert to Supabase.
+- **RR-402:** 22 ESLint `no-explicit-any` violations fixed across 8 files.
+- **Navbar:** Removed duplicate Business nav items + off-brand purple; added `Navbar.test.tsx` regression test.
+- **Background:** Site background gradient matched to logo backdrop colors (#0f0f1a → #1a1a2e → #16213e).
 
- (26 items across 4 sprints) serving as single source of truth for both human contributors and AI agents. Includes user/agent input protocol, status tracking, and acceptance criteria for every item.
-- **Agent Completion Guide:** `docs/AGENT_COMPLETION_GUIDE.md` — root cause analysis of why AI agents fail to finish apps, with enforcement playbook and completion checklist.
-- **Rollout Plan:** `docs/ROLLOUT_PLAN.md` — risk-tiered deployment strategy for the live app, with 4-scenario rollback procedures, smoke test checklist, feature flag template, and maintenance window schedule.
+### Security
+- **RR-401:** API keys removed from browser `localStorage`. Admin Panel reads from `import.meta.env.*` with read-only status display.
 
-### Updated
-- `docs/scrum/SPRINT_BACKLOG.md` — Sprint 4 rewritten with 10 stories, story points, and full acceptance criteria. Old "future enhancements" section replaced.
-- `docs/scrum/RAID.md` — Added R-006/R-007/R-008 (new risks), I-005/I-006 (new issues), D-006/D-007 (new dependencies).
-- `docs/scrum/HANDOFF.md` — Added section 6 linking to new documents; next-steps list for incoming agents.
+---
 
-# Changelog
-
-All notable changes to Reese Reviews are documented in this file.
-
-## [3.0.0] - 2026-04-03 - VINE AUTO-GENERATOR & DASHBOARDS
+## [3.0.0] - 2026-04-03
 
 ### Added
 - **Vine Review Auto-Generator (Priority 1):**
@@ -73,11 +90,9 @@ All notable changes to Reese Reviews are documented in this file.
 
 ---
 
-## [2.1.0] — 2026-03-03 — AMAZON REVIEWS INTEGRATION
+## [2.1.0] - 2026-03-03
 
-### ✨ New Features
-
-#### Amazon Reviews Integration (`feature/amazon-integration`)
+### Added
 - ✅ **AmazonDashboard component** — new 🛒 Amazon tab in Business Dashboard
   - Connection tab: demo / HTML paste / cookie import modes
   - Reviews tab: list imported reviews with Copy, Create Draft, Publish, and Open on Amazon actions
@@ -96,9 +111,9 @@ All notable changes to Reese Reviews are documented in this file.
 
 ---
 
-## [2.0.0] — 2024-02-25 — PRODUCTION LAUNCH
+## [2.0.0] - 2024-02-25
 
-### ✨ Major Features Added
+### Added
 
 #### Review Platform
 - ✅ Complete review submission system with photo uploads and star ratings
@@ -199,65 +214,20 @@ All notable changes to Reese Reviews are documented in this file.
 
 ---
 
-## [1.0.0] — 2024-02-01 — Initial Release
+## [1.0.0] - 2024-02-01
 
-### ✨ Initial Features
+### Added
 - Basic review submission and browsing
-- Category browsing
+- Category browsing (Products, Food, Services, Entertainment, Tech)
 - About and Contact pages
 - Responsive design
 - Accessibility modes (initial implementation)
 
 ---
 
-## Future Roadmap
+[Unreleased]: https://github.com/midnghtsapphire/reese-reviews/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/midnghtsapphire/reese-reviews/compare/v2.1.0...v3.0.0
+[2.1.0]: https://github.com/midnghtsapphire/reese-reviews/compare/v2.0.0...v2.1.0
+[2.0.0]: https://github.com/midnghtsapphire/reese-reviews/compare/v1.0.0...v2.0.0
+[1.0.0]: https://github.com/midnghtsapphire/reese-reviews/releases/tag/v1.0.0
 
-### Phase 3 (Q2 2024)
-- [ ] Plaid bank integration for income/expense tracking
-- [ ] Resale/rental pipeline UI enhancements
-- [ ] Advanced financial reporting
-- [ ] Tax form auto-generation (1099, 8283, etc.)
-
-### Phase 4 (Q3 2024)
-- [ ] Mobile app (React Native)
-- [ ] Video review support
-- [ ] AI-powered review recommendations
-- [ ] Influencer collaboration tools
-
-### Phase 5 (Q4 2024)
-- [ ] Premium tier with advanced analytics
-- [ ] API for third-party integrations
-- [ ] Marketplace for review templates
-- [ ] Community features (forums, discussions)
-
----
-
-## Known Issues
-
-None at this time. Please report issues via the Contact form.
-
----
-
-## Credits
-
-**Built for:** Reese (daughter of Audrey Evans)
-
-**Built by:** Audrey Evans / GlowStarLabs
-
-**Technology Stack:**
-- React 18
-- TypeScript
-- Vite
-- Tailwind CSS
-- shadcn-ui
-- Framer Motion
-- OpenRouter API
-- Vitest
-
----
-
-## License
-
-All Rights Reserved © 2024 Audrey Evans / GlowStarLabs
-
-This software is proprietary and confidential.
