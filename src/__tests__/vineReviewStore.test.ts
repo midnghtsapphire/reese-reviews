@@ -140,8 +140,8 @@ Just a Name,B0JUST1,home`;
 
   describe("Queue and Stats", () => {
     it("should return pending queue correctly", () => {
-      addVineItem({ productName: "Pending 1", asin: "B01", amazonUrl: "", category: "electronics", automationMode: "full_auto", orderDate: "2026-03-01T00:00:00.000Z", reviewDeadline: "2026-05-15T00:00:00.000Z", etv: 10, imageUrl: "" });
-      addVineItem({ productName: "Pending 2", asin: "B02", amazonUrl: "", category: "beauty", automationMode: "full_auto", orderDate: "2026-03-01T00:00:00.000Z", reviewDeadline: "2026-05-15T00:00:00.000Z", etv: 20, imageUrl: "" });
+      addVineItem({ productName: "Pending 1", asin: "B01", amazonUrl: "", category: "electronics", automationMode: "full_auto", orderDate: "2026-03-01T00:00:00.000Z", reviewDeadline: "2099-12-31T00:00:00.000Z", etv: 10, imageUrl: "" });
+      addVineItem({ productName: "Pending 2", asin: "B02", amazonUrl: "", category: "beauty", automationMode: "full_auto", orderDate: "2026-03-01T00:00:00.000Z", reviewDeadline: "2099-12-31T00:00:00.000Z", etv: 20, imageUrl: "" });
 
       const pending = getPendingQueue();
       expect(pending.length).toBe(2);
@@ -149,8 +149,8 @@ Just a Name,B0JUST1,home`;
     });
 
     it("should calculate stats correctly", () => {
-      addVineItem({ productName: "P1", asin: "B01", amazonUrl: "", category: "electronics", automationMode: "full_auto", orderDate: "2026-03-01T00:00:00.000Z", reviewDeadline: "2026-05-15T00:00:00.000Z", etv: 10, imageUrl: "" });
-      const item2 = addVineItem({ productName: "P2", asin: "B02", amazonUrl: "", category: "beauty", automationMode: "full_auto", orderDate: "2026-03-01T00:00:00.000Z", reviewDeadline: "2026-05-15T00:00:00.000Z", etv: 20, imageUrl: "" });
+      addVineItem({ productName: "P1", asin: "B01", amazonUrl: "", category: "electronics", automationMode: "full_auto", orderDate: "2026-03-01T00:00:00.000Z", reviewDeadline: "2099-12-31T00:00:00.000Z", etv: 10, imageUrl: "" });
+      const item2 = addVineItem({ productName: "P2", asin: "B02", amazonUrl: "", category: "beauty", automationMode: "full_auto", orderDate: "2026-03-01T00:00:00.000Z", reviewDeadline: "2099-12-31T00:00:00.000Z", etv: 20, imageUrl: "" });
       updateVineItem(item2.id, { status: "generated" });
 
       const stats = getItemStats();
