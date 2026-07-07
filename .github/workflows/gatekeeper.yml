@@ -85,10 +85,24 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Resolve TruffleHog commit range
+        id: trufflehog_range
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "base=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
+            echo "head=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "push" ] && [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            echo "base=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
+            echo "head=HEAD" >> "$GITHUB_OUTPUT"
+          else
+            echo "base=HEAD~1" >> "$GITHUB_OUTPUT"
+            echo "head=HEAD" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Scan for secrets with TruffleHog
         uses: trufflesecurity/trufflehog@v3.88.3
         with:
           path: ./
-          base: ${{ github.event_name == 'push' && github.event.before || github.event_name == 'pull_request' && github.event.pull_request.base.sha || 'HEAD~1' }}
-          head: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'HEAD' }}
+          base: ${{ steps.trufflehog_range.outputs.base }}
+          head: ${{ steps.trufflehog_range.outputs.head }}
           extra_args: --only-verified
