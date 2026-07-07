@@ -285,7 +285,7 @@ export default function Marketing() {
               )}
 
               {showApiKeyInput && !effectiveApiKey && (
-                <Card className="glass-card border-purple-500/20">
+                <Card className="glass-card border-steel-shine/20">
                   <CardHeader>
                     <CardTitle>API Configuration</CardTitle>
                   </CardHeader>
@@ -384,7 +384,7 @@ export default function Marketing() {
                 </CardContent>
               </Card>
 
-              <Card className="glass-card border-purple-500/20">
+              <Card className="glass-card border-steel-shine/20">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Zap className="h-5 w-5 text-yellow-400" />
@@ -427,8 +427,7 @@ export default function Marketing() {
                   )}
 
                   <p className="text-sm text-gray-400">
-                    Each tier generates posts for {selectedPlatforms.length} platforms using real AI content generation.
-                    Powered by OpenRouter (GPT-4o-mini).
+                    Each tier generates posts for {selectedPlatforms.length} platforms using AI-powered content generation.
                   </p>
                 </CardContent>
               </Card>
@@ -436,7 +435,7 @@ export default function Marketing() {
 
             {/* QUICK POST FROM REVIEW TAB */}
             <TabsContent value="quick-post" className="space-y-6">
-              <Card className="glass-card border-purple-500/20">
+              <Card className="glass-card border-steel-shine/20">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Send className="h-5 w-5 text-blue-400" />
@@ -536,7 +535,7 @@ export default function Marketing() {
               </div>
 
               {generatedCampaigns.length === 0 ? (
-                <Card className="glass-card border-purple-500/20">
+                <Card className="glass-card border-steel-shine/20">
                   <CardContent className="py-12 text-center">
                     <Sparkles className="h-10 w-10 text-gray-500 mx-auto mb-3" />
                     <p className="text-white font-medium mb-1">No campaigns generated yet</p>
@@ -548,7 +547,7 @@ export default function Marketing() {
               ) : (
                 <div className="space-y-3">
                   {generatedCampaigns.slice(-20).reverse().map((campaign) => (
-                    <Card key={campaign.id} className="glass-card border-purple-500/20">
+                    <Card key={campaign.id} className="glass-card border-steel-shine/20">
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1 min-w-0">
@@ -588,7 +587,7 @@ export default function Marketing() {
             {/* ANALYTICS TAB */}
             <TabsContent value="analytics" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <Card className="glass-card border-purple-500/20">
+                <Card className="glass-card border-steel-shine/20">
                   <CardHeader>
                     <CardTitle className="text-sm font-medium text-gray-400">Total Clicks</CardTitle>
                   </CardHeader>
@@ -618,7 +617,7 @@ export default function Marketing() {
                     </p>
                   </CardContent>
                 </Card>
-                <Card className="glass-card border-purple-500/20">
+                <Card className="glass-card border-steel-shine/20">
                   <CardHeader>
                     <CardTitle className="text-sm font-medium text-gray-400">Generated Posts</CardTitle>
                   </CardHeader>
@@ -652,7 +651,7 @@ export default function Marketing() {
                 </CardContent>
               </Card>
 
-              <Card className="glass-card border-purple-500/20">
+              <Card className="glass-card border-steel-shine/20">
                 <CardHeader>
                   <CardTitle>Posts by Platform</CardTitle>
                 </CardHeader>

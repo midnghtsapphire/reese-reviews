@@ -1,0 +1,24 @@
+# ============================================================
+# Copilot Coding Agent — Environment Setup Steps
+# ============================================================
+# Pre-installs dependencies so the Copilot coding agent
+# environment is ready to run lint, typecheck, test, and build
+# without waiting for npm install on every session.
+#
+# Standard: revvel-standards/CODE_REVIEW_STANDARD.md
+# S2M Note: This file fixes WR auto-process failures caused by
+# missing Node.js environment setup in the agent container.
+# ============================================================
+
+steps:
+  - name: Install Node.js dependencies
+    run: npm ci
+
+  - name: Verify test suite baseline
+    run: npm test -- --run
+
+  - name: Verify TypeScript compiles
+    run: npx tsc --noEmit
+
+  - name: Verify Vite build succeeds
+    run: npm run build
