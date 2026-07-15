@@ -1,5 +1,9 @@
 # Reese Reviews — Unified Business Dashboard
 
+
+<!-- AUTO-PACKAGE-BADGES:START -->
+
+<!-- AUTO-PACKAGE-BADGES:END -->
 A cohesive, single-dashboard platform built for **Reese**, combining Amazon Vine tax tracking, inventory management, an AI-powered review pipeline, an ERP Tax Center, and social media content publishing.
 
 **Live at:** [https://reesereviews.com](https://reesereviews.com)
