@@ -146,13 +146,23 @@ The following documents were added to address the compliance and agent-completio
 - **RR-406 ✅** — TypeDoc pipeline: `typedoc.json` + `npm run docs` + CI job.
 - **RR-409 ✅** — Marked done (App.tsx already fully lazy-loads all routes).
 
+### What Was Completed This Session (August 8, 2026 — Issue #69 / RR-508)
+
+- **Corrupted deploy workflow fixed** — `.github/workflows/deploy.yml` had two workflows mashed into one file (from `auto-package-badges[bot]`). Rewrote as a single valid pipeline: `ci` (lint + typecheck + test + build) → DigitalOcean `deploy` → `notify`.
+- **Secrets redacted from `.do/app.yaml`** — removed committed Supabase URL/key and OpenRouter API key; env vars are now `type: SECRET` only. **Human must rotate the leaked OpenRouter key in Doppler/DO.**
+- **Dependency audit** — `npm audit fix` cleared critical/high advisories reachable without breaking upgrades (Vitest ≥3.2.6, postcss, rollup, ws). Remaining: moderate vite/esbuild (needs Vite 8 major) and react-router (needs v7 major).
+- **Lint** — fixed `react-hooks/exhaustive-deps` warnings in `ReviewEnricher.tsx`.
+- **Tests** — 251 passing including new `deployWorkflow.test.ts` guards. Lint 0 errors, typecheck clean, build succeeds.
+- **Note on issue body:** CircleCI job 10890 URL points at `midnghtsapphire/revvel-standards`, not this repo. That failure cannot be fixed from reese-reviews; open/track it in revvel-standards (similar open issues: #16904, #16865).
+
 ### What's Next (Highest Priority for Next Session)
 
-1. **RR-601** — Wire CrossMarketSeeder to live OpenRouter API (High)
-2. **RR-602** — Implement real HeyGen avatar video generation (High)
-3. **RR-503** — Add TSDoc comments to all `src/lib/*.ts` files (Medium)
-4. **Backend scraper proxy** — build the proxy service at `VITE_SCRAPER_PROXY_URL` to handle real image scraping (Amazon/Walmart/Target) in production mode
-5. **RR-604** — Newsletter confirmation email via Supabase Edge Function
+1. **Rotate leaked OpenRouter key** (human / Doppler) — previously committed in `.do/app.yaml`
+2. **RR-601** — Wire CrossMarketSeeder to live OpenRouter API (High)
+3. **RR-602** — Implement real HeyGen avatar video generation (High)
+4. **RR-503** — Add TSDoc comments to all `src/lib/*.ts` files (Medium)
+5. **Backend scraper proxy** — build the proxy service at `VITE_SCRAPER_PROXY_URL` to handle real image scraping (Amazon/Walmart/Target) in production mode
+6. **RR-604** — Newsletter confirmation email via Supabase Edge Function
 
 > Next agent: **read `docs/BACKLOG.md` first.** Pick the highest-priority `To Do` item. Update its status. Update this HANDOFF.md when done.
 

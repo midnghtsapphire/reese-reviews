@@ -5,7 +5,7 @@
 // and preview the final review card.
 // ============================================================
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -80,30 +80,7 @@ export function ReviewEnricher({ selectedReviewId, onRefresh, onSelectReview }: 
   const [newPro, setNewPro] = useState("");
   const [newCon, setNewCon] = useState("");
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  useEffect(() => {
-    if (selectedReviewId && selectedReviewId !== editingId) {
-      setEditingId(selectedReviewId);
-      const review = getPipelineReviews().find((r) => r.id === selectedReviewId);
-      if (review) loadReviewIntoForm(review);
-    }
-  }, [selectedReviewId]);
-
-  const loadData = () => {
-    const all = getPipelineReviews();
-    setReviews(all);
-
-    // If we have an editing ID, load it
-    if (editingId) {
-      const review = all.find((r) => r.id === editingId);
-      if (review) loadReviewIntoForm(review);
-    }
-  };
-
-  const loadReviewIntoForm = (review: PipelineReview) => {
+  const loadReviewIntoForm = useCallback((review: PipelineReview) => {
     setEditTitle(review.title);
     setEditBody(review.body);
     setEditRating(review.rating);
@@ -116,7 +93,29 @@ export function ReviewEnricher({ selectedReviewId, onRefresh, onSelectReview }: 
     setEditReviewerName(review.reviewerName);
     setEditReviewerAvatar(review.reviewerAvatar);
     setEditIsFeatured(review.isFeatured);
-  };
+  }, []);
+
+  const loadData = useCallback(() => {
+    const all = getPipelineReviews();
+    setReviews(all);
+
+    if (editingId) {
+      const review = all.find((r) => r.id === editingId);
+      if (review) loadReviewIntoForm(review);
+    }
+  }, [editingId, loadReviewIntoForm]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  useEffect(() => {
+    if (selectedReviewId && selectedReviewId !== editingId) {
+      setEditingId(selectedReviewId);
+      const review = getPipelineReviews().find((r) => r.id === selectedReviewId);
+      if (review) loadReviewIntoForm(review);
+    }
+  }, [selectedReviewId, editingId, loadReviewIntoForm]);
 
   const enrichableReviews = useMemo(() => {
     return reviews.filter((r) => r.status !== "published" && r.status !== "live");

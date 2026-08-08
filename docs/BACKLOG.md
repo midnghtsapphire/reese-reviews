@@ -1,7 +1,7 @@
 # Product Backlog — Reese Reviews
 
 **Repository:** `midnghtsapphire/reese-reviews`
-**Last Updated:** April 5, 2026
+**Last Updated:** August 8, 2026
 **Standard:** revvel-standards/MASTER_APP_TEMPLATE.md
 
 ---
@@ -73,9 +73,10 @@ This is the **single source of truth** for all outstanding work on Reese Reviews
 | RR-502 | 🟠 High | Write unit tests for `reviewPipeline.ts` | Agent | Done (2026-04-05) | Test coverage for `EnrichmentData` flow and `AvatarChoice` branching. | `src/lib/reviewPipeline.test.ts` — 65 tests covering extractProsAndCons, generateExcerpt, generateVerdict, convertToPipelineReview, enrichReview (AvatarChoice), publishReview, bulkImport, query helpers. |
 | RR-503 | 🟡 Medium | Add TSDoc comments to all `src/lib/*.ts` files | Agent | To Do | Every exported function/class has a TSDoc `@param`, `@returns`, and summary. | Required for TypeDoc generation (RR-406). |
 | RR-504 | 🟡 Medium | Add TSDoc comments to all `src/services/*.ts` files | Agent | To Do | Same as above for the services layer. | Required for TypeDoc generation (RR-406). |
-| RR-505 | 🟡 Medium | Fix remaining ESLint errors (all `any` types) | Agent | To Do | `npm run lint` exits 0 with 0 errors. | Continuation of RR-402. |
+| RR-505 | 🟡 Medium | Fix remaining ESLint errors (all `any` types) | Agent | To Do | `npm run lint` exits 0 with 0 errors. | Continuation of RR-402. Hook warnings in `ReviewEnricher` fixed 2026-08-08; remaining warnings are shadcn `react-refresh/only-export-components`. |
 | RR-506 | 🔵 Low | Add WCAG 2.1 AA accessibility audit | Agent | To Do | Run `axe-core` against all pages; fix all Critical/Serious violations. | README claims WCAG 2.1 AA compliance but no audit exists. |
 | RR-507 | 🔵 Low | Update CHANGELOG.md to Keep-a-Changelog format | Copilot (2026-05-21) | Done (2026-05-21) | `CHANGELOG.md` follows https://keepachangelog.com format consistently. | Single `# Changelog` header, semantic versioning, standard sections (Added/Changed/Fixed/Security), version comparison links at bottom. |
+| RR-508 | 🔴 Critical | Fix corrupted deploy.yml + redact DO app secrets (Issue #69) | Copilot (2026-08-08) | In Review (PR #70) | `deploy.yml` is a single valid workflow (`ci` → `deploy` → `notify`); `.do/app.yaml` has no plaintext secrets; lint/typecheck/test/build green; regression tests guard both files. | Closes #69. CircleCI link in issue body pointed at revvel-standards (misroute); actionable failures were in this repo's deploy pipeline + secret leakage. |
 
 ---
 
@@ -112,6 +113,7 @@ This is the **single source of truth** for all outstanding work on Reese Reviews
 
 | Date Added | Requested By | Title | Description | Priority Guess |
 | :--- | :--- | :--- | :--- | :--- |
+| 2026-08-08 | Issue #69 | /dragnet fix lint-and-test (10890) | Misrouted CircleCI link to revvel-standards; fixed local deploy.yml corruption, secret redaction, dep audits, hook lint warnings. See RR-508. | 🔴 Critical |
 | 2026-04-05 | Issue #issue | Compliance + documentation upgrade | Full analysis, backlog, rollout plan, agent guide | 🔴 Critical |
 | 2026-04-28 | Issue: business tabs mess | Consolidate Business nav + remove purple | Main navbar shows duplicate Business links with off-brand purple. Consolidate to one Business entry, align styling to steel/glass theme, add regression test. | 🟡 Medium |
 | 2026-05-21 | Issue: s2m | Add S2M abbreviation + complete S2M docs | Add S2M (Ship to Market) to revvel-standards glossary in AGENTS.md. Create GO_TO_MARKET.md (deep research), BRAND_GUIDELINES.md, SECURITY.md. Fix .github/copilot-setup-steps.yml for WR auto-process. Fix expired vineReviewStore test deadlines. Done this session. | 🔴 Critical |
@@ -153,3 +155,4 @@ This is the **single source of truth** for all outstanding work on Reese Reviews
 | S2M-004 | Create SECURITY.md (vulnerability reporting, architecture, incident response) | 2026-05-21 | `feat: s2m-revvel-standards-and-docs` |
 | S2M-005 | Fix .github/copilot-setup-steps.yml to fix WR auto-process failures | 2026-05-21 | `feat: s2m-revvel-standards-and-docs` |
 | S2M-006 | Fix vineReviewStore tests using expired deadline dates (2026-05-15 → 2099-12-31) | 2026-05-21 | `fix: vineReviewStore test deadline dates` |
+| RR-508 | Fix corrupted deploy.yml + redact DO app secrets (Issue #69) | 2026-08-08 | PR #70 |

@@ -9,6 +9,7 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **RR-508:** `src/__tests__/deployWorkflow.test.ts` — regression tests that the deploy workflow stays a single coherent document and `.do/app.yaml` never commits plaintext secrets.
 - **S2M Docs:** `GO_TO_MARKET.md` — full ship-to-market plan with market research, competitive analysis, pricing, and launch strategy sourced from IRS publications, creator economy research, and platform-specific data.
 - **S2M Docs:** `BRAND_GUIDELINES.md` — color palette, typography, voice/tone, logo usage, and UI component standards per revvel-standards.
 - **S2M Docs:** `SECURITY.md` — vulnerability reporting, security architecture, secret management policy, pre-commit scan setup, and incident response matrix.
@@ -36,6 +37,10 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `supabase/migrations/20260425_vine_automation_fields.sql` — adds `amazon_url`, `automation_mode`, `scraped_images` columns.
 
 ### Fixed
+- **RR-508 / Issue #69:** Rewrote corrupted `.github/workflows/deploy.yml` (two workflows had been concatenated by auto-package-badges bot) into a single `ci` → `deploy` → `notify` pipeline with lint + typecheck + test + build gate.
+- **Security:** Removed hardcoded Supabase URL/key and OpenRouter API key from `.do/app.yaml`; env entries are now `type: SECRET` with values managed in DigitalOcean / Doppler. **Rotate the previously committed OpenRouter key.**
+- **Dependencies:** `npm audit fix` — critical Vitest UI advisory and other high-severity transitive updates (postcss, rollup, ws, etc.).
+- **Lint:** `ReviewEnricher` React hook dependency warnings resolved via `useCallback`.
 - `vineReviewStore.test.ts` — 2 tests used deadline `2026-05-15` (now past); updated to `2099-12-31` so items are not auto-marked overdue.
 - **RR-405:** `MetaAutoPost.tsx` off-brand colors replaced with steel/glass palette.
 - **RR-404:** `PaymentsDashboard.tsx` fully rewritten with async Stripe Checkout, return URL handler, active-plan badge, and demo-mode banner.
