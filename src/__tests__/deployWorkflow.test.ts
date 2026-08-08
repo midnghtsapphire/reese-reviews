@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { beforeAll, describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -10,7 +10,11 @@ import { resolve } from "node:path";
  */
 describe("deploy workflow integrity", () => {
   const workflowPath = resolve(process.cwd(), ".github/workflows/deploy.yml");
-  const source = readFileSync(workflowPath, "utf8");
+  let source = "";
+
+  beforeAll(() => {
+    source = readFileSync(workflowPath, "utf8");
+  });
 
   it("has a single workflow name", () => {
     const names = [...source.matchAll(/^name:\s*(.+)$/gm)].map((m) => m[1].trim());
@@ -43,13 +47,20 @@ describe("deploy workflow integrity", () => {
 
   it("does not embed a second workflow document mid-file", () => {
     expect(source).not.toMatch(/^name: Build & Deploy$/m);
-    expect(source).not.toMatch(/node-version: '20\.x'/);
+    // Positive assertion: Node is declared via env NODE_VERSION (current contract)
+    expect(source).toMatch(/NODE_VERSION:\s*'22'/);
+    // Negative assertion scoped to the old incomplete build job fragment
+    expect(source).not.toMatch(/name: Build[\s\S]*node-version:\s*'20\.x'/);
   });
 });
 
 describe("DigitalOcean app spec secrets", () => {
   const appPath = resolve(process.cwd(), ".do/app.yaml");
-  const source = readFileSync(appPath, "utf8");
+  let source = "";
+
+  beforeAll(() => {
+    source = readFileSync(appPath, "utf8");
+  });
 
   it("does not commit plaintext secret values", () => {
     expect(source).not.toMatch(/sk-or-/);
