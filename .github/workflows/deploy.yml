@@ -1,35 +1,7 @@
-name: Build & Deploy
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:
-
-permissions:
-  contents: write
-
-jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          cache: 'npm'
 # ============================================================
 # Reese Reviews — Deploy to DigitalOcean App Platform
 # ============================================================
-# Triggers on merge to main. Runs the full CI pipeline first,
+# Triggers on merge to main. Runs the full CI gate first,
 # then triggers a DigitalOcean App Platform deployment.
 #
 # Note: DigitalOcean App Platform has native deploy_on_push
@@ -52,6 +24,9 @@ on:
 concurrency:
   group: deploy-production
   cancel-in-progress: false
+
+permissions:
+  contents: read
 
 env:
   NODE_VERSION: '22'
@@ -76,8 +51,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: ESLint
+        run: npm run lint
+
       - name: Type check
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
       - name: Run tests
         run: npm test
@@ -94,42 +72,6 @@ jobs:
           name: dist
           path: dist/
           retention-days: 1
-
-  deploy-pages:
-    name: Deploy to GitHub Pages
-    needs: build
-    runs-on: ubuntu-latest
-    # Only deploy on push to main (not on PRs)
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
-
-      - name: Add CNAME
-        run: echo "reesereviews.com" > dist/CNAME
-
-      - name: Deploy to GitHub Pages (gh-pages branch)
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          publish_branch: gh-pages
-          force_orphan: true
-      - name: TypeScript type check
-        run: npx tsc --noEmit
-
-      - name: ESLint
-        run: npm run lint
-
-      - name: Vitest
-        run: npm run test
-
-      - name: Production build
-        run: npm run build
 
   # ── 2. Deploy to DigitalOcean App Platform ─────────────────
   deploy:
@@ -152,14 +94,19 @@ jobs:
         id: app_id
         run: |
           APP_ID=$(doctl apps list --format ID,Spec.Name --no-header | grep reese-reviews | awk '{print $1}')
-          echo "app_id=$APP_ID" >> $GITHUB_OUTPUT
+          echo "app_id=$APP_ID" >> "$GITHUB_OUTPUT"
           echo "Found App ID: $APP_ID"
 
       - name: Trigger deployment
         if: steps.app_id.outputs.app_id != ''
         run: |
-          doctl apps create-deployment ${{ steps.app_id.outputs.app_id }} --wait
+          doctl apps create-deployment "${{ steps.app_id.outputs.app_id }}" --wait
           echo "Deployment triggered successfully"
+
+      - name: Skip when app not found
+        if: steps.app_id.outputs.app_id == ''
+        run: |
+          echo "::warning::No DigitalOcean app matching 'reese-reviews' was found. Skipping deploy trigger."
 
       - name: Verify deployment health
         if: steps.app_id.outputs.app_id != ''
@@ -182,10 +129,12 @@ jobs:
     steps:
       - name: Deployment summary
         run: |
-          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Actor:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status:** ${{ needs.deploy.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **URL:** https://reese-reviews-uniwo.ondigitalocean.app" >> $GITHUB_STEP_SUMMARY
-          echo "- **Custom Domain:** https://reesereviews.com" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## Deployment Summary"
+            echo "- **Commit:** ${{ github.sha }}"
+            echo "- **Branch:** ${{ github.ref_name }}"
+            echo "- **Actor:** ${{ github.actor }}"
+            echo "- **Status:** ${{ needs.deploy.result }}"
+            echo "- **URL:** https://reese-reviews-uniwo.ondigitalocean.app"
+            echo "- **Custom Domain:** https://reesereviews.com"
+          } >> "$GITHUB_STEP_SUMMARY"
