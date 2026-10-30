@@ -163,7 +163,6 @@ export interface BusinessEntity {
   ein?: string;
   /** Contact email for this entity */
   email?: string;
-  type: "sole_prop" | "llc" | "s_corp" | "partnership" | "rental" | "gig";
   type: EntityType;
   /** Which IRS schedule this entity files on */
   schedule: EntitySchedule;
@@ -303,25 +302,7 @@ export const WRITEOFF_CATEGORY_META: Record<WriteOffCategory, {
   charitable_donations:    { label: "Charitable Donations",         description: "Cash/non-cash donations to qualified orgs — Form 8283 if >$500",  default_pct: 100, icon: "🎁" },
   retirement_contributions:{ label: "Retirement Contributions",     description: "SEP-IRA, Solo 401(k), SIMPLE IRA contributions",                  default_pct: 100, icon: "💰" },
   other:                   { label: "Other Business Expense",       description: "Ordinary and necessary business expenses",                        default_pct: 100, icon: "📋" },
-  home_office:           { label: "Home Office",             description: "Dedicated workspace sq ft / total sq ft of home",  default_pct: 100, icon: "🏠" },
-  supplies:              { label: "Office Supplies",          description: "Paper, ink, pens, props, organizers",              default_pct: 100, icon: "📎" },
-  internet:              { label: "Internet",                 description: "Business portion of internet bill",                default_pct: 50,  icon: "🌐" },
-  phone:                 { label: "Phone",                    description: "Business portion of cell/phone bill",              default_pct: 50,  icon: "📱" },
-  shipping:              { label: "Shipping & Postage",       description: "Packaging, postage, return shipping",              default_pct: 100, icon: "📦" },
-  product_costs:         { label: "Product / COGS",           description: "Cost of goods sold, product purchases",           default_pct: 100, icon: "🛍️" },
-  vehicle_mileage:       { label: "Vehicle / Mileage",        description: "Business mileage at IRS standard rate",           default_pct: 100, icon: "🚗" },
-  advertising:           { label: "Advertising & Marketing",  description: "Ads, promotions, social media tools",             default_pct: 100, icon: "📣" },
-  professional_services: { label: "Professional Services",    description: "Accountant, attorney, bookkeeper",                default_pct: 100, icon: "💼" },
-  equipment:             { label: "Equipment & Tech",         description: "Computers, cameras, peripherals, software",       default_pct: 100, icon: "💻" },
-  education:             { label: "Education & Training",     description: "Courses, books, conferences",                     default_pct: 100, icon: "📚" },
-  meals_entertainment:   { label: "Meals & Entertainment",    description: "Business meals (50% deductible)",                 default_pct: 50,  icon: "🍽️" },
-  uniform_ppe:           { label: "Uniform / PPE",            description: "Required work uniforms, safety gear, scrubs, PPE",default_pct: 100, icon: "👔" },
   pet_supplies:          { label: "Pet Supplies",             description: "Pet care supplies used for client animals",       default_pct: 100, icon: "🐾" },
-  vehicle_actual:        { label: "Vehicle Actual Expenses",  description: "Gas, oil, insurance, repairs, registration (business %)", default_pct: 60, icon: "⛽" },
-  health_insurance:      { label: "Health Insurance Premium", description: "Self-employed health insurance deduction (100%)", default_pct: 100, icon: "🏥" },
-  platform_fees:         { label: "Platform / App Fees",      description: "Service platform fees, booking app commissions",  default_pct: 100, icon: "📲" },
-  licensing_certs:       { label: "Licenses & Certifications",description: "Professional licenses, certifications, background checks", default_pct: 100, icon: "🎓" },
-  other:                 { label: "Other Business Expense",   description: "Ordinary and necessary business expenses",        default_pct: 100, icon: "📋" },
 };
 
 // ─── IRS FORM METADATA ───────────────────────────────────────
@@ -393,7 +374,7 @@ export const DEFAULT_PERSONS: TaxPerson[] = [
       {
         id: "biz-caresse-homedepot",
         name: "Home Depot — W-2",
-        type: "w2_employer",
+        type: "gig", // W-2 employer: no matching EntityType; schedule "none" keeps it off Schedule C
         schedule: "none",
         home_office_eligible: false,
         notes: "W-2 retail employee at Home Depot. Taxes withheld by employer — no Schedule C. Keep your W-2 from January. Enter Box 1 wages and Box 2 federal withheld.",
@@ -401,7 +382,7 @@ export const DEFAULT_PERSONS: TaxPerson[] = [
       {
         id: "biz-caresse-dollarstore",
         name: "Dollar Store — W-2",
-        type: "w2_employer",
+        type: "gig", // W-2 employer: no matching EntityType; schedule "none" keeps it off Schedule C
         schedule: "none",
         home_office_eligible: false,
         notes: "W-2 retail employee. Taxes withheld by employer — no Schedule C. Keep your W-2 from January. Limited federal deductions post-TCJA 2017 for W-2 workers, but may qualify for CO state deductions.",
