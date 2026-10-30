@@ -6,7 +6,7 @@ services:
     github:
       repo: MIDNGHTSAPPHIRE/reese-reviews
       branch: main
-      deploy_on_push: true
+      # deploy_on_push: true  # DISABLED (wingit-ci pilot): no DigitalOcean auto-deploy
     dockerfile_path: Dockerfile
     http_port: 8080
     instance_size_slug: apps-s-1vcpu-0.5gb
