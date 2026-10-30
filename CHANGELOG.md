@@ -9,6 +9,21 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **wingit-ci:** `Makefile` with `make ci` (npm ci → typecheck → lint → test → build) and `.github/workflows/wingit-ci.yml` that only runs `make ci`, with actions pinned to full commit SHAs.
+- **wingit-ci:** `scripts/wingit-deploy.sh` — build and publish `dist/` to the `gh-pages` branch with plain git; dry-run by default (`--publish` to push).
+- `Library/BLUEPRINT.md` and `Library/ROADMAP.md` stubs per revvel-standards.
+- README section on manual setup/run/test/deploy and a warning that `VITE_*` keys ship in the browser bundle; same warning in `.env.example`.
+
+### Changed
+- Pinned all existing workflow actions (`ci.yml`, `deploy.yml`, `gatekeeper.yml`) to full commit SHAs.
+
+### Removed / Disabled
+- DigitalOcean deploy commented out (push trigger and doctl steps in `deploy.yml`, `deploy_on_push` in `.do/app.yaml`); not deleted.
+
+### Fixed
+- `src/stores/taxStore.ts`: removed duplicated `EXPENSE_CATEGORY_META` keys and duplicate `type` field on `BusinessEntity`; replaced invalid `"w2_employer"` entity type with `"gig"` (schedule `none`).
+
+### Added (earlier)
 - **RR-508:** `src/__tests__/deployWorkflow.test.ts` — regression tests that the deploy workflow stays a single coherent document and `.do/app.yaml` never commits plaintext secrets.
 - **S2M Docs:** `GO_TO_MARKET.md` — full ship-to-market plan with market research, competitive analysis, pricing, and launch strategy sourced from IRS publications, creator economy research, and platform-specific data.
 - **S2M Docs:** `BRAND_GUIDELINES.md` — color palette, typography, voice/tone, logo usage, and UI component standards per revvel-standards.

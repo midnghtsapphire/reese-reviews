@@ -209,6 +209,18 @@ erDiagram
 
 ---
 
+## 🧰 Manual Setup, Run, Test & Deploy (wingit-ci)
+
+> ⚠️ **Security warning:** every `VITE_*` environment variable is inlined into the
+> **public browser bundle** at build time and can be read by anyone from `dist/assets/*.js`.
+> Only use `VITE_*` for publishable values. Never put secret keys there.
+
+1. **Setup:** Node 22. `cp .env.example .env` and fill in placeholders. Install with the lockfile: `npm ci`.
+2. **Run:** `npm run dev`
+3. **Test / full CI locally:** `make ci` (npm ci → typecheck → lint → test → build). This is exactly what `.github/workflows/wingit-ci.yml` runs.
+4. **Deploy (manual, GitHub Pages):** `scripts/wingit-deploy.sh` does a **dry run** by default (builds and prepares a gh-pages commit, pushes nothing). `scripts/wingit-deploy.sh --publish` force-pushes `dist/` to the `gh-pages` branch; then enable Pages on that branch in repo settings.
+   DigitalOcean deploy is disabled (commented out in `.github/workflows/deploy.yml` and `.do/app.yaml`).
+
 ## 📄 License
 All Rights Reserved © 2026 Audrey Evans / GlowStarLabs.
 This software is proprietary and confidential.
