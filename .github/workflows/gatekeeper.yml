@@ -11,7 +11,7 @@ on:
 jobs:
   third-party-audit:
     name: Third-Party Platform Audit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:
       contents: read
@@ -74,7 +74,7 @@ jobs:
 
   secret-scan:
     name: Secret Detection (Hard Gate)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:
       contents: read
