@@ -27,7 +27,7 @@ jobs:
   # ── 1. Lint ────────────────────────────────────────────────
   lint:
     name: ESLint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -47,7 +47,7 @@ jobs:
   # ── 2. Type Check ─────────────────────────────────────────
   typecheck:
     name: TypeScript Type Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -67,7 +67,7 @@ jobs:
   # ── 3. Build ───────────────────────────────────────────────
   build:
     name: Vite Production Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: [lint, typecheck]
     steps:
       - name: Checkout repository
@@ -95,7 +95,7 @@ jobs:
   # ── 4. Test ────────────────────────────────────────────────
   test:
     name: Vitest Unit & Integration Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: [lint, typecheck]
     steps:
       - name: Checkout repository
@@ -116,7 +116,7 @@ jobs:
   # ── 5. Security Scan ──────────────────────────────────────
   security:
     name: Dependency Audit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -138,7 +138,7 @@ jobs:
   # ── 6. TypeDoc API Docs ───────────────────────────────────
   docs:
     name: Generate TypeDoc API Docs
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: [typecheck]
     permissions:
       contents: read

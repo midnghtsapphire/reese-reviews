@@ -8,6 +8,15 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+- **Security Gatekeeper & CI Workflows:** Updated `runs-on: ubuntu-latest` to `ubuntu-26.04` in `.github/workflows/*.yml` to address the Ubuntu 26 migration warning.
+- **Build:** Fixed duplicate keys in `src/stores/taxStore.ts` that caused Vite build failures.
+- **Verification (No GitHub Actions):** As GitHub Actions may be locked, run tests locally in the VM using:
+  ```bash
+  npm i && npm run lint && npm run test -- --run && npm run build
+  ```
+
+
 ### Added
 - **RR-508:** `src/__tests__/deployWorkflow.test.ts` — regression tests that the deploy workflow stays a single coherent document and `.do/app.yaml` never commits plaintext secrets.
 - **S2M Docs:** `GO_TO_MARKET.md` — full ship-to-market plan with market research, competitive analysis, pricing, and launch strategy sourced from IRS publications, creator economy research, and platform-specific data.

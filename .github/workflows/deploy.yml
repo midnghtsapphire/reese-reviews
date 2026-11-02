@@ -37,7 +37,7 @@ jobs:
   # ── 1. CI Gate — must pass before deploy ───────────────────
   ci:
     name: CI Gate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -76,7 +76,7 @@ jobs:
   # ── 2. Deploy to DigitalOcean App Platform ─────────────────
   deploy:
     name: Deploy to Production
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: ci
     environment:
       name: production
@@ -123,7 +123,7 @@ jobs:
   # ── 3. Post-Deploy Notification ────────────────────────────
   notify:
     name: Post-Deploy Summary
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: deploy
     if: always()
     steps:

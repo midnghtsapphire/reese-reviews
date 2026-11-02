@@ -1,0 +1,1 @@
+{"timestamp": "2026-10-31T22:35:00Z", "decision": "Updated github workflow 'runs-on' labels from ubuntu-latest to ubuntu-26.04 to fix migration warnings. Fixed build error in src/stores/taxStore.ts caused by duplicate keys. Confirmed no third-party platform artifacts or secrets via audit scripts. Documented how to verify the codebase without GitHub Actions."}
