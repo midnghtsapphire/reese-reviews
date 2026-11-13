@@ -9,6 +9,8 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **Voice:** `voice/` — Reese's canonical voice profile (`Sulafat`, `en-US`), exact style strings, pronunciation guide, full reference voiceover, 10-second sample, ready-to-use speech payload, and ElevenLabs app integration notes.
+- **Content:** `content/2026-11-13-ring-play-yard-hack/` — 35–45 second script and setup checklist for using a Ring Battery Doorbell 2K in a kids' play yard, with honest supervision and privacy caveats.
 - **RR-508:** `src/__tests__/deployWorkflow.test.ts` — regression tests that the deploy workflow stays a single coherent document and `.do/app.yaml` never commits plaintext secrets.
 - **S2M Docs:** `GO_TO_MARKET.md` — full ship-to-market plan with market research, competitive analysis, pricing, and launch strategy sourced from IRS publications, creator economy research, and platform-specific data.
 - **S2M Docs:** `BRAND_GUIDELINES.md` — color palette, typography, voice/tone, logo usage, and UI component standards per revvel-standards.
@@ -235,4 +237,3 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 [2.1.0]: https://github.com/midnghtsapphire/reese-reviews/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/midnghtsapphire/reese-reviews/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/midnghtsapphire/reese-reviews/releases/tag/v1.0.0
-

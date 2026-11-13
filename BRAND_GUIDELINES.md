@@ -152,6 +152,10 @@ AI-generated review text is written in first person as the **Caresse** persona:
 - Always includes FTC disclosure: *"I received this product as part of the Amazon Vine program in exchange for my honest review."*
 - Pros/cons format for transparency; never purely promotional
 
+### Reese's Audio Voice
+
+Reese's audio voice is **Sulafat** (warm, medium pitch, `en-US`). Use it for every voiceover, live ad, and review. The canonical profile, reference audio, pronunciation guide, and exact style strings are in [`voice/README.md`](voice/README.md). Do not substitute voices between videos.
+
 ---
 
 ## 5. Logo Usage

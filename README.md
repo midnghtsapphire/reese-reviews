@@ -15,6 +15,7 @@ A cohesive, single-dashboard platform built for **Reese**, combining Amazon Vine
 ### 1. Avatar-Based Review Generation
 - **Publishing Wizard:** 6-step guided process for creating review videos.
 - **Stock Avatars:** Multiple personas (Professional, Casual, Unboxing) for "Caresse".
+- **Canonical Voice:** Sulafat — one consistent voice for every review video. See [`voice/README.md`](voice/README.md).
 - **AI Content:** OpenRouter integration for generating scripts and metadata stripping.
 - **YouTube Auto-Posting:** Direct OAuth2 integration for publishing and scheduling.
 

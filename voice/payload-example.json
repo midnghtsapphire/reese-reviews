@@ -1,0 +1,26 @@
+{
+  "voice_name": "Sulafat",
+  "language_code": "en-US",
+  "turns": [
+    {
+      "text": "A $40 Ring doorbell? I had to check the fine print.",
+      "style": "curious, conversational"
+    },
+    {
+      "text": "This is the Ring Battery Doorbell 2K. Amazon has it for $39.99 — that's 60% off the usual $99.99.",
+      "style": "warm, friendly, conversational"
+    },
+    {
+      "text": "You get 2K video, 6x zoom, two-way talk, and a rechargeable battery, so no wiring. It works with Alexa and installs in about ten minutes.",
+      "style": "confident, friendly"
+    },
+    {
+      "text": "The catch: cloud recordings need a Ring Protect plan, it's 2.4 GHz WiFi only, and some reviewers report dropouts. For a rental or first apartment, it's still a solid $40 starter doorbell.",
+      "style": "honest, reassuring"
+    },
+    {
+      "text": "Link's in the caption. Check the price before it jumps back up.",
+      "style": "warm, friendly"
+    }
+  ]
+}

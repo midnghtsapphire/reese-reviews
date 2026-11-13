@@ -1,0 +1,55 @@
+{
+  "brand": "Reese Reviews",
+  "persona": "Reese / Caresse",
+  "canonical_voice": {
+    "provider": "built-in speech",
+    "voice_name": "Sulafat",
+    "language_code": "en-US",
+    "gender": "female",
+    "pitch": "medium",
+    "timbre": "warm",
+    "baseline_style": "warm, friendly, conversational"
+  },
+  "style_map": {
+    "hook": "curious, conversational",
+    "deal": "warm, friendly, conversational",
+    "features": "confident, friendly",
+    "caveat": "honest, reassuring",
+    "cta": "warm, friendly"
+  },
+  "pronunciation": {
+    "Ring Battery Doorbell 2K": "Ring Battery Doorbell two-K",
+    "2.4 GHz": "two-point-four gigahertz",
+    "$39.99": "thirty-nine ninety-nine",
+    "$99.99": "ninety-nine ninety-nine",
+    "Ring Protect": "Ring Protect",
+    "USB-C": "U-S-B-C",
+    "Alexa": "uh-LEK-suh"
+  },
+  "reference_audio": {
+    "full": "reference/reese-reference-voiceover.wav",
+    "sample": "reference/reese-voice-sample-10s.mp3",
+    "full_duration_seconds": 43.76,
+    "sample_duration_seconds": 10.06
+  },
+  "app_integration": {
+    "pipeline": "ElevenLabs",
+    "voice_id_secret": "reese_voice_id",
+    "voice_id": "",
+    "voice_settings": {
+      "stability": 0.5,
+      "similarity_boost": 0.8,
+      "style": 0.35,
+      "use_speaker_boost": true
+    },
+    "model_id": "eleven_multilingual_v2",
+    "note": "The app's ElevenLabs pipeline uses its own reese_voice_id secret. Set it once to the approved Reese voice and do not change it. The built-in Sulafat voice is the canonical voice for content generated with the built-in speech tool. Do not clone a voice into another provider without confirming the voice owner's permission."
+  },
+  "rules": [
+    "Use Sulafat for every Reese Reviews voiceover, live ad, and review.",
+    "Do not switch voices between videos or between scenes in the same video.",
+    "Reuse the exact style strings in style_map so the delivery stays consistent.",
+    "Regenerate the full passage instead of patching a few words with a different voice.",
+    "Keep the reference audio in this folder for auditioning, QA, and future voice matching."
+  ]
+}
