@@ -1,0 +1,144 @@
+pack: kdp
+title: Amazon KDP rules (export of https://app.notion.com/p/4182aa319908811288d7cc88a4304b8b)
+version: '2026-11-14'
+fetched: '2026-11-14'
+timezone: America/Denver
+source: https://app.notion.com/p/4182aa319908811288d7cc88a4304b8b
+notes:
+- Generated from an export of the Amazon Rules Notion database, which is the source of truth.
+- Official public help pages do not state a character limit, a maximum number of photos, a maximum video
+  length, or a maximum file size. This pack therefore has no length bounds.
+rules:
+- id: KDP-AI-DISCLOSE-001
+  severity: fail
+  check: field
+  when:
+    any:
+    - field: ai_used_for
+      op: contains
+      value: images
+    - field: ai_used_for
+      op: contains
+      value: text
+    - field: ai_used_for
+      op: contains
+      value: translations
+    - field: ai_used_for
+      op: contains
+      value: captions
+  field: ai_generated
+  op: eq
+  value: true
+  message: Authors must inform KDP of AI-generated content (text, images, or translations) when publishing
+    or republishing.
+  source_kind: official
+  source_url: https://kdp.amazon.com/en_US/help/topic/G200672390
+  source_quote: We require you to inform us of AI-generated content (text, images, or translations) when
+    you publish a new book or make edits to and republish an existing book through KDP. AI-generated images
+    include cover and interior images and artwork. We define AI-generated content as text, images, or
+    translations created by an AI-based tool. If you used an AI-based tool to create the actual content
+    (whether text, images, or translations), it is considered "AI-generated," even if you applied substantial
+    edits afterwards.
+  fetched: '2026-11-14'
+- id: KDP-TRIM-PB-SUPPORTED-001
+  severity: fail
+  check: field
+  when:
+    op: text_matches
+    fields:
+    - formats
+    pattern: (?i)paperback|pb
+  field: paperback_trim
+  op: in
+  values:
+  - 5x8
+  - 5.06x7.81
+  - 5.25x8
+  - 5.5x8.5
+  - 6x9
+  - 6.14x9.21
+  - 6.69x9.61
+  - 7x10
+  - 7.44x9.69
+  - 7.5x9.25
+  - 8x10
+  - 8.25x6
+  - 8.25x8.25
+  - 8.5x8.5
+  - 8.5x11
+  - 8.27x11.69
+  message: Paperback trim must be a size listed in official KDP Help.
+  source_kind: official
+  source_url: https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6
+  source_quote: You can choose from a variety of trim sizes to set the size of your printed book. The
+    most common trim size for paperbacks in the U.S. is 6 x 9 inches (152.4 x 228.6 mm) and is a regular
+    trim size. 8.5" x 11" (21.59 x 27.94 cm) is listed as a large trim size.
+  fetched: '2026-11-14'
+- id: KDP-TRIM-HC-SUPPORTED-001
+  severity: fail
+  check: field
+  when:
+    op: text_matches
+    fields:
+    - formats
+    pattern: (?i)hardcover|hc
+  field: hardcover_trim
+  op: in
+  values:
+  - 5.5x8.5
+  - 6x9
+  - 6.14x9.21
+  - 7x10
+  - 8.25x11
+  message: Hardcover trim must be a size listed in official KDP Help.
+  source_kind: official
+  source_url: https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6
+  source_quote: Hardcover large trim sizes listed include 8.25" x 11" (20.96 x 27.94 cm), with a page-count
+    range of 75–550.
+  fetched: '2026-11-14'
+- id: KDP-PB-PAGE-COUNT-001
+  severity: fail
+  check: field
+  when:
+    all:
+    - op: text_matches
+      fields:
+      - formats
+      pattern: (?i)paperback|pb
+    - field: paperback_trim
+      op: eq
+      value: 8.5x11
+    - field: page_count
+      op: nonempty
+  field: page_count
+  op: range
+  min: 24
+  max: 590
+  message: 'Official KDP Help lists paperback page-count ranges by trim and ink type (for 8.5 x 11 premium
+    color or black ink on white: 24–590).'
+  source_kind: official
+  source_url: https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6
+  source_quote: '8.5" x 11" (21.59 x 27.94 cm): black ink and white paper 24–590; black ink and cream
+    paper 24–550; black ink and groundwood paper 24–578; standard color 72–600; premium color 24–590.'
+  fetched: '2026-11-14'
+- id: KDP-HC-PAGE-COUNT-001
+  severity: fail
+  check: field
+  when:
+    all:
+    - op: text_matches
+      fields:
+      - formats
+      pattern: (?i)hardcover|hc
+    - field: page_count
+      op: nonempty
+  field: page_count
+  op: range
+  min: 75
+  max: 550
+  message: Official KDP Help lists hardcover page counts as 75–550.
+  source_kind: official
+  source_url: https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6
+  source_quote: Hardcover trim sizes, including 8.25" x 11" (20.96 x 27.94 cm), list a page-count range
+    of 75–550.
+  fetched: '2026-11-14'

@@ -1,0 +1,13 @@
+# EXAMPLE ONLY — fictional sample with seller incentive language (not Vine-disclosed).
+example: true
+pack: reviews
+product: "Example keyboard (sample data only)"
+asin: "B0TEST0006"
+review_source: purchase
+used: "yes"
+stars: 5
+title: "Great board"
+body: >
+  I used this sample keyboard at work. The seller sent a gift card in exchange
+  for this review and said they will refund me if I change a negative review.
+photos: []

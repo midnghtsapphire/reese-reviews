@@ -1,0 +1,14 @@
+# EXAMPLE ONLY — fictional sample with an email, phone, order number, and external URL.
+example: true
+pack: reviews
+product: "Example phone stand (sample data only)"
+asin: "B0TEST0005"
+review_source: purchase
+used: "yes"
+stars: 3
+title: "Fine stand"
+body: >
+  I used this sample stand on my nightstand. If it breaks, email me at
+  reviewer@example.com or call 303-555-0199 and mention order 123-1234567-1234567.
+  Full notes are at https://example.com/my-review.
+photos: []

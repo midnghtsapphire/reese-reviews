@@ -1,0 +1,21 @@
+# EXAMPLE ONLY — fictional book that skips required AI disclosure and has words in the art.
+example: true
+pack: kdp
+title: "Example Failed Disclosure Title"
+author: "Audrey Walter-Evans"
+formats:
+  - paperback
+  - hardcover
+existing_6x9: false
+paperback_trim: "7x10"
+hardcover_trim: "6x9"
+page_count: 40
+cover_art_has_words: true
+ai_generated: no
+ai_tool: "Other Tool"
+ai_used_for:
+  - images
+ai_images: ""
+ai_texts: "generated"
+ai_translations: none
+coloring_book: false

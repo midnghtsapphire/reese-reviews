@@ -1,0 +1,15 @@
+# EXAMPLE ONLY — fictional sample designed to FAIL the affiliate rule. Not a real post.
+example: true
+pack: reviews
+product: "Example desk lamp (sample data only)"
+asin: "B0TEST0002"
+amazon_url: "https://www.amazon.com/dp/B0TEST0002"
+review_source: purchase
+used: "yes"
+stars: 5
+title: "Bright lamp"
+body: >
+  I used this sample lamp on my desk for a week. It is bright enough to read by.
+  Buy it here: https://www.amazon.com/dp/B0TEST0002?tag=exampleaff-20 and also
+  see amzn.to/ExAmpl3 for a coupon.
+photos: []

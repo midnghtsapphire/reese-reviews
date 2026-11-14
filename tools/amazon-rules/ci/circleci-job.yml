@@ -1,0 +1,58 @@
+# Optional CircleCI snippet for the Amazon rules engine.
+# Do NOT add a new self-hosted runner. The fleet already has only one.
+# Do NOT install this file as the sole root .circleci/config.yml unless you
+# intend it to become the repo's CircleCI pipeline. Keep the parameter
+# run_amazon_rules defaulting to false so ordinary pushes do not start a job
+# (CircleCI credits can cost money). Prefer the GitHub workflow_dispatch
+# workflow on this public repo, or run the CLI locally.
+#
+# Trigger later, if a root config already exists, with a pipeline parameter:
+#   run_amazon_rules=true
+#   review_file=tools/amazon-rules/examples/EXAMPLE-review-pass.yml
+
+version: 2.1
+
+parameters:
+  run_amazon_rules:
+    type: boolean
+    default: false
+  review_file:
+    type: string
+    default: "tools/amazon-rules/examples/EXAMPLE-review-pass.yml"
+
+jobs:
+  amazon-rules-check:
+    docker:
+      - image: cimg/python:3.12
+    working_directory: ~/project
+    steps:
+      - checkout
+      - run:
+          name: Install Amazon rules engine dependencies
+          command: |
+            python3 -m pip install --upgrade pip
+            python3 -m pip install -r tools/amazon-rules/requirements.txt
+      - run:
+          name: Run unit tests
+          command: |
+            cd tools/amazon-rules
+            PYTHONPATH=. python -m pytest -q
+      - run:
+          name: Check one review file (never posts to Amazon)
+          command: |
+            cd tools/amazon-rules
+            # Paths are repo-relative; the default file is EXAMPLE ONLY.
+            rel="<< pipeline.parameters.review_file >>"
+            case "$rel" in
+              tools/amazon-rules/*) file="${rel#tools/amazon-rules/}" ;;
+              *) file="$rel" ;;
+            esac
+            PYTHONPATH=. python -m amazon_rules check "$file" --out /tmp/amazon-rules-report.md
+      - store_artifacts:
+          path: /tmp/amazon-rules-report.md
+
+workflows:
+  amazon-rules-engine:
+    when: << pipeline.parameters.run_amazon_rules >>
+    jobs:
+      - amazon-rules-check

@@ -12,18 +12,18 @@ body:
 
         It is a consolidated list of reviewed New In Box Amazon items ready for resale. **Sale Price (20% off)** = lowest historical Keepa price × 0.80. Calculations also live in the Google Sheet.
 
-        You do this yourself, the same way you already do it in Notion. There are no extra approval stages.
+        You do this yourself, the same way you already do it in Notion.
 
         **How it works today**
 
         1. Fill in the inventory fields below (same names and order as the Notion Default view).
         2. Write the review on the item the way the Notion page does: **Title**, **Review**, and **Image**.
         3. Keep **Review Status** as **To Review** until you submit it.
-        4. When you are ready, copy the title and body into the Vine review form (or the Amazon review form). Upload the image if it is ready. You can submit text-only if the picture is not ready yet.
+        4. When you are ready, copy the title and body into the Vine review form (or the Amazon review form). Upload the image if it is ready, and submit.
         5. After it is submitted, set **Review Status** to **Reviewed**.
         6. For resale, move **Status** from **To List** to **Listed**, then **Sold**, or **Hold**.
 
-        Keep private details such as order numbers and associate tags in **Notes**, not in the public review title or body.
+        Rules: [Amazon Rules](https://app.notion.com/p/4182aa319908811288d7cc88a4304b8b).
 
   - type: input
     id: name
@@ -93,7 +93,7 @@ body:
     id: notes
     attributes:
       label: Notes
-      description: Private inventory notes. Do not copy order numbers or associate tags into the public review.
+      description: Inventory notes.
 
   - type: input
     id: original_price
@@ -180,10 +180,6 @@ body:
     id: image
     attributes:
       label: Image
-      description: "Same as the Notion page Image line. For example, that the picture is still needed, or that a processed version is ready. Pictures can be light and simple. You may submit the review without an image if the picture is not ready."
+      description: "Same as the Notion page Image line."
       placeholder: "Image still needed."
 
-  - type: markdown
-    attributes:
-      value: |
-        The Amazon rules engine in this repo is an optional check you can run yourself if you want it. It is not required, and it is not a gate for using this template.

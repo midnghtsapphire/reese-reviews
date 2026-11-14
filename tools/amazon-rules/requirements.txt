@@ -1,0 +1,4 @@
+# Runtime and test dependencies for the Amazon rules engine.
+# Keep this file separate from the repo-root FastAPI requirements.txt.
+PyYAML==6.0.2
+pytest==8.3.4

@@ -1,0 +1,22 @@
+# EXAMPLE ONLY — fictional KDP metadata for the skeleton pack. Not a real title.
+example: true
+pack: kdp
+title: "Example Field Stones of a Hill Sanctuary"
+author: "Audrey Walter-Evans"
+formats:
+  - kindle
+  - paperback
+  - hardcover
+existing_6x9: false
+paperback_trim: "8.5x11"
+hardcover_trim: "8.25x11"
+page_count: 120
+cover_art_has_words: false
+ai_generated: yes
+ai_tool: "Grok Imagine"
+ai_used_for:
+  - images
+ai_images: "One or a few AI-generated images, minimal or no editing"
+ai_texts: none
+ai_translations: none
+coloring_book: false
