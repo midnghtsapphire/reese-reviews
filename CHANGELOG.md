@@ -9,6 +9,7 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **CircleCI lane:** `.circleci/config.yml` mirrors the Actions lint / typecheck / test / build / audit gates and adds `trivy-fs` (official Trivy v0.76.2). Actions workflows are unchanged. The CircleCI project must still be followed before this lane runs.
 - **Voice:** `voice/` — Reese's canonical voice profile (`Sulafat`, `en-US`), exact style strings, pronunciation guide, full reference voiceover, 10-second sample, ready-to-use speech payload, and ElevenLabs app integration notes.
 - **Content:** `content/2026-11-13-ring-play-yard-hack/` — 35–45 second script and setup checklist for using a Ring Battery Doorbell 2K in a kids' play yard, with honest supervision and privacy caveats.
 - **RR-508:** `src/__tests__/deployWorkflow.test.ts` — regression tests that the deploy workflow stays a single coherent document and `.do/app.yaml` never commits plaintext secrets.
