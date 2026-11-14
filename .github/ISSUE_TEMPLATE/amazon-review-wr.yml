@@ -1,0 +1,173 @@
+# Canonical: revvel-standards; mirrored in reese-reviews.
+name: "WR: Amazon review"
+description: Walk one Amazon review from Audrey’s draft through proof, compliance, media checks, and a gated post. Manual — one review at a time.
+title: "WR: Amazon review — "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this work request for **one review**. Do not batch products or bulk-post.
+
+        **Flow:** Audrey’s draft → Proofy proof (spelling, accuracy, facts match the product she actually used) → compliance checks → media check (her own photos or video only) → **Proofy: FINAL APPROVED** and **Audrey's yes** → Proofy posts it on Amazon.
+
+        Each stage has a **Proofy: APPROVED** box. Do not start the next stage until the current one is approved.
+
+        The post step stays locked until **Proofy: FINAL APPROVED** and **Audrey's yes** are both checked. Nothing goes to Amazon before that.
+
+        House reference (canonical): [docs/reviews/AMAZON-REVIEWS-REFERENCE.md](https://github.com/midnghtsapphire/revvel-standards/blob/main/docs/reviews/AMAZON-REVIEWS-REFERENCE.md) in revvel-standards. Mirror: [docs/AMAZON-REVIEWS-REFERENCE.md](https://github.com/midnghtsapphire/reese-reviews/blob/main/docs/AMAZON-REVIEWS-REFERENCE.md) in reese-reviews.
+
+        GitHub comments on this WR start with `Proofy:` and end with `— Proofy`.
+
+  - type: input
+    id: product_name
+    attributes:
+      label: Product name
+      description: The exact product being reviewed. One product per WR.
+    validations:
+      required: true
+
+  - type: input
+    id: asin
+    attributes:
+      label: ASIN
+      description: Ten-character Amazon identifier. Do not open a second WR for the same ASIN.
+      placeholder: B0XXXXXXXX
+    validations:
+      required: true
+
+  - type: input
+    id: amazon_url
+    attributes:
+      label: Amazon product URL
+      description: The product detail page, with no affiliate or referrer tags.
+      placeholder: https://www.amazon.com/dp/B0XXXXXXXX
+
+  - type: input
+    id: notion_url
+    attributes:
+      label: Notion item URL (if any)
+      description: Link to this product’s page in the Amazon Resale Inventory (Reviewed NIB) database, or another source page.
+
+  - type: dropdown
+    id: review_source
+    attributes:
+      label: How Audrey received this product
+      description: Only Vine or a normal purchase (or another unincentivized path allowed by Amazon) may be reviewed. Free or discounted products from a seller or brand outside Vine are not allowed.
+      options:
+        - Amazon Vine (free product through the official Vine program)
+        - Purchased on Amazon at a regular or generally available price
+        - Other allowed path (explain in the draft notes; stop if it was free or discounted in exchange for a review)
+    validations:
+      required: true
+
+  - type: input
+    id: vine_order_date
+    attributes:
+      label: Order or delivery date
+      description: When the item was requested or delivered. Do not post a review before delivery. Do not put the order number in the public review.
+
+  - type: dropdown
+    id: used_product
+    attributes:
+      label: Did Audrey actually use this product?
+      description: Vine Voices are expected to use the product before reviewing. Reviews must be based on actual experience. If the item is still unopened or unused, do not post a review that claims use.
+      options:
+        - Yes — she used it, and the draft only describes that experience
+        - Not yet — hold this WR until she has used it
+        - Unsure — stop and confirm with Audrey before proofing
+    validations:
+      required: true
+
+  - type: textarea
+    id: stage_draft
+    attributes:
+      label: "Stage 0 — Audrey’s draft (start here)"
+      description: Paste the review title, star rating, and body from Audrey or from her Notion page. This is the starting draft. If an AI tool helped write it, say so here. The posted text must still be her honest experience, in her own words after she edits it.
+      placeholder: "Stars: 4\nTitle: …\nBody: …\nDraft source (Notion / notes): …"
+    validations:
+      required: true
+
+  - type: textarea
+    id: stage_proof
+    attributes:
+      label: "Stage 1 — Proofy proof (spelling, accuracy, facts)"
+      description: Check spelling, grammar, and that every claim matches the product Audrey actually used (model, color, size, what is in the box, how it performed). Remove claims she did not experience. Remove medical cure or prevention claims. Keep the review about the product, not shipping, packing, or seller service.
+      placeholder: What was checked, what changed, and the proofed title, stars, and body.
+
+  - type: checkboxes
+    id: stage_proof_approval
+    attributes:
+      label: Stage 1 approval
+      options:
+        - label: "Proofy: APPROVED — the text is accurate, spell-checked, and matches the product she actually used"
+
+  - type: checkboxes
+    id: stage_compliance
+    attributes:
+      label: "Stage 2 — Compliance checks"
+      description: Every box must be true before approval. See docs/AMAZON-REVIEWS-REFERENCE.md. If any box cannot be checked, stop and do not post.
+      options:
+        - label: Honest experience only — no claims she did not personally observe
+        - label: Not paid or incentivized outside official Amazon Vine
+        - label: Not a review of her own product, or a product from family, friends, an employer, a business associate, or a competitor
+        - label: No financial or other conflict of interest
+        - label: No promotional or external links, affiliate or referrer tags, contact info, or order numbers
+        - label: One Amazon account only — this will not be posted from a second account
+        - label: One review for this ASIN — no duplicate WR and no re-review of a removed listing
+        - label: Vine reviews will be posted through the Vine review form so Amazon can apply the Vine label
+        - label: If this is not Vine, she bought it at a generally available price (or another path Amazon allows), not a private discount in exchange for a review
+
+  - type: checkboxes
+    id: stage_compliance_approval
+    attributes:
+      label: Stage 2 approval
+      options:
+        - label: "Proofy: APPROVED — compliance checks passed"
+
+  - type: textarea
+    id: stage_media
+    attributes:
+      label: "Stage 3 — Media check (her own photos or video only)"
+      description: Media must be Audrey’s own photos or video of this product, or content she has permission to use. Seller, stock, or listing images are not allowed. Do not include nudity, other people’s faces or private information, or affiliate-tagged URLs. Note any crop or background cleanup, but do not alter the product to look unlike what she received.
+      placeholder: "File paths or attachments, who took them, and any processing (crop, background, light)."
+
+  - type: checkboxes
+    id: stage_media_reqs
+    attributes:
+      label: Media requirements
+      options:
+        - label: Photos or video are Audrey’s own (or she has permission to use them)
+        - label: Media shows the product she received, not a listing or stock image
+        - label: No private information, contact details, or other people’s identifiable info in the frame
+        - label: No media, or media is skipped, if nothing suitable is ready (text-only is allowed)
+
+  - type: checkboxes
+    id: stage_media_approval
+    attributes:
+      label: Stage 3 approval
+      options:
+        - label: "Proofy: APPROVED — media is ready, or this review will be posted without media"
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Stage 4 — Post gate
+
+        This is the only step that submits the review on Amazon.
+
+        Both boxes below must be checked first. If either box is empty, stop. Post **one** review, then stop. Do not queue or auto-post others.
+
+  - type: checkboxes
+    id: stage_post_gate
+    attributes:
+      label: Post gate (both required before anyone posts)
+      options:
+        - label: "Proofy: FINAL APPROVED — all earlier stages are approved and this review may be posted on Amazon"
+        - label: "Audrey's yes — I approve posting this review on Amazon"
+
+  - type: textarea
+    id: stage_post_notes
+    attributes:
+      label: "Stage 5 — Proofy posts it on Amazon (after the gate is checked)"
+      description: Post only after both gate boxes are checked. For Vine, use the Vine review form. Record the date posted (America/Denver), whether it submitted successfully, and any Amazon confirmation. Do not include passwords or session tokens here.
+      placeholder: "Posted on DATE (America/Denver) via Vine form / product page. Status: submitted."
