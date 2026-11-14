@@ -40,6 +40,7 @@ rules:
     (whether text, images, or translations), it is considered "AI-generated," even if you applied substantial
     edits afterwards.
   fetched: '2026-11-14'
+  enabled: 1
 - id: KDP-TRIM-PB-SUPPORTED-001
   severity: fail
   check: field
@@ -74,6 +75,7 @@ rules:
     most common trim size for paperbacks in the U.S. is 6 x 9 inches (152.4 x 228.6 mm) and is a regular
     trim size. 8.5" x 11" (21.59 x 27.94 cm) is listed as a large trim size.
   fetched: '2026-11-14'
+  enabled: 1
 - id: KDP-TRIM-HC-SUPPORTED-001
   severity: fail
   check: field
@@ -96,6 +98,7 @@ rules:
   source_quote: Hardcover large trim sizes listed include 8.25" x 11" (20.96 x 27.94 cm), with a page-count
     range of 75–550.
   fetched: '2026-11-14'
+  enabled: 1
 - id: KDP-PB-PAGE-COUNT-001
   severity: fail
   check: field
@@ -121,6 +124,7 @@ rules:
   source_quote: '8.5" x 11" (21.59 x 27.94 cm): black ink and white paper 24–590; black ink and cream
     paper 24–550; black ink and groundwood paper 24–578; standard color 72–600; premium color 24–590.'
   fetched: '2026-11-14'
+  enabled: 1
 - id: KDP-HC-PAGE-COUNT-001
   severity: fail
   check: field
@@ -142,3 +146,4 @@ rules:
   source_quote: Hardcover trim sizes, including 8.25" x 11" (20.96 x 27.94 cm), list a page-count range
     of 75–550.
   fetched: '2026-11-14'
+  enabled: 1

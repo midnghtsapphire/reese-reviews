@@ -57,7 +57,9 @@ def render_markdown(report: dict[str, Any]) -> str:
     lines.extend(
         [
             f"- Overall: **{overall}** "
-            f"({report['fail_count']} FAIL, {report['warn_count']} WARN, {report['pass_count']} PASS)",
+            f"({report['fail_count']} FAIL, {report['warn_count']} WARN, {report['pass_count']} PASS"
+            + (f", {report['skip_count']} skipped (off)" if report.get("skip_count") else "")
+            + ")",
             "",
             "The engine automates WR stages 1–3 as checks only. It does **not** post "
             "to Amazon or KDP. Audrey reviews this report area. Proofy does the final "
@@ -91,6 +93,11 @@ def render_markdown(report: dict[str, Any]) -> str:
         lines.extend(["", "## WARN (human review needed)"])
         for item in warns:
             lines.append(f"- `{item['id']}`: {item['message']} — {item.get('detail') or ''}")
+    skipped = [item for item in report["results"] if item["result"] == "skipped (off)"]
+    if skipped:
+        lines.extend(["", "## skipped (off)"])
+        for item in skipped:
+            lines.append(f"- `{item['id']}`: skipped (off)")
 
     lines.extend(["", "## Sources cited by the rules that fired or were checked", ""])
     seen: set[str] = set()

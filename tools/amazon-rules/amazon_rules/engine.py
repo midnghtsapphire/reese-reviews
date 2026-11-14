@@ -17,6 +17,38 @@ EXPORT_PATH = Path(__file__).resolve().parent.parent / "exports" / "amazon-rules
 
 APPLIES = {"reviews": "Reviews", "kdp": "KDP", "resale": "Resale"}
 
+def parse_enabled(value, default: int = 1) -> int:
+    """Return 1 (on) or 0 (off). Missing or unreadable values default to 1."""
+    if value is None or value == "":
+        return default
+    try:
+        return 0 if int(float(str(value).strip())) == 0 else 1
+    except (TypeError, ValueError):
+        return default
+
+
+def rule_is_enabled(rule: dict[str, Any]) -> bool:
+    return parse_enabled(rule.get("enabled"), default=1) == 1
+
+
+def skipped_result(rule: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "id": rule.get("id") or "",
+        "severity": rule.get("severity") or "",
+        "result": "skipped (off)",
+        "message": "skipped (off)",
+        "detail": "Enabled is 0, so this rule was not checked",
+        "evidence": [],
+        "skipped": True,
+        "source_kind": rule.get("source_kind") or "official",
+        "source_url": rule.get("source_url") or "",
+        "source_quote": rule.get("source_quote") or "",
+        "house_attribution": rule.get("house_attribution") or "",
+        "enabled": 0,
+    }
+
+
+
 
 def default_export_path() -> Path:
     return EXPORT_PATH
@@ -35,10 +67,18 @@ def _pack_from_export(data: dict[str, Any], pack_name: str | None) -> dict[str, 
         rows = [row for row in rows if row.get("applies_to") == label]
     rules = []
     for row in rows:
-        if isinstance(row, dict) and isinstance(row.get("engine"), dict):
-            rules.append(row["engine"])
-        elif isinstance(row, dict):
-            rules.append(row)
+        if not isinstance(row, dict):
+            continue
+        if isinstance(row.get("engine"), dict):
+            rule = dict(row["engine"])
+            if "enabled" not in rule:
+                rule["enabled"] = parse_enabled(row.get("enabled"), default=1)
+            else:
+                rule["enabled"] = parse_enabled(rule.get("enabled"), default=1)
+        else:
+            rule = dict(row)
+            rule["enabled"] = parse_enabled(row.get("enabled"), default=1)
+        rules.append(rule)
     return {
         "pack": pack_name or data.get("pack") or "reviews",
         "title": data.get("source") or data.get("title") or "Amazon Rules",
@@ -112,10 +152,12 @@ def run_checks(
         raise FileNotFoundError(f"Rule pack not found: {path}")
     pack = load_pack(path, pack_name=name)
     data = normalize_document(raw, pack.get("pack") or name)
-    results = [
-        evaluate_rule(rule, data, ledger_path=ledger_path)
-        for rule in pack["rules"]
-    ]
+    results = []
+    for rule in pack["rules"]:
+        if rule_is_enabled(rule):
+            results.append(evaluate_rule(rule, data, ledger_path=ledger_path))
+        else:
+            results.append(skipped_result(rule))
     return {
         "pack": pack.get("pack") or name,
         "pack_title": pack.get("title") or "",
@@ -129,6 +171,7 @@ def run_checks(
         "fail_count": sum(1 for item in results if item["result"] == RESULT_FAIL),
         "warn_count": sum(1 for item in results if item["result"] == RESULT_WARN),
         "pass_count": sum(1 for item in results if item["result"] == "PASS"),
+        "skip_count": sum(1 for item in results if item["result"] == "skipped (off)"),
         "notes": pack.get("notes") or [],
         "unverified": pack.get("unverified") or [],
     }

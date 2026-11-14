@@ -181,3 +181,77 @@ def test_cli_exits_zero_on_pass(examples: Path, capsys: pytest.CaptureFixture[st
     assert code == 0
     assert "Overall: **PASS**" in captured.out
     assert "EXAMPLE ONLY" in captured.out
+
+
+def _write_export(tmp_path: Path, enabled_map: dict[str, int | None], *, drop_enabled: bool = False) -> Path:
+    import copy
+    import json
+
+    source = Path(__file__).resolve().parents[1] / "exports" / "amazon-rules.json"
+    data = json.loads(source.read_text(encoding="utf-8"))
+    rows = []
+    for row in data["rules"]:
+        row = copy.deepcopy(row)
+        if row["rule_id"] in enabled_map:
+            value = enabled_map[row["rule_id"]]
+            if value is None or drop_enabled:
+                row.pop("enabled", None)
+                if isinstance(row.get("engine"), dict):
+                    row["engine"].pop("enabled", None)
+            else:
+                row["enabled"] = value
+                if isinstance(row.get("engine"), dict):
+                    row["engine"]["enabled"] = value
+        rows.append(row)
+    data["rules"] = rows
+    path = tmp_path / "amazon-rules.json"
+    path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    return path
+
+
+def test_enabled_rule_still_runs(examples: Path, tmp_path: Path) -> None:
+    pack = _write_export(tmp_path, {"REV-AFFILIATE-001": 1})
+    report = run_checks(
+        examples / "EXAMPLE-review-fail-affiliate.yml",
+        pack_name="reviews",
+        pack_path=pack,
+        ledger_path=examples / "EXAMPLE-ledger.csv",
+    )
+    assert report["overall"] == "FAIL"
+    assert "REV-AFFILIATE-001" in _ids(report, "FAIL")
+    assert report["skip_count"] == 0
+    assert "skipped (off)" not in {item["result"] for item in report["results"] if item["id"] == "REV-AFFILIATE-001"}
+
+
+def test_disabled_rule_is_listed_as_skipped_off(examples: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    pack = _write_export(tmp_path, {"REV-AFFILIATE-001": 0})
+    report = run_checks(
+        examples / "EXAMPLE-review-fail-affiliate.yml",
+        pack_name="reviews",
+        pack_path=pack,
+        ledger_path=examples / "EXAMPLE-ledger.csv",
+    )
+    assert "REV-AFFILIATE-001" not in _ids(report, "FAIL")
+    skipped = next(item for item in report["results"] if item["id"] == "REV-AFFILIATE-001")
+    assert skipped["result"] == "skipped (off)"
+    assert skipped["message"] == "skipped (off)"
+    assert report["skip_count"] == 1
+    assert report["overall"] == "PASS"
+    from amazon_rules.report import render_markdown
+
+    markdown = render_markdown(report)
+    assert "skipped (off)" in markdown
+    assert "`REV-AFFILIATE-001`" in markdown
+
+
+def test_missing_enabled_defaults_to_on(examples: Path, tmp_path: Path) -> None:
+    pack = _write_export(tmp_path, {"REV-AFFILIATE-001": None}, drop_enabled=True)
+    report = run_checks(
+        examples / "EXAMPLE-review-fail-affiliate.yml",
+        pack_name="reviews",
+        pack_path=pack,
+        ledger_path=examples / "EXAMPLE-ledger.csv",
+    )
+    assert report["overall"] == "FAIL"
+    assert "REV-AFFILIATE-001" in _ids(report, "FAIL")
+    assert report["skip_count"] == 0
