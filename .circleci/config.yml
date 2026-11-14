@@ -58,7 +58,7 @@ jobs:
           no_output_timeout: 20m
           environment:
             TRIVY_BIN: /tmp/trivy-bin/trivy
-            TRIVY_REPORT: /tmp/trivy-report.txt
+            TRIVY_TABLE_OUT: /tmp/trivy-report.txt
           command: bash .circleci/scripts/trivy-fs.sh
       - store_artifacts:
           path: /tmp/trivy-report.txt

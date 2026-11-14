@@ -13,7 +13,7 @@
 set -euo pipefail
 
 ROOT="${1:-.}"
-REPORT="${TRIVY_REPORT:-/tmp/trivy-report.txt}"
+REPORT="${TRIVY_TABLE_OUT:-/tmp/trivy-report.txt}"
 TRIVY_BIN="${TRIVY_BIN:-trivy}"
 
 "$TRIVY_BIN" fs "$ROOT" \
