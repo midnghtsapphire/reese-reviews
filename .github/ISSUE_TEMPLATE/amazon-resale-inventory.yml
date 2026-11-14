@@ -1,0 +1,189 @@
+# Mirrors the Notion database "Amazon Resale Inventory (Reviewed NIB)"
+# as it works today. Field names and order match the Default view.
+# Canonical copy: docs/reviews/amazon-resale-inventory.yml in revvel-standards.
+name: "Amazon Resale Inventory (Reviewed NIB)"
+description: "One inventory item and its review, using the same fields, statuses, and workflow as the Notion database."
+title: "Amazon Resale Inventory — "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This form matches the Notion database **Amazon Resale Inventory (Reviewed NIB)**.
+
+        It is a consolidated list of reviewed New In Box Amazon items ready for resale. **Sale Price (20% off)** = lowest historical Keepa price × 0.80. Calculations also live in the Google Sheet.
+
+        You do this yourself, the same way you already do it in Notion. There are no extra approval stages.
+
+        **How it works today**
+
+        1. Fill in the inventory fields below (same names and order as the Notion Default view).
+        2. Write the review on the item the way the Notion page does: **Title**, **Review**, and **Image**.
+        3. Keep **Review Status** as **To Review** until you submit it.
+        4. When you are ready, copy the title and body into the Vine review form (or the Amazon review form). Upload the image if it is ready. You can submit text-only if the picture is not ready yet.
+        5. After it is submitted, set **Review Status** to **Reviewed**.
+        6. For resale, move **Status** from **To List** to **Listed**, then **Sold**, or **Hold**.
+
+        Keep private details such as order numbers and associate tags in **Notes**, not in the public review title or body.
+
+  - type: input
+    id: name
+    attributes:
+      label: Name
+      description: Product name (Notion title field). One item per issue.
+    validations:
+      required: true
+
+  - type: input
+    id: asin
+    attributes:
+      label: ASIN
+      description: Amazon standard identification number.
+      placeholder: B0XXXXXXXX
+
+  - type: input
+    id: amazon_url
+    attributes:
+      label: Amazon URL
+      description: Product detail page.
+      placeholder: https://www.amazon.com/dp/B0XXXXXXXX
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - Home
+        - Kitchen
+        - Electronics
+        - Beauty
+        - Tools
+        - Other
+
+  - type: dropdown
+    id: condition
+    attributes:
+      label: Condition
+      options:
+        - New In Box
+        - Open Box
+        - Used
+
+  - type: input
+    id: current_price
+    attributes:
+      label: Current Price
+      description: Dollar amount.
+      placeholder: "0.00"
+
+  - type: input
+    id: keepa_lowest_price
+    attributes:
+      label: Keepa Lowest Price
+      description: Lowest historical Keepa price. Dollar amount.
+      placeholder: "0.00"
+
+  - type: input
+    id: last_updated
+    attributes:
+      label: Last Updated
+      description: Date this inventory row was last updated.
+      placeholder: YYYY-MM-DD
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Private inventory notes. Do not copy order numbers or associate tags into the public review.
+
+  - type: input
+    id: original_price
+    attributes:
+      label: Original Price
+      description: Dollar amount.
+      placeholder: "0.00"
+
+  - type: dropdown
+    id: resale_intent
+    attributes:
+      label: Resale Intent
+      options:
+        - "Yes"
+        - Keep
+        - Not Sure
+
+  - type: textarea
+    id: review_preview
+    attributes:
+      label: Review Preview
+      description: Short preview of the review, as stored on the Notion row. The full title and body go in the Title and Review fields below.
+
+  - type: dropdown
+    id: review_status
+    attributes:
+      label: Review Status
+      description: "To Review until you submit it. Reviewed after it is submitted."
+      options:
+        - To Review
+        - Reviewed
+
+  - type: input
+    id: sale_price_20_off
+    attributes:
+      label: Sale Price (20% off)
+      description: Lowest historical Keepa price × 0.80. Same formula as the Notion database and the Google Sheet.
+      placeholder: "0.00"
+
+  - type: input
+    id: sheet_row
+    attributes:
+      label: Sheet Row
+      description: Matching row key in the Google Sheet.
+
+  - type: dropdown
+    id: status
+    attributes:
+      label: Status
+      description: "Resale status: To List, Listed, Hold, or Sold."
+      options:
+        - To List
+        - Listed
+        - Hold
+        - Sold
+
+  - type: input
+    id: vine_tax_value
+    attributes:
+      label: Vine Tax Value
+      description: Dollar amount from Vine, if this item has one.
+      placeholder: "0.00"
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Amazon Review (publishable — edit only if needed)
+
+        Same layout as the Notion item page. Edit the text yourself, then copy the title and body into the Vine review form when you are ready. Upload the image if it is ready, and submit.
+
+  - type: input
+    id: review_title
+    attributes:
+      label: Title
+      description: Review title (headline) from the Notion page.
+
+  - type: textarea
+    id: review
+    attributes:
+      label: Review
+      description: Full review body from the Notion page.
+
+  - type: textarea
+    id: image
+    attributes:
+      label: Image
+      description: "Same as the Notion page Image line. For example, that the picture is still needed, or that a processed version is ready. Pictures can be light and simple. You may submit the review without an image if the picture is not ready."
+      placeholder: "Image still needed."
+
+  - type: markdown
+    attributes:
+      value: |
+        The Amazon rules engine in this repo is an optional check you can run yourself if you want it. It is not required, and it is not a gate for using this template.
