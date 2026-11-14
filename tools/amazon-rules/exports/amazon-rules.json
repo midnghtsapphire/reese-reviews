@@ -20,6 +20,7 @@
       "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
       "source_quote": "Leave star ratings from one to five, without writing a full-text review.",
       "date_checked": "2026-11-14",
+      "enabled": 1,
       "engine": {
         "id": "REV-STARS-001",
         "severity": "fail",
@@ -32,7 +33,8 @@
         "source_kind": "official",
         "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
         "source_quote": "Leave star ratings from one to five, without writing a full-text review.",
-        "fetched": "2026-11-14"
+        "fetched": "2026-11-14",
+        "enabled": 1
       }
     },
     {
@@ -46,6 +48,7 @@
       "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
       "source_quote": "We allow links to other products on Amazon, but not to external sites. Don't post links to phishing or other malware sites. We don't allow URLs with referrer tags or affiliate codes.",
       "date_checked": "2026-11-14",
+      "enabled": 1,
       "engine": {
         "id": "REV-AFFILIATE-001",
         "severity": "fail",
@@ -59,7 +62,8 @@
         "source_kind": "official",
         "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
         "source_quote": "We allow links to other products on Amazon, but not to external sites. Don't post links to phishing or other malware sites. We don't allow URLs with referrer tags or affiliate codes.",
-        "fetched": "2026-11-14"
+        "fetched": "2026-11-14",
+        "enabled": 1
       }
     },
     {
@@ -73,6 +77,7 @@
       "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
       "source_quote": "We don't allow URLs with referrer tags or affiliate codes.",
       "date_checked": "2026-11-14",
+      "enabled": 1,
       "engine": {
         "id": "REV-REFERRER-001",
         "severity": "warn",
@@ -86,7 +91,8 @@
         "source_kind": "official",
         "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
         "source_quote": "We don't allow URLs with referrer tags or affiliate codes.",
-        "fetched": "2026-11-14"
+        "fetched": "2026-11-14",
+        "enabled": 1
       }
     },
     {
@@ -100,6 +106,7 @@
       "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
       "source_quote": "We allow links to other products on Amazon, but not to external sites.",
       "date_checked": "2026-11-14",
+      "enabled": 1,
       "engine": {
         "id": "REV-EXTERNAL-URL-001",
         "severity": "fail",
@@ -113,7 +120,8 @@
         "source_kind": "official",
         "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
         "source_quote": "We allow links to other products on Amazon, but not to external sites.",
-        "fetched": "2026-11-14"
+        "fetched": "2026-11-14",
+        "enabled": 1
       }
     },
     {
@@ -127,6 +135,7 @@
       "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
       "source_quote": "Don't post content that invades privacy or shares your own personal information, including: Phone number; Email address; Mailing address; License plate; Data source name (DSN); Order number.",
       "date_checked": "2026-11-14",
+      "enabled": 1,
       "engine": {
         "id": "REV-CONTACT-001",
         "severity": "fail",
@@ -140,7 +149,8 @@
         "source_kind": "official",
         "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
         "source_quote": "Don't post content that invades privacy or shares your own personal information, including: Phone number; Email address; Mailing address; License plate; Data source name (DSN); Order number.",
-        "fetched": "2026-11-14"
+        "fetched": "2026-11-14",
+        "enabled": 1
       }
     },
     {
@@ -154,6 +164,7 @@
       "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
       "source_quote": "Create, edit, or remove a review in exchange for compensation, including payments, refunds, discounts, products, gift cards, warranties, or services. This policy applies even if a seller offers a refund to remove or change a negative review.",
       "date_checked": "2026-11-14",
+      "enabled": 1,
       "engine": {
         "id": "REV-COMPENSATION-001",
         "severity": "fail",
@@ -167,7 +178,8 @@
         "source_kind": "official",
         "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
         "source_quote": "Create, edit, or remove a review in exchange for compensation, including payments, refunds, discounts, products, gift cards, warranties, or services. This policy applies even if a seller offers a refund to remove or change a negative review.",
-        "fetched": "2026-11-14"
+        "fetched": "2026-11-14",
+        "enabled": 1
       }
     },
     {
@@ -181,6 +193,7 @@
       "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
       "source_quote": "We allow reviews of free products received through the Amazon Vine program. We label these reviews with “Vine Customer Review of a free product.” You can only receive free products through the official Vine program offers. Accepting free products or compensation directly from sellers or brands in exchange for reviews is strictly prohibited.",
       "date_checked": "2026-11-14",
+      "enabled": 1,
       "engine": {
         "id": "REV-FREE-PRODUCT-001",
         "severity": "fail",
@@ -213,7 +226,8 @@
         "source_kind": "official",
         "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
         "source_quote": "We allow reviews of free products received through the Amazon Vine program. We label these reviews with “Vine Customer Review of a free product.” You can only receive free products through the official Vine program offers. Accepting free products or compensation directly from sellers or brands in exchange for reviews is strictly prohibited.",
-        "fetched": "2026-11-14"
+        "fetched": "2026-11-14",
+        "enabled": 1
       }
     },
     {
@@ -227,6 +241,7 @@
       "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
       "source_quote": "We don't allow any statements or claims related to preventing or curing serious medical conditions or severe symptoms. This policy applies to all products, including foods, beverages, supplements, cosmetics, and personal care/general products.",
       "date_checked": "2026-11-14",
+      "enabled": 1,
       "engine": {
         "id": "REV-MEDICAL-001",
         "severity": "fail",
@@ -240,7 +255,8 @@
         "source_kind": "official",
         "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
         "source_quote": "We don't allow any statements or claims related to preventing or curing serious medical conditions or severe symptoms. This policy applies to all products, including foods, beverages, supplements, cosmetics, and personal care/general products.",
-        "fetched": "2026-11-14"
+        "fetched": "2026-11-14",
+        "enabled": 1
       }
     },
     {
@@ -254,6 +270,7 @@
       "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GPEWN3RSQPEU2HST",
       "source_quote": "Amazon Vine Voices are expected to use the products they receive before submitting a review. However, please note that Amazon does not verify that the products are actually used by Amazon Vine Voices.",
       "date_checked": "2026-11-14",
+      "enabled": 1,
       "engine": {
         "id": "REV-USED-REQUIRED-001",
         "severity": "fail",
@@ -265,7 +282,8 @@
         "source_kind": "official",
         "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GPEWN3RSQPEU2HST",
         "source_quote": "Amazon Vine Voices are expected to use the products they receive before submitting a review. However, please note that Amazon does not verify that the products are actually used by Amazon Vine Voices.",
-        "fetched": "2026-11-14"
+        "fetched": "2026-11-14",
+        "enabled": 1
       }
     },
     {
@@ -279,6 +297,7 @@
       "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
       "source_quote": "Post a review for a product before it has been delivered to you. Reviews should be based on actual experience with the product.",
       "date_checked": "2026-11-14",
+      "enabled": 1,
       "engine": {
         "id": "REV-USED-CLAIM-001",
         "severity": "fail",
@@ -301,7 +320,8 @@
         "source_kind": "official",
         "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
         "source_quote": "Post a review for a product before it has been delivered to you. Reviews should be based on actual experience with the product.",
-        "fetched": "2026-11-14"
+        "fetched": "2026-11-14",
+        "enabled": 1
       }
     },
     {
@@ -315,6 +335,7 @@
       "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
       "source_quote": "It's OK to question beliefs and expertise, but be respectful. We don't allow: Profanity, obscenities, or name-calling; Harassment or threats; Attacks on people you disagree with; Libel, defamation, or inflammatory content.",
       "date_checked": "2026-11-14",
+      "enabled": 1,
       "engine": {
         "id": "REV-PROFANITY-001",
         "severity": "fail",
@@ -343,7 +364,8 @@
         "source_kind": "official",
         "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
         "source_quote": "It's OK to question beliefs and expertise, but be respectful. We don't allow: Profanity, obscenities, or name-calling; Harassment or threats; Attacks on people you disagree with; Libel, defamation, or inflammatory content.",
-        "fetched": "2026-11-14"
+        "fetched": "2026-11-14",
+        "enabled": 1
       }
     },
     {
@@ -357,6 +379,7 @@
       "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
       "source_quote": "We don't allow reviews or questions and answers that only focus on: Sellers and the Customer Service they provide; Ordering issues and returns; Shipping packaging; Product condition and damage; Shipping cost and speed.",
       "date_checked": "2026-11-14",
+      "enabled": 1,
       "engine": {
         "id": "REV-SHIPPING-001",
         "severity": "warn",
@@ -370,7 +393,8 @@
         "source_kind": "official",
         "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
         "source_quote": "We don't allow reviews or questions and answers that only focus on: Sellers and the Customer Service they provide; Ordering issues and returns; Shipping packaging; Product condition and damage; Shipping cost and speed.",
-        "fetched": "2026-11-14"
+        "fetched": "2026-11-14",
+        "enabled": 1
       }
     },
     {
@@ -384,6 +408,7 @@
       "source_url": "https://kdp.amazon.com/en_US/help/topic/G200672390",
       "source_quote": "We require you to inform us of AI-generated content (text, images, or translations) when you publish a new book or make edits to and republish an existing book through KDP. AI-generated images include cover and interior images and artwork. We define AI-generated content as text, images, or translations created by an AI-based tool. If you used an AI-based tool to create the actual content (whether text, images, or translations), it is considered \"AI-generated,\" even if you applied substantial edits afterwards.",
       "date_checked": "2026-11-14",
+      "enabled": 1,
       "engine": {
         "id": "KDP-AI-DISCLOSE-001",
         "severity": "fail",
@@ -419,7 +444,8 @@
         "source_kind": "official",
         "source_url": "https://kdp.amazon.com/en_US/help/topic/G200672390",
         "source_quote": "We require you to inform us of AI-generated content (text, images, or translations) when you publish a new book or make edits to and republish an existing book through KDP. AI-generated images include cover and interior images and artwork. We define AI-generated content as text, images, or translations created by an AI-based tool. If you used an AI-based tool to create the actual content (whether text, images, or translations), it is considered \"AI-generated,\" even if you applied substantial edits afterwards.",
-        "fetched": "2026-11-14"
+        "fetched": "2026-11-14",
+        "enabled": 1
       }
     },
     {
@@ -433,6 +459,7 @@
       "source_url": "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6",
       "source_quote": "You can choose from a variety of trim sizes to set the size of your printed book. The most common trim size for paperbacks in the U.S. is 6 x 9 inches (152.4 x 228.6 mm) and is a regular trim size. 8.5\" x 11\" (21.59 x 27.94 cm) is listed as a large trim size.",
       "date_checked": "2026-11-14",
+      "enabled": 1,
       "engine": {
         "id": "KDP-TRIM-PB-SUPPORTED-001",
         "severity": "fail",
@@ -468,7 +495,8 @@
         "source_kind": "official",
         "source_url": "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6",
         "source_quote": "You can choose from a variety of trim sizes to set the size of your printed book. The most common trim size for paperbacks in the U.S. is 6 x 9 inches (152.4 x 228.6 mm) and is a regular trim size. 8.5\" x 11\" (21.59 x 27.94 cm) is listed as a large trim size.",
-        "fetched": "2026-11-14"
+        "fetched": "2026-11-14",
+        "enabled": 1
       }
     },
     {
@@ -482,6 +510,7 @@
       "source_url": "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6",
       "source_quote": "Hardcover large trim sizes listed include 8.25\" x 11\" (20.96 x 27.94 cm), with a page-count range of 75–550.",
       "date_checked": "2026-11-14",
+      "enabled": 1,
       "engine": {
         "id": "KDP-TRIM-HC-SUPPORTED-001",
         "severity": "fail",
@@ -506,7 +535,8 @@
         "source_kind": "official",
         "source_url": "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6",
         "source_quote": "Hardcover large trim sizes listed include 8.25\" x 11\" (20.96 x 27.94 cm), with a page-count range of 75–550.",
-        "fetched": "2026-11-14"
+        "fetched": "2026-11-14",
+        "enabled": 1
       }
     },
     {
@@ -520,6 +550,7 @@
       "source_url": "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6",
       "source_quote": "8.5\" x 11\" (21.59 x 27.94 cm): black ink and white paper 24–590; black ink and cream paper 24–550; black ink and groundwood paper 24–578; standard color 72–600; premium color 24–590.",
       "date_checked": "2026-11-14",
+      "enabled": 1,
       "engine": {
         "id": "KDP-PB-PAGE-COUNT-001",
         "severity": "fail",
@@ -552,7 +583,8 @@
         "source_kind": "official",
         "source_url": "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6",
         "source_quote": "8.5\" x 11\" (21.59 x 27.94 cm): black ink and white paper 24–590; black ink and cream paper 24–550; black ink and groundwood paper 24–578; standard color 72–600; premium color 24–590.",
-        "fetched": "2026-11-14"
+        "fetched": "2026-11-14",
+        "enabled": 1
       }
     },
     {
@@ -566,6 +598,7 @@
       "source_url": "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6",
       "source_quote": "Hardcover trim sizes, including 8.25\" x 11\" (20.96 x 27.94 cm), list a page-count range of 75–550.",
       "date_checked": "2026-11-14",
+      "enabled": 1,
       "engine": {
         "id": "KDP-HC-PAGE-COUNT-001",
         "severity": "fail",
@@ -593,7 +626,8 @@
         "source_kind": "official",
         "source_url": "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6",
         "source_quote": "Hardcover trim sizes, including 8.25\" x 11\" (20.96 x 27.94 cm), list a page-count range of 75–550.",
-        "fetched": "2026-11-14"
+        "fetched": "2026-11-14",
+        "enabled": 1
       }
     }
   ]

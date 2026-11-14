@@ -4,6 +4,8 @@ Optional local check for one review or KDP file at a time. It does not post anyt
 
 Rules: [Amazon Rules](https://app.notion.com/p/4182aa319908811288d7cc88a4304b8b). That Notion database is the source of truth. This tool reads a CSV/JSON export of it from `exports/`.
 
+An `Enabled` flag of `1` turns a rule on and `0` turns it off; the engine skips off rules and lists them as skipped (off).
+
 ```bash
 python scripts/export_amazon_rules.py
 PYTHONPATH=. python -m amazon_rules check path/to/review.yml --pack reviews

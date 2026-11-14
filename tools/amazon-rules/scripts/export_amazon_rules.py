@@ -31,6 +31,7 @@ SNAPSHOT = EXPORTS / "amazon-rules.json"
 
 CSV_FIELDS = [
     "Rule ID",
+    "Enabled",
     "Rule",
     "Applies To",
     "Type",
@@ -58,9 +59,32 @@ def _pick(row: dict, *names: str) -> str:
     return ""
 
 
+def parse_enabled(value, default: int = 1) -> int:
+    """Return 1 (on) or 0 (off). Missing or unreadable values default to 1."""
+    if value is None or value == "":
+        return default
+    try:
+        return 0 if int(float(str(value).strip())) == 0 else 1
+    except (TypeError, ValueError):
+        return default
+
+
+def enabled_from_row(row: dict) -> int:
+    engine = row.get("engine") if isinstance(row.get("engine"), dict) else {}
+    picked = _pick(row, "Enabled", "enabled")
+    if picked != "":
+        return parse_enabled(picked)
+    if "enabled" in engine:
+        return parse_enabled(engine.get("enabled"))
+    return 1
+
+
 def _engine_from_row(row: dict) -> dict:
+    enabled = enabled_from_row(row)
     if isinstance(row.get("engine"), dict):
-        return dict(row["engine"])
+        engine = dict(row["engine"])
+        engine["enabled"] = enabled
+        return engine
     rule_id = _pick(row, "Rule ID", "rule_id", "id")
     check = _pick(row, "Check", "check_type", "check").lower()
     pattern = _pick(row, "Pattern", "pattern")
@@ -75,6 +99,7 @@ def _engine_from_row(row: dict) -> dict:
         "source_url": _pick(row, "Source URL", "source_url"),
         "source_quote": _pick(row, "Source Quote", "source_quote"),
         "fetched": _pick(row, "Date Checked", "date_checked"),
+        "enabled": enabled,
     }
     if check == "regex" and pattern:
         engine["pattern"] = pattern
@@ -144,6 +169,7 @@ def normalize_rows(raw_rows: list[dict]) -> list[dict]:
             "source_url": _pick(raw, "Source URL", "source_url"),
             "source_quote": _pick(raw, "Source Quote", "source_quote"),
             "date_checked": _pick(raw, "Date Checked", "date_checked") or "2026-11-14",
+            "enabled": enabled_from_row(raw),
             "engine": _engine_from_row(raw),
         }
         rows.append(row)
@@ -157,6 +183,7 @@ def write_csv(rows: list[dict], path: Path) -> None:
         for row in rows:
             writer.writerow({
                 "Rule ID": row["rule_id"],
+                "Enabled": row.get("enabled", 1),
                 "Rule": row["rule"],
                 "Applies To": row["applies_to"],
                 "Type": row["type"],

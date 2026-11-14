@@ -21,6 +21,7 @@ rules:
   source_url: https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF
   source_quote: Leave star ratings from one to five, without writing a full-text review.
   fetched: '2026-11-14'
+  enabled: 1
 - id: REV-AFFILIATE-001
   severity: fail
   check: regex
@@ -34,6 +35,7 @@ rules:
   source_quote: We allow links to other products on Amazon, but not to external sites. Don't post links
     to phishing or other malware sites. We don't allow URLs with referrer tags or affiliate codes.
   fetched: '2026-11-14'
+  enabled: 1
 - id: REV-REFERRER-001
   severity: warn
   check: regex
@@ -46,6 +48,7 @@ rules:
   source_url: https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF
   source_quote: We don't allow URLs with referrer tags or affiliate codes.
   fetched: '2026-11-14'
+  enabled: 1
 - id: REV-EXTERNAL-URL-001
   severity: fail
   check: regex
@@ -58,6 +61,7 @@ rules:
   source_url: https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF
   source_quote: We allow links to other products on Amazon, but not to external sites.
   fetched: '2026-11-14'
+  enabled: 1
 - id: REV-CONTACT-001
   severity: fail
   check: regex
@@ -71,6 +75,7 @@ rules:
   source_quote: 'Don''t post content that invades privacy or shares your own personal information, including:
     Phone number; Email address; Mailing address; License plate; Data source name (DSN); Order number.'
   fetched: '2026-11-14'
+  enabled: 1
 - id: REV-COMPENSATION-001
   severity: fail
   check: regex
@@ -88,6 +93,7 @@ rules:
     discounts, products, gift cards, warranties, or services. This policy applies even if a seller offers
     a refund to remove or change a negative review.
   fetched: '2026-11-14'
+  enabled: 1
 - id: REV-FREE-PRODUCT-001
   severity: fail
   check: regex
@@ -116,6 +122,7 @@ rules:
     the official Vine program offers. Accepting free products or compensation directly from sellers or
     brands in exchange for reviews is strictly prohibited.
   fetched: '2026-11-14'
+  enabled: 1
 - id: REV-MEDICAL-001
   severity: fail
   check: regex
@@ -133,6 +140,7 @@ rules:
     conditions or severe symptoms. This policy applies to all products, including foods, beverages, supplements,
     cosmetics, and personal care/general products.
   fetched: '2026-11-14'
+  enabled: 1
 - id: REV-USED-REQUIRED-001
   severity: fail
   check: field
@@ -147,6 +155,7 @@ rules:
     However, please note that Amazon does not verify that the products are actually used by Amazon Vine
     Voices.
   fetched: '2026-11-14'
+  enabled: 1
 - id: REV-USED-CLAIM-001
   severity: fail
   check: regex
@@ -168,6 +177,7 @@ rules:
   source_quote: Post a review for a product before it has been delivered to you. Reviews should be based
     on actual experience with the product.
   fetched: '2026-11-14'
+  enabled: 1
 - id: REV-PROFANITY-001
   severity: fail
   check: keyword
@@ -196,6 +206,7 @@ rules:
     obscenities, or name-calling; Harassment or threats; Attacks on people you disagree with; Libel, defamation,
     or inflammatory content.'
   fetched: '2026-11-14'
+  enabled: 1
 - id: REV-SHIPPING-001
   severity: warn
   check: regex
@@ -212,3 +223,4 @@ rules:
     Customer Service they provide; Ordering issues and returns; Shipping packaging; Product condition
     and damage; Shipping cost and speed.'
   fetched: '2026-11-14'
+  enabled: 1
