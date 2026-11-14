@@ -1,0 +1,126 @@
+# Manual GitHub Actions workflow for the Amazon rules engine.
+# Install at .github/workflows/amazon-rules-engine.yml in reese-reviews.
+# workflow_dispatch only — not on push, pull_request, or a schedule.
+# This job never posts a review to Amazon.
+
+name: Amazon rules engine
+
+on:
+  workflow_dispatch:
+    inputs:
+      review_file:
+        description: "Path to one review or book YAML file (repo-relative)"
+        required: true
+        default: "tools/amazon-rules/examples/EXAMPLE-review-pass.yml"
+        type: string
+      pack:
+        description: "Rule pack"
+        required: true
+        default: reviews
+        type: choice
+        options:
+          - reviews
+          - kdp
+      issue_number:
+        description: "Optional WR issue number to comment the report on (leave blank to skip)"
+        required: false
+        type: string
+      ledger_file:
+        description: "Optional local ledger CSV (repo-relative)"
+        required: false
+        default: "tools/amazon-rules/examples/EXAMPLE-ledger.csv"
+        type: string
+
+# Public-repo Actions minutes are included in GitHub's public plan.
+# If this repository is later made private, each run counts against
+# private-repo Actions minutes — run the CLI locally instead of adding
+# push or schedule triggers.
+# permissions are least-privilege: read the repo; write an issue comment only.
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    name: Check one file
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        working-directory: tools/amazon-rules
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Run unit tests
+        working-directory: tools/amazon-rules
+        env:
+          PYTHONPATH: .
+        run: python -m pytest -q
+
+      - name: Check the requested file (does not post to Amazon)
+        id: check
+        working-directory: tools/amazon-rules
+        env:
+          PYTHONPATH: .
+        run: |
+          set +e
+          file="${{ inputs.review_file }}"
+          case "$file" in
+            tools/amazon-rules/*) file="${file#tools/amazon-rules/}" ;;
+          esac
+          ledger="${{ inputs.ledger_file }}"
+          case "$ledger" in
+            tools/amazon-rules/*) ledger="${ledger#tools/amazon-rules/}" ;;
+          esac
+          extra=()
+          if [ -n "$ledger" ] && [ -f "$ledger" ]; then
+            extra+=(--ledger "$ledger")
+          fi
+          python -m amazon_rules check "$file" --pack "${{ inputs.pack }}" "${extra[@]}" --out "$GITHUB_WORKSPACE/amazon-rules-report.md"
+          status=$?
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          if [ "$status" -eq 2 ]; then
+            exit 2
+          fi
+          # WARN and PASS should stay green so the report can still be posted.
+          # FAIL is reported in the issue comment and fails this step at the end.
+          exit 0
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: amazon-rules-report
+          path: amazon-rules-report.md
+          if-no-files-found: error
+
+      - name: Comment report on the WR issue
+        if: ${{ inputs.issue_number != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ inputs.issue_number }}
+          REPO: ${{ github.repository }}
+        run: |
+          # The engine never posts to Amazon. This comment is only on the GitHub WR issue.
+          {
+            echo "Proofy: Amazon rules engine report for \`${{ inputs.review_file }}\` (pack \`${{ inputs.pack }}\`). This is a check only — nothing was posted to Amazon."
+            echo
+            cat amazon-rules-report.md
+            echo
+            echo "— Proofy"
+          } > /tmp/issue-comment.md
+          gh issue comment "$ISSUE" --repo "$REPO" --body-file /tmp/issue-comment.md
+
+      - name: Fail the job if the engine reported FAIL
+        if: ${{ steps.check.outputs.exit_code == '1' }}
+        run: |
+          echo "The Amazon rules engine reported FAIL. See amazon-rules-report.md."
+          exit 1

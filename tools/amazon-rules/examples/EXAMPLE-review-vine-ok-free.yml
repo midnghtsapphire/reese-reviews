@@ -1,0 +1,14 @@
+# EXAMPLE ONLY — Vine source plus Vine wording should not fail the free-product rule.
+example: true
+pack: reviews
+product: "Example Vine sample mug"
+asin: "B0TEST0009"
+review_source: vine
+used: "yes"
+stars: 4
+title: "Sturdy mug"
+body: >
+  I received this free through Amazon Vine. I used the sample mug every morning
+  this week. It holds heat well and the handle is comfortable. The glaze has a
+  small run on the rim that does not affect use.
+photos: []

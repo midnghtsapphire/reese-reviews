@@ -1,0 +1,16 @@
+# EXAMPLE ONLY — fictional sample with stock-AI phrasing. Should WARN, not necessarily FAIL.
+example: true
+pack: reviews
+product: "Example yoga mat (sample data only)"
+asin: "B0TEST0008"
+review_source: purchase
+used: "yes"
+stars: 5
+title: "A versatile mat"
+body: >
+  In today's fast-paced world, it is important to note that this sample mat can
+  elevate your practice. Whether you're a beginner or a seasoned athlete, look
+  no further. I used it in one class. I hope this review has been helpful.
+photos:
+  - "EXAMPLE-only-photo.jpg"
+photo_owner: audrey

@@ -1,0 +1,295 @@
+# Amazon rules engine — KDP pack skeleton
+# Official KDP Help pages were fetched on 14 November 2026 (America/Denver).
+# House rules are Audrey's standing WR answers (trim choices, Grok Imagine disclosure, no words in cover art).
+# This skeleton covers what the KDP WR already lists. It does not upload or publish.
+
+pack: kdp
+title: KDP book rules (skeleton)
+version: "2026-11-14"
+fetched: "2026-11-14"
+timezone: America/Denver
+notes:
+  - "Skeleton pack for midnghtsapphire/amazon-books KDP WRs. One book at a time."
+  - "The engine does not upload or publish to KDP. Audrey reviews the report; Proofy does the final review and uploads manually after Proofy: FINAL APPROVED and Audrey's yes."
+  - "Standing AI disclosure on the KDP Content tab is a house answer and must stay accurate for the book in front of you."
+unverified:
+  - "The exact KDP form wording 'One or a few AI-generated images, minimal or no editing' is a house standing answer used on the Content tab. The official Help page fetched here requires disclosure of AI-generated content and defines AI-generated vs AI-assisted, but does not quote that form label."
+  - "The 50-character keyword cap is a house rule that matches the usual KDP box limit. Official Help tells authors to watch the on-screen counter and does not publish that exact number in the pages fetched for this pack, so this skeleton does not enforce a 50-character bound as an official rule."
+
+rules:
+  - id: KDP-TITLE-REQUIRED-001
+    severity: fail
+    check: field
+    field: title
+    op: required
+    message: "Book title is required and must match the cover and the KDP Details tab."
+    source_kind: house_rule
+    house_attribution: "Audrey / WR: KDP book (book title field)"
+    source_url: "https://github.com/midnghtsapphire/amazon-books/blob/docs/kdp-reference-2026-11-14/.github/ISSUE_TEMPLATE/kdp-book-wr.yml"
+    source_quote: "This is the published title. It must match the cover and the KDP Details tab."
+
+  - id: KDP-AI-DISCLOSE-001
+    severity: fail
+    check: field
+    when:
+      any:
+        - field: ai_used_for
+          op: contains
+          value: "images"
+        - field: ai_used_for
+          op: contains
+          value: "text"
+        - field: ai_used_for
+          op: contains
+          value: "translations"
+        - field: ai_used_for
+          op: contains
+          value: "captions"
+    field: ai_generated
+    op: eq
+    value: true
+    message: "KDP requires you to inform them of AI-generated content (text, images, or translations) when you publish or republish. Set ai_generated to yes when a listed use is present."
+    source_kind: official
+    source_url: "https://kdp.amazon.com/en_US/help/topic/G200672390"
+    source_quote: "We require you to inform us of AI-generated content (text, images, or translations) when you publish a new book or make edits to and republish an existing book through KDP. AI-generated images include cover and interior images and artwork. We define AI-generated content as text, images, or translations created by an AI-based tool. If you used an AI-based tool to create the actual content (whether text, images, or translations), it is considered \"AI-generated,\" even if you applied substantial edits afterwards."
+    fetched: "2026-11-14"
+
+  - id: KDP-AI-TOOL-001
+    severity: fail
+    check: field
+    when:
+      field: ai_generated
+      op: eq
+      value: true
+    field: ai_tool_normalized
+    op: in
+    values: ["grok imagine", "grok image"]
+    message: "When AI-generated content is disclosed, the standing house tool is Grok Imagine or Grok Image (pick the one actually used)."
+    source_kind: house_rule
+    house_attribution: "Audrey / KDP WR standing AI disclosure"
+    source_url: "https://github.com/midnghtsapphire/amazon-books/blob/docs/kdp-reference-2026-11-14/docs/KDP-REFERENCE.md"
+    source_quote: "Tool used (pick one): Grok Imagine or Grok Image."
+
+  - id: KDP-AI-IMAGES-001
+    severity: fail
+    check: field
+    when:
+      any:
+        - field: ai_used_for
+          op: contains
+          value: "images"
+        - field: ai_generated
+          op: eq
+          value: true
+    field: ai_images
+    op: eq
+    value: "One or a few AI-generated images, minimal or no editing"
+    message: "House standing answer for image disclosure, when a few covers or plates were generated: 'One or a few AI-generated images, minimal or no editing'. Keep it accurate for this book."
+    source_kind: house_rule
+    house_attribution: "Audrey / KDP WR standing AI disclosure"
+    source_url: "https://github.com/midnghtsapphire/amazon-books/blob/docs/kdp-reference-2026-11-14/docs/KDP-REFERENCE.md"
+    source_quote: "Images (when a few covers or plates were generated): One or a few AI-generated images, minimal or no editing."
+
+  - id: KDP-AI-TEXT-001
+    severity: warn
+    check: field
+    field: ai_texts
+    op: in
+    values: ["none", "no", "false"]
+    message: "Standing house answer for Texts is None. If this book used AI to create text, confirm the disclosure is accurate before upload; do not file an inaccurate 'None'."
+    source_kind: house_rule
+    house_attribution: "Audrey / KDP WR standing AI disclosure (Texts none)"
+    source_url: "https://github.com/midnghtsapphire/amazon-books/blob/docs/kdp-reference-2026-11-14/docs/KDP-REFERENCE.md"
+    source_quote: "Translations: None. What that tool was used for: Check what applies: images, captions, docs, text."
+
+  - id: KDP-AI-TRANSLATIONS-001
+    severity: warn
+    check: field
+    field: ai_translations
+    op: in
+    values: ["none", "no", "false"]
+    message: "Standing house answer for Translations is None. If this book used AI for translations, confirm the disclosure is accurate before upload."
+    source_kind: house_rule
+    house_attribution: "Audrey / KDP WR standing AI disclosure (Translations none)"
+    source_url: "https://github.com/midnghtsapphire/amazon-books/blob/docs/kdp-reference-2026-11-14/docs/KDP-REFERENCE.md"
+    source_quote: "Translations: None."
+
+  - id: KDP-COVER-NO-WORDS-001
+    severity: fail
+    check: field
+    field: cover_art_has_words
+    op: eq
+    value: false
+    message: "Cover art has no words. No letters, logos, or watermarks in the generated image. Typography is added afterward."
+    source_kind: house_rule
+    house_attribution: "Audrey / KDP WR (cover art has no words)"
+    source_url: "https://github.com/midnghtsapphire/amazon-books/blob/docs/kdp-reference-2026-11-14/docs/KDP-REFERENCE.md"
+    source_quote: "Cover art has no words. No letters, logos, or watermarks in the generated image. Add the title, author, and a friendly audience tag afterward in the wrap or Kindle front."
+
+  - id: KDP-TRIM-PB-HOUSE-001
+    severity: fail
+    check: field
+    when:
+      all:
+        - field: existing_6x9
+          op: eq
+          value: false
+        - op: text_matches
+          fields: [formats]
+          pattern: "(?i)paperback|pb"
+    field: paperback_trim
+    op: eq
+    value: "8.5x11"
+    message: "New paperback books use trim 8.5 x 11 (house). Already-published 6 x 9 books stay 6 x 9."
+    source_kind: house_rule
+    house_attribution: "Audrey / KDP WR house trim for new print books"
+    source_url: "https://github.com/midnghtsapphire/amazon-books/blob/docs/kdp-reference-2026-11-14/docs/KDP-REFERENCE.md"
+    source_quote: "New print books: paperback 8.5\" × 11\" and hardcover 8.25\" × 11\", glossy, full color (premium color). Already-published 6\" × 9\" books stay 6\" × 9\"."
+
+  - id: KDP-TRIM-PB-SUPPORTED-001
+    severity: fail
+    check: field
+    when:
+      op: text_matches
+      fields: [formats]
+      pattern: "(?i)paperback|pb"
+    field: paperback_trim
+    op: in
+    values:
+      - "5x8"
+      - "5.06x7.81"
+      - "5.25x8"
+      - "5.5x8.5"
+      - "6x9"
+      - "6.14x9.21"
+      - "6.69x9.61"
+      - "7x10"
+      - "7.44x9.69"
+      - "7.5x9.25"
+      - "8x10"
+      - "8.25x6"
+      - "8.25x8.25"
+      - "8.5x8.5"
+      - "8.5x11"
+      - "8.27x11.69"
+    message: "Paperback trim must be a size listed in official KDP Help (fetched 14 November 2026)."
+    source_kind: official
+    source_url: "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6"
+    source_quote: "You can choose from a variety of trim sizes to set the size of your printed book. The most common trim size for paperbacks in the U.S. is 6 x 9 inches (152.4 x 228.6 mm) and is a regular trim size. 8.5\" x 11\" (21.59 x 27.94 cm) is listed as a large trim size."
+    fetched: "2026-11-14"
+
+  - id: KDP-TRIM-HC-HOUSE-001
+    severity: fail
+    check: field
+    when:
+      all:
+        - field: existing_6x9
+          op: eq
+          value: false
+        - op: text_matches
+          fields: [formats]
+          pattern: "(?i)hardcover|hc"
+    field: hardcover_trim
+    op: eq
+    value: "8.25x11"
+    message: "New hardcover books use trim 8.25 x 11 (house). Already-published 6 x 9 books stay 6 x 9."
+    source_kind: house_rule
+    house_attribution: "Audrey / KDP WR house trim for new print books"
+    source_url: "https://github.com/midnghtsapphire/amazon-books/blob/docs/kdp-reference-2026-11-14/docs/KDP-REFERENCE.md"
+    source_quote: "New print books: paperback 8.5\" × 11\" and hardcover 8.25\" × 11\"."
+
+  - id: KDP-TRIM-HC-SUPPORTED-001
+    severity: fail
+    check: field
+    when:
+      op: text_matches
+      fields: [formats]
+      pattern: "(?i)hardcover|hc"
+    field: hardcover_trim
+    op: in
+    values:
+      - "5.5x8.5"
+      - "6x9"
+      - "6.14x9.21"
+      - "7x10"
+      - "8.25x11"
+    message: "Hardcover trim must be a size listed in official KDP Help (fetched 14 November 2026). Official hardcover page counts at these sizes are 75–550."
+    source_kind: official
+    source_url: "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6"
+    source_quote: "Hardcover large trim sizes listed include 8.25\" x 11\" (20.96 x 27.94 cm), with a page-count range of 75–550."
+    fetched: "2026-11-14"
+
+  - id: KDP-PB-PAGE-COUNT-001
+    severity: fail
+    check: field
+    when:
+      all:
+        - op: text_matches
+          fields: [formats]
+          pattern: "(?i)paperback|pb"
+        - field: paperback_trim
+          op: eq
+          value: "8.5x11"
+        - field: page_count
+          op: nonempty
+    field: page_count
+    op: range
+    min: 24
+    max: 590
+    message: "For paperback 8.5 x 11 with premium color or black ink on white, official Help lists a page-count range of 24–590. Standard color at this trim is 72–600; cream is 24–550; groundwood is 24–578. This check uses the 24–590 band that matches Audrey's premium-color house default."
+    source_kind: official
+    source_url: "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6"
+    source_quote: "8.5\" x 11\" (21.59 x 27.94 cm): black ink and white paper 24–590; black ink and cream paper 24–550; black ink and groundwood paper 24–578; standard color 72–600; premium color 24–590."
+    fetched: "2026-11-14"
+
+  - id: KDP-HC-PAGE-COUNT-001
+    severity: fail
+    check: field
+    when:
+      all:
+        - op: text_matches
+          fields: [formats]
+          pattern: "(?i)hardcover|hc"
+        - field: page_count
+          op: nonempty
+    field: page_count
+    op: range
+    min: 75
+    max: 550
+    message: "Official KDP Help lists hardcover page counts as 75–550."
+    source_kind: official
+    source_url: "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6"
+    source_quote: "Hardcover trim sizes, including 8.25\" x 11\" (20.96 x 27.94 cm), list a page-count range of 75–550."
+    fetched: "2026-11-14"
+
+  - id: KDP-COLORING-PAPER-001
+    severity: fail
+    check: field
+    when:
+      field: coloring_book
+      op: eq
+      value: true
+    field: coloring_paper
+    op: in
+    values: ["groundwood", "cheapest", "white", "black-and-white cheapest", "b&w cheapest"]
+    message: "Coloring books use black-and-white interiors on the cheapest paper (groundwood when available; otherwise white)."
+    source_kind: house_rule
+    house_attribution: "Audrey / KDP WR (coloring books, cheapest paper)"
+    source_url: "https://github.com/midnghtsapphire/amazon-books/blob/docs/kdp-reference-2026-11-14/docs/KDP-REFERENCE.md"
+    source_quote: "Coloring books: black-and-white interiors on the cheapest paper (groundwood when available; otherwise white). Coloring books are not eligible for Expanded Distribution."
+
+  - id: KDP-EXISTING-6X9-001
+    severity: fail
+    check: field
+    when:
+      field: existing_6x9
+      op: eq
+      value: true
+    field: paperback_trim
+    op: eq
+    value: "6x9"
+    message: "Already-published 6 x 9 books stay 6 x 9. Do not resize them."
+    source_kind: house_rule
+    house_attribution: "Audrey / KDP WR (existing 6x9 stays 6x9)"
+    source_url: "https://github.com/midnghtsapphire/amazon-books/blob/docs/kdp-reference-2026-11-14/docs/KDP-REFERENCE.md"
+    source_quote: "Already-published 6\" × 9\" books stay 6\" × 9\". Do not resize them."

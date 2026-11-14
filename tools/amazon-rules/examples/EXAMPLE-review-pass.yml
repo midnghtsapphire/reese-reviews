@@ -1,0 +1,17 @@
+# EXAMPLE ONLY — fictional sample review for tests. Not a real product or a real post.
+example: true
+pack: reviews
+product: "Example stainless-steel water bottle (sample data only)"
+asin: "B0TEST0001"
+amazon_url: "https://www.amazon.com/dp/B0TEST0001"
+review_source: purchase
+used: "yes"
+stars: 4
+title: "Solid bottle for daily walks"
+body: >
+  I used this sample bottle on my morning walks for two weeks. It kept water
+  cold, the lid did not leak in my bag, and it fits in my car cup holder.
+  The powder coat has one small scratch where my keys rub it. I would buy
+  this shape again.
+photos: []
+photo_owner: ""

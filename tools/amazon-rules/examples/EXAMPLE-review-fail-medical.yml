@@ -1,0 +1,14 @@
+# EXAMPLE ONLY — fictional sample with a prohibited medical claim. Not a real review.
+example: true
+pack: reviews
+product: "Example dog supplement chew (sample data only)"
+asin: "B0TEST0004"
+amazon_url: "https://www.amazon.com/dp/B0TEST0004"
+review_source: purchase
+used: "yes"
+stars: 5
+title: "These chews cured my dog's arthritis"
+body: >
+  I used these sample chews for a month. They cured my dog's arthritis and will
+  prevent joint disease if you give them every day. This is fictional test text.
+photos: []

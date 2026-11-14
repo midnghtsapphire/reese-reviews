@@ -1,0 +1,13 @@
+# EXAMPLE ONLY — uses the fake ledger ASIN so the duplicate check can FAIL in tests.
+example: true
+pack: reviews
+product: "Example already-reviewed sample widget"
+asin: "B0LEDGER001"
+review_source: purchase
+used: "yes"
+stars: 4
+title: "Still a decent widget"
+body: >
+  I used this sample widget again while writing a second draft. This file exists
+  only to test the one-review-per-ASIN ledger check.
+photos: []

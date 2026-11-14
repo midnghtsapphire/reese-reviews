@@ -1,0 +1,266 @@
+# Amazon rules engine — reviews pack
+# Fetched official Amazon Customer Service pages on 14 November 2026 (America/Denver).
+# Anything not stated on those pages is marked source_kind: house_rule and attributed to Audrey.
+# Never invent a number Amazon did not publish. This pack does not post reviews.
+
+pack: reviews
+title: Amazon customer review rules
+version: "2026-11-14"
+fetched: "2026-11-14"
+timezone: America/Denver
+notes:
+  - "This pack automates WR stages 1–3 as checks. It does not post to Amazon."
+  - "Run one review file at a time. Do not batch or bulk-load reviews."
+  - "Audrey reviews the report. Proofy does the final review and uploads manually after Proofy: FINAL APPROVED and Audrey's yes."
+unverified:
+  - "Official public help pages fetched on 14 November 2026 do not state a character limit, a maximum number of photos, a maximum video length, or a maximum file size. This pack therefore has no length bounds."
+  - "Those pages do not state a required Vine review percentage, Gold or Silver Vine tier names or thresholds, the length of an evaluation period, a public per-item Vine deadline, or a numeric cap on reviews per day. Do not invent those figures. Use the signed-in Vine dashboard if Amazon shows Audrey a rate or deadline there."
+  - "A public 'one review per ASIN' sentence was not found on the fetched official pages (they do say that if Amazon rejects or removes a review for a guidelines violation, the reviewer will not be allowed to review that product again). The one-review-per-ASIN ledger check is a house rule from Audrey's WR."
+
+rules:
+  - id: REV-ASIN-FORMAT-001
+    severity: fail
+    check: field
+    field: asin
+    op: match
+    pattern: "^[A-Z0-9]{10}$"
+    message: "ASIN must be the ten-character Amazon identifier required on the WR."
+    source_kind: house_rule
+    house_attribution: "Audrey / WR: Amazon review (ASIN field)"
+    source_url: "https://github.com/midnghtsapphire/reese-reviews/blob/docs/amazon-review-wr-template-2026-11-14/.github/ISSUE_TEMPLATE/amazon-review-wr.yml"
+    source_quote: "Ten-character Amazon identifier. Do not open a second WR for the same ASIN."
+
+  - id: REV-STARS-001
+    severity: fail
+    check: field
+    field: stars
+    op: range
+    min: 1
+    max: 5
+    message: "Star rating must be an integer from one to five."
+    source_kind: official
+    source_url: "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF"
+    source_quote: "Leave star ratings from one to five, without writing a full-text review."
+    fetched: "2026-11-14"
+
+  - id: REV-TITLE-REQUIRED-001
+    severity: fail
+    check: field
+    field: title
+    op: required
+    message: "A review title is required on the WR draft."
+    source_kind: house_rule
+    house_attribution: "Audrey / WR: Amazon review (Stage 0 draft fields)"
+    source_url: "https://github.com/midnghtsapphire/reese-reviews/blob/docs/amazon-review-wr-template-2026-11-14/.github/ISSUE_TEMPLATE/amazon-review-wr.yml"
+    source_quote: "Paste the review title, star rating, and body from Audrey or from her Notion page."
+
+  - id: REV-BODY-REQUIRED-001
+    severity: fail
+    check: field
+    field: body
+    op: required
+    message: "A review body is required on the WR draft."
+    source_kind: house_rule
+    house_attribution: "Audrey / WR: Amazon review (Stage 0 draft fields)"
+    source_url: "https://github.com/midnghtsapphire/reese-reviews/blob/docs/amazon-review-wr-template-2026-11-14/.github/ISSUE_TEMPLATE/amazon-review-wr.yml"
+    source_quote: "Paste the review title, star rating, and body from Audrey or from her Notion page."
+
+  - id: REV-AFFILIATE-001
+    severity: fail
+    check: regex
+    fields: [title, body, photos]
+    # Official: no referrer tags or affiliate codes in community content.
+    # tag=, linkCode=, ascsubtag= are Associates parameters. amzn.to is a short link often used with Associates.
+    pattern: "(?i)(?:[?&]tag=|[?&]linkCode=|[?&]ascsubtag=|amzn\\.to/)"
+    message: "Affiliate or Associates tags and short links are not allowed in the review text or photo URLs."
+    source_kind: official
+    source_url: "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF"
+    source_quote: "We allow links to other products on Amazon, but not to external sites. Don't post links to phishing or other malware sites. We don't allow URLs with referrer tags or affiliate codes."
+    fetched: "2026-11-14"
+
+  - id: REV-REFERRER-001
+    severity: warn
+    check: regex
+    fields: [title, body, photos]
+    pattern: "(?i)[?&]ref="
+    message: "A referrer tag appears in the public review text. Community Guidelines do not allow URLs with referrer tags. Remove it from anything that will be posted."
+    source_kind: official
+    source_url: "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF"
+    source_quote: "We don't allow URLs with referrer tags or affiliate codes."
+    fetched: "2026-11-14"
+
+  - id: REV-EXTERNAL-URL-001
+    severity: fail
+    check: regex
+    fields: [title, body, photos]
+    # Allow amazon.com and regional Amazon hosts only. Everything else in the public review is an external site.
+    pattern: "(?i)(?:https?://|www\\.)(?!(?:[a-z0-9-]+\\.)*(?:amazon\\.[a-z.]+|amzn\\.to)(?:[:/\\s]|$))"
+    message: "External site links are not allowed in a review. Links to other Amazon products are allowed."
+    source_kind: official
+    source_url: "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF"
+    source_quote: "We allow links to other products on Amazon, but not to external sites."
+    fetched: "2026-11-14"
+
+  - id: REV-CONTACT-001
+    severity: fail
+    check: regex
+    fields: [title, body, photos]
+    pattern: "(?i)(?:[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\b|\\b(?:\\+?1[-.\\s]?)?(?:\\(?\\d{3}\\)?[-.\\s]?)\\d{3}[-.\\s]?\\d{4}\\b|\\b\\d{3}-\\d{7}-\\d{7}\\b)"
+    message: "Do not post email addresses, phone numbers, or Amazon order numbers in the review."
+    source_kind: official
+    source_url: "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF"
+    source_quote: "Don't post content that invades privacy or shares your own personal information, including: Phone number; Email address; Mailing address; License plate; Data source name (DSN); Order number."
+    fetched: "2026-11-14"
+
+  - id: REV-COMPENSATION-001
+    severity: fail
+    check: regex
+    fields: [title, body]
+    pattern: "(?i)\\b(?:gift\\s*card|in exchange for (?:this |a )?review|paid me to (?:review|write)|refund (?:if|to) (?:I |you )?(?:change|remove|update) (?:my |the )?review|free product from the seller|discount for (?:leaving|posting|writing) a review|they(?:'| a)?ll refund me if I (?:change|remove)|warranty (?:if|after) I (?:leave|post) a review)\\b"
+    message: "Compensation or incentive language is not allowed. Creating, editing, or removing a review in exchange for compensation violates Community Guidelines, including after a negative review."
+    source_kind: official
+    source_url: "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF"
+    source_quote: "Create, edit, or remove a review in exchange for compensation, including payments, refunds, discounts, products, gift cards, warranties, or services. This policy applies even if a seller offers a refund to remove or change a negative review."
+    fetched: "2026-11-14"
+
+  - id: REV-FREE-PRODUCT-001
+    severity: fail
+    check: regex
+    fields: [title, body]
+    pattern: "(?i)\\b(?:got this free|received this free|they sent (?:this|it) free|free in exchange|free product(?! through (?:the )?(?:official )?amazon vine)|seller sent (?:this|it) (?:to me )?free)\\b"
+    except_when:
+      all:
+        - field: review_source
+          op: in
+          values: ["vine"]
+        - op: text_matches
+          fields: [title, body]
+          pattern: "(?i)\\b(?:amazon )?vine\\b"
+    message: "Language about a free or discounted product is not allowed unless this is an official Vine item and the text points to Vine (Amazon applies the Vine label). Seller-provided free products in exchange for a review are prohibited."
+    source_kind: official
+    source_url: "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF"
+    source_quote: "We allow reviews of free products received through the Amazon Vine program. We label these reviews with “Vine Customer Review of a free product.” You can only receive free products through the official Vine program offers. Accepting free products or compensation directly from sellers or brands in exchange for reviews is strictly prohibited."
+    fetched: "2026-11-14"
+
+  - id: REV-MEDICAL-001
+    severity: fail
+    check: regex
+    fields: [title, body]
+    # Official rule is about preventing or curing serious conditions or severe symptoms.
+    # Patterns require a prevention/cure/treat claim plus a condition term so ordinary "helps me hear" does not fail on its own.
+    pattern: "\\b(?:cur(?:e|es|ed|ing)|prevent(?:s|ed|ing)?|heal(?:s|ed|ing)?|treat(?:s|ed|ing|ment)?)\\b[^.!?]{0,80}\\b(?:cancer|tumor|diabetes|alzheimer(?:'s)?|heart disease|stroke|arthritis|covid|seizure(?:s)?|hearing loss|deafness|infection|disease|chronic pain|kidney (?:disease|failure)|liver (?:disease|failure)|blood pressure|anxiety disorder|depression)\\b|\\b(?:cancer|tumor|diabetes|alzheimer(?:'s)?|heart disease|stroke|arthritis|covid|seizure(?:s)?|hearing loss|deafness|infection|disease)\\b[^.!?]{0,80}\\b(?:cur(?:e|es|ed|ing)|prevent(?:s|ed|ing)?|heal(?:s|ed|ing)?|miracle)\\b"
+    message: "Medical claims about preventing or curing serious conditions or severe symptoms are not allowed. This matters for hearing aids, supplements, and dog chews."
+    source_kind: official
+    source_url: "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF"
+    source_quote: "We don't allow any statements or claims related to preventing or curing serious medical conditions or severe symptoms. This policy applies to all products, including foods, beverages, supplements, cosmetics, and personal care/general products."
+    fetched: "2026-11-14"
+
+  - id: REV-USED-REQUIRED-001
+    severity: fail
+    check: field
+    field: used
+    op: eq
+    value: "yes"
+    message: "The item must be used before it is reviewed. If used is no, not yet, or unsure, hold the WR."
+    source_kind: official
+    source_url: "https://www.amazon.com/gp/help/customer/display.html?nodeId=GPEWN3RSQPEU2HST"
+    source_quote: "Amazon Vine Voices are expected to use the products they receive before submitting a review. However, please note that Amazon does not verify that the products are actually used by Amazon Vine Voices."
+    fetched: "2026-11-14"
+
+  - id: REV-USED-CLAIM-001
+    severity: fail
+    check: regex
+    when:
+      field: used
+      op: in
+      values: ["no", "unsure", ""]
+    fields: [title, body]
+    pattern: "(?i)\\b(?:I used|I have used|I've used|I have been using|I've been using|after using|after I used|I tried it|I wore it|I took it(?: for| every)|I fed|I applied it|works (?:great|well) after)\\b"
+    message: "The draft claims use, but used is not yes. An item must be used before it is reviewed, and the text must not invent use."
+    source_kind: official
+    source_url: "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF"
+    source_quote: "Post a review for a product before it has been delivered to you. Reviews should be based on actual experience with the product."
+    fetched: "2026-11-14"
+
+  - id: REV-DUPLICATE-ASIN-001
+    severity: fail
+    check: duplicate
+    field: asin
+    message: "One review per ASIN. This ASIN is already in the local ledger, so do not open or post a second review."
+    source_kind: house_rule
+    house_attribution: "Audrey / WR: Amazon review (one review for this ASIN)"
+    source_url: "https://github.com/midnghtsapphire/reese-reviews/blob/docs/amazon-review-wr-template-2026-11-14/.github/ISSUE_TEMPLATE/amazon-review-wr.yml"
+    source_quote: "One review for this ASIN — no duplicate WR and no re-review of a removed listing."
+
+  - id: REV-PROFANITY-001
+    severity: fail
+    check: keyword
+    fields: [title, body]
+    word_boundary: true
+    keywords:
+      - fuck
+      - fucked
+      - fucking
+      - shit
+      - asshole
+      - bastard
+      - bitch
+      - cunt
+      - dickhead
+      - motherfucker
+      - idiot
+      - moron
+      - stupid
+    message: "Profanity, obscenities, name-calling, or personal attacks are not allowed."
+    source_kind: official
+    source_url: "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF"
+    source_quote: "It's OK to question beliefs and expertise, but be respectful. We don't allow: Profanity, obscenities, or name-calling; Harassment or threats; Attacks on people you disagree with; Libel, defamation, or inflammatory content."
+    fetched: "2026-11-14"
+
+  - id: REV-SHIPPING-001
+    severity: warn
+    check: regex
+    fields: [title, body]
+    pattern: "(?i)\\b(?:seller(?:'s)? (?:service|customer service|shipping)|shipping was (?:slow|fast|late)|arrived damaged|damaged in (?:transit|shipping)|packaging was (?:poor|terrible)|order (?:never arrived|was late)|return(?:ed|ing)? (?:it )?because of (?:the )?seller)\\b"
+    message: "The draft talks about seller service, shipping, packaging, or damage in transit. Official guidelines do not allow reviews that only focus on those topics; keep the review about the product. Price-as-value comments are OK."
+    source_kind: official
+    source_url: "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF"
+    source_quote: "We don't allow reviews or questions and answers that only focus on: Sellers and the Customer Service they provide; Ordering issues and returns; Shipping packaging; Product condition and damage; Shipping cost and speed."
+    fetched: "2026-11-14"
+
+  - id: REV-PHOTOS-OWN-001
+    severity: warn
+    check: field
+    field: photos
+    op: empty
+    message: "Photos or video in this review must be Audrey's own, or content she has permission to use. Seller, stock, or listing images are not allowed. Confirm the photo list is hers (or permitted) before Stage 3 approval. Text-only is allowed if no suitable media is ready."
+    source_kind: official
+    source_url: "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF"
+    source_quote: "Upload your own photos or videos to provide visual details about the product or service. Only post your own content or content that you have permission to use on Amazon. This restriction includes text, images, and videos."
+    fetched: "2026-11-14"
+
+  - id: REV-PHOTOS-OWNER-FIELD-001
+    severity: warn
+    check: field
+    when:
+      field: photos
+      op: nonempty
+    field: photo_owner
+    op: eq
+    value: "ok"
+    message: "Photos are listed but photo_owner is not Audrey (or permitted). Confirm who took them before posting."
+    source_kind: official
+    source_url: "https://www.amazon.com/gp/help/customer/display.html?nodeId=GL4WJF8BGV8VL6B8"
+    source_quote: "You can add text, photos, or videos to your review at any time. Your submission must follow our Community Guidelines or we won't post the review."
+    fetched: "2026-11-14"
+
+  - id: REV-AI-TONE-001
+    severity: warn
+    check: regex
+    fields: [title, body]
+    pattern: "(?i)\\b(?:in today's fast-paced world|when it comes to|it(?:'s| is) important to note|in conclusion,|look no further|delve into|a tapestry of|elevate your|robust and versatile|whether you(?:'re| are) a .{0,40} or a|I hope this review has been helpful|as an ai|as a language model)\\b"
+    message: "The draft uses generic stock-AI phrasing. Rewrite it in Audrey's own words so every claim is her real experience."
+    source_kind: house_rule
+    house_attribution: "Audrey / Notion queue and WR (AI drafts need a human rewrite; posted words must match her real experience)"
+    source_url: "https://github.com/midnghtsapphire/reese-reviews/blob/docs/amazon-review-wr-template-2026-11-14/docs/AMAZON-REVIEWS-REFERENCE.md"
+    source_quote: "If an AI tool helped draft the text, Audrey must edit it so every claim is her own experience, in her own words. Notion's own queue note says a human must approve and edit ChatGPT-style text before submit."

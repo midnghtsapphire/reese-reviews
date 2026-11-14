@@ -1,0 +1,3 @@
+asin,product,posted_date,wr_issue,notes,example
+# EXAMPLE ONLY — fake sample ASINs for tests. Not real Amazon inventory.
+B0LEDGER001,Example already-reviewed sample widget,2026-10-01,123,EXAMPLE ONLY — already recorded in the local ledger,yes
