@@ -1,0 +1,14 @@
+# EXAMPLE ONLY — fictional sample: used is no, but the body claims use. Must FAIL.
+example: true
+pack: reviews
+product: "Example hearing-aid dryer (sample data only)"
+asin: "B0TEST0003"
+amazon_url: "https://www.amazon.com/dp/B0TEST0003"
+review_source: vine
+used: "no"
+stars: 5
+title: "Works after one night"
+body: >
+  I used this sample dryer overnight and my hearing aids were dry in the morning.
+  I have not tried it for a full week yet, but I already love it.
+photos: []

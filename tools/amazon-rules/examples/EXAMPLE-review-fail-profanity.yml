@@ -1,0 +1,13 @@
+# EXAMPLE ONLY — fictional sample with a personal attack. Not a real review.
+example: true
+pack: reviews
+product: "Example cable set (sample data only)"
+asin: "B0TEST0007"
+review_source: purchase
+used: "yes"
+stars: 1
+title: "Junk"
+body: >
+  I used these sample cables once. The designer is an idiot and the whole thing
+  is shit. This wording exists only to test the profanity rule.
+photos: []

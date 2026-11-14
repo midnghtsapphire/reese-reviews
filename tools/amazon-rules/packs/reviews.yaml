@@ -1,0 +1,214 @@
+pack: reviews
+title: Amazon Reviews rules (export of https://app.notion.com/p/4182aa319908811288d7cc88a4304b8b)
+version: '2026-11-14'
+fetched: '2026-11-14'
+timezone: America/Denver
+source: https://app.notion.com/p/4182aa319908811288d7cc88a4304b8b
+notes:
+- Generated from an export of the Amazon Rules Notion database, which is the source of truth.
+- Official public help pages do not state a character limit, a maximum number of photos, a maximum video
+  length, or a maximum file size. This pack therefore has no length bounds.
+rules:
+- id: REV-STARS-001
+  severity: fail
+  check: field
+  field: stars
+  op: range
+  min: 1
+  max: 5
+  message: Star ratings are from one to five.
+  source_kind: official
+  source_url: https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF
+  source_quote: Leave star ratings from one to five, without writing a full-text review.
+  fetched: '2026-11-14'
+- id: REV-AFFILIATE-001
+  severity: fail
+  check: regex
+  fields:
+  - title
+  - body
+  pattern: (?i)(?:[?&]tag=|[?&]linkCode=|[?&]ascsubtag=|amzn\.to/)
+  message: Affiliate or Associates tags and short links are not allowed in review text.
+  source_kind: official
+  source_url: https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF
+  source_quote: We allow links to other products on Amazon, but not to external sites. Don't post links
+    to phishing or other malware sites. We don't allow URLs with referrer tags or affiliate codes.
+  fetched: '2026-11-14'
+- id: REV-REFERRER-001
+  severity: warn
+  check: regex
+  fields:
+  - title
+  - body
+  pattern: (?i)[?&]ref=
+  message: URLs with referrer tags are not allowed in community content.
+  source_kind: official
+  source_url: https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF
+  source_quote: We don't allow URLs with referrer tags or affiliate codes.
+  fetched: '2026-11-14'
+- id: REV-EXTERNAL-URL-001
+  severity: fail
+  check: regex
+  fields:
+  - title
+  - body
+  pattern: (?i)(?:https?://|www\.)(?!(?:[a-z0-9-]+\.)*(?:amazon\.[a-z.]+|amzn\.to)(?:[:/\s]|$))
+  message: External site links are not allowed in a review. Links to other Amazon products are allowed.
+  source_kind: official
+  source_url: https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF
+  source_quote: We allow links to other products on Amazon, but not to external sites.
+  fetched: '2026-11-14'
+- id: REV-CONTACT-001
+  severity: fail
+  check: regex
+  fields:
+  - title
+  - body
+  pattern: (?i)(?:[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b|\b(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)\d{3}[-.\s]?\d{4}\b|\b\d{3}-\d{7}-\d{7}\b)
+  message: Email addresses, phone numbers, and Amazon order numbers are not allowed in a review.
+  source_kind: official
+  source_url: https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF
+  source_quote: 'Don''t post content that invades privacy or shares your own personal information, including:
+    Phone number; Email address; Mailing address; License plate; Data source name (DSN); Order number.'
+  fetched: '2026-11-14'
+- id: REV-COMPENSATION-001
+  severity: fail
+  check: regex
+  fields:
+  - title
+  - body
+  pattern: (?i)\b(?:gift\s*card|in exchange for (?:this |a )?review|paid me to (?:review|write)|refund
+    (?:if|to) (?:I |you )?(?:change|remove|update) (?:my |the )?review|free product from the seller|discount
+    for (?:leaving|posting|writing) a review|they(?:'| a)?ll refund me if I (?:change|remove)|warranty
+    (?:if|after) I (?:leave|post) a review)\b
+  message: Creating, editing, or removing a review in exchange for compensation is not allowed.
+  source_kind: official
+  source_url: https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF
+  source_quote: Create, edit, or remove a review in exchange for compensation, including payments, refunds,
+    discounts, products, gift cards, warranties, or services. This policy applies even if a seller offers
+    a refund to remove or change a negative review.
+  fetched: '2026-11-14'
+- id: REV-FREE-PRODUCT-001
+  severity: fail
+  check: regex
+  fields:
+  - title
+  - body
+  pattern: (?i)\b(?:got this free|received this free|they sent (?:this|it) free|free in exchange|free
+    product(?! through (?:the )?(?:official )?amazon vine)|seller sent (?:this|it) (?:to me )?free)\b
+  except_when:
+    all:
+    - field: review_source
+      op: in
+      values:
+      - vine
+    - op: text_matches
+      fields:
+      - title
+      - body
+      pattern: (?i)\b(?:amazon )?vine\b
+  message: Language about a free or discounted product is not allowed, except for official Amazon Vine
+    items, which Amazon labels.
+  source_kind: official
+  source_url: https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF
+  source_quote: We allow reviews of free products received through the Amazon Vine program. We label these
+    reviews with “Vine Customer Review of a free product.” You can only receive free products through
+    the official Vine program offers. Accepting free products or compensation directly from sellers or
+    brands in exchange for reviews is strictly prohibited.
+  fetched: '2026-11-14'
+- id: REV-MEDICAL-001
+  severity: fail
+  check: regex
+  fields:
+  - title
+  - body
+  pattern: \b(?:cur(?:e|es|ed|ing)|prevent(?:s|ed|ing)?|heal(?:s|ed|ing)?|treat(?:s|ed|ing|ment)?)\b[^.!?]{0,80}\b(?:cancer|tumor|diabetes|alzheimer(?:'s)?|heart
+    disease|stroke|arthritis|covid|seizure(?:s)?|hearing loss|deafness|infection|disease|chronic pain|kidney
+    (?:disease|failure)|liver (?:disease|failure)|blood pressure|anxiety disorder|depression)\b|\b(?:cancer|tumor|diabetes|alzheimer(?:'s)?|heart
+    disease|stroke|arthritis|covid|seizure(?:s)?|hearing loss|deafness|infection|disease)\b[^.!?]{0,80}\b(?:cur(?:e|es|ed|ing)|prevent(?:s|ed|ing)?|heal(?:s|ed|ing)?|miracle)\b
+  message: Medical claims about preventing or curing serious conditions or severe symptoms are not allowed.
+  source_kind: official
+  source_url: https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF
+  source_quote: We don't allow any statements or claims related to preventing or curing serious medical
+    conditions or severe symptoms. This policy applies to all products, including foods, beverages, supplements,
+    cosmetics, and personal care/general products.
+  fetched: '2026-11-14'
+- id: REV-USED-REQUIRED-001
+  severity: fail
+  check: field
+  field: used
+  op: eq
+  value: 'yes'
+  message: Reviews are based on actual experience. Vine Voices are expected to use the product before
+    submitting a review.
+  source_kind: official
+  source_url: https://www.amazon.com/gp/help/customer/display.html?nodeId=GPEWN3RSQPEU2HST
+  source_quote: Amazon Vine Voices are expected to use the products they receive before submitting a review.
+    However, please note that Amazon does not verify that the products are actually used by Amazon Vine
+    Voices.
+  fetched: '2026-11-14'
+- id: REV-USED-CLAIM-001
+  severity: fail
+  check: regex
+  when:
+    field: used
+    op: in
+    values:
+    - 'no'
+    - unsure
+    - ''
+  fields:
+  - title
+  - body
+  pattern: '(?i)\b(?:I used|I have used|I''ve used|I have been using|I''ve been using|after using|after
+    I used|I tried it|I wore it|I took it(?: for| every)|I fed|I applied it|works (?:great|well) after)\b'
+  message: Review text should not claim use if the item has not been used.
+  source_kind: official
+  source_url: https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF
+  source_quote: Post a review for a product before it has been delivered to you. Reviews should be based
+    on actual experience with the product.
+  fetched: '2026-11-14'
+- id: REV-PROFANITY-001
+  severity: fail
+  check: keyword
+  fields:
+  - title
+  - body
+  word_boundary: true
+  keywords:
+  - fuck
+  - fucked
+  - fucking
+  - shit
+  - asshole
+  - bastard
+  - bitch
+  - cunt
+  - dickhead
+  - motherfucker
+  - idiot
+  - moron
+  - stupid
+  message: Profanity, obscenities, name-calling, or personal attacks are not allowed.
+  source_kind: official
+  source_url: https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF
+  source_quote: 'It''s OK to question beliefs and expertise, but be respectful. We don''t allow: Profanity,
+    obscenities, or name-calling; Harassment or threats; Attacks on people you disagree with; Libel, defamation,
+    or inflammatory content.'
+  fetched: '2026-11-14'
+- id: REV-SHIPPING-001
+  severity: warn
+  check: regex
+  fields:
+  - title
+  - body
+  pattern: (?i)\b(?:seller(?:'s)? (?:service|customer service|shipping)|shipping was (?:slow|fast|late)|arrived
+    damaged|damaged in (?:transit|shipping)|packaging was (?:poor|terrible)|order (?:never arrived|was
+    late)|return(?:ed|ing)? (?:it )?because of (?:the )?seller)\b
+  message: Reviews that only focus on seller service, shipping, or packaging are not allowed.
+  source_kind: official
+  source_url: https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF
+  source_quote: 'We don''t allow reviews or questions and answers that only focus on: Sellers and the
+    Customer Service they provide; Ordering issues and returns; Shipping packaging; Product condition
+    and damage; Shipping cost and speed.'
+  fetched: '2026-11-14'

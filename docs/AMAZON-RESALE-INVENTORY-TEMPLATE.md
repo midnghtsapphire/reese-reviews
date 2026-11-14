@@ -4,6 +4,7 @@ This is a GitHub issue template that mirrors the Notion database **Amazon Resale
 
 - Live form: [`.github/ISSUE_TEMPLATE/amazon-resale-inventory.yml`](../.github/ISSUE_TEMPLATE/amazon-resale-inventory.yml)
 - Canonical copy: `docs/reviews/amazon-resale-inventory.yml` in [revvel-standards](https://github.com/midnghtsapphire/revvel-standards)
+- Rules: [Amazon Rules](https://app.notion.com/p/4182aa319908811288d7cc88a4304b8b)
 
 ## What it mirrors
 
@@ -22,5 +23,3 @@ Statuses are unchanged:
 - **Condition:** New In Box, Open Box, Used
 
 **Sale Price (20% off)** is lowest historical Keepa price × 0.80. The database is hybrid with the Google Sheet for calculations.
-
-There are no extra approval stages. You run this process yourself. The Amazon rules engine is an optional check, not a required gate.

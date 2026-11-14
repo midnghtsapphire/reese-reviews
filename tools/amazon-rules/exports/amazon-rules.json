@@ -1,0 +1,600 @@
+{
+  "source": "Amazon Rules",
+  "source_url": "https://app.notion.com/p/4182aa319908811288d7cc88a4304b8b",
+  "exported": "2026-11-14",
+  "timezone": "America/Denver",
+  "notes": [
+    "Notion database Amazon Rules is the source of truth.",
+    "This file is an export used by the optional amazon-rules engine.",
+    "Official text rules only. No photo or image rules, and no extra house rules."
+  ],
+  "rules": [
+    {
+      "rule_id": "REV-STARS-001",
+      "rule": "Star ratings are from one to five.",
+      "applies_to": "Reviews",
+      "type": "Official",
+      "severity": "Fail",
+      "check_type": "field",
+      "pattern": "field stars range min=1 max=5",
+      "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+      "source_quote": "Leave star ratings from one to five, without writing a full-text review.",
+      "date_checked": "2026-11-14",
+      "engine": {
+        "id": "REV-STARS-001",
+        "severity": "fail",
+        "check": "field",
+        "field": "stars",
+        "op": "range",
+        "min": 1,
+        "max": 5,
+        "message": "Star ratings are from one to five.",
+        "source_kind": "official",
+        "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+        "source_quote": "Leave star ratings from one to five, without writing a full-text review.",
+        "fetched": "2026-11-14"
+      }
+    },
+    {
+      "rule_id": "REV-AFFILIATE-001",
+      "rule": "Affiliate or Associates tags and short links are not allowed in review text.",
+      "applies_to": "Reviews",
+      "type": "Official",
+      "severity": "Fail",
+      "check_type": "regex",
+      "pattern": "(?i)(?:[?&]tag=|[?&]linkCode=|[?&]ascsubtag=|amzn\\.to/)",
+      "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+      "source_quote": "We allow links to other products on Amazon, but not to external sites. Don't post links to phishing or other malware sites. We don't allow URLs with referrer tags or affiliate codes.",
+      "date_checked": "2026-11-14",
+      "engine": {
+        "id": "REV-AFFILIATE-001",
+        "severity": "fail",
+        "check": "regex",
+        "fields": [
+          "title",
+          "body"
+        ],
+        "pattern": "(?i)(?:[?&]tag=|[?&]linkCode=|[?&]ascsubtag=|amzn\\.to/)",
+        "message": "Affiliate or Associates tags and short links are not allowed in review text.",
+        "source_kind": "official",
+        "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+        "source_quote": "We allow links to other products on Amazon, but not to external sites. Don't post links to phishing or other malware sites. We don't allow URLs with referrer tags or affiliate codes.",
+        "fetched": "2026-11-14"
+      }
+    },
+    {
+      "rule_id": "REV-REFERRER-001",
+      "rule": "URLs with referrer tags are not allowed in community content.",
+      "applies_to": "Reviews",
+      "type": "Official",
+      "severity": "Warn",
+      "check_type": "regex",
+      "pattern": "(?i)[?&]ref=",
+      "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+      "source_quote": "We don't allow URLs with referrer tags or affiliate codes.",
+      "date_checked": "2026-11-14",
+      "engine": {
+        "id": "REV-REFERRER-001",
+        "severity": "warn",
+        "check": "regex",
+        "fields": [
+          "title",
+          "body"
+        ],
+        "pattern": "(?i)[?&]ref=",
+        "message": "URLs with referrer tags are not allowed in community content.",
+        "source_kind": "official",
+        "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+        "source_quote": "We don't allow URLs with referrer tags or affiliate codes.",
+        "fetched": "2026-11-14"
+      }
+    },
+    {
+      "rule_id": "REV-EXTERNAL-URL-001",
+      "rule": "External site links are not allowed in a review. Links to other Amazon products are allowed.",
+      "applies_to": "Reviews",
+      "type": "Official",
+      "severity": "Fail",
+      "check_type": "regex",
+      "pattern": "(?i)(?:https?://|www\\.)(?!(?:[a-z0-9-]+\\.)*(?:amazon\\.[a-z.]+|amzn\\.to)(?:[:/\\s]|$))",
+      "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+      "source_quote": "We allow links to other products on Amazon, but not to external sites.",
+      "date_checked": "2026-11-14",
+      "engine": {
+        "id": "REV-EXTERNAL-URL-001",
+        "severity": "fail",
+        "check": "regex",
+        "fields": [
+          "title",
+          "body"
+        ],
+        "pattern": "(?i)(?:https?://|www\\.)(?!(?:[a-z0-9-]+\\.)*(?:amazon\\.[a-z.]+|amzn\\.to)(?:[:/\\s]|$))",
+        "message": "External site links are not allowed in a review. Links to other Amazon products are allowed.",
+        "source_kind": "official",
+        "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+        "source_quote": "We allow links to other products on Amazon, but not to external sites.",
+        "fetched": "2026-11-14"
+      }
+    },
+    {
+      "rule_id": "REV-CONTACT-001",
+      "rule": "Email addresses, phone numbers, and Amazon order numbers are not allowed in a review.",
+      "applies_to": "Reviews",
+      "type": "Official",
+      "severity": "Fail",
+      "check_type": "regex",
+      "pattern": "(?i)(?:[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\b|\\b(?:\\+?1[-.\\s]?)?(?:\\(?\\d{3}\\)?[-.\\s]?)\\d{3}[-.\\s]?\\d{4}\\b|\\b\\d{3}-\\d{7}-\\d{7}\\b)",
+      "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+      "source_quote": "Don't post content that invades privacy or shares your own personal information, including: Phone number; Email address; Mailing address; License plate; Data source name (DSN); Order number.",
+      "date_checked": "2026-11-14",
+      "engine": {
+        "id": "REV-CONTACT-001",
+        "severity": "fail",
+        "check": "regex",
+        "fields": [
+          "title",
+          "body"
+        ],
+        "pattern": "(?i)(?:[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\b|\\b(?:\\+?1[-.\\s]?)?(?:\\(?\\d{3}\\)?[-.\\s]?)\\d{3}[-.\\s]?\\d{4}\\b|\\b\\d{3}-\\d{7}-\\d{7}\\b)",
+        "message": "Email addresses, phone numbers, and Amazon order numbers are not allowed in a review.",
+        "source_kind": "official",
+        "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+        "source_quote": "Don't post content that invades privacy or shares your own personal information, including: Phone number; Email address; Mailing address; License plate; Data source name (DSN); Order number.",
+        "fetched": "2026-11-14"
+      }
+    },
+    {
+      "rule_id": "REV-COMPENSATION-001",
+      "rule": "Creating, editing, or removing a review in exchange for compensation is not allowed.",
+      "applies_to": "Reviews",
+      "type": "Official",
+      "severity": "Fail",
+      "check_type": "regex",
+      "pattern": "(?i)\\b(?:gift\\s*card|in exchange for (?:this |a )?review|paid me to (?:review|write)|refund (?:if|to) (?:I |you )?(?:change|remove|update) (?:my |the )?review|free product from the seller|discount for (?:leaving|posting|writing) a review|they(?:'| a)?ll refund me if I (?:change|remove)|warranty (?:if|after) I (?:leave|post) a review)\\b",
+      "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+      "source_quote": "Create, edit, or remove a review in exchange for compensation, including payments, refunds, discounts, products, gift cards, warranties, or services. This policy applies even if a seller offers a refund to remove or change a negative review.",
+      "date_checked": "2026-11-14",
+      "engine": {
+        "id": "REV-COMPENSATION-001",
+        "severity": "fail",
+        "check": "regex",
+        "fields": [
+          "title",
+          "body"
+        ],
+        "pattern": "(?i)\\b(?:gift\\s*card|in exchange for (?:this |a )?review|paid me to (?:review|write)|refund (?:if|to) (?:I |you )?(?:change|remove|update) (?:my |the )?review|free product from the seller|discount for (?:leaving|posting|writing) a review|they(?:'| a)?ll refund me if I (?:change|remove)|warranty (?:if|after) I (?:leave|post) a review)\\b",
+        "message": "Creating, editing, or removing a review in exchange for compensation is not allowed.",
+        "source_kind": "official",
+        "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+        "source_quote": "Create, edit, or remove a review in exchange for compensation, including payments, refunds, discounts, products, gift cards, warranties, or services. This policy applies even if a seller offers a refund to remove or change a negative review.",
+        "fetched": "2026-11-14"
+      }
+    },
+    {
+      "rule_id": "REV-FREE-PRODUCT-001",
+      "rule": "Language about a free or discounted product is not allowed, except for official Amazon Vine items, which Amazon labels.",
+      "applies_to": "Reviews",
+      "type": "Official",
+      "severity": "Fail",
+      "check_type": "regex",
+      "pattern": "(?i)\\b(?:got this free|received this free|they sent (?:this|it) free|free in exchange|free product(?! through (?:the )?(?:official )?amazon vine)|seller sent (?:this|it) (?:to me )?free)\\b",
+      "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+      "source_quote": "We allow reviews of free products received through the Amazon Vine program. We label these reviews with “Vine Customer Review of a free product.” You can only receive free products through the official Vine program offers. Accepting free products or compensation directly from sellers or brands in exchange for reviews is strictly prohibited.",
+      "date_checked": "2026-11-14",
+      "engine": {
+        "id": "REV-FREE-PRODUCT-001",
+        "severity": "fail",
+        "check": "regex",
+        "fields": [
+          "title",
+          "body"
+        ],
+        "pattern": "(?i)\\b(?:got this free|received this free|they sent (?:this|it) free|free in exchange|free product(?! through (?:the )?(?:official )?amazon vine)|seller sent (?:this|it) (?:to me )?free)\\b",
+        "except_when": {
+          "all": [
+            {
+              "field": "review_source",
+              "op": "in",
+              "values": [
+                "vine"
+              ]
+            },
+            {
+              "op": "text_matches",
+              "fields": [
+                "title",
+                "body"
+              ],
+              "pattern": "(?i)\\b(?:amazon )?vine\\b"
+            }
+          ]
+        },
+        "message": "Language about a free or discounted product is not allowed, except for official Amazon Vine items, which Amazon labels.",
+        "source_kind": "official",
+        "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+        "source_quote": "We allow reviews of free products received through the Amazon Vine program. We label these reviews with “Vine Customer Review of a free product.” You can only receive free products through the official Vine program offers. Accepting free products or compensation directly from sellers or brands in exchange for reviews is strictly prohibited.",
+        "fetched": "2026-11-14"
+      }
+    },
+    {
+      "rule_id": "REV-MEDICAL-001",
+      "rule": "Medical claims about preventing or curing serious conditions or severe symptoms are not allowed.",
+      "applies_to": "Reviews",
+      "type": "Official",
+      "severity": "Fail",
+      "check_type": "regex",
+      "pattern": "\\b(?:cur(?:e|es|ed|ing)|prevent(?:s|ed|ing)?|heal(?:s|ed|ing)?|treat(?:s|ed|ing|ment)?)\\b[^.!?]{0,80}\\b(?:cancer|tumor|diabetes|alzheimer(?:'s)?|heart disease|stroke|arthritis|covid|seizure(?:s)?|hearing loss|deafness|infection|disease|chronic pain|kidney (?:disease|failure)|liver (?:disease|failure)|blood pressure|anxiety disorder|depression)\\b|\\b(?:cancer|tumor|diabetes|alzheimer(?:'s)?|heart disease|stroke|arthritis|covid|seizure(?:s)?|hearing loss|deafness|infection|disease)\\b[^.!?]{0,80}\\b(?:cur(?:e|es|ed|ing)|prevent(?:s|ed|ing)?|heal(?:s|ed|ing)?|miracle)\\b",
+      "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+      "source_quote": "We don't allow any statements or claims related to preventing or curing serious medical conditions or severe symptoms. This policy applies to all products, including foods, beverages, supplements, cosmetics, and personal care/general products.",
+      "date_checked": "2026-11-14",
+      "engine": {
+        "id": "REV-MEDICAL-001",
+        "severity": "fail",
+        "check": "regex",
+        "fields": [
+          "title",
+          "body"
+        ],
+        "pattern": "\\b(?:cur(?:e|es|ed|ing)|prevent(?:s|ed|ing)?|heal(?:s|ed|ing)?|treat(?:s|ed|ing|ment)?)\\b[^.!?]{0,80}\\b(?:cancer|tumor|diabetes|alzheimer(?:'s)?|heart disease|stroke|arthritis|covid|seizure(?:s)?|hearing loss|deafness|infection|disease|chronic pain|kidney (?:disease|failure)|liver (?:disease|failure)|blood pressure|anxiety disorder|depression)\\b|\\b(?:cancer|tumor|diabetes|alzheimer(?:'s)?|heart disease|stroke|arthritis|covid|seizure(?:s)?|hearing loss|deafness|infection|disease)\\b[^.!?]{0,80}\\b(?:cur(?:e|es|ed|ing)|prevent(?:s|ed|ing)?|heal(?:s|ed|ing)?|miracle)\\b",
+        "message": "Medical claims about preventing or curing serious conditions or severe symptoms are not allowed.",
+        "source_kind": "official",
+        "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+        "source_quote": "We don't allow any statements or claims related to preventing or curing serious medical conditions or severe symptoms. This policy applies to all products, including foods, beverages, supplements, cosmetics, and personal care/general products.",
+        "fetched": "2026-11-14"
+      }
+    },
+    {
+      "rule_id": "REV-USED-REQUIRED-001",
+      "rule": "Reviews are based on actual experience. Vine Voices are expected to use the product before submitting a review.",
+      "applies_to": "Reviews",
+      "type": "Official",
+      "severity": "Fail",
+      "check_type": "field",
+      "pattern": "field used eq",
+      "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GPEWN3RSQPEU2HST",
+      "source_quote": "Amazon Vine Voices are expected to use the products they receive before submitting a review. However, please note that Amazon does not verify that the products are actually used by Amazon Vine Voices.",
+      "date_checked": "2026-11-14",
+      "engine": {
+        "id": "REV-USED-REQUIRED-001",
+        "severity": "fail",
+        "check": "field",
+        "field": "used",
+        "op": "eq",
+        "value": "yes",
+        "message": "Reviews are based on actual experience. Vine Voices are expected to use the product before submitting a review.",
+        "source_kind": "official",
+        "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GPEWN3RSQPEU2HST",
+        "source_quote": "Amazon Vine Voices are expected to use the products they receive before submitting a review. However, please note that Amazon does not verify that the products are actually used by Amazon Vine Voices.",
+        "fetched": "2026-11-14"
+      }
+    },
+    {
+      "rule_id": "REV-USED-CLAIM-001",
+      "rule": "Review text should not claim use if the item has not been used.",
+      "applies_to": "Reviews",
+      "type": "Official",
+      "severity": "Fail",
+      "check_type": "regex",
+      "pattern": "(?i)\\b(?:I used|I have used|I've used|I have been using|I've been using|after using|after I used|I tried it|I wore it|I took it(?: for| every)|I fed|I applied it|works (?:great|well) after)\\b",
+      "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+      "source_quote": "Post a review for a product before it has been delivered to you. Reviews should be based on actual experience with the product.",
+      "date_checked": "2026-11-14",
+      "engine": {
+        "id": "REV-USED-CLAIM-001",
+        "severity": "fail",
+        "check": "regex",
+        "when": {
+          "field": "used",
+          "op": "in",
+          "values": [
+            "no",
+            "unsure",
+            ""
+          ]
+        },
+        "fields": [
+          "title",
+          "body"
+        ],
+        "pattern": "(?i)\\b(?:I used|I have used|I've used|I have been using|I've been using|after using|after I used|I tried it|I wore it|I took it(?: for| every)|I fed|I applied it|works (?:great|well) after)\\b",
+        "message": "Review text should not claim use if the item has not been used.",
+        "source_kind": "official",
+        "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+        "source_quote": "Post a review for a product before it has been delivered to you. Reviews should be based on actual experience with the product.",
+        "fetched": "2026-11-14"
+      }
+    },
+    {
+      "rule_id": "REV-PROFANITY-001",
+      "rule": "Profanity, obscenities, name-calling, or personal attacks are not allowed.",
+      "applies_to": "Reviews",
+      "type": "Official",
+      "severity": "Fail",
+      "check_type": "keyword",
+      "pattern": "keyword",
+      "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+      "source_quote": "It's OK to question beliefs and expertise, but be respectful. We don't allow: Profanity, obscenities, or name-calling; Harassment or threats; Attacks on people you disagree with; Libel, defamation, or inflammatory content.",
+      "date_checked": "2026-11-14",
+      "engine": {
+        "id": "REV-PROFANITY-001",
+        "severity": "fail",
+        "check": "keyword",
+        "fields": [
+          "title",
+          "body"
+        ],
+        "word_boundary": true,
+        "keywords": [
+          "fuck",
+          "fucked",
+          "fucking",
+          "shit",
+          "asshole",
+          "bastard",
+          "bitch",
+          "cunt",
+          "dickhead",
+          "motherfucker",
+          "idiot",
+          "moron",
+          "stupid"
+        ],
+        "message": "Profanity, obscenities, name-calling, or personal attacks are not allowed.",
+        "source_kind": "official",
+        "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+        "source_quote": "It's OK to question beliefs and expertise, but be respectful. We don't allow: Profanity, obscenities, or name-calling; Harassment or threats; Attacks on people you disagree with; Libel, defamation, or inflammatory content.",
+        "fetched": "2026-11-14"
+      }
+    },
+    {
+      "rule_id": "REV-SHIPPING-001",
+      "rule": "Reviews that only focus on seller service, shipping, or packaging are not allowed.",
+      "applies_to": "Reviews",
+      "type": "Official",
+      "severity": "Warn",
+      "check_type": "regex",
+      "pattern": "(?i)\\b(?:seller(?:'s)? (?:service|customer service|shipping)|shipping was (?:slow|fast|late)|arrived damaged|damaged in (?:transit|shipping)|packaging was (?:poor|terrible)|order (?:never arrived|was late)|return(?:ed|ing)? (?:it )?because of (?:the )?seller)\\b",
+      "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+      "source_quote": "We don't allow reviews or questions and answers that only focus on: Sellers and the Customer Service they provide; Ordering issues and returns; Shipping packaging; Product condition and damage; Shipping cost and speed.",
+      "date_checked": "2026-11-14",
+      "engine": {
+        "id": "REV-SHIPPING-001",
+        "severity": "warn",
+        "check": "regex",
+        "fields": [
+          "title",
+          "body"
+        ],
+        "pattern": "(?i)\\b(?:seller(?:'s)? (?:service|customer service|shipping)|shipping was (?:slow|fast|late)|arrived damaged|damaged in (?:transit|shipping)|packaging was (?:poor|terrible)|order (?:never arrived|was late)|return(?:ed|ing)? (?:it )?because of (?:the )?seller)\\b",
+        "message": "Reviews that only focus on seller service, shipping, or packaging are not allowed.",
+        "source_kind": "official",
+        "source_url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF",
+        "source_quote": "We don't allow reviews or questions and answers that only focus on: Sellers and the Customer Service they provide; Ordering issues and returns; Shipping packaging; Product condition and damage; Shipping cost and speed.",
+        "fetched": "2026-11-14"
+      }
+    },
+    {
+      "rule_id": "KDP-AI-DISCLOSE-001",
+      "rule": "Authors must inform KDP of AI-generated content (text, images, or translations) when publishing or republishing.",
+      "applies_to": "KDP",
+      "type": "Official",
+      "severity": "Fail",
+      "check_type": "field",
+      "pattern": "field ai_generated eq",
+      "source_url": "https://kdp.amazon.com/en_US/help/topic/G200672390",
+      "source_quote": "We require you to inform us of AI-generated content (text, images, or translations) when you publish a new book or make edits to and republish an existing book through KDP. AI-generated images include cover and interior images and artwork. We define AI-generated content as text, images, or translations created by an AI-based tool. If you used an AI-based tool to create the actual content (whether text, images, or translations), it is considered \"AI-generated,\" even if you applied substantial edits afterwards.",
+      "date_checked": "2026-11-14",
+      "engine": {
+        "id": "KDP-AI-DISCLOSE-001",
+        "severity": "fail",
+        "check": "field",
+        "when": {
+          "any": [
+            {
+              "field": "ai_used_for",
+              "op": "contains",
+              "value": "images"
+            },
+            {
+              "field": "ai_used_for",
+              "op": "contains",
+              "value": "text"
+            },
+            {
+              "field": "ai_used_for",
+              "op": "contains",
+              "value": "translations"
+            },
+            {
+              "field": "ai_used_for",
+              "op": "contains",
+              "value": "captions"
+            }
+          ]
+        },
+        "field": "ai_generated",
+        "op": "eq",
+        "value": true,
+        "message": "Authors must inform KDP of AI-generated content (text, images, or translations) when publishing or republishing.",
+        "source_kind": "official",
+        "source_url": "https://kdp.amazon.com/en_US/help/topic/G200672390",
+        "source_quote": "We require you to inform us of AI-generated content (text, images, or translations) when you publish a new book or make edits to and republish an existing book through KDP. AI-generated images include cover and interior images and artwork. We define AI-generated content as text, images, or translations created by an AI-based tool. If you used an AI-based tool to create the actual content (whether text, images, or translations), it is considered \"AI-generated,\" even if you applied substantial edits afterwards.",
+        "fetched": "2026-11-14"
+      }
+    },
+    {
+      "rule_id": "KDP-TRIM-PB-SUPPORTED-001",
+      "rule": "Paperback trim must be a size listed in official KDP Help.",
+      "applies_to": "KDP",
+      "type": "Official",
+      "severity": "Fail",
+      "check_type": "field",
+      "pattern": "field paperback_trim in values=5x8,5.06x7.81,5.25x8,5.5x8.5,6x9,6.14x9.21,6.69x9.61,7x10,7.44x9.69,7.5x9.25,8x10,8.25x6,8.25x8.25,8.5x8.5,8.5x11,8.27x11.69",
+      "source_url": "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6",
+      "source_quote": "You can choose from a variety of trim sizes to set the size of your printed book. The most common trim size for paperbacks in the U.S. is 6 x 9 inches (152.4 x 228.6 mm) and is a regular trim size. 8.5\" x 11\" (21.59 x 27.94 cm) is listed as a large trim size.",
+      "date_checked": "2026-11-14",
+      "engine": {
+        "id": "KDP-TRIM-PB-SUPPORTED-001",
+        "severity": "fail",
+        "check": "field",
+        "when": {
+          "op": "text_matches",
+          "fields": [
+            "formats"
+          ],
+          "pattern": "(?i)paperback|pb"
+        },
+        "field": "paperback_trim",
+        "op": "in",
+        "values": [
+          "5x8",
+          "5.06x7.81",
+          "5.25x8",
+          "5.5x8.5",
+          "6x9",
+          "6.14x9.21",
+          "6.69x9.61",
+          "7x10",
+          "7.44x9.69",
+          "7.5x9.25",
+          "8x10",
+          "8.25x6",
+          "8.25x8.25",
+          "8.5x8.5",
+          "8.5x11",
+          "8.27x11.69"
+        ],
+        "message": "Paperback trim must be a size listed in official KDP Help.",
+        "source_kind": "official",
+        "source_url": "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6",
+        "source_quote": "You can choose from a variety of trim sizes to set the size of your printed book. The most common trim size for paperbacks in the U.S. is 6 x 9 inches (152.4 x 228.6 mm) and is a regular trim size. 8.5\" x 11\" (21.59 x 27.94 cm) is listed as a large trim size.",
+        "fetched": "2026-11-14"
+      }
+    },
+    {
+      "rule_id": "KDP-TRIM-HC-SUPPORTED-001",
+      "rule": "Hardcover trim must be a size listed in official KDP Help.",
+      "applies_to": "KDP",
+      "type": "Official",
+      "severity": "Fail",
+      "check_type": "field",
+      "pattern": "field hardcover_trim in values=5.5x8.5,6x9,6.14x9.21,7x10,8.25x11",
+      "source_url": "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6",
+      "source_quote": "Hardcover large trim sizes listed include 8.25\" x 11\" (20.96 x 27.94 cm), with a page-count range of 75–550.",
+      "date_checked": "2026-11-14",
+      "engine": {
+        "id": "KDP-TRIM-HC-SUPPORTED-001",
+        "severity": "fail",
+        "check": "field",
+        "when": {
+          "op": "text_matches",
+          "fields": [
+            "formats"
+          ],
+          "pattern": "(?i)hardcover|hc"
+        },
+        "field": "hardcover_trim",
+        "op": "in",
+        "values": [
+          "5.5x8.5",
+          "6x9",
+          "6.14x9.21",
+          "7x10",
+          "8.25x11"
+        ],
+        "message": "Hardcover trim must be a size listed in official KDP Help.",
+        "source_kind": "official",
+        "source_url": "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6",
+        "source_quote": "Hardcover large trim sizes listed include 8.25\" x 11\" (20.96 x 27.94 cm), with a page-count range of 75–550.",
+        "fetched": "2026-11-14"
+      }
+    },
+    {
+      "rule_id": "KDP-PB-PAGE-COUNT-001",
+      "rule": "Official KDP Help lists paperback page-count ranges by trim and ink type (for 8.5 x 11 premium color or black ink on white: 24–590).",
+      "applies_to": "KDP",
+      "type": "Official",
+      "severity": "Fail",
+      "check_type": "field",
+      "pattern": "field page_count range min=24 max=590",
+      "source_url": "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6",
+      "source_quote": "8.5\" x 11\" (21.59 x 27.94 cm): black ink and white paper 24–590; black ink and cream paper 24–550; black ink and groundwood paper 24–578; standard color 72–600; premium color 24–590.",
+      "date_checked": "2026-11-14",
+      "engine": {
+        "id": "KDP-PB-PAGE-COUNT-001",
+        "severity": "fail",
+        "check": "field",
+        "when": {
+          "all": [
+            {
+              "op": "text_matches",
+              "fields": [
+                "formats"
+              ],
+              "pattern": "(?i)paperback|pb"
+            },
+            {
+              "field": "paperback_trim",
+              "op": "eq",
+              "value": "8.5x11"
+            },
+            {
+              "field": "page_count",
+              "op": "nonempty"
+            }
+          ]
+        },
+        "field": "page_count",
+        "op": "range",
+        "min": 24,
+        "max": 590,
+        "message": "Official KDP Help lists paperback page-count ranges by trim and ink type (for 8.5 x 11 premium color or black ink on white: 24–590).",
+        "source_kind": "official",
+        "source_url": "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6",
+        "source_quote": "8.5\" x 11\" (21.59 x 27.94 cm): black ink and white paper 24–590; black ink and cream paper 24–550; black ink and groundwood paper 24–578; standard color 72–600; premium color 24–590.",
+        "fetched": "2026-11-14"
+      }
+    },
+    {
+      "rule_id": "KDP-HC-PAGE-COUNT-001",
+      "rule": "Official KDP Help lists hardcover page counts as 75–550.",
+      "applies_to": "KDP",
+      "type": "Official",
+      "severity": "Fail",
+      "check_type": "field",
+      "pattern": "field page_count range min=75 max=550",
+      "source_url": "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6",
+      "source_quote": "Hardcover trim sizes, including 8.25\" x 11\" (20.96 x 27.94 cm), list a page-count range of 75–550.",
+      "date_checked": "2026-11-14",
+      "engine": {
+        "id": "KDP-HC-PAGE-COUNT-001",
+        "severity": "fail",
+        "check": "field",
+        "when": {
+          "all": [
+            {
+              "op": "text_matches",
+              "fields": [
+                "formats"
+              ],
+              "pattern": "(?i)hardcover|hc"
+            },
+            {
+              "field": "page_count",
+              "op": "nonempty"
+            }
+          ]
+        },
+        "field": "page_count",
+        "op": "range",
+        "min": 75,
+        "max": 550,
+        "message": "Official KDP Help lists hardcover page counts as 75–550.",
+        "source_kind": "official",
+        "source_url": "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6",
+        "source_quote": "Hardcover trim sizes, including 8.25\" x 11\" (20.96 x 27.94 cm), list a page-count range of 75–550.",
+        "fetched": "2026-11-14"
+      }
+    }
+  ]
+}
