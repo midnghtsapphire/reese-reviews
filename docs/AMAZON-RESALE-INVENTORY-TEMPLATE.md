@@ -12,7 +12,9 @@ Field names and order match the Notion Default view:
 
 Name, ASIN, Amazon URL, Category, Condition, Current Price, Keepa Lowest Price, Last Updated, Notes, Original Price, Resale Intent, Review Preview, Review Status, Sale Price (20% off), Sheet Row, Status, Vine Tax Value.
 
-Review **Title**, **Review**, and **Image** match the item page layout already used in Notion (“Amazon Review (publishable — edit only if needed),” then copy title and body into the Vine review form, upload the image if it is ready, and submit).
+Review **Title**, **Review**, **Original Product Photo**, and **Final Review Photo (matches original size + light filter)** match the item page layout already used in Notion (“Amazon Review (publishable — edit only if needed),” then copy title and body into the Vine review form, upload the processed image if it is ready, and submit).
+
+The image process is the same one recorded on the Notion item pages: start with Audrey’s own **Original Product Photo** (Amazon community guidelines), then crop, remove the background, and apply a light filter. The **Final Review Photo** should match the original size plus the light filter, and the product must still look like what she received. If the processed photo is not ready, mark **Image still needed**. Text-only is still allowed.
 
 Statuses are unchanged:
 
