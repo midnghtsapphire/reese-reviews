@@ -15,7 +15,7 @@ This is a manual, one-review process. Do not batch or bulk-post reviews.
 1. Audrey provides the draft (title, stars, body, product, and whether this is Vine or a regular purchase).
 2. Proofy proofs spelling, accuracy, and that every fact matches the product she actually used.
 3. Compliance checks (incentivized reviews, conflicts, links, one account, honest experience).
-4. Media check — her own photos or video only, or post text-only if no suitable media is ready.
+4. Image process — attach the Original Product Photo (Audrey’s own photo of this product; Amazon community guidelines), then crop, remove the background, and apply a light filter so the Final Review Photo matches the original size plus the light filter and still looks like the product she received; or choose Image still needed, or post text-only if no photo will be used.
 5. **Proofy: FINAL APPROVED** and **Audrey's yes**.
 6. Proofy posts the review on Amazon (Vine form when it is a Vine item).
 
@@ -86,7 +86,7 @@ Official public help says reviewers may add text, photos, or videos, and should 
 
 The public help pages fetched on 14 November 2026 **do not state** a character limit, a maximum number of photos, a maximum video length, or a maximum file size. **Those numeric limits are unverified here.** Use the limits the Amazon review form itself shows at post time, and record them on the WR if they matter. Media must still follow the own-content, no-nudity, and no-private-information rules.
 
-House practice from Audrey’s Notion (not an Amazon rule): crop, background cleanup, and a light filter are allowed on **her** photos before upload, as long as the image still shows the product she received and is not a seller or stock shot.
+House practice from Audrey’s Notion (not an Amazon rule), as shown on the item pages: keep an **Original Product Photo** and a **Final Review Photo (matches original size + light filter)**. Crop, background removal, and a light filter are applied to **her** photos before Amazon upload, as long as the final image still shows the product she received and is not a seller or stock shot. If the processed photo is not ready, the page is marked **Image still needed**. When it is ready: upload the processed image, then submit. Text-only reviews are still allowed.
 
 ### Review posting frequency and limits
 
@@ -116,7 +116,7 @@ House steps visible in Notion, in order:
 
 1. Capture the Vine or product item (often from a Vine “Awaiting Review” screenshot or a product link), with ASIN, Amazon URL, and order or delivery date.
 2. Draft a publishable review on the item page: title, stars, and body, marked “publishable — edit only if needed.” Some early drafts are labeled “ChatGPT-style, for human edit.”
-3. Prepare an image: crop, background removal, and a light filter, then attach the processed photo. Several drafts still say “Image still needed.”
+3. Image process, matching the Notion item-page layout: attach the **Original Product Photo**, then crop, remove the background, and apply a light filter. Attach the **Final Review Photo (matches original size + light filter)**. The product must still look like what she received. Several drafts still say “Image still needed.”
 4. Human approval and edits.
 5. When ready: “Ready for Vine review form. Copy title + body, upload the processed image, submit.”
 

@@ -8,6 +8,9 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- **Amazon review WR and resale inventory forms:** Stage 3 and the inventory Image field now follow the Notion item-page image process (Original Product Photo, crop / background removal / light filter, Final Review Photo, Image still needed). Text-only reviews are still allowed. The previous Stage 3 media-check fields are commented out with a REVVEL-DISABLED header, not deleted.
+
 ### Added
 - **Voice:** `voice/` — Reese's canonical voice profile (`Sulafat`, `en-US`), exact style strings, pronunciation guide, full reference voiceover, 10-second sample, ready-to-use speech payload, and ElevenLabs app integration notes.
 - **Content:** `content/2026-11-13-ring-play-yard-hack/` — 35–45 second script and setup checklist for using a Ring Battery Doorbell 2K in a kids' play yard, with honest supervision and privacy caveats.

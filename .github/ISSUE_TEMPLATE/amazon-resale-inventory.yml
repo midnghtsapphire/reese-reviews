@@ -17,9 +17,9 @@ body:
         **How it works today**
 
         1. Fill in the inventory fields below (same names and order as the Notion Default view).
-        2. Write the review on the item the way the Notion page does: **Title**, **Review**, and **Image**.
+        2. Write the review on the item the way the Notion page does: **Title**, **Review**, **Original Product Photo**, and **Final Review Photo**.
         3. Keep **Review Status** as **To Review** until you submit it.
-        4. When you are ready, copy the title and body into the Vine review form (or the Amazon review form). Upload the image if it is ready, and submit.
+        4. When you are ready, copy the title and body into the Vine review form (or the Amazon review form). Upload the processed Final Review Photo if it is ready, or leave it as **Image still needed**. Then submit.
         5. After it is submitted, set **Review Status** to **Reviewed**.
         6. For resale, move **Status** from **To List** to **Listed**, then **Sold**, or **Hold**.
 
@@ -162,7 +162,9 @@ body:
       value: |
         ## Amazon Review (publishable — edit only if needed)
 
-        Same layout as the Notion item page. Edit the text yourself, then copy the title and body into the Vine review form when you are ready. Upload the image if it is ready, and submit.
+        Same layout as the Notion item page. Edit the text yourself, then copy the title and body into the Vine review form when you are ready. Upload the processed Final Review Photo if it is ready, or leave it as **Image still needed**, and submit.
+
+        Photos must be Audrey’s own photos of this product (Amazon community guidelines). Images need crop, background removal, and a light filter before Amazon upload. The Final Review Photo should match the original size plus the light filter, and the product must still look like what she received.
 
   - type: input
     id: review_title
@@ -176,10 +178,47 @@ body:
       label: Review
       description: Full review body from the Notion page.
 
+  # REVVEL-DISABLED 2026-11-14 (Audrey: replaced by Notion image process)
+  # - type: textarea
+  #   id: image
+  #   attributes:
+  #     label: Image
+  #     description: "Same as the Notion page Image line."
+  #     placeholder: "Image still needed."
+
   - type: textarea
-    id: image
+    id: original_product_photo
     attributes:
-      label: Image
-      description: "Same as the Notion page Image line."
-      placeholder: "Image still needed."
+      label: Original Product Photo
+      description: Audrey’s own photo of this product, before processing. Attach the file to the issue or paste a path or link.
+      placeholder: Attachment, path, or link to the original photo.
+
+  - type: checkboxes
+    id: image_process
+    attributes:
+      label: Image processing
+      description: Complete these before Amazon upload when a photo is included. Skip if the image is still needed.
+      options:
+        - label: Crop
+        - label: Background removal
+        - label: Light filter
+        - label: Final Review Photo matches original size
+        - label: Product still looks like what she received
+
+  - type: textarea
+    id: final_review_photo
+    attributes:
+      label: Final Review Photo (matches original size + light filter)
+      description: The processed image for Amazon upload. Attach the file to the issue or paste a path or link. Leave blank if the image is still needed.
+      placeholder: Attachment, path, or link to the processed final review photo.
+
+  - type: dropdown
+    id: image_status
+    attributes:
+      label: Image status
+      description: Choose one. If the processed photo is not ready, choose Image still needed.
+      options:
+        - Final Review Photo is ready
+        - Image still needed
+        - Text-only — no photo for this review
 
