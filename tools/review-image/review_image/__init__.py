@@ -1,6 +1,6 @@
-"""Process an Original Product Photo into a Final Review Photo."""
+"""Process a product photo into review, social, or cutout versions."""
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 from .process import process_image
 

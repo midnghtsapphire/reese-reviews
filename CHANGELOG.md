@@ -8,6 +8,10 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **Product Image Process (WR):** selectable GitHub issue form `.github/ISSUE_TEMPLATE/product-image-process-wr.yml` (label `image-process`). Copies a product image from a URL, ASIN, or attached/linked photo; crop, background removal, text/watermark removal, filter; review / social / cutout outputs; optional Notion upload. CircleCI queue (parameter `run_image_process_queue`, schedule documented in `tools/review-image/SETUP.md`) writes results to the `review-images` branch and comments as Auky. Linked from Stage 3 of the Amazon review WR (existing form kept).
+- **Review-image CLI (general tool):** `--from-url`, `--asin`, `--remove-text`, `--preset review|social|cutout|all`, pluggable Notion uploader. Not limited to reviews. n8n / Zapier and ops/self-hosted-ci notes are in the tool README.
+
 ### Changed
 - **Amazon review WR and resale inventory forms:** Stage 3 and the inventory Image field now follow the Notion item-page image process (Original Product Photo, crop / background removal / light filter, Final Review Photo, Image still needed). Text-only reviews are still allowed. The previous Stage 3 media-check fields are commented out with a REVVEL-DISABLED header, not deleted.
 - **Amazon reviews reference:** the image-process section now links to `tools/review-image` and the local commands.

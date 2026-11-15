@@ -88,7 +88,7 @@ The public help pages fetched on 14 November 2026 **do not state** a character l
 
 House practice from Audrey’s Notion (not an Amazon rule), as shown on the item pages: keep an **Original Product Photo** and a **Final Review Photo (matches original size + light filter)**. Crop, background removal, and a light filter are applied to **her** photos before Amazon upload, as long as the final image still shows the product she received and is not a seller or stock shot. If the processed photo is not ready, the page is marked **Image still needed**. When it is ready: upload the processed image, then submit. Text-only reviews are still allowed.
 
-A local CLI in [`tools/review-image`](../tools/review-image/README.md) runs that process: crop, remove the background, apply the light filter, and match the original pixel size.
+A local CLI in [`tools/review-image`](../tools/review-image/README.md) runs that process: copy a product image (file, URL, or ASIN), crop, remove the background, remove overlaid text and watermarks, apply the light filter, and write a review version (original pixel size, white background), a square social version, and/or a transparent cutout. There is a selectable GitHub work request, **Product Image Process (WR)**, at `.github/ISSUE_TEMPLATE/product-image-process-wr.yml`, also linked from Stage 3 of the Amazon review WR.
 
 ```bash
 cd tools/review-image

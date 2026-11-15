@@ -160,6 +160,8 @@ body:
 
         Text-only is still allowed. If the photo is not ready, choose **Image still needed** and do not approve this stage until the final photo is ready or you decide to post without a photo.
 
+        To run the image process from a selectable work request (product URL or ASIN, crop / background / text-and-watermark removal / filter, review / social / cutout outputs, optional Notion upload), open a **[Product Image Process (WR)](https://github.com/midnghtsapphire/reese-reviews/issues/new?template=product-image-process-wr.yml)**. Leave this review WR open. Stage 3 here stays the record of the Original Product Photo and the Final Review Photo for this review.
+
   - type: textarea
     id: original_product_photo
     attributes:

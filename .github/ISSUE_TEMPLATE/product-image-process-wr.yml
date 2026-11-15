@@ -1,0 +1,81 @@
+# Selectable work request for the reusable product-image process.
+# Runner: CircleCI (GitHub Actions is billing-locked). See
+# tools/review-image/SETUP.md.
+name: Product Image Process (WR)
+description: Copy a product image, crop, remove background and text/watermarks, apply a filter, and save review / social / cutout versions. Optional Notion upload. Use this for more than just reviews.
+title: "WR: Product image process — "
+labels: ["image-process"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this work request for **one product image**. The same process works for reviews, social posts, cutouts, and anything else that needs a clean product photo.
+
+        **What it does:** copy the product image (from a URL, an ASIN, or an attached/linked photo) → crop → remove background → remove overlaid text, watermarks, and badges → apply a filter → write the output presets you select.
+
+        For a full Amazon review (draft, proof, compliance, and a gated post), use **[WR: Amazon review](https://github.com/midnghtsapphire/reese-reviews/issues/new?template=amazon-review-wr.yml)** instead, and open this form from its Stage 3 (Notion Image process) if you want the photo processed here.
+
+        The CircleCI queue (see [tools/review-image/SETUP.md](https://github.com/midnghtsapphire/reese-reviews/blob/main/tools/review-image/SETUP.md)) picks up open issues with the `image-process` label and leaves results on the `review-images` branch. Nothing is posted to Amazon.
+
+        Comments on this WR from the runner start with `Auky:` and end with `— Auky`.
+
+  - type: input
+    id: product_url_or_asin
+    attributes:
+      label: Product URL or ASIN
+      description: An Amazon product URL or a ten-character ASIN, or another public product page URL whose main image can be copied. Leave blank if you are attaching or linking a photo below instead.
+      placeholder: https://www.amazon.com/dp/B0XXXXXXXX  or  B0XXXXXXXX
+
+  - type: textarea
+    id: image_link
+    attributes:
+      label: Image (if no URL or ASIN)
+      description: Attach a photo to this issue, or paste a direct image link / path. Use this when you already have the photo (your own photo, a file, or a link).
+      placeholder: Attachment, direct image URL, or path.
+
+  - type: checkboxes
+    id: steps
+    attributes:
+      label: Steps
+      description: Leave all unchecked to run the full process. Uncheck a step only if you want it skipped.
+      options:
+        - label: Copy the product image
+        - label: Crop
+        - label: Remove background
+        - label: Remove text / watermarks / badges
+        - label: Apply filter
+
+  - type: dropdown
+    id: filter_preset
+    attributes:
+      label: Filter preset
+      description: Applied when "Apply filter" is checked (or when the full default process runs).
+      options:
+        - light
+        - none
+        - glass
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: output_presets
+    attributes:
+      label: Output presets
+      description: Choose one or more. Leave all unchecked to get the review version only (original size, white background).
+      options:
+        - label: Review (original-size white background)
+        - label: Square social (1:1)
+        - label: Transparent PNG cutout
+
+  - type: input
+    id: notion_page_url
+    attributes:
+      label: Notion page URL
+      description: Optional. If set, and NOTION_TOKEN is available in the CircleCI context, the finished review photo is added to this page under a heading. Existing page content is left in place. The review text on the page is not changed.
+      placeholder: https://www.notion.so/…
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Anything else the runner or a human should know (which colorway, which review page, how you will use the outputs).
