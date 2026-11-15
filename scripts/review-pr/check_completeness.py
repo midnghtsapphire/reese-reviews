@@ -44,6 +44,13 @@ def main(argv: list[str] | None = None) -> int:
         default=Path.cwd(),
         help="Repository root (default: current directory)",
     )
+    parser.add_argument(
+        "--report-only",
+        action="store_true",
+        help="Print missing fields but exit 0. Used on importer/feature branches so "
+        "known gaps (empty Notion fields) do not block the merge gate. Review PRs "
+        "on review/* branches still fail when fields are missing.",
+    )
     args = parser.parse_args(argv)
     paths = find_reviews(args.root)
     if not paths:
@@ -63,7 +70,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if failed:
         print(f"\n{failed} review(s) are missing required fields.")
-        return 1
+        return 0 if args.report_only else 1
     print(f"\nAll {len(paths)} review(s) have the required fields.")
     return 0
 

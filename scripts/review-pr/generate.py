@@ -85,9 +85,23 @@ def write_review(root: Path, item: dict, images_dir: Path | None) -> Path:
     return folder
 
 
+def review_branch_name(item: dict, folder: Path) -> str:
+    """Use the slug so two products that share an ASIN still get unique branches."""
+    slug = item.get("slug") or folder.name
+    return f"review/{slug}"
+
+
 def open_draft_pr(root: Path, folder: Path, item: dict) -> None:
+    """Open or update a draft PR from origin/main in a temporary worktree.
+
+    Does not switch the current checkout, force-push, or delete a branch.
+    ASINs are not unique, so the branch is review/<slug>.
+    """
+    import tempfile
+
     asin = (item.get("asin") or folder.name).strip()
-    branch = f"review/{asin or folder.name}"
+    slug = item.get("slug") or folder.name
+    branch = review_branch_name(item, folder)
     product = item.get("name") or folder.name
     rel = folder.relative_to(root)
     body = PR_BODY_TEMPLATE.format(
@@ -96,12 +110,52 @@ def open_draft_pr(root: Path, folder: Path, item: dict) -> None:
         url=item.get("amazonUrl") or item.get("url") or "",
         folder=rel,
     )
-    subprocess.run(["git", "checkout", "main"], cwd=root, check=True)
-    subprocess.run(["git", "checkout", "-B", branch], cwd=root, check=True)
-    subprocess.run(["git", "add", str(rel)], cwd=root, check=True)
-    message = f"**Auky:** add review draft for {product} — Auky"
-    subprocess.run(["git", "commit", "-m", message], cwd=root, check=False)
-    subprocess.run(["git", "push", "-u", "origin", branch], cwd=root, check=True)
+    subprocess.run(["git", "fetch", "origin", "main"], cwd=root, check=False)
+    # If the remote branch already exists, update it in place (no force).
+    remote = subprocess.run(
+        ["git", "ls-remote", "--heads", "origin", branch],
+        cwd=root,
+        capture_output=True,
+        text=True,
+    )
+    if remote.stdout.strip():
+        sha = remote.stdout.split()[0]
+        subprocess.run(["git", "fetch", "origin", sha], cwd=root, check=False)
+        start_point = sha
+    else:
+        start_point = "origin/main"
+    work = Path(tempfile.mkdtemp(prefix=f"review-pr-{slug}-"))
+    try:
+        subprocess.run(
+            ["git", "worktree", "add", "-B", branch, str(work), start_point],
+            cwd=root,
+            check=True,
+        )
+        dest = work / rel
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(folder, dest, dirs_exist_ok=True)
+        subprocess.run(["git", "add", str(rel)], cwd=work, check=True)
+        message = f"**Auky:** add review draft for {product} — Auky"
+        subprocess.run(["git", "commit", "-m", message], cwd=work, check=False)
+        subprocess.run(["git", "push", "-u", "origin", branch], cwd=work, check=True)
+    finally:
+        subprocess.run(["git", "worktree", "remove", "--force", str(work)], cwd=root, check=False)
+        shutil.rmtree(work, ignore_errors=True)
+
+    existing = subprocess.run(
+        ["gh", "pr", "list", "--head", branch, "--base", "main", "--json", "number,url"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+    )
+    prs = []
+    if existing.returncode == 0 and existing.stdout.strip():
+        import json as _json
+
+        prs = _json.loads(existing.stdout)
+    if prs:
+        print(f"Updated draft PR for {product}: {prs[0].get('url')}")
+        return
     subprocess.run(
         [
             "gh",
@@ -127,20 +181,74 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--inventory",
         type=Path,
-        default=SCRIPT_DIR / "fixtures" / "sample-inventory.json",
-        help="JSON snapshot of products (sanitized names, ASINs, review drafts)",
+        default=None,
+        help="JSON snapshot of products (defaults to product-queue.json, then notion-inventory.json)",
     )
     parser.add_argument("--root", type=Path, default=Path.cwd())
     parser.add_argument("--images-dir", type=Path, default=None, help="Optional folder of tools/review-image outputs")
     parser.add_argument("--open-pr", action="store_true", help="Open one draft PR per product (requires gh)")
-    parser.add_argument("--limit", type=int, default=0, help="Optional cap on how many products to generate")
+    parser.add_argument("--limit", type=int, default=0, help="Optional cap on how many products to generate (use 25 for the most recent)")
+    parser.add_argument(
+        "--needs-review-only",
+        action="store_true",
+        help="Only generate or open PRs for products flagged needsReview",
+    )
+    parser.add_argument(
+        "--skip-slug",
+        action="append",
+        default=[],
+        help="Skip this slug (repeatable). Use to leave the demo folder as-is.",
+    )
     args = parser.parse_args(argv)
 
-    products = load_inventory(args.inventory)
+    inventory = args.inventory
+    if inventory is None:
+        for candidate in (
+            SCRIPT_DIR / "fixtures" / "product-queue.json",
+            SCRIPT_DIR / "fixtures" / "notion-inventory.json",
+            SCRIPT_DIR / "fixtures" / "sample-inventory.json",
+        ):
+            if candidate.is_file():
+                inventory = candidate
+                break
+        else:
+            raise SystemExit("No inventory snapshot found under scripts/review-pr/fixtures/")
+    products = load_inventory(inventory)
+    if args.needs_review_only:
+        products = [
+            item
+            for item in products
+            if item.get("needsReview")
+            or not (
+                item.get("title")
+                and item.get("body")
+                and (item.get("hasFinalPhoto") or item.get("textOnly") or item.get("text_only"))
+                and item.get("rating")
+            )
+        ]
+    products = sorted(
+        products,
+        key=lambda item: item.get("orderDate") or item.get("name") or "",
+        reverse=True,
+    )
+    skipped_rest = []
     if args.limit:
+        skipped_rest = products[args.limit:]
         products = products[: args.limit]
+        if skipped_rest:
+            print(f"Limit {args.limit}: {len(skipped_rest)} older product(s) not opened in this run.")
+            for item in skipped_rest:
+                print(f"  - {item.get('slug') or item.get('name')}")
+    skip = {value.strip() for value in args.skip_slug if value and value.strip()}
     written = []
     for item in products:
+        from frontmatter import slugify as _slugify
+
+        slug = item.get("slug") or _slugify(item.get("name") or item.get("product") or "", item.get("asin") or "")
+        item["slug"] = slug
+        if slug in skip:
+            print(f"Skipped {slug}")
+            continue
         folder = write_review(args.root, item, args.images_dir)
         written.append((folder, item))
         print(f"Wrote {folder.relative_to(args.root)}")

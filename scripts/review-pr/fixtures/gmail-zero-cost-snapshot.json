@@ -1,0 +1,19 @@
+{
+  "note": "Sanitized Gmail snapshot from Amazon auto-confirm, shipped, and delivered emails in the last 90 days. Current Amazon templates include a $0.00 / 0 USD total and a category, but not the product name, ASIN, or product photo. No order numbers, addresses, or email bodies are stored here. The importer does not visit Amazon.",
+  "queriedAt": "2026-11-14T19:15:00-07:00",
+  "gmailNote": "auto-confirm emails matching a $0 / Grand Total query had a Gmail result size estimate of 501 (500 ids on the first page, 417 unique threads). Delivered emails from amazon.com in the last 90 days had an estimate of 452. A Vine-wording search of amazon.com itself returned no messages. Product image URLs (media-amazon.com/images/I) were not present in these templates.",
+  "messages": [
+    {
+      "subject": "Ordered 1 item: Outerwear",
+      "date": "2026-11-13",
+      "body": "Arriving Sunday 1 Outerwear item\nGrand Total:\n0.0 USD",
+      "htmlBody": "<p>Grand Total: $0.00</p>"
+    },
+    {
+      "subject": "Shipped 1 item: Mirrors",
+      "date": "2026-11-14",
+      "body": "Arriving Monday 1 item: Mirrors\nTotal\n0 USD",
+      "htmlBody": "<p>Total $0.00</p>"
+    }
+  ]
+}

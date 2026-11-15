@@ -1,20 +1,57 @@
-import type { ProductReview } from "./types";
+import type { ProductReview, ReviewImage } from "./types";
 import { parseReviewMarkdown } from "./parseReview";
-import sampleMarkdown from "../../reviews/2-pocket-toploader-binder/review.md?raw";
+
+const markdownModules = import.meta.glob("../../reviews/*/review.md", {
+  eager: true,
+  query: "?raw",
+  import: "default",
+}) as Record<string, string>;
+
+const imageModules = import.meta.glob("../../reviews/*/images/*", {
+  eager: true,
+  query: "?url",
+  import: "default",
+}) as Record<string, string>;
 
 const PLACEHOLDER = "/review-desk/demo-placeholder.svg";
+const PLACEHOLDER_NAMES = new Set([
+  "final-review.svg",
+  "demo-placeholder.svg",
+]);
 
-function fromMarkdown(
-  raw: string,
-  images: ProductReview["images"],
-  branch = "feat/review-desk-2026-11-14",
-): ProductReview {
+function imagesFor(slug: string): ReviewImage[] {
+  const images: ReviewImage[] = [];
+  for (const [path, url] of Object.entries(imageModules)) {
+    if (!path.includes(`/reviews/${slug}/images/`)) continue;
+    const fileName = path.split("/").at(-1) || "image";
+    if (fileName.toUpperCase().startsWith("REVVEL-DISABLED")) {
+      continue;
+    }
+    const isPlaceholder = PLACEHOLDER_NAMES.has(fileName.toLowerCase());
+    const isFinal = /final/i.test(fileName) || isPlaceholder;
+    images.push({
+      id: fileName.replace(/\.[^.]+$/, ""),
+      label: isPlaceholder
+        ? "Final Review Photo (demo placeholder — replace with your own)"
+        : isFinal
+          ? "Final Review Photo"
+          : fileName,
+      url: isPlaceholder ? PLACEHOLDER : url,
+      path: `reviews/${slug}/images/${fileName}`,
+      isFinal,
+    });
+  }
+  images.sort((a, b) => Number(Boolean(b.isFinal)) - Number(Boolean(a.isFinal)));
+  return images;
+}
+
+function fromMarkdown(raw: string, slugHint: string): ProductReview {
   const parsed = parseReviewMarkdown(raw);
-  const slug = parsed.slug || "sample";
+  const slug = parsed.slug || slugHint || "review";
   return {
     id: slug,
     slug,
-    branch,
+    branch: `review/${slug}`,
     prNumber: null,
     prUrl: null,
     notionUrl: parsed.notionUrl || null,
@@ -26,24 +63,26 @@ function fromMarkdown(
     rating: parsed.rating,
     title: parsed.title,
     body: parsed.body,
-    images,
+    images: imagesFor(slug),
     textOnly: parsed.textOnly,
     markdownPath: `reviews/${slug}/review.md`,
     markdown: raw,
   };
 }
 
-/** Offline demo data used when no review PRs are available. */
+/** Local reviews/<slug> folders, skipping archived demo copies. */
+export function getLocalReviews(): ProductReview[] {
+  const reviews: ProductReview[] = [];
+  for (const [path, raw] of Object.entries(markdownModules)) {
+    if (path.includes("/reviews/_")) continue;
+    const slugHint = path.split("/").at(-2) || "review";
+    reviews.push(fromMarkdown(raw, slugHint));
+  }
+  reviews.sort((a, b) => a.name.localeCompare(b.name));
+  return reviews;
+}
+
+/** Offline data used when no review PRs are available. */
 export function getSampleReviews(): ProductReview[] {
-  return [
-    fromMarkdown(sampleMarkdown, [
-      {
-        id: "final-review",
-        label: "Final Review Photo (demo placeholder — replace with your own)",
-        url: PLACEHOLDER,
-        path: "reviews/2-pocket-toploader-binder/images/final-review.svg",
-        isFinal: true,
-      },
-    ]),
-  ];
+  return getLocalReviews();
 }
