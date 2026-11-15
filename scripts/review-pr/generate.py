@@ -118,7 +118,12 @@ def open_draft_pr(root: Path, folder: Path, item: dict) -> None:
         capture_output=True,
         text=True,
     )
-    start_point = f"origin/{branch}" if remote.stdout.strip() else "origin/main"
+    if remote.stdout.strip():
+        sha = remote.stdout.split()[0]
+        subprocess.run(["git", "fetch", "origin", sha], cwd=root, check=False)
+        start_point = sha
+    else:
+        start_point = "origin/main"
     work = Path(tempfile.mkdtemp(prefix=f"review-pr-{slug}-"))
     try:
         subprocess.run(
