@@ -187,6 +187,8 @@ def sanitize_product(item: dict[str, Any]) -> dict[str, Any]:
         "sourceCategory",
         "imageUrl",
         "sources",
+        "reviewRequested",
+        "priority",
     )
     clean = {key: item.get(key) for key in allowed}
     clean["amazonUrl"] = re.sub(r"[?&]tag=[^&]+", "", clean.get("amazonUrl") or "")
@@ -245,6 +247,8 @@ def fill_blanks(existing: dict[str, Any], incoming: dict[str, Any]) -> None:
         "imageUrl",
         "sourceCategory",
         "zeroCost",
+        "reviewRequested",
+        "priority",
     )
     for key in fillable:
         if not existing.get(key) and incoming.get(key):
@@ -495,6 +499,12 @@ def write_review_folder(
     item["missingFields"] = missing_fields(item, has_photo=item["hasFinalPhoto"])
     item["needsReview"] = needs_review(item)
 
+    priority = ""
+    if item.get("priority"):
+        priority = str(item.get("priority") or "")
+    elif item.get("reviewRequested"):
+        priority = "reviews-to-do"
+    item["priority"] = priority
     doc = ReviewDoc(
         path=review_path,
         product=item["name"],
@@ -507,6 +517,8 @@ def write_review_folder(
         text_only=bool(item.get("textOnly")),
         category=item.get("category") or "products",
         notion_url=item.get("notionUrl") or "",
+        order_date=str(item.get("orderDate") or item.get("order_date") or ""),
+        priority=priority,
         body=item.get("body") or "",
     )
     review_path.write_text(serialize_review(doc), encoding="utf-8")

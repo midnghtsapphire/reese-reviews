@@ -9,6 +9,8 @@ export type ParsedFrontMatter = {
   textOnly: boolean;
   category: string;
   notionUrl: string;
+  orderDate: string;
+  priority: string;
   extra: Record<string, string>;
 };
 
@@ -53,6 +55,8 @@ export function parseReviewMarkdown(raw: string): ParsedReview {
       textOnly: false,
       category: "",
       notionUrl: "",
+      orderDate: "",
+      priority: "",
       extra: {},
       body: text.trim(),
       raw: text,
@@ -96,6 +100,8 @@ export function parseReviewMarkdown(raw: string): ParsedReview {
     textOnly,
     category: String(data.category ?? ""),
     notionUrl: String(data.notion_url ?? data.notionUrl ?? ""),
+    orderDate: String(data.order_date ?? data.orderDate ?? ""),
+    priority: String(data.priority ?? ""),
     extra,
     body: match[2].replace(/^\r?\n/, "").trimEnd(),
     raw: text,
@@ -113,6 +119,8 @@ export function serializeReviewMarkdown(parsed: {
   textOnly: boolean;
   category?: string;
   notionUrl?: string;
+  orderDate?: string;
+  priority?: string;
   body: string;
 }): string {
   const lines = [
@@ -128,6 +136,8 @@ export function serializeReviewMarkdown(parsed: {
   ];
   if (parsed.category) lines.push(`category: ${JSON.stringify(parsed.category)}`);
   if (parsed.notionUrl) lines.push(`notion_url: ${JSON.stringify(parsed.notionUrl)}`);
+  if (parsed.orderDate) lines.push(`order_date: ${JSON.stringify(parsed.orderDate)}`);
+  if (parsed.priority) lines.push(`priority: ${JSON.stringify(parsed.priority)}`);
   lines.push("---", "", parsed.body.trim(), "");
   return lines.join("\n");
 }

@@ -27,7 +27,9 @@
       "imageUrl": null,
       "sources": [
         "notion"
-      ]
+      ],
+      "reviewRequested": null,
+      "priority": null
     },
     {
       "id": "4002aa31990881cebcc6c4c1b8321e87",
@@ -53,7 +55,9 @@
       "imageUrl": null,
       "sources": [
         "notion"
-      ]
+      ],
+      "reviewRequested": null,
+      "priority": null
     },
     {
       "id": "4002aa319908810f9ce4df3f07ac55df",
@@ -71,15 +75,691 @@
       "status": "draft",
       "source": "notion",
       "needsReview": true,
-      "missingFields": [],
-      "hasFinalPhoto": true,
+      "missingFields": [
+        "photo"
+      ],
+      "hasFinalPhoto": false,
       "orderDate": null,
       "zeroCost": null,
       "sourceCategory": null,
       "imageUrl": null,
       "sources": [
         "notion"
-      ]
+      ],
+      "reviewRequested": null,
+      "priority": null
+    },
+    {
+      "id": "",
+      "name": "2 Sets 3D Faux Fur Squirrel Christmas Ornament, Forest Animal Tree Ornament",
+      "slug": "2-sets-3d-faux-fur-squirrel-christmas-ornament-forest-animal-tree-ornament",
+      "asin": "B0HFR6YLRP",
+      "amazonUrl": "https://www.amazon.com/dp/B0HFR6YLRP",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-22",
+      "zeroCost": true,
+      "sourceCategory": "Home Décor Products",
+      "imageUrl": "https://m.media-amazon.com/images/I/81RcFBbiZPL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "2026 Farmhouse Animal Tree Christmas Ornament (3.85\" - 2D Flat Acrylic), Gifts for Farmers, Women, Girls, Friends, Animal Lovers, Farm Family Xmas Tree Hanging Decorations",
+      "slug": "2026-farmhouse-animal-tree-christmas-ornament-3-85-2d-flat-acrylic-gifts-for-far",
+      "asin": "B0HNJ9WKTH",
+      "amazonUrl": "https://www.amazon.com/dp/B0HNJ9WKTH",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-11-05",
+      "zeroCost": true,
+      "sourceCategory": "Home Décor Products",
+      "imageUrl": "https://m.media-amazon.com/images/I/81U6wrtwFwL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "23-Piece Nonstick Bakeware Sets for Home Baking (Gold)",
+      "slug": "23-piece-nonstick-bakeware-sets-for-home-baking-gold",
+      "asin": "B0H7QQ9T4V",
+      "amazonUrl": "https://www.amazon.com/dp/B0H7QQ9T4V",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-09",
+      "zeroCost": true,
+      "sourceCategory": "Bakeware",
+      "imageUrl": "https://m.media-amazon.com/images/I/716tCPNNHYL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "28\" Champagne Gold Bow Round Wall Mirror, Ribbon &amp;",
+      "slug": "28-champagne-gold-bow-round-wall-mirror-ribbon-amp",
+      "asin": "B0GH785663",
+      "amazonUrl": "https://www.amazon.com/dp/B0GH785663",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-30",
+      "zeroCost": true,
+      "sourceCategory": "Mirrors",
+      "imageUrl": "https://m.media-amazon.com/images/I/51n-Mhq8TVL._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "6.5FT Christmas Garland with Lights & Timer, 30 Led Prelit Lighted Cedar Garlands Decorations for Mantle - 8 Lights Modes Garland for Front Door Staircase Window Table Fireplace Kitchen Doorway Decor",
+      "slug": "6-5ft-christmas-garland-with-lights-timer-30-led-prelit-lighted-cedar-garlands-d",
+      "asin": "B0HDZ41FFX",
+      "amazonUrl": "https://www.amazon.com/dp/B0HDZ41FFX",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-09",
+      "zeroCost": true,
+      "sourceCategory": "Seasonal Décor",
+      "imageUrl": "https://m.media-amazon.com/images/I/71b+TknNYsL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "80PCS Magnetic Ceiling Hooks Ceiling Clips and Grabber Reacher Tool Set | 30PCS Magnetic Hooks Heavy Duty 30lbs+ 50PCS Ceiling Clips with Grabber Tool for Hanging Classroom Cruise Home Wedding Decor",
+      "slug": "80pcs-magnetic-ceiling-hooks-ceiling-clips-and-grabber-reacher-tool-set-30pcs-ma",
+      "asin": "B0HGF76BHQ",
+      "amazonUrl": "https://www.amazon.com/dp/B0HGF76BHQ",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-19",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/71ThnpwxaNL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "96\" L-Shaped Boneless Couch, Sectional Sofa with 2 Removable Back Supports",
+      "slug": "96-l-shaped-boneless-couch-sectional-sofa-with-2-removable-back-supports",
+      "asin": "B0H4QWB5Y4",
+      "amazonUrl": "https://www.amazon.com/dp/B0H4QWB5Y4",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-20",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/81ebUdpPc4L._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Aauro Home Wall Display Case with Glass Doors, Sports Card Display Case",
+      "slug": "aauro-home-wall-display-case-with-glass-doors-sports-card-display-case",
+      "asin": "B0HDS5D3XG",
+      "amazonUrl": "https://www.amazon.com/dp/B0HDS5D3XG",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-01",
+      "zeroCost": true,
+      "sourceCategory": "Furniture",
+      "imageUrl": "https://m.media-amazon.com/images/I/81AG9AOcMbL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Aloha PVC Tub & Shower Wall Panel Surround, Marble, 1-Pack (96 Sq Ft)",
+      "slug": "aloha-pvc-tub-shower-wall-panel-surround-marble-1-pack-96-sq-ft",
+      "asin": "B0H6J3JDFR",
+      "amazonUrl": "https://www.amazon.com/dp/B0H6J3JDFR",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-25",
+      "zeroCost": true,
+      "sourceCategory": "Home Improvement",
+      "imageUrl": "https://m.media-amazon.com/images/I/71dv9aEX03L._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Amsleekey 8 Pack Peel and Stick Acoustic Wall Panels, 23.6″x23.6″ | Full-back self adhesive wall panels, strong grip, customizable wood-grain patterns for living rooms, bedrooms, and TV walls",
+      "slug": "amsleekey-8-pack-peel-and-stick-acoustic-wall-panels-23-6-x23-6-full-back-self-a",
+      "asin": "B0HGFW3X7Q",
+      "amazonUrl": "https://www.amazon.com/dp/B0HGFW3X7Q",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-31",
+      "zeroCost": true,
+      "sourceCategory": "Mounting Hardware",
+      "imageUrl": "https://m.media-amazon.com/images/I/81RvG9rCzaL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Anandming 1-Pack 4000mAh Rechargeable Grow Lights for Indoor Plants",
+      "slug": "anandming-1-pack-4000mah-rechargeable-grow-lights-for-indoor-plants",
+      "asin": "B0HDB915T4",
+      "amazonUrl": "https://www.amazon.com/dp/B0HDB915T4",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-23",
+      "zeroCost": true,
+      "sourceCategory": "Indoor Gardening",
+      "imageUrl": "https://m.media-amazon.com/images/I/712wqPrdibL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Astivac 17 Inch Lighted Christmas Car Wreath, Christmas",
+      "slug": "astivac-17-inch-lighted-christmas-car-wreath-christmas",
+      "asin": "B0H9S4TL5Z",
+      "amazonUrl": "https://www.amazon.com/dp/B0H9S4TL5Z",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-13",
+      "zeroCost": true,
+      "sourceCategory": "Seasonal Décor",
+      "imageUrl": "https://m.media-amazon.com/images/I/51qYik+Q-WL._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "Atlantic Naturals Sea Moss Electrolytes Powder Packets with Creatine - Sugar Free Hydration Packets, 3000mg Creatine Monohydrate, 800mg Irish Sea Moss, Coconut Water - Guava Lychee Coconut, 12 Sticks",
+      "slug": "atlantic-naturals-sea-moss-electrolytes-powder-packets-with-creatine-sugar-free",
+      "asin": "B0H6R49LWB",
+      "amazonUrl": "https://www.amazon.com/dp/B0H6R49LWB",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-31",
+      "zeroCost": true,
+      "sourceCategory": "Nutrition & Wellness",
+      "imageUrl": "https://m.media-amazon.com/images/I/81GlvPd-KnL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "AUZONIMICS Bedside Shelf for Dorm Room, White Bunk Table 50LBS Capacity",
+      "slug": "auzonimics-bedside-shelf-for-dorm-room-white-bunk-table-50lbs-capacity",
+      "asin": "B0FPGLXCBD",
+      "amazonUrl": "https://www.amazon.com/dp/B0FPGLXCBD",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-10",
+      "zeroCost": true,
+      "sourceCategory": "Furniture",
+      "imageUrl": "https://m.media-amazon.com/images/I/71mWGPB0NTL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "BAOBICUTE Dog Pajamas Shark Print Recovery Wear for Medium Large Dogs | Soft Stretch Fabric, Lightweight Breathable Feel, Full Body Coverage, Easy Potty Breaks, Skin Friendly Design",
+      "slug": "baobicute-dog-pajamas-shark-print-recovery-wear-for-medium-large-dogs-soft-stret",
+      "asin": "B0H8Q2T3H6",
+      "amazonUrl": "https://www.amazon.com/dp/B0H8Q2T3H6",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-17",
+      "zeroCost": true,
+      "sourceCategory": "Pet Supplies",
+      "imageUrl": "https://m.media-amazon.com/images/I/81O8izFqdPL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "BARROCK Bidet Sprayer for Toilet, Handheld Jet Spray for",
+      "slug": "barrock-bidet-sprayer-for-toilet-handheld-jet-spray-for",
+      "asin": "B0DYMXYRL2",
+      "amazonUrl": "https://www.amazon.com/dp/B0DYMXYRL2",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-09",
+      "zeroCost": true,
+      "sourceCategory": "Bathroom Fixtures",
+      "imageUrl": "https://m.media-amazon.com/images/I/41TRShksWiL._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "Battery Operated Crystal Chandelier, Remote Control Hanging Gazebo Light | Acrylic Crystal Beaded, 5-Level Dimming, Timer, IP44 Weatherproof, No Wiring, Warm Light, Patio, Porch Pergola Indoor Decor",
+      "slug": "battery-operated-crystal-chandelier-remote-control-hanging-gazebo-light-acrylic",
+      "asin": "B0HLG2MYKH",
+      "amazonUrl": "https://www.amazon.com/dp/B0HLG2MYKH",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-11-02",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/81whkF3OPOL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Bedorm Faux Fur Pillowcases Set of 2 King Size Plush",
+      "slug": "bedorm-faux-fur-pillowcases-set-of-2-king-size-plush",
+      "asin": "B0H837YSPQ",
+      "amazonUrl": "https://www.amazon.com/dp/B0H837YSPQ",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-22",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/41qVi8CPbML._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "Bellivera Women's Winter Long Quilted Puffer Coat With",
+      "slug": "bellivera-women-s-winter-long-quilted-puffer-coat-with",
+      "asin": "B0H6LMFW94",
+      "amazonUrl": "https://www.amazon.com/dp/B0H6LMFW94",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-30",
+      "zeroCost": true,
+      "sourceCategory": "Outerwear",
+      "imageUrl": "https://m.media-amazon.com/images/I/31xhnJCiwxL._SR375,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "Bellivera Women's Winter Long Thicken Fleece Lined Puffer Jacket Blue L | Quilted Warm Midi Coat Fashion Padded Outerwear with Detachable Faux Fur Collar and Cuffs, Pockets, Zip Front, Belt",
+      "slug": "bellivera-women-s-winter-long-thicken-fleece-lined-puffer-jacket-blue-l-quilted",
+      "asin": "B0GWCC8CDS",
+      "amazonUrl": "https://www.amazon.com/dp/B0GWCC8CDS",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-27",
+      "zeroCost": true,
+      "sourceCategory": "Outerwear",
+      "imageUrl": "https://m.media-amazon.com/images/I/61FjARsBqYL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "BISDARUN Hammered Silverware Set, 20 Piece Flatware Utensils, Premium Stainless Steel Kitchen Dinner Cutlery Sets of 4, Mirror Polish, Dishwasher Safe (Gradient Rose Gold)",
+      "slug": "bisdarun-hammered-silverware-set-20-piece-flatware-utensils-premium-stainless-st",
+      "asin": "B0B14M1112",
+      "amazonUrl": "https://www.amazon.com/dp/B0B14M1112",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-22",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/5146fqlaKaS._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
     },
     {
       "id": "4002aa3199088179ac6afa1117835b03",
@@ -99,13 +779,112 @@
       "needsReview": true,
       "missingFields": [],
       "hasFinalPhoto": true,
-      "orderDate": null,
-      "zeroCost": null,
+      "orderDate": "2026-10-17",
+      "zeroCost": true,
       "sourceCategory": null,
-      "imageUrl": null,
+      "imageUrl": "https://m.media-amazon.com/images/I/71S85fDdGOL._SS90_.jpg",
       "sources": [
-        "notion"
-      ]
+        "notion",
+        "gmail"
+      ],
+      "reviewRequested": null,
+      "priority": null
+    },
+    {
+      "id": "",
+      "name": "Bloomhouse Cheese Knife Set - 2-Piece German Steel Cheese Knives Set with Olive Wood Handles – 2 Time Oprah's Favorite Things Brand- Cheese Knives for Charcuterie, Grazing Boards & Entertaining",
+      "slug": "bloomhouse-cheese-knife-set-2-piece-german-steel-cheese-knives-set-with-olive-wo",
+      "asin": "B0GCP52YMD",
+      "amazonUrl": "https://www.amazon.com/dp/B0GCP52YMD",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-28",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/611EANmU0XL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "CCF Women's Western Slippers Square Toe Fuzzy Cowgirl Boot Slippers",
+      "slug": "ccf-women-s-western-slippers-square-toe-fuzzy-cowgirl-boot-slippers",
+      "asin": "B0H1Q1Y5K5",
+      "amazonUrl": "https://www.amazon.com/dp/B0H1Q1Y5K5",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-28",
+      "zeroCost": true,
+      "sourceCategory": "Shoes",
+      "imageUrl": "https://m.media-amazon.com/images/I/71LfDA4QAIL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "CHEE LYEE Peel and Stick 3D Brick Wall Tiles Self Adhesive Backsplash ，6",
+      "slug": "chee-lyee-peel-and-stick-3d-brick-wall-tiles-self-adhesive-backsplash-6",
+      "asin": "B0H7WSV8ZZ",
+      "amazonUrl": "https://www.amazon.com/dp/B0H7WSV8ZZ",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-05",
+      "zeroCost": true,
+      "sourceCategory": "Building Materials",
+      "imageUrl": "https://m.media-amazon.com/images/I/81-TMTCi90L._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
     },
     {
       "id": "4002aa319908813783f1fac5f14f06f1",
@@ -131,7 +910,490 @@
       "imageUrl": null,
       "sources": [
         "notion"
-      ]
+      ],
+      "reviewRequested": null,
+      "priority": null
+    },
+    {
+      "id": "",
+      "name": "Christmas Kitchen Bathroom Decorations, 2 Pack Holiday",
+      "slug": "christmas-kitchen-bathroom-decorations-2-pack-holiday",
+      "asin": "B0HFJ7Q2N2",
+      "amazonUrl": "https://www.amazon.com/dp/B0HFJ7Q2N2",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-09",
+      "zeroCost": true,
+      "sourceCategory": "Kitchen Décor",
+      "imageUrl": "https://m.media-amazon.com/images/I/51bPUIT2WfL._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "Dinosaur Electric Train Set for Kids, 179PCS 3D Volcano Race Track STEM Toy | 3D Dinosaur Race Track Toy with 2 Electric Cars, Light-Up Smoking Volcano, STEM Building Fun and Birthday Gift for Kids 3+",
+      "slug": "dinosaur-electric-train-set-for-kids-179pcs-3d-volcano-race-track-stem-toy-3d-di",
+      "asin": "B0HGB174L6",
+      "amazonUrl": "https://www.amazon.com/dp/B0HGB174L6",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-29",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/9108pJsryNL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Dog Puzzle Toys",
+      "slug": "dog-puzzle-toys",
+      "asin": "",
+      "amazonUrl": "",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body",
+        "photo"
+      ],
+      "hasFinalPhoto": false,
+      "orderDate": "2026-11-11",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Dreamfarm Set of Ortwo Lite 1-or-2 Handed Salt & Pepper Grinders with Caddy",
+      "slug": "dreamfarm-set-of-ortwo-lite-1-or-2-handed-salt-pepper-grinders-with-caddy",
+      "asin": "B09H6J9FTF",
+      "amazonUrl": "https://www.amazon.com/dp/B09H6J9FTF",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-25",
+      "zeroCost": true,
+      "sourceCategory": "Kitchen & Dining",
+      "imageUrl": "https://m.media-amazon.com/images/I/61a-RG3TXvL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Eiaayer Women's Faux Fur Shawl Wrap Stoles, Faux Fur Collar Scarf Shawls",
+      "slug": "eiaayer-women-s-faux-fur-shawl-wrap-stoles-faux-fur-collar-scarf-shawls",
+      "asin": "B0HGLDSFB1",
+      "amazonUrl": "https://www.amazon.com/dp/B0HGLDSFB1",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-20",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/71LflHA4wnL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "eZAKKA Grand Opening Ribbon Cutting Ceremony Kit, Ribbon",
+      "slug": "ezakka-grand-opening-ribbon-cutting-ceremony-kit-ribbon",
+      "asin": "B0H9RPDML6",
+      "amazonUrl": "https://www.amazon.com/dp/B0H9RPDML6",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-19",
+      "zeroCost": true,
+      "sourceCategory": "Hand Tools",
+      "imageUrl": "https://m.media-amazon.com/images/I/41yQvLx6WXL._SR400,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "FeeMeFee 4% 11D Hyaluronic Acid PDRN Serum for Face, 1.3mL x 30 Vials",
+      "slug": "feemefee-4-11d-hyaluronic-acid-pdrn-serum-for-face-1-3ml-x-30-vials",
+      "asin": "B0HDSP691G",
+      "amazonUrl": "https://www.amazon.com/dp/B0HDSP691G",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-26",
+      "zeroCost": true,
+      "sourceCategory": "Skincare",
+      "imageUrl": "https://m.media-amazon.com/images/I/71ZlBeatRPL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "FITORY Knee High Boots Women Wide Calf Long Pull on Shark Slouchy Fold Over",
+      "slug": "fitory-knee-high-boots-women-wide-calf-long-pull-on-shark-slouchy-fold-over",
+      "asin": "B0H5TVSYVK",
+      "amazonUrl": "https://www.amazon.com/dp/B0H5TVSYVK",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-22",
+      "zeroCost": true,
+      "sourceCategory": "Shoes",
+      "imageUrl": "https://m.media-amazon.com/images/I/718LXMdItfL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Flybridal Whimsical Floral Off the Shoulder Garden Wedding Dress Nude US16 | Fairy A-line Long Sleeve Bride Dresses,Romantic Vintage Strapless Tulle Floor Length Prom Gown,Bulit in Bra,Back Lace-up",
+      "slug": "flybridal-whimsical-floral-off-the-shoulder-garden-wedding-dress-nude-us16-fairy",
+      "asin": "B0HHDKVGQB",
+      "amazonUrl": "https://www.amazon.com/dp/B0HHDKVGQB",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-24",
+      "zeroCost": true,
+      "sourceCategory": "Clothing",
+      "imageUrl": "https://m.media-amazon.com/images/I/61ifnEx5iIL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Foldable Dog Ramp for Bed, 5-Height Adjustable Steel Frame Dog Stairs | Raised Non-Slip Ridges Design, 17\" Extra Wide for Medium Pet, Up to130 lbs, Foldable with Handle, No Assembly, 12-20'' High",
+      "slug": "foldable-dog-ramp-for-bed-5-height-adjustable-steel-frame-dog-stairs-raised-non",
+      "asin": "B0HFWX6GDX",
+      "amazonUrl": "https://www.amazon.com/dp/B0HFWX6GDX",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-11-02",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/71eHZfJkBzL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Garvee 12lb Weight Vest with Reflective Stripe for Workout",
+      "slug": "garvee-12lb-weight-vest-with-reflective-stripe-for-workout",
+      "asin": "B0H33J2YLM",
+      "amazonUrl": "https://www.amazon.com/dp/B0H33J2YLM",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-18",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/711jCFFPJjL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Garvee 12V Cordless Recipro Saw with Clamping Jaw, One-Handed Mini Reciprocating Saw for Tree Pruning & Yard Work, Portable Power Garden Saw with 2x 2.0Ah Batteries, Type-c Charging, 4 Blades & Case",
+      "slug": "garvee-12v-cordless-recipro-saw-with-clamping-jaw-one-handed-mini-reciprocating",
+      "asin": "B0H98ZP46G",
+      "amazonUrl": "https://www.amazon.com/dp/B0H98ZP46G",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-21",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/61YsVK2si1L._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Garvee 2.1 Gal (8L) Stainless Steel Hanging Compost Bin",
+      "slug": "garvee-2-1-gal-8l-stainless-steel-hanging-compost-bin",
+      "asin": "B0HBJW7LSM",
+      "amazonUrl": "https://www.amazon.com/dp/B0HBJW7LSM",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-17",
+      "zeroCost": true,
+      "sourceCategory": "Home",
+      "imageUrl": "https://m.media-amazon.com/images/I/712rxlXUAHL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Garvee 46\" x 36\" Universal Roof Rack Basket 200 LBS Capacity Heavy Duty",
+      "slug": "garvee-46-x-36-universal-roof-rack-basket-200-lbs-capacity-heavy-duty",
+      "asin": "B0HFH8M4DG",
+      "amazonUrl": "https://www.amazon.com/dp/B0HFH8M4DG",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-22",
+      "zeroCost": true,
+      "sourceCategory": "Automotive",
+      "imageUrl": "https://m.media-amazon.com/images/I/51wKgfP-CzL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Garvee 68Oz-Commercial Blender, 26000 RPM, Dual Knob Control w/Timer",
+      "slug": "garvee-68oz-commercial-blender-26000-rpm-dual-knob-control-w-timer",
+      "asin": "B0HDBM31K3",
+      "amazonUrl": "https://www.amazon.com/dp/B0HDBM31K3",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-17",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/714ejlQOMBL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
     },
     {
       "id": "3ff2aa319908816d8c79f4702412c1e3",
@@ -159,7 +1421,105 @@
       "imageUrl": null,
       "sources": [
         "notion"
-      ]
+      ],
+      "reviewRequested": null,
+      "priority": null
+    },
+    {
+      "id": "",
+      "name": "Garvee Washable Rugs 4x6 Nursery Rug Scalloped Living Room Rug, Jute",
+      "slug": "garvee-washable-rugs-4x6-nursery-rug-scalloped-living-room-rug-jute",
+      "asin": "B0HFRRWWXQ",
+      "amazonUrl": "https://www.amazon.com/dp/B0HFRRWWXQ",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-27",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/91DxxtkqTvL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "GarveeHome Steel Multi-Function PC Tower Stand - Adjustable Height",
+      "slug": "garveehome-steel-multi-function-pc-tower-stand-adjustable-height",
+      "asin": "B0HD7R5WQV",
+      "amazonUrl": "https://www.amazon.com/dp/B0HD7R5WQV",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-25",
+      "zeroCost": true,
+      "sourceCategory": "Furniture",
+      "imageUrl": "https://m.media-amazon.com/images/I/71rEWwC6XeL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "HammerHead Metal Handheld Shower Head Filter Removes",
+      "slug": "hammerhead-metal-handheld-shower-head-filter-removes",
+      "asin": "B0FXZHFTFV",
+      "amazonUrl": "https://www.amazon.com/dp/B0FXZHFTFV",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-02",
+      "zeroCost": true,
+      "sourceCategory": "Home Improvement",
+      "imageUrl": "https://m.media-amazon.com/images/I/41gHEev-e1L._SR450,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
     },
     {
       "id": "4002aa319908819db146c19df9d259c2",
@@ -185,7 +1545,169 @@
       "imageUrl": null,
       "sources": [
         "notion"
-      ]
+      ],
+      "reviewRequested": null,
+      "priority": null
+    },
+    {
+      "id": "",
+      "name": "Herside White Ruffle Comforter Set King Size,Ruched Boho",
+      "slug": "herside-white-ruffle-comforter-set-king-size-ruched-boho",
+      "asin": "B0H94JQDBT",
+      "amazonUrl": "https://www.amazon.com/dp/B0H94JQDBT",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-15",
+      "zeroCost": true,
+      "sourceCategory": "Bedding",
+      "imageUrl": "https://m.media-amazon.com/images/I/41+snPkTB5L._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "Hex Mini PVC Tub &amp; Shower Wall Panel Surround, Gloss",
+      "slug": "hex-mini-pvc-tub-amp-shower-wall-panel-surround-gloss",
+      "asin": "B0H6J5HS19",
+      "amazonUrl": "https://www.amazon.com/dp/B0H6J5HS19",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-25",
+      "zeroCost": true,
+      "sourceCategory": "Home Improvement",
+      "imageUrl": "https://m.media-amazon.com/images/I/41FZcGuHWmL._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "HomGoo Replacement for Delta Modern 14 Series Rain Shower System Faucet Set | Black Rainfall Shower Head and Handle Set (Valve/Cartridge Not Included)",
+      "slug": "homgoo-replacement-for-delta-modern-14-series-rain-shower-system-faucet-set-blac",
+      "asin": "B0HDSWDB1N",
+      "amazonUrl": "https://www.amazon.com/dp/B0HDSWDB1N",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-23",
+      "zeroCost": true,
+      "sourceCategory": "Bathroom Fixtures",
+      "imageUrl": "https://m.media-amazon.com/images/I/61pEP53xGeL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Hopgo 500 Piece Puzzle for Adults, Halloween Haunted",
+      "slug": "hopgo-500-piece-puzzle-for-adults-halloween-haunted",
+      "asin": "B0HCT63MYX",
+      "amazonUrl": "https://www.amazon.com/dp/B0HCT63MYX",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-30",
+      "zeroCost": true,
+      "sourceCategory": "Puzzles",
+      "imageUrl": "https://m.media-amazon.com/images/I/51KEYFPeN2L._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "HULPPRE Solar Motion Sensor Light Outdoor,Bright with 231",
+      "slug": "hulppre-solar-motion-sensor-light-outdoor-bright-with-231",
+      "asin": "B0HJ1PF89C",
+      "amazonUrl": "https://www.amazon.com/dp/B0HJ1PF89C",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-24",
+      "zeroCost": true,
+      "sourceCategory": "Outdoor Lighting",
+      "imageUrl": "https://m.media-amazon.com/images/I/41ww4589VjL._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
     },
     {
       "id": "4002aa31990881a49561c22d24635bec",
@@ -211,7 +1733,457 @@
       "imageUrl": null,
       "sources": [
         "notion"
-      ]
+      ],
+      "reviewRequested": null,
+      "priority": null
+    },
+    {
+      "id": "",
+      "name": "Instant Hot & Cold Therapy Machine, 3 Heat & 3 Cold Models for Pain Relief and Muscle Recovery with Adjustable Straps, Cryotherapy Machine with Cold Compress & Heating Pad",
+      "slug": "instant-hot-cold-therapy-machine-3-heat-3-cold-models-for-pain-relief-and-muscle",
+      "asin": "B0H3LBJB7V",
+      "amazonUrl": "https://www.amazon.com/dp/B0H3LBJB7V",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-22",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/71NJGXO6vpL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "JEXALYNO Northern Light Star Galaxy Aurora Projector Remote Control(Beige)",
+      "slug": "jexalyno-northern-light-star-galaxy-aurora-projector-remote-control-beige",
+      "asin": "B0H81YZJ8L",
+      "amazonUrl": "https://www.amazon.com/dp/B0H81YZJ8L",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-20",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/81GyOw-GZTL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "JOLLYDAY Fake Grass for Dogs, Grass Pee Pads for Dogs",
+      "slug": "jollyday-fake-grass-for-dogs-grass-pee-pads-for-dogs",
+      "asin": "B0H6MYQZS5",
+      "amazonUrl": "https://www.amazon.com/dp/B0H6MYQZS5",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-05",
+      "zeroCost": true,
+      "sourceCategory": "Home Décor",
+      "imageUrl": "https://m.media-amazon.com/images/I/71WYQ2FtRuL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "joyoldelf Christmas Stemmed Wine Glasses Set of 6, 11 oz",
+      "slug": "joyoldelf-christmas-stemmed-wine-glasses-set-of-6-11-oz",
+      "asin": "B0H94FHZP2",
+      "amazonUrl": "https://www.amazon.com/dp/B0H94FHZP2",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-15",
+      "zeroCost": true,
+      "sourceCategory": "Drinkware",
+      "imageUrl": "https://m.media-amazon.com/images/I/514CNOXKVTL._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "KIKILIVE 17-Color Changing Liquid Motion Lamp, 15.6\" LED Wax Motion Light with Remote, Relaxing Night Light for Bedroom, Living Room & Office, Home Decor Gift",
+      "slug": "kikilive-17-color-changing-liquid-motion-lamp-15-6-led-wax-motion-light-with-rem",
+      "asin": "B0HCZK8DPJ",
+      "amazonUrl": "https://www.amazon.com/dp/B0HCZK8DPJ",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-18",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/71rbYz9WS8L._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "KIKILIVE Liquid Motion Lamp, 17 Color Changing LED Night",
+      "slug": "kikilive-liquid-motion-lamp-17-color-changing-led-night",
+      "asin": "B0H6M858MM",
+      "amazonUrl": "https://www.amazon.com/dp/B0H6M858MM",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-18",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/51A6+I-R8vL._SR453,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "Kooshy Sourdough Mini Croutons | Garlic Bread | Salty Snack | 5 Oz, 4 Pack | Seed Oil Free Snacks Made With Avocado Oil | Baked Sourdough Croutons | Garlic & Herbs | Non-GMO Project Verified",
+      "slug": "kooshy-sourdough-mini-croutons-garlic-bread-salty-snack-5-oz-4-pack-seed-oil-fre",
+      "asin": "B0HLQWFC98",
+      "amazonUrl": "https://www.amazon.com/dp/B0HLQWFC98",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-25",
+      "zeroCost": true,
+      "sourceCategory": "Bakery",
+      "imageUrl": "https://m.media-amazon.com/images/I/81O-LSZintL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "Kuii Aloe Vera Drink - Original With Pulp - 12-Pack, 16.9 Fl Oz",
+      "slug": "kuii-aloe-vera-drink-original-with-pulp-12-pack-16-9-fl-oz",
+      "asin": "B0HKV2XJW5",
+      "amazonUrl": "https://www.amazon.com/dp/B0HKV2XJW5",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-04",
+      "zeroCost": true,
+      "sourceCategory": "Beverages",
+      "imageUrl": "https://m.media-amazon.com/images/I/71Eekb052-L._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Kuro &amp; Kai Freeze Dried Cat Treats, Dog Treats,",
+      "slug": "kuro-amp-kai-freeze-dried-cat-treats-dog-treats",
+      "asin": "B0HKDQMSKZ",
+      "amazonUrl": "https://www.amazon.com/dp/B0HKDQMSKZ",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-27",
+      "zeroCost": true,
+      "sourceCategory": "Pet Supplies",
+      "imageUrl": "https://m.media-amazon.com/images/I/51jGBYLICKL._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "LAFMATE LDM-K2 Portable Radon Detector, Home Radon Monitor with 0.09–1000 pCi/L Range, High-Precision Sensor, Short & Long-Term Monitoring, 45-Day Battery, pCi/L & Bq/m³, Alarms – Black",
+      "slug": "lafmate-ldm-k2-portable-radon-detector-home-radon-monitor-with-0-09-1000-pci-l-r",
+      "asin": "B0HJ4WTPR8",
+      "amazonUrl": "https://www.amazon.com/dp/B0HJ4WTPR8",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-24",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/61dcZDZkDIL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Lelepet Anti Slip Dog Socks to Prevent Licking Paws with",
+      "slug": "lelepet-anti-slip-dog-socks-to-prevent-licking-paws-with",
+      "asin": "B0HMQZXY28",
+      "amazonUrl": "https://www.amazon.com/dp/B0HMQZXY28",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-11-01",
+      "zeroCost": true,
+      "sourceCategory": "Pet Supplies",
+      "imageUrl": "https://m.media-amazon.com/images/I/51RSr7BqC4L._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "LelePet Dachshund Clothes Shirt with Hear Print, Small",
+      "slug": "lelepet-dachshund-clothes-shirt-with-hear-print-small",
+      "asin": "B0HC2JZMM6",
+      "amazonUrl": "https://www.amazon.com/dp/B0HC2JZMM6",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-25",
+      "zeroCost": true,
+      "sourceCategory": "Pet Supplies",
+      "imageUrl": "https://m.media-amazon.com/images/I/41AjNliT+-L._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "LIT-PaTH Outdoor Wall Light Fixture, Aluminum, LED 3CCT,",
+      "slug": "lit-path-outdoor-wall-light-fixture-aluminum-led-3cct",
+      "asin": "B0H2CPCV8J",
+      "amazonUrl": "https://www.amazon.com/dp/B0H2CPCV8J",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-08",
+      "zeroCost": true,
+      "sourceCategory": "Outdoor Lighting",
+      "imageUrl": "https://m.media-amazon.com/images/I/21BMk2CFVwL._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "Liya Gems 925 Sterling Silver Freshwater Pearl Bracelet",
+      "slug": "liya-gems-925-sterling-silver-freshwater-pearl-bracelet",
+      "asin": "B0HFPLYS8W",
+      "amazonUrl": "https://www.amazon.com/dp/B0HFPLYS8W",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-13",
+      "zeroCost": true,
+      "sourceCategory": "Jewelry",
+      "imageUrl": "https://m.media-amazon.com/images/I/31ob9fradJL._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
     },
     {
       "id": "4002aa31990881678345fe0c1c4ae791",
@@ -237,7 +2209,1001 @@
       "imageUrl": null,
       "sources": [
         "notion"
-      ]
+      ],
+      "reviewRequested": null,
+      "priority": null
+    },
+    {
+      "id": "",
+      "name": "LUMI Ultra Soft Bathroom Rugs Absorbent, Non Slip Bath Mat 24x36",
+      "slug": "lumi-ultra-soft-bathroom-rugs-absorbent-non-slip-bath-mat-24x36",
+      "asin": "B0GWCKDF49",
+      "amazonUrl": "https://www.amazon.com/dp/B0GWCKDF49",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-10",
+      "zeroCost": true,
+      "sourceCategory": "Bath",
+      "imageUrl": "https://m.media-amazon.com/images/I/81ThaADq4FL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "MECHMAX 6-Pack 6ft Retractable Tape Measure Keychain, Wide Blade Ruler | Wide Blade, Retractable Ruler, Compact Design, Clip-On Keychain, Dual Scale",
+      "slug": "mechmax-6-pack-6ft-retractable-tape-measure-keychain-wide-blade-ruler-wide-blade",
+      "asin": "B0HJWN1HKB",
+      "amazonUrl": "https://www.amazon.com/dp/B0HJWN1HKB",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-24",
+      "zeroCost": true,
+      "sourceCategory": "Measuring Tools",
+      "imageUrl": "https://m.media-amazon.com/images/I/81-ji0FN1kL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "ModernMate LED Bathroom Mirror with Anti-Fog, Dimmable Backlit & Front Lit – Smart Vanity Mirror with Memory Function, Shatterproof Tempered Glass, 3 Color Modes Horizontal/Vertical Mount 36\"L x 24\"W",
+      "slug": "modernmate-led-bathroom-mirror-with-anti-fog-dimmable-backlit-front-lit-smart-va",
+      "asin": "B0H6D183TG",
+      "amazonUrl": "https://www.amazon.com/dp/B0H6D183TG",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-26",
+      "zeroCost": true,
+      "sourceCategory": "Décor",
+      "imageUrl": "https://m.media-amazon.com/images/I/81mba5fPaSL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "MOUSHOU Mouse Charging Dock for Logitech G502 LIGHTSPEED & G502 X Plus | Magnetic Tip, RGB Lighting, USB Receiver Port, Gaming Mouse Charger for PRO X3 SUPERSTRIKE, Razer Viper V4 Pro, Naga V3 Pro",
+      "slug": "moushou-mouse-charging-dock-for-logitech-g502-lightspeed-g502-x-plus-magnetic-ti",
+      "asin": "B0HGQNRF2S",
+      "amazonUrl": "https://www.amazon.com/dp/B0HGQNRF2S",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-28",
+      "zeroCost": true,
+      "sourceCategory": "Computers",
+      "imageUrl": "https://m.media-amazon.com/images/I/7196FDv+xWL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Mud Pie Circa Double Dip Bowl, Ceramic Chip and Dip",
+      "slug": "mud-pie-circa-double-dip-bowl-ceramic-chip-and-dip",
+      "asin": "B0C3K4SMRQ",
+      "amazonUrl": "https://www.amazon.com/dp/B0C3K4SMRQ",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-20",
+      "zeroCost": true,
+      "sourceCategory": "Serveware",
+      "imageUrl": "https://m.media-amazon.com/images/I/31f9wDWmb5L._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "Mud Pie Pumpkin Leaf Platter, Small Stoneware Chip And Dip Serving Dish",
+      "slug": "mud-pie-pumpkin-leaf-platter-small-stoneware-chip-and-dip-serving-dish",
+      "asin": "B0H4MCFDDL",
+      "amazonUrl": "https://www.amazon.com/dp/B0H4MCFDDL",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-20",
+      "zeroCost": true,
+      "sourceCategory": "Dinnerware",
+      "imageUrl": "https://m.media-amazon.com/images/I/61usUNinoFL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "NAD+ Senior Dog Supplement - 14-in-1 NMN Longevity, 125",
+      "slug": "nad-senior-dog-supplement-14-in-1-nmn-longevity-125",
+      "asin": "B0H8WVTN2S",
+      "amazonUrl": "https://www.amazon.com/dp/B0H8WVTN2S",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-23",
+      "zeroCost": true,
+      "sourceCategory": "Pet",
+      "imageUrl": "https://m.media-amazon.com/images/I/51CA+Z1h+WL._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "NATURE'S PUZZLE Hypoallergenic Dog & Cat Bathing Glove Wipes, 30 ct",
+      "slug": "nature-s-puzzle-hypoallergenic-dog-cat-bathing-glove-wipes-30-ct",
+      "asin": "B0H7H78YL6",
+      "amazonUrl": "https://www.amazon.com/dp/B0H7H78YL6",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-05",
+      "zeroCost": true,
+      "sourceCategory": "Pet Supplies",
+      "imageUrl": "https://m.media-amazon.com/images/I/71+6SrBgZeL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "No Drill Ring Outdoor Cam 2K Adhesive Wall Mount Bracket | Strong Durable Adhesive Mount Stand Compatible with Ring Outdoor Cam 2K (2026 model) and Cam 4K Pro /Blink camera, 3 Pack",
+      "slug": "no-drill-ring-outdoor-cam-2k-adhesive-wall-mount-bracket-strong-durable-adhesive",
+      "asin": "B0HKNJCD4D",
+      "amazonUrl": "https://www.amazon.com/dp/B0HKNJCD4D",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-22",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/51Vx0GNKHjL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Ocetea 17 Inch LED Drawing Board for Kids with Display,",
+      "slug": "ocetea-17-inch-led-drawing-board-for-kids-with-display",
+      "asin": "B0D3L841KS",
+      "amazonUrl": "https://www.amazon.com/dp/B0D3L841KS",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-04",
+      "zeroCost": true,
+      "sourceCategory": "Arts & Crafts",
+      "imageUrl": "https://m.media-amazon.com/images/I/517wR5RPm8L._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "Ohr V-Sculpt Contouring Massage Device, Red LED Light, Vacuum Massage",
+      "slug": "ohr-v-sculpt-contouring-massage-device-red-led-light-vacuum-massage",
+      "asin": "B0HLTPRWCX",
+      "amazonUrl": "https://www.amazon.com/dp/B0HLTPRWCX",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-16",
+      "zeroCost": true,
+      "sourceCategory": "Beauty & Personal Care",
+      "imageUrl": "https://m.media-amazon.com/images/I/718ZX01DOFL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Owleys SUV Cargo Liner for Dogs, Waterproof Trunk Cover,",
+      "slug": "owleys-suv-cargo-liner-for-dogs-waterproof-trunk-cover",
+      "asin": "B0H5WVQ99B",
+      "amazonUrl": "https://www.amazon.com/dp/B0H5WVQ99B",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-20",
+      "zeroCost": true,
+      "sourceCategory": "Pet Supplies",
+      "imageUrl": "https://m.media-amazon.com/images/I/41uQZNOUsuL._SR400,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "PAVOI Ear Climber Earrings for Women, 14K Yellow Gold Plated Statement Stud",
+      "slug": "pavoi-ear-climber-earrings-for-women-14k-yellow-gold-plated-statement-stud",
+      "asin": "B0H7FMXG8Z",
+      "amazonUrl": "https://www.amazon.com/dp/B0H7FMXG8Z",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-28",
+      "zeroCost": true,
+      "sourceCategory": "Jewelry",
+      "imageUrl": "https://m.media-amazon.com/images/I/615gnaGlg4L._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "PAWsay Non Slip Dog Shoes &amp; Paw Protectors for Summer",
+      "slug": "pawsay-non-slip-dog-shoes-amp-paw-protectors-for-summer",
+      "asin": "B0H8MZPN51",
+      "amazonUrl": "https://www.amazon.com/dp/B0H8MZPN51",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-09",
+      "zeroCost": true,
+      "sourceCategory": "Pet Supplies",
+      "imageUrl": "https://m.media-amazon.com/images/I/41xXDkvLHhL._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "PILLOWPIA Bodhi Block Print Pillow Covers, Shortbread, Cotton - 20 x 20",
+      "slug": "pillowpia-bodhi-block-print-pillow-covers-shortbread-cotton-20-x-20",
+      "asin": "B0HCDRVZP3",
+      "amazonUrl": "https://www.amazon.com/dp/B0HCDRVZP3",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-08",
+      "zeroCost": true,
+      "sourceCategory": "Bedding",
+      "imageUrl": "https://m.media-amazon.com/images/I/81XLloA7lCL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "PLKOW Christmas Tree Stand for Real Trees, 4-Leg Steel",
+      "slug": "plkow-christmas-tree-stand-for-real-trees-4-leg-steel",
+      "asin": "B0HCNVN828",
+      "amazonUrl": "https://www.amazon.com/dp/B0HCNVN828",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-26",
+      "zeroCost": true,
+      "sourceCategory": "Seasonal Décor",
+      "imageUrl": "https://m.media-amazon.com/images/I/51TAuC-VnvL._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "Plush-Lined Glasses Holder for Nightstand, Boho Eyeglass Stand & Storage | Soft Prevents Lens Scratches, Multi-Functional Organizer, Space-Saving Design for Office Desk, Table, Bedside, Dresser",
+      "slug": "plush-lined-glasses-holder-for-nightstand-boho-eyeglass-stand-storage-soft-preve",
+      "asin": "B0HK2WSB4H",
+      "amazonUrl": "https://www.amazon.com/dp/B0HK2WSB4H",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-22",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/712nNILefzL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "PULZO 3L Electric Glass Kettle & Beverage Dispenser with Infuser Tap, All in One Health Pot, Temperature Control, 6/24H Keep Warm, Adjustable Power, Portable Beverage Machine for Indoor Outdoor",
+      "slug": "pulzo-3l-electric-glass-kettle-beverage-dispenser-with-infuser-tap-all-in-one-he",
+      "asin": "B0HFRHQ59L",
+      "amazonUrl": "https://www.amazon.com/dp/B0HFRHQ59L",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-22",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/71WIPaagcEL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "QQCherry LED Aluminum Outdoor Wall Lights, Modern Black",
+      "slug": "qqcherry-led-aluminum-outdoor-wall-lights-modern-black",
+      "asin": "B0H7MPBJL3",
+      "amazonUrl": "https://www.amazon.com/dp/B0H7MPBJL3",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-13",
+      "zeroCost": true,
+      "sourceCategory": "Outdoor Lighting",
+      "imageUrl": "https://m.media-amazon.com/images/I/41ksdDUHcZL._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "Radiovix Rustic Floor Lamps for Living Room, 3-Color Temp Retro Farmhouse Floor Lamp, Sculpted Resin Standing Lamp, Rotary Switch, Bulb Included, Vintage Decor for Corner, Living Room, Bedroom, Black",
+      "slug": "radiovix-rustic-floor-lamps-for-living-room-3-color-temp-retro-farmhouse-floor-l",
+      "asin": "B0H5QJ7RGM",
+      "amazonUrl": "https://www.amazon.com/dp/B0H5QJ7RGM",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-29",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/71VkaGy6YiL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "REALMO Couch Arm Tray, Cup Holder and Phone Holder, Fits 8.5\" Sofa Arms | Soft fabric Edges, 14\"x9\", 360° Rotating Phone Holder, Cup Holder, 3-in-1 Design for Snacks, Drinks and Phone, Walnut Finish",
+      "slug": "realmo-couch-arm-tray-cup-holder-and-phone-holder-fits-8-5-sofa-arms-soft-fabric",
+      "asin": "B0H4NX9LBS",
+      "amazonUrl": "https://www.amazon.com/dp/B0H4NX9LBS",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-11-04",
+      "zeroCost": true,
+      "sourceCategory": "Living Room Furniture",
+      "imageUrl": "https://m.media-amazon.com/images/I/714wExLS+QL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "RODIFFY 5 Carat Cushion Cut 5A CZ Engagement Ring for Women，White Gold：7.5",
+      "slug": "rodiffy-5-carat-cushion-cut-5a-cz-engagement-ring-for-women-white-gold-7-5",
+      "asin": "B0HHHHRQ7Q",
+      "amazonUrl": "https://www.amazon.com/dp/B0HHHHRQ7Q",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-26",
+      "zeroCost": true,
+      "sourceCategory": "Jewelry",
+      "imageUrl": "https://m.media-amazon.com/images/I/619ViOZ74xL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "RyshePro 6 Pack 100+ Double-Sleeved Card Deck Box for MTG/PTCG, Clear | Commander Card Box with 12 Dividers & 1 Dice Bag, Bulk Trading Card Storage Box for Magic/CCG/TCG, Sports Cards",
+      "slug": "ryshepro-6-pack-100-double-sleeved-card-deck-box-for-mtg-ptcg-clear-commander-ca",
+      "asin": "B0HJGDKC2T",
+      "amazonUrl": "https://www.amazon.com/dp/B0HJGDKC2T",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-19",
+      "zeroCost": true,
+      "sourceCategory": "Toys & Games",
+      "imageUrl": "https://m.media-amazon.com/images/I/71RRgOxBdkL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "SANYAOZMKJ 2-in-1 Galaxy Projection Night Light, comes with 12 slidest | plug-and-play USB-powered holographic projector for your bedroom, 360° adjustable HD ocean and galaxy projector,",
+      "slug": "sanyaozmkj-2-in-1-galaxy-projection-night-light-comes-with-12-slidest-plug-and-p",
+      "asin": "B0HJW5DD3L",
+      "amazonUrl": "https://www.amazon.com/dp/B0HJW5DD3L",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-27",
+      "zeroCost": true,
+      "sourceCategory": "Lighting",
+      "imageUrl": "https://m.media-amazon.com/images/I/61yA1K0yqVL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "SANYAOZMKJ Warm Amber LED Library Lantern Decor Bookshelf Lamp，Bookworm Reading Shelf lamp, Perfect for Library Reading nooks, a Unique Gift for Book Lovers. 3,Ghost Lamp",
+      "slug": "sanyaozmkj-warm-amber-led-library-lantern-decor-bookshelf-lamp-bookworm-reading",
+      "asin": "B0HC2RRBMJ",
+      "amazonUrl": "https://www.amazon.com/dp/B0HC2RRBMJ",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-10",
+      "zeroCost": true,
+      "sourceCategory": "Lighting",
+      "imageUrl": "https://m.media-amazon.com/images/I/81xTi7qQ-HL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Sconces Wall Lighting Battery Operated: Wireless Magnetic",
+      "slug": "sconces-wall-lighting-battery-operated-wireless-magnetic",
+      "asin": "B0HCNBM1Q1",
+      "amazonUrl": "https://www.amazon.com/dp/B0HCNBM1Q1",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-30",
+      "zeroCost": true,
+      "sourceCategory": "Wall Lighting",
+      "imageUrl": "https://m.media-amazon.com/images/I/41Jv0jlWnpL._SR375,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "Self Heating Coffee Mug–14oz Portable Heated Coffee Mug",
+      "slug": "self-heating-coffee-mug-14oz-portable-heated-coffee-mug",
+      "asin": "B0H6FDMJTB",
+      "amazonUrl": "https://www.amazon.com/dp/B0H6FDMJTB",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-06",
+      "zeroCost": true,
+      "sourceCategory": "Kitchen & Dining",
+      "imageUrl": "https://m.media-amazon.com/images/I/3183a0r5CgL._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "somiliss Women Rhinestone Walking Shoes, Sparkly Bling Fashion Sneakers",
+      "slug": "somiliss-women-rhinestone-walking-shoes-sparkly-bling-fashion-sneakers",
+      "asin": "B0HFW294ZS",
+      "amazonUrl": "https://www.amazon.com/dp/B0HFW294ZS",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-28",
+      "zeroCost": true,
+      "sourceCategory": "Shoes",
+      "imageUrl": "https://m.media-amazon.com/images/I/81gVwzx2+OL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Sound Effect Recorder - Kids Voice Recorder Toy, Record 15 Custom Sounds | Save Your Own Ten-Second Clips On Each Button - A Fun Recording Device For Pranks, Pretend Play & Talk Back Games",
+      "slug": "sound-effect-recorder-kids-voice-recorder-toy-record-15-custom-sounds-save-your",
+      "asin": "B0HNKJDD1C",
+      "amazonUrl": "https://www.amazon.com/dp/B0HNKJDD1C",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-25",
+      "zeroCost": true,
+      "sourceCategory": "Toys & Games",
+      "imageUrl": "https://m.media-amazon.com/images/I/81mnYimu8pL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Squeaky Tennis Dog Balls Toy, 8 Pack 2.5in Natural Rubber for Medium Breed",
+      "slug": "squeaky-tennis-dog-balls-toy-8-pack-2-5in-natural-rubber-for-medium-breed",
+      "asin": "B0HGRFB62C",
+      "amazonUrl": "https://www.amazon.com/dp/B0HGRFB62C",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-22",
+      "zeroCost": true,
+      "sourceCategory": "Pet Supplies",
+      "imageUrl": "https://m.media-amazon.com/images/I/7151nM2N3AL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "StrucTech Large Cable Management Box, Power Strip Cover & Cord Organizer | Ventilated Storage Box for Hiding Cords, Decorative Wire Organizer for Desktop Use, Cord Hiding Box Under Desk, White",
+      "slug": "structech-large-cable-management-box-power-strip-cover-cord-organizer-ventilated",
+      "asin": "B0HJP1119F",
+      "amazonUrl": "https://www.amazon.com/dp/B0HJP1119F",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-11-05",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/61gEdKbZ28L._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
     },
     {
       "id": "4002aa31990881bfb014e1f6c55cfebb",
@@ -263,7 +3229,73 @@
       "imageUrl": null,
       "sources": [
         "notion"
-      ]
+      ],
+      "reviewRequested": null,
+      "priority": null
+    },
+    {
+      "id": "",
+      "name": "Table Tennis Paddles, 7-Ply Wood Portable Ping Pong Set of 2 with 6 Balls | Ping Pong Paddles and Retractable Net, Flared Handle, Storage Bag",
+      "slug": "table-tennis-paddles-7-ply-wood-portable-ping-pong-set-of-2-with-6-balls-ping-po",
+      "asin": "B0HDSBDVF1",
+      "amazonUrl": "https://www.amazon.com/dp/B0HDSBDVF1",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-23",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/71e0aa3R06L._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "TAKUMi 80W Temperature ControlledDigital Soldering Station Kit",
+      "slug": "takumi-80w-temperature-controlleddigital-soldering-station-kit",
+      "asin": "B0HFHLQZ9B",
+      "amazonUrl": "https://www.amazon.com/dp/B0HFHLQZ9B",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-02",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/71ncu09g4FL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
     },
     {
       "id": "3ff2aa3199088169a5ebc25c5c83871d",
@@ -293,7 +3325,9 @@
       "imageUrl": null,
       "sources": [
         "notion"
-      ]
+      ],
+      "reviewRequested": null,
+      "priority": null
     },
     {
       "id": "4002aa31990881d9bc3fdb8bdeb8169c",
@@ -319,7 +3353,393 @@
       "imageUrl": null,
       "sources": [
         "notion"
-      ]
+      ],
+      "reviewRequested": null,
+      "priority": null
+    },
+    {
+      "id": "",
+      "name": "ViibXfans 6X6 in Mandala Tile Stickers,24Pcs 1.6mm-Thick",
+      "slug": "viibxfans-6x6-in-mandala-tile-stickers-24pcs-1-6mm-thick",
+      "asin": "B0GKQ3R74L",
+      "amazonUrl": "https://www.amazon.com/dp/B0GKQ3R74L",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-21",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/61Fb3fZXaGL._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "Vniltyc 5L Electric Hot Pot with Removable Nonstick Pot,1350W Fast Heating",
+      "slug": "vniltyc-5l-electric-hot-pot-with-removable-nonstick-pot-1350w-fast-heating",
+      "asin": "B0H8S99H4J",
+      "amazonUrl": "https://www.amazon.com/dp/B0H8S99H4J",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-28",
+      "zeroCost": true,
+      "sourceCategory": "Small Appliances",
+      "imageUrl": "https://m.media-amazon.com/images/I/61XUECpjgLL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Vnivxte 48 Inch Christmas Tree Skirt, 100% Linen, Nordic Folk Theme | Single-Sided Reactive Print, Wraparound Opening for Easy Setup, Two Pairs of Tie Closures, Machine-Washable Fabric",
+      "slug": "vnivxte-48-inch-christmas-tree-skirt-100-linen-nordic-folk-theme-single-sided-re",
+      "asin": "B0HHNMYKP9",
+      "amazonUrl": "https://www.amazon.com/dp/B0HHNMYKP9",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-25",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/81+Icw2l7iL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Wanbo X5S 1100 ANSI Outdoor Projector 4K Official Licensed Apps Dolby Audio",
+      "slug": "wanbo-x5s-1100-ansi-outdoor-projector-4k-official-licensed-apps-dolby-audio",
+      "asin": "B0H8PLY2WZ",
+      "amazonUrl": "https://www.amazon.com/dp/B0H8PLY2WZ",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-16",
+      "zeroCost": true,
+      "sourceCategory": "Electronics",
+      "imageUrl": "https://m.media-amazon.com/images/I/61FigvL1ZWL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Women 2 PCS Plaid Pajama Set Square Neck Christmas Sleepwear(A-Red, M)",
+      "slug": "women-2-pcs-plaid-pajama-set-square-neck-christmas-sleepwear-a-red-m",
+      "asin": "B0HCBBDC52",
+      "amazonUrl": "https://www.amazon.com/dp/B0HCBBDC52",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-09",
+      "zeroCost": true,
+      "sourceCategory": "Sleepwear",
+      "imageUrl": "https://m.media-amazon.com/images/I/61bgn843O9L._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Women Plaid Puff Sleeve Lace Trim Bow Square Neck Babydoll Top(Green, L)",
+      "slug": "women-plaid-puff-sleeve-lace-trim-bow-square-neck-babydoll-top-green-l",
+      "asin": "B0HJ5Q6NF1",
+      "amazonUrl": "https://www.amazon.com/dp/B0HJ5Q6NF1",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-23",
+      "zeroCost": true,
+      "sourceCategory": "Clothing",
+      "imageUrl": "https://m.media-amazon.com/images/I/71Vo27pavrL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Women Plaid Smocked Midi Dress Square Neck Sleeveless Long Dress(Red, M)",
+      "slug": "women-plaid-smocked-midi-dress-square-neck-sleeveless-long-dress-red-m",
+      "asin": "B0HCTWYNCB",
+      "amazonUrl": "https://www.amazon.com/dp/B0HCTWYNCB",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-08",
+      "zeroCost": true,
+      "sourceCategory": "Clothing",
+      "imageUrl": "https://m.media-amazon.com/images/I/71D+KKTWGzL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "Writpoty Embroidered Hat, Gifts for Music, Theater,",
+      "slug": "writpoty-embroidered-hat-gifts-for-music-theater",
+      "asin": "B0HBBH6YZP",
+      "amazonUrl": "https://www.amazon.com/dp/B0HBBH6YZP",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-10",
+      "zeroCost": true,
+      "sourceCategory": "Hats",
+      "imageUrl": "https://m.media-amazon.com/images/I/41dol2z55cL._SR500,500_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": true,
+      "priority": "reviews-to-do"
+    },
+    {
+      "id": "",
+      "name": "WRVYOO Fire Dragon Resin Lamp, Multicolor LED Fantasy Night Light",
+      "slug": "wrvyoo-fire-dragon-resin-lamp-multicolor-led-fantasy-night-light",
+      "asin": "B0HJPK4LJP",
+      "amazonUrl": "https://www.amazon.com/dp/B0HJPK4LJP",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-10-07",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/71-bKupwOXL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "WULFUL Men's 3 Piece Suit Set Slim Fit One Button Blazer Business Tuxedo Vest Jacket Pants Formal Wedding Prom Navy",
+      "slug": "wulful-men-s-3-piece-suit-set-slim-fit-one-button-blazer-business-tuxedo-vest-ja",
+      "asin": "B0H8CLG179",
+      "amazonUrl": "https://www.amazon.com/dp/B0H8CLG179",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-09-01",
+      "zeroCost": true,
+      "sourceCategory": "Apparel",
+      "imageUrl": "https://m.media-amazon.com/images/I/6182wMd2IUL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "YUSAI Y2K Mini Flying Sleeve Dress V Neck Ruffled Babydoll Dress(White, L)",
+      "slug": "yusai-y2k-mini-flying-sleeve-dress-v-neck-ruffled-babydoll-dress-white-l",
+      "asin": "B0H83QRZZF",
+      "amazonUrl": "https://www.amazon.com/dp/B0H83QRZZF",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-20",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/61SznbBDN8L._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
+    },
+    {
+      "id": "",
+      "name": "ZAFUL Womens Cable Knit Lounge Pants High Waisted Drawstring Wide Leg Pants",
+      "slug": "zaful-womens-cable-knit-lounge-pants-high-waisted-drawstring-wide-leg-pants",
+      "asin": "B0HC9NTMJN",
+      "amazonUrl": "https://www.amazon.com/dp/B0HC9NTMJN",
+      "notionUrl": "",
+      "category": "products",
+      "rating": null,
+      "title": "",
+      "body": "",
+      "textOnly": false,
+      "reviewStatus": "To Review",
+      "status": "draft",
+      "source": "gmail",
+      "needsReview": true,
+      "missingFields": [
+        "title",
+        "rating",
+        "body"
+      ],
+      "hasFinalPhoto": true,
+      "orderDate": "2026-08-21",
+      "zeroCost": true,
+      "sourceCategory": "",
+      "imageUrl": "https://m.media-amazon.com/images/I/71gkMInUqvL._SS90_.jpg",
+      "sources": [
+        "gmail"
+      ],
+      "reviewRequested": false,
+      "priority": ""
     }
   ],
   "unresolvedZeroCostOrders": [
@@ -350,9 +3770,10 @@
       ]
     }
   ],
-  "excludedPaid": 0,
+  "excludedPaid": 41,
   "gmailNote": "Current Amazon order, shipped, and delivered emails include a $0.00 / 0 USD total and a category, but not the product name, ASIN, or product photo. Identified products come from Notion or from an order-history CSV. The importer does not visit Amazon.",
-  "gmailParsed": 2,
-  "gmailIdentified": 0,
-  "gmailUnresolved": 2
+  "gmailParsed": 248,
+  "gmailIdentified": 107,
+  "gmailUnresolved": 2,
+  "gmailCancelled": 98
 }

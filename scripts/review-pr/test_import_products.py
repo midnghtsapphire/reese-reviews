@@ -287,3 +287,39 @@ def test_live_notion_snapshot_leaves_migeec_and_garvee_gaps():
     assert garvee["body"]
     assert garvee["rating"] is None
     assert "rating" in garvee["missingFields"]
+
+
+def test_write_review_folder_records_order_date_and_priority(tmp_path):
+    from frontmatter import load_review
+    from import_products import write_review_folder
+
+    item = {
+        "name": "Example Night Light",
+        "slug": "example-night-light",
+        "asin": "B0EXAMPL01",
+        "amazonUrl": "https://www.amazon.com/dp/B0EXAMPL01",
+        "title": "",
+        "body": "",
+        "rating": None,
+        "status": "draft",
+        "textOnly": False,
+        "category": "products",
+        "notionUrl": "",
+        "orderDate": "2026-11-01",
+        "reviewRequested": True,
+    }
+    folder, wrote, skipped = write_review_folder(tmp_path, item, images_dir=None)
+    assert wrote and not skipped
+    doc = load_review(folder / "review.md")
+    assert doc.product == "Example Night Light"
+    assert doc.asin == "B0EXAMPL01"
+    assert doc.order_date == "2026-11-01"
+    assert doc.priority == "reviews-to-do"
+    assert doc.body == ""
+    assert doc.title == ""
+    assert doc.rating is None
+    # Review text was not invented, and no order number leaked into the file.
+    text = (folder / "review.md").read_text()
+    assert "111-" not in text
+    assert "example-night-light" in text
+
