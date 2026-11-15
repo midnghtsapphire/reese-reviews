@@ -83,7 +83,7 @@ python3 scripts/review-pr/import_products.py --root . \
   --write-reviews
 ```
 
-The importer writes a sanitized snapshot (`scripts/review-pr/fixtures/product-queue.json`) and one `reviews/<slug>/` folder per product. Only product name, ASIN, order date, image URL, and review drafts are stored. Empty title, rating, review, or photo fields stay empty so the desk checklist can flag them. It does not invent review text. Existing `review.md` files are left as-is unless you pass `--overwrite`. `--archive-demo` moves the demo placeholder photo into `reviews/_archived/` (it is not deleted).
+The importer writes a sanitized snapshot (`scripts/review-pr/fixtures/product-queue.json`) and one `reviews/<slug>/` folder per product. Only product name, ASIN, order date, image, category, and review drafts are stored. Items that arrived from a review-request or seller-feedback email are marked `priority: reviews-to-do` so they sort first on the desk. Empty title, rating, review, or photo fields stay empty so the desk checklist can flag them. It does not invent review text. Existing `review.md` files are left as-is unless you pass `--overwrite`. `--archive-demo` moves the demo placeholder photo into `reviews/_archived/` (it is not deleted).
 
 The desk lists every local `reviews/<slug>/` folder when no open `review/*` pull requests are available, and lists those PRs when they exist.
 

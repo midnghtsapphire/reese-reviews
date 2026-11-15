@@ -46,6 +46,8 @@ class ReviewDoc:
     text_only: bool = False
     category: str = ""
     notion_url: str = ""
+    order_date: str = ""
+    priority: str = ""
     body: str = ""
     extra: dict[str, Any] = field(default_factory=dict)
 
@@ -99,6 +101,10 @@ def parse_review_markdown(text: str, path: Path | None = None) -> ReviewDoc:
             doc.category = str(value or "")
         elif key in {"notion_url", "notionUrl"}:
             doc.notion_url = str(value or "")
+        elif key in {"order_date", "orderDate"}:
+            doc.order_date = str(value or "")
+        elif key == "priority":
+            doc.priority = str(value or "")
     doc.body = match.group("body").lstrip("\r\n").rstrip()
     return doc
 
@@ -126,6 +132,10 @@ def serialize_review(doc: ReviewDoc) -> str:
         lines.append(f"category: {q(doc.category)}")
     if doc.notion_url:
         lines.append(f"notion_url: {q(doc.notion_url)}")
+    if doc.order_date:
+        lines.append(f"order_date: {q(doc.order_date)}")
+    if doc.priority:
+        lines.append(f"priority: {q(doc.priority)}")
     lines.extend(["---", "", doc.body.strip(), ""])
     return "\n".join(lines)
 

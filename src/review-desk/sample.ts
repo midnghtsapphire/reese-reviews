@@ -67,6 +67,8 @@ function fromMarkdown(raw: string, slugHint: string): ProductReview {
     textOnly: parsed.textOnly,
     markdownPath: `reviews/${slug}/review.md`,
     markdown: raw,
+    orderDate: parsed.orderDate || null,
+    priority: parsed.priority || null,
   };
 }
 
@@ -78,7 +80,15 @@ export function getLocalReviews(): ProductReview[] {
     const slugHint = path.split("/").at(-2) || "review";
     reviews.push(fromMarkdown(raw, slugHint));
   }
-  reviews.sort((a, b) => a.name.localeCompare(b.name));
+  reviews.sort((a, b) => {
+    const pa = a.priority === "reviews-to-do" ? 0 : 1;
+    const pb = b.priority === "reviews-to-do" ? 0 : 1;
+    if (pa !== pb) return pa - pb;
+    if (a.orderDate && b.orderDate && a.orderDate !== b.orderDate) {
+      return a.orderDate < b.orderDate ? 1 : -1;
+    }
+    return a.name.localeCompare(b.name);
+  });
   return reviews;
 }
 

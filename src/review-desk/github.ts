@@ -134,6 +134,8 @@ export async function loadReviewFromBranch(
     textOnly: parsed.textOnly,
     markdownPath: mdPath,
     markdown: raw,
+    orderDate: parsed.orderDate || null,
+    priority: parsed.priority || null,
   };
 }
 

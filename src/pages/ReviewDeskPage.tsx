@@ -142,6 +142,8 @@ export default function ReviewDeskPage() {
         textOnly: review.textOnly,
         category: review.category || undefined,
         notionUrl: review.notionUrl || undefined,
+        orderDate: review.orderDate || undefined,
+        priority: review.priority || undefined,
         body: review.body,
       });
       await commitFile({
@@ -284,6 +286,8 @@ export default function ReviewDeskPage() {
                   <span className="block font-medium text-foreground">{item.name}</span>
                   <span className="mt-1 block text-xs">
                     {item.asin || "No ASIN"} · {itemComplete ? "Ready" : "Needs fields"}
+                    {item.priority === "reviews-to-do" ? " · Reviews to do" : ""}
+                    {item.orderDate ? ` · ${item.orderDate}` : ""}
                   </span>
                 </button>
               );
@@ -325,6 +329,8 @@ export default function ReviewDeskPage() {
                 "No ASIN yet"
               )}
               {review.status ? ` · ${review.status}` : ""}
+              {review.priority === "reviews-to-do" ? " · Reviews to do" : ""}
+              {review.orderDate ? ` · ordered ${review.orderDate}` : ""}
             </p>
 
             <div className="mt-5 space-y-4">

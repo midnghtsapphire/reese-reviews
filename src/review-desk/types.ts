@@ -25,6 +25,8 @@ export type ProductReview = {
   textOnly: boolean;
   markdownPath: string;
   markdown: string;
+  orderDate: string | null;
+  priority: string | null;
 };
 
 export type ReviewFields = {

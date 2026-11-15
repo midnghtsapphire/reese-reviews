@@ -79,3 +79,41 @@ describe("serializeReviewMarkdown", () => {
     expect(parsed.body.trim()).toBe("It works well.");
   });
 });
+
+  it("reads order_date and reviews-to-do priority", () => {
+    const parsed = parseReviewMarkdown(`---
+product: "Example Night Light"
+asin: B0EXAMPL01
+url: https://www.amazon.com/dp/B0EXAMPL01
+rating: null
+title: ""
+status: draft
+slug: example-night-light
+text_only: false
+category: products
+order_date: "2026-11-01"
+priority: "reviews-to-do"
+---
+
+`);
+    expect(parsed.orderDate).toBe("2026-11-01");
+    expect(parsed.priority).toBe("reviews-to-do");
+    expect(parsed.body.trim()).toBe("");
+    const raw = serializeReviewMarkdown({
+      product: parsed.product,
+      asin: parsed.asin,
+      url: parsed.url,
+      rating: parsed.rating,
+      title: parsed.title,
+      status: parsed.status,
+      slug: parsed.slug,
+      textOnly: parsed.textOnly,
+      category: parsed.category,
+      orderDate: parsed.orderDate,
+      priority: parsed.priority,
+      body: parsed.body,
+    });
+    expect(raw).toContain('order_date: "2026-11-01"');
+    expect(raw).toContain('priority: "reviews-to-do"');
+  });
+
