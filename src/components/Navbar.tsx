@@ -5,7 +5,7 @@ import {
   Menu, X, LogOut, Zap, LayoutDashboard, Grape, Shield,
   Search, CreditCard, Briefcase, Megaphone, ChevronDown, Music,
   Wand2, Youtube, Star, Grid3X3, BookOpen, HelpCircle, Info, Mail,
-  Settings,
+  Settings, ClipboardCheck,
 } from "lucide-react";
 import AccessibilityToggle from "./AccessibilityToggle";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,6 +23,7 @@ const publicLinks = [
 const privateLinks = [
   { label: "Dashboard",      href: "/dashboard", icon: LayoutDashboard },
   { label: "Create Content", href: "/generate",  icon: Zap },
+  { label: "Review Desk",    href: "/review-desk", icon: ClipboardCheck },
   { label: "Admin",          href: "/admin",     icon: Settings },
 ];
 
@@ -34,6 +35,7 @@ const mainLinks = [
 
 const moreLinks = [
   { label: "Create Content", href: "/generate",  icon: Zap },
+  { label: "Review Desk",    href: "/review-desk", icon: ClipboardCheck },
   { label: "Marketing",      href: "/marketing", icon: Megaphone },
   { label: "SEO",            href: "/seo",       icon: Search },
   { label: "Payments",       href: "/payments",  icon: CreditCard },

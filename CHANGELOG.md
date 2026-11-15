@@ -9,6 +9,9 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **Review Desk:** a `/review-desk` page for walking through each product review one at a time, editing any field, and replacing generated photos. Submit stays with Audrey. A Start button fills a form in order — title, pause, images, pause, written review — and then waits for her to press Submit.
+- **Review PRs:** `reviews/<slug>/review.md` plus `images/`, a generator at `scripts/review-pr/`, and a CircleCI completeness check for required fields (rating, title, review text, and an image or text-only).
+- **review-poster agent:** an in-repo GitHub-native agent (`agents/review-poster/`, also declared in `.github/agents/review-poster.agent.md`), not a Grok bot. After a review PR is merged with the `approved-to-post` label, CircleCI on main publishes it to the Reese Reviews site. The Amazon filler runs only on Audrey's computer and never clicks Submit.
 - **Product Image Process (WR):** selectable GitHub issue form `.github/ISSUE_TEMPLATE/product-image-process-wr.yml` (label `image-process`). Copies a product image from a URL, ASIN, or attached/linked photo; crop, background removal, text/watermark removal, filter; review / social / cutout outputs; optional Notion upload. CircleCI queue (parameter `run_image_process_queue`, schedule documented in `tools/review-image/SETUP.md`) writes results to the `review-images` branch and comments as Auky. Linked from Stage 3 of the Amazon review WR (existing form kept).
 - **Review-image CLI (general tool):** `--from-url`, `--asin`, `--remove-text`, `--preset review|social|cutout|all`, pluggable Notion uploader. Not limited to reviews. n8n / Zapier and ops/self-hosted-ci notes are in the tool README.
 

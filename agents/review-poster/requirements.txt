@@ -1,0 +1,3 @@
+# Optional. Only needed on Audrey's computer for the Amazon form filler.
+# Do not install this on CircleCI cloud.
+playwright>=1.48.0

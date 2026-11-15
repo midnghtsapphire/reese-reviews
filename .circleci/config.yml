@@ -15,6 +15,8 @@
 # A separate draft PR (reese-reviews #77) proposes Node lint/test
 # and Trivy jobs. When that lands, add those jobs to this file
 # rather than replacing it.
+# Review Desk completeness, frontend tests, and the review-poster
+# unit tests are added below; the review-image jobs are unchanged.
 #
 # GitHub Actions workflows are unchanged (billing-locked). Event-shaped
 # jobs can also use ops/self-hosted-ci on a machine Audrey controls;
@@ -80,6 +82,59 @@ jobs:
             cd tools/review-image
             PYTHONPATH=. python3 -m review_image.queue
 
+  review-completeness:
+    docker:
+      - image: cimg/python:3.12
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: Check review.md required fields
+          command: python3 scripts/review-pr/check_completeness.py --root .
+
+  review-desk-frontend:
+    docker:
+      - image: cimg/node:20.18
+    resource_class: medium
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - npm-{{ checksum "package-lock.json" }}
+            - npm-
+      - run: npm ci
+      - save_cache:
+          key: npm-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.npm
+      - run:
+          name: Vitest for Review Desk
+          command: npx vitest run src/review-desk src/lib/repoReviews.test.ts
+
+  review-poster-tests:
+    docker:
+      - image: cimg/python:3.12
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: Poster and review-pr unit tests (no Playwright)
+          command: |
+            python3 -m pip install --upgrade pip
+            python3 -m pip install pytest
+            python3 -m pytest -q scripts/review-pr/test_check_completeness.py
+            python3 -m pytest -q agents/review-poster/tests
+
+  review-poster-site:
+    docker:
+      - image: cimg/python:3.12
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: Publish approved reviews to the site (never Amazon)
+          command: python3 agents/review-poster/publish_to_site.py
+
 workflows:
   review-image-tests:
     when:
@@ -89,8 +144,18 @@ workflows:
             equal: [ main, << pipeline.git.branch >> ]
     jobs:
       - review-image-test
+      - review-completeness
+      - review-desk-frontend
+      - review-poster-tests
 
   image-process-queue:
     when: << pipeline.parameters.run_image_process_queue >>
     jobs:
       - image-process-queue
+
+  review-poster-on-main:
+    when:
+      equal: [ main, << pipeline.git.branch >> ]
+    jobs:
+      - review-poster-site
+      - review-completeness
