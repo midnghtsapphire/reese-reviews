@@ -12,10 +12,19 @@ from PIL import Image
 USER_AGENT = "review-image/0.1 (reese-reviews local tool; no tracking)"
 
 
-def default_output_path(source: Path, background: str = "white") -> Path:
-    """<name>-final-review.jpg next to the input, or .png when transparent."""
-    suffix = ".png" if background == "transparent" else ".jpg"
-    return source.with_name(f"{source.stem}-final-review{suffix}")
+def default_output_path(
+    source: Path,
+    background: str = "white",
+    preset: str = "review",
+) -> Path:
+    """Output path next to the input, named for the preset."""
+    from .presets import spec_for
+
+    if preset and preset != "review":
+        suffix = spec_for(preset).suffix
+        return source.with_name(f"{source.stem}{suffix}")
+    ext = ".png" if background == "transparent" else ".jpg"
+    return source.with_name(f"{source.stem}-final-review{ext}")
 
 
 def load_image(source: str, timeout: int = 30) -> tuple[Image.Image, Path | None]:
