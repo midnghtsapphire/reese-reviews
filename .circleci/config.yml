@@ -1,3 +1,74 @@
+# CircleCI lane for Reese Reviews. Mirrors .github/workflows/ci.yml
+# (lint, typecheck, build, test, dependency audit) so those gates can
+# run while GitHub-hosted Actions are billing-locked. The Actions
+# workflows are unchanged. Official free Trivy v0.76.2 reuses the
+# scan settings from midnghtsapphire/revvel-standards
+# .github/workflows/trivy.yml.
+#
+# This config is inert until the GitHub repo is followed as a CircleCI
+# project (app.circleci.com → Set Up Project). Agents must not do that
+# in the browser.
+
+version: 2.1
+
+jobs:
+  lint-typecheck-test-build:
+    docker:
+      - image: cimg/node:22.21
+    resource_class: medium
+    steps:
+      - checkout
+      # Vite inlines VITE_* at build time. Set VITE_SUPABASE_URL and
+      # VITE_SUPABASE_PUBLISHABLE_KEY as CircleCI project env vars when
+      # a production-like build is needed. Unset is allowed for compile.
+      - run:
+          name: Install dependencies
+          command: npm ci
+      - run:
+          name: ESLint
+          command: npm run lint
+      - run:
+          name: TypeScript type check
+          command: npm run typecheck
+      - run:
+          name: Vitest
+          command: npm test
+      - run:
+          name: Vite production build
+          command: npm run build
+      - run:
+          name: Dependency audit (non-blocking, same as Actions)
+          command: npm audit --audit-level=high || true
+      - store_artifacts:
+          path: dist
+          destination: dist
+
+  trivy-fs:
+    docker:
+      - image: cimg/base:2024.11
+    resource_class: medium
+    steps:
+      - checkout
+      - run:
+          name: Install Trivy v0.76.2
+          command: |
+            curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/v0.76.2/contrib/install.sh | sh -s -- -b /tmp/trivy-bin v0.76.2
+      - run:
+          name: Trivy filesystem scan (vuln, misconfig, secret)
+          no_output_timeout: 20m
+          environment:
+            TRIVY_BIN: /tmp/trivy-bin/trivy
+            TRIVY_TABLE_OUT: /tmp/trivy-report.txt
+          command: bash .circleci/scripts/trivy-fs.sh
+      - store_artifacts:
+          path: /tmp/trivy-report.txt
+          destination: trivy-fs
+
+workflows:
+  ci:
+    jobs:
+      - lint-typecheck-test-build
+      - trivy-fs
 # CircleCI for the review-image CLI tests and the Product Image
 # Process (WR) queue.
 #
