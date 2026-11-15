@@ -1,0 +1,59 @@
+{
+  "note": "Sanitized fixture for the Gmail order-number join. Fake order numbers, ASINs, and image URLs only. No personal addresses, names, or real mail bodies.",
+  "messages": [
+    {
+      "subject": "Ordered 1 item: Kitchen",
+      "date": "2026-10-29",
+      "body": "Thanks for your order!\nOrder #\n111-0000001-0000001\nGrand Total:\n0.0 USD",
+      "htmlBody": "<p>Order # 111-0000001-0000001</p><p>Grand Total: $0.00</p>"
+    },
+    {
+      "subject": "Shipped 1 item: Kitchen",
+      "date": "2026-10-30",
+      "body": "Order #\n111-0000001-0000001\nTotal\n0 USD",
+      "htmlBody": "<p>Shipped 1 item: Kitchen</p>"
+    },
+    {
+      "subject": "Shipping address updated: \"Sample Kitchen Mat Set...\"",
+      "date": "2026-10-30",
+      "body": "Shipping address updated\nOrder #\n111-0000001-0000001\n* Sample Kitchen Mat Set of 2, Washable Anti-Fatigue Mats for Kitchen and Laundry\n  Quantity: 1\n  89.99 USD\n\nTotal\n0 USD",
+      "htmlBody": "<p>Order # 111-0000001-0000001</p><a href=\"https://www.amazon.com/dp/B0EXAMPL01\">link</a><img src=\"https://m.media-amazon.com/images/I/51EXAMPLESL.jpg\">"
+    },
+    {
+      "subject": "Ordered 1 item: Lighting",
+      "date": "2026-10-27",
+      "body": "Order #\n111-0000002-0000002\nGrand Total:\n0.0 USD",
+      "htmlBody": "<p>Grand Total: $0.00</p>"
+    },
+    {
+      "subject": "Delivery estimate update for your Amazon order #111-0000002-0000002",
+      "date": "2026-11-01",
+      "body": "Delivery Estimate Update\nOrder #\n111-0000002-0000002\n* Sample Galaxy Projection Night Light with 12 slides\n  Quantity: 1\n  30.99 USD",
+      "htmlBody": "<img src=\"https://m.media-amazon.com/images/I/31EXAMPLEIL.jpg\">"
+    },
+    {
+      "subject": "Did your recent Amazon order meet your expectations? Review it on Amazon",
+      "date": "2026-11-06",
+      "body": "Your opinion matters!\n111-0000002-0000002\nhttps://www.amazon.com/review/review-your-purchases/?asin=B0EXAMPL02%3A",
+      "htmlBody": "<div class=\"primary-text-color\">Sample Galaxy Projection Night Light with 12 slides</div><img class=\"productImage\" src=\"https://m.media-amazon.com/images/I/31EXAMPLEIL._SR500,500_.jpg\">"
+    },
+    {
+      "subject": "Ordered 1 item: Shoes",
+      "date": "2026-10-18",
+      "body": "Order #\n111-0000003-0000003\nGrand Total:\n0.0 USD",
+      "htmlBody": "<p>Grand Total: $0.00</p>"
+    },
+    {
+      "subject": "Item cancelled successfully: \"Sample Tabi Mary Jane...\"",
+      "date": "2026-10-24",
+      "body": "Your items were cancelled\nOrder #\n111-0000003-0000003\n* Sample Tabi Mary Jane Ballet Flats, Green, Size 8.5\n  Quantity: 1\n  54.99 USD",
+      "htmlBody": "<p>Your order was cancelled. You have not been charged for this order.</p>"
+    },
+    {
+      "subject": "Ordered 1 item: Computers",
+      "date": "2026-10-20",
+      "body": "Order #\n111-0000004-0000004\nGrand Total:\n24.99 USD",
+      "htmlBody": "<p>Grand Total: $24.99</p>"
+    }
+  ]
+}

@@ -27,7 +27,7 @@ Each PR should use `.github/PULL_REQUEST_TEMPLATE/review.md` and stay a draft un
 
 ## Import every product that needs a review
 
-Gmail is the primary source (read-only). A `$0.00` total or Vine wording is the queue rule; paid orders are skipped unless you pass `--include-paid`. Notion is the secondary source. An order-history CSV you download yourself is also accepted. The importer does not visit Amazon.
+Gmail is the primary source (read-only). A `$0.00` total or Vine wording is the queue rule; paid orders are skipped unless you pass `--include-paid`. Emails for the same order number are joined so a later review-request, address-update, delay, or delivery-estimate message can supply the product name, ASIN, and photo. Cancelled items are identified and kept out of the queue. Notion is the secondary source. An order-history CSV you download yourself is also accepted. The importer does not visit Amazon.
 
 ```bash
 python3 scripts/review-pr/import_products.py --root . \

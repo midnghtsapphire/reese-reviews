@@ -48,6 +48,7 @@ from gmail_source import (  # noqa: E402
     DEFAULT_GMAIL_QUERY,
     fetch_gmail_api,
     gmail_credentials_pending,
+    join_order_emails,
     load_gmail_json,
     load_mbox,
 )
@@ -364,11 +365,15 @@ def sanitize_unresolved(item: dict[str, Any]) -> dict[str, Any]:
 
 def split_gmail_items(
     rows: list[dict[str, Any]], include_paid: bool
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]], int]:
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], int, int]:
     identified: list[dict[str, Any]] = []
     unresolved: list[dict[str, Any]] = []
     excluded = 0
+    cancelled = 0
     for row in rows:
+        if row.get("cancelled"):
+            cancelled += 1
+            continue
         if not row.get("zeroCost") and not include_paid:
             excluded += 1
             continue
@@ -380,10 +385,11 @@ def split_gmail_items(
             item["orderDate"] = row.get("orderDate") or ""
             item["sourceCategory"] = row.get("sourceCategory") or ""
             item["imageUrl"] = row.get("imageUrl") or ""
+            item["reviewRequested"] = bool(row.get("reviewRequested"))
             identified.append(item)
         else:
             unresolved.append(sanitize_unresolved(row))
-    return identified, unresolved, excluded
+    return identified, unresolved, excluded, cancelled
 
 
 
@@ -629,13 +635,17 @@ def load_sources(args: argparse.Namespace) -> tuple[list[dict[str, Any]], dict[s
         except SystemExit as exc:
             print(exc)
     if gmail_rows:
-        identified, unresolved, excluded = split_gmail_items(gmail_rows, include_paid=include_paid)
+        gmail_rows = join_order_emails(gmail_rows)
+        identified, unresolved, excluded, cancelled = split_gmail_items(
+            gmail_rows, include_paid=include_paid
+        )
         groups.append(identified)
         meta["unresolvedZeroCostOrders"].extend(unresolved)
         meta["excludedPaid"] += excluded
         meta["gmailParsed"] = len(gmail_rows)
         meta["gmailIdentified"] = len(identified)
         meta["gmailUnresolved"] = len(unresolved)
+        meta["gmailCancelled"] = cancelled
     if not groups:
         raise SystemExit(
             "No source given. Use --from-gmail, --from-gmail-json, --from-mbox, "
@@ -718,7 +728,8 @@ def main(argv: list[str] | None = None) -> int:
     if meta.get("gmailParsed") is not None:
         print(
             f"Gmail: parsed {meta['gmailParsed']}, identified {meta['gmailIdentified']}, "
-            f"unresolved $0 orders {meta['gmailUnresolved']}, excluded paid {meta['excludedPaid']}."
+            f"unresolved $0 orders {meta['gmailUnresolved']}, cancelled {meta.get('gmailCancelled') or 0}, "
+            f"excluded paid {meta['excludedPaid']}."
         )
         print(meta.get("gmailNote") or "")
     if args.write_reviews:
