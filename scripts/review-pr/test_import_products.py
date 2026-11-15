@@ -153,3 +153,58 @@ def test_placeholder_svg_is_not_a_real_photo(tmp_path: Path):
     assert import_products.folder_has_photo(image_dir) is False
     (image_dir / "final-review.jpg").write_bytes(b"jpeg")
     assert import_products.folder_has_photo(image_dir) is True
+
+
+def test_preferred_slug_keeps_shared_asin_rows_distinct():
+    a = import_products.normalize_product(
+        {"name": "Toploader Binder 9-Pocket Black - Migeec", "asin": "B0HD613SGQ", "id": "aaa"}
+    )
+    b = import_products.normalize_product(
+        {
+            "name": "Toploader Binder 9-Pocket Black PU Leather (Holds 288)",
+            "asin": "B0HD613SGQ",
+            "id": "bbb",
+        }
+    )
+    assert a["slug"] == "toploader-9-pocket-migeec"
+    assert b["slug"] == "toploader-9-pocket-pu-leather"
+    merged = import_products.merge_products([a, b])
+    assert len(merged) == 2
+
+
+def test_truncated_preview_does_not_become_review_body():
+    from notion_source import extract_review_from_preview
+
+    parsed = extract_review_from_preview(
+        "4 stars | Title: Cute ornaments | This 12-piece set has a nice rustic look..."
+    )
+    assert parsed["rating"] == 4
+    assert parsed["title"] == "Cute ornaments"
+    assert parsed["body"] == ""
+
+
+def test_vine_csv_adds_only_new_items():
+    from vine_source import parse_vine_csv_text
+
+    notion = import_products.load_json_inventory(FIXTURES / "notion-inventory.json")
+    vine = [
+        import_products.normalize_product(row, source="vine")
+        for row in parse_vine_csv_text((FIXTURES / "vine-sample.csv").read_text())
+    ]
+    merged = import_products.merge_products(notion, vine)
+    assert sum(1 for item in merged if item["asin"] == "B0HHHNY9S7") == 1
+    assert any(item["asin"] == "B0VINE00001" for item in merged)
+
+
+def test_live_notion_snapshot_leaves_migeec_and_garvee_gaps():
+    rows = import_products.load_json_inventory(FIXTURES / "notion-inventory.json")
+    assert len(rows) == 12
+    migeec = next(item for item in rows if item["slug"] == "toploader-9-pocket-migeec")
+    assert migeec["title"] == ""
+    assert migeec["body"] == ""
+    assert "title" in migeec["missingFields"]
+    garvee = next(item for item in rows if item["slug"] == "garvee-camping-chair")
+    assert garvee["title"]
+    assert garvee["body"]
+    assert garvee["rating"] is None
+    assert "rating" in garvee["missingFields"]
