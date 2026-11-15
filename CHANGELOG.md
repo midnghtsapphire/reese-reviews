@@ -8,6 +8,11 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **Review Desk:** a `/review-desk` page for walking through each product review one at a time, editing any field, and replacing generated photos. Submit stays with Audrey. A Start button fills a form in order — title, pause, images, pause, written review — and then waits for her to press Submit.
+- **Review PRs:** `reviews/<slug>/review.md` plus `images/`, a generator at `scripts/review-pr/`, and a CircleCI completeness check for required fields (rating, title, review text, and an image or text-only).
+- **review-poster agent:** an in-repo GitHub-native agent (`agents/review-poster/`, also declared in `.github/agents/review-poster.agent.md`), not a Grok bot. After a review PR is merged with the `approved-to-post` label, CircleCI on main publishes it to the Reese Reviews site. The Amazon filler runs only on Audrey's computer and never clicks Submit.
+
 ### Changed
 - **Amazon review WR and resale inventory forms:** Stage 3 and the inventory Image field now follow the Notion item-page image process (Original Product Photo, crop / background removal / light filter, Final Review Photo, Image still needed). Text-only reviews are still allowed. The previous Stage 3 media-check fields are commented out with a REVVEL-DISABLED header, not deleted.
 - **Amazon reviews reference:** the image-process section now links to `tools/review-image` and the local commands.

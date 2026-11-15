@@ -5,6 +5,7 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 import ReviewCard from "@/components/ReviewCard";
 import SEOHead from "@/components/SEOHead";
 import { getApprovedReviews, CATEGORIES, type ReviewCategory } from "@/lib/reviewStore";
+import { getPublishedRepoReviews } from "@/lib/repoReviews";
 import SchemaJsonLd from "@/components/seo/SchemaJsonLd";
 import {
   generateCollectionPageSchema,
@@ -24,7 +25,11 @@ const Reviews = () => {
   const [sortBy, setSortBy] = useState("newest");
   const [showFilters, setShowFilters] = useState(false);
 
-  const allReviews = getApprovedReviews();
+  const allReviews = (() => {
+    const repo = getPublishedRepoReviews();
+    const slugs = new Set(repo.map((review) => review.slug));
+    return [...repo, ...getApprovedReviews().filter((review) => !slugs.has(review.slug))];
+  })();
 
   const filteredReviews = useMemo(() => {
     let results = allReviews;

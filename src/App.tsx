@@ -39,6 +39,7 @@ const MusicVideoPage = lazy(() => import("@/pages/MusicVideoPage"));
 const PublishWizardPage = lazy(() => import("@/pages/PublishWizardPage"));
 const YouTubeManagerPage = lazy(() => import("@/pages/YouTubeManagerPage"));
 const DocsPage = lazy(() => import("@/pages/DocsPage"));
+const ReviewDeskPage = lazy(() => import("@/pages/ReviewDeskPage"));
 
 // ─── Team C: Marketing Hub & Social Calendar ────────────────
 const MarketingHub = lazy(() => import("@/pages/MarketingHub"));
@@ -207,6 +208,9 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+
+        {/* ─── Review Desk (works locally without a login) ─ */}
+        <Route path="/review-desk" element={<PublicLayout><ReviewDeskPage /></PublicLayout>} />
 
         {/* ─── Docs (protected) ─────────────────────────── */}
         <Route
