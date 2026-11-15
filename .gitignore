@@ -62,3 +62,10 @@ Thumbs.db
 
 # TypeDoc generated API docs
 docs/api/
+
+# Review poster local progress (never commit)
+**/.poster-progress.json
+
+# Importer raw sources (order numbers / email bodies). Keep the README.
+scripts/review-pr/fixtures/private/*
+!scripts/review-pr/fixtures/private/README.md

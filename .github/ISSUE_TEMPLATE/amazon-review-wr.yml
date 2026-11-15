@@ -1,6 +1,6 @@
 # Canonical: revvel-standards; mirrored in reese-reviews.
 name: "WR: Amazon review"
-description: Walk one Amazon review from Audrey’s draft through proof, compliance, media checks, and a gated post. Manual — one review at a time.
+description: Walk one Amazon review from Audrey’s draft through proof, compliance, the Notion image process, and a gated post. Manual — one review at a time.
 title: "WR: Amazon review — "
 body:
   - type: markdown
@@ -8,7 +8,7 @@ body:
       value: |
         Use this work request for **one review**. Do not batch products or bulk-post.
 
-        **Flow:** Audrey’s draft → Proofy proof (spelling, accuracy, facts match the product she actually used) → compliance checks → media check (her own photos or video only) → **Proofy: FINAL APPROVED** and **Audrey's yes** → Proofy posts it on Amazon.
+        **Flow:** Audrey’s draft → Proofy proof (spelling, accuracy, facts match the product she actually used) → compliance checks → image process (Original Product Photo → crop, background removal, light filter → Final Review Photo, or text-only / Image still needed) → **Proofy: FINAL APPROVED** and **Audrey's yes** → Proofy posts it on Amazon.
 
         Each stage has a **Proofy: APPROVED** box. Do not start the next stage until the current one is approved.
 
@@ -124,29 +124,86 @@ body:
       options:
         - label: "Proofy: APPROVED — compliance checks passed"
 
+  # REVVEL-DISABLED 2026-11-14 (Audrey: replaced by Notion image process)
+  # - type: textarea
+  #   id: stage_media
+  #   attributes:
+  #     label: "Stage 3 — Media check (her own photos or video only)"
+  #     description: Media must be Audrey’s own photos or video of this product, or content she has permission to use. Seller, stock, or listing images are not allowed. Do not include nudity, other people’s faces or private information, or affiliate-tagged URLs. Note any crop or background cleanup, but do not alter the product to look unlike what she received.
+  #     placeholder: "File paths or attachments, who took them, and any processing (crop, background, light)."
+  #
+  # - type: checkboxes
+  #   id: stage_media_reqs
+  #   attributes:
+  #     label: Media requirements
+  #     options:
+  #       - label: Photos or video are Audrey’s own (or she has permission to use them)
+  #       - label: Media shows the product she received, not a listing or stock image
+  #       - label: No private information, contact details, or other people’s identifiable info in the frame
+  #       - label: No media, or media is skipped, if nothing suitable is ready (text-only is allowed)
+  #
+  # - type: checkboxes
+  #   id: stage_media_approval
+  #   attributes:
+  #     label: Stage 3 approval
+  #     options:
+  #       - label: "Proofy: APPROVED — media is ready, or this review will be posted without media"
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Stage 3 — Image process
+
+        Same layout as the Notion item pages in **Amazon Resale Inventory (Reviewed NIB)**. Photos must be Audrey’s own photos of this product (Amazon community guidelines).
+
+        Start with the **Original Product Photo**. Before Amazon upload, crop it, remove the background, and apply a light filter. The **Final Review Photo** should match the original size plus the light filter, and the product must still look like what she received. Human approval and text edits still come before submit.
+
+        Text-only is still allowed. If the photo is not ready, choose **Image still needed** and do not approve this stage until the final photo is ready or you decide to post without a photo.
+
+        To run the image process from a selectable work request (product URL or ASIN, crop / background / text-and-watermark removal / filter, review / social / cutout outputs, optional Notion upload), open a **[Product Image Process (WR)](https://github.com/midnghtsapphire/reese-reviews/issues/new?template=product-image-process-wr.yml)**. Leave this review WR open. Stage 3 here stays the record of the Original Product Photo and the Final Review Photo for this review.
+
   - type: textarea
-    id: stage_media
+    id: original_product_photo
     attributes:
-      label: "Stage 3 — Media check (her own photos or video only)"
-      description: Media must be Audrey’s own photos or video of this product, or content she has permission to use. Seller, stock, or listing images are not allowed. Do not include nudity, other people’s faces or private information, or affiliate-tagged URLs. Note any crop or background cleanup, but do not alter the product to look unlike what she received.
-      placeholder: "File paths or attachments, who took them, and any processing (crop, background, light)."
+      label: Original Product Photo
+      description: Audrey’s own photo of this product, before processing. Attach the file to the issue or paste a path or link.
+      placeholder: Attachment, path, or link to the original photo.
 
   - type: checkboxes
-    id: stage_media_reqs
+    id: image_process
     attributes:
-      label: Media requirements
+      label: Image processing
+      description: Complete these before Amazon upload when a photo is included. Skip if this review will be text-only or the image is still needed.
       options:
-        - label: Photos or video are Audrey’s own (or she has permission to use them)
-        - label: Media shows the product she received, not a listing or stock image
-        - label: No private information, contact details, or other people’s identifiable info in the frame
-        - label: No media, or media is skipped, if nothing suitable is ready (text-only is allowed)
+        - label: Crop
+        - label: Background removal
+        - label: Light filter
+        - label: Final Review Photo matches original size
+        - label: Product still looks like what she received
+
+  - type: textarea
+    id: final_review_photo
+    attributes:
+      label: Final Review Photo (matches original size + light filter)
+      description: The processed image for Amazon upload. Attach the file to the issue or paste a path or link. Leave blank if the image is still needed or this review is text-only.
+      placeholder: Attachment, path, or link to the processed final review photo.
+
+  - type: dropdown
+    id: image_status
+    attributes:
+      label: Image status
+      description: Choose one. Text-only is allowed. If the photo is not ready, choose Image still needed.
+      options:
+        - Final Review Photo is ready
+        - Image still needed
+        - Text-only — no photo for this review
 
   - type: checkboxes
-    id: stage_media_approval
+    id: stage_image_approval
     attributes:
       label: Stage 3 approval
       options:
-        - label: "Proofy: APPROVED — media is ready, or this review will be posted without media"
+        - label: "Proofy: APPROVED — Final Review Photo is ready, or this review will be posted text-only / without a photo"
 
   - type: markdown
     attributes:

@@ -73,10 +73,21 @@ cp .env.example .env
 npm run dev
 ```
 
+### Review Desk
+Walk through each product review, edit anything, and replace generated photos:
+```bash
+npm ci
+npm run dev
+```
+Then open [http://localhost:8080/review-desk](http://localhost:8080/review-desk).
+
+The desk grabs every product that needs a review with `python3 scripts/review-pr/import_products.py` (Gmail $0 / Vine emails, Notion, a local JSON snapshot, or an order-history CSV). Paid orders are skipped by default. Create draft review PRs with `python3 scripts/review-pr/generate.py --root .` (add `--open-pr` when you want one PR per product). The in-repo **review-poster** agent (not a Grok bot) publishes an approved review to the Reese Reviews site after merge. Amazon posting only runs on your computer, fills title, then images, then the review, with a short pause between fields, and waits for you to press Submit. Full walkthrough: [docs/REVIEW-DESK.md](docs/REVIEW-DESK.md).
+
 ---
 
 ## 📚 Documentation
 
+- [Review Desk](docs/REVIEW-DESK.md) — walk through each product review and the GitHub-native poster agent
 - [Changelog](CHANGELOG.md)
 - [Product Backlog](docs/BACKLOG.md) — all outstanding work, prioritized for agents and humans
 - [Agent Completion Guide](docs/AGENT_COMPLETION_GUIDE.md) — why agents fail to finish + playbook

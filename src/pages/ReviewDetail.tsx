@@ -5,12 +5,15 @@ import StarRating from "@/components/StarRating";
 import { ReviewSEO } from "@/components/SEOHead";
 import SEOHead from "@/components/SEOHead";
 import { getReviewBySlug, generateAffiliateLink, CATEGORIES } from "@/lib/reviewStore";
+import { getPublishedRepoReviews } from "@/lib/repoReviews";
 import { AvatarReviewOverlay } from "@/components/avatar";
 import ReviewSchemaWrapper from "@/components/seo/ReviewSchemaWrapper";
 
 const ReviewDetail = () => {
   const { slug } = useParams<{ slug: string }>();
-  const review = slug ? getReviewBySlug(slug) : undefined;
+  const review = slug
+    ? getPublishedRepoReviews().find((item) => item.slug === slug) ?? getReviewBySlug(slug)
+    : undefined;
 
   if (!review) {
     return (

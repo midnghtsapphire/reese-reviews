@@ -1,0 +1,8 @@
+# Ledger — review-image
+
+| Date | Change | Notes |
+| --- | --- | --- |
+| 2026-11-14 | Added `tools/review-image` CLI | Implements the Notion item-page image process (crop, rembg / OpenCV background removal, light filter, original pixel size). Credits VineFlow’s rembg design; VineFlow’s `cli/image.py` was only a stub and was not modified. No live Notion writes from tests. No tracking or paid APIs required. |
+| 2026-11-14 | General reusable process + Product Image Process WR | Added `--from-url` / `--asin` (copy listing or direct image), `--remove-text`, `--preset` (`review`, `social`, `cutout`, `all`), pluggable Notion uploader (token path + documented connector-run path). Selectable GitHub issue form `Product Image Process (WR)`. CircleCI queue for `image-process` issues (schedule documented in SETUP.md, not invented). n8n / Zapier entry in the README. Linked from Stage 3 of `amazon-review-wr.yml` (edit only). Tests stay offline. |
+
+| 2026-11-14 | Review Desk product importer | `scripts/review-pr/import_products.py` loads Gmail $0 / Vine emails (read-only), the Notion inventory, JSON snapshots, and order-history / Vine CSVs. Paid orders excluded by default. Does not visit Amazon or invent review text. CircleCI `run_product_import` is documented, not scheduled from the box. Tokens pending. Demo placeholder archived, not deleted. |

@@ -11,6 +11,9 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false,
     },
+    fs: {
+      allow: [".", "./reviews"],
+    },
   },
   plugins: [react()].filter(Boolean),
   resolve: {
