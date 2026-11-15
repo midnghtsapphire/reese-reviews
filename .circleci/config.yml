@@ -1,20 +1,34 @@
-# CircleCI for the review-image CLI tests.
-# Manual / branch-only so ordinary pushes to main do not spend
-# free-plan credits. Set pipeline parameter run_review_image=true
-# to run on any branch, including main.
+# CircleCI for the review-image CLI tests and the Product Image
+# Process (WR) queue.
+#
+# Manual / branch-only test job so ordinary pushes to main do not
+# spend free-plan credits. Set pipeline parameter run_review_image=true
+# to run tests on any branch, including main.
+#
+# The image-process queue does not run on push. Set
+# run_image_process_queue=true (CircleCI Schedule every 15 minutes,
+# or an n8n / Zapier pipeline trigger). See tools/review-image/SETUP.md
+# for the context, token, labels, and how to create the schedule.
+# Do not invent a live schedule from this file alone — CircleCI
+# scheduled pipelines are created in the project UI or API.
 #
 # A separate draft PR (reese-reviews #77) proposes Node lint/test
 # and Trivy jobs. When that lands, add those jobs to this file
 # rather than replacing it.
 # Review Desk completeness, frontend tests, and the review-poster
-# unit tests are added below; the review-image job is unchanged.
+# unit tests are added below; the review-image jobs are unchanged.
 #
-# GitHub Actions workflows are unchanged.
+# GitHub Actions workflows are unchanged (billing-locked). Event-shaped
+# jobs can also use ops/self-hosted-ci on a machine Audrey controls;
+# see tools/review-image/SETUP.md.
 
 version: 2.1
 
 parameters:
   run_review_image:
+    type: boolean
+    default: false
+  run_image_process_queue:
     type: boolean
     default: false
 
@@ -34,10 +48,39 @@ jobs:
           name: Pytest (OpenCV fallback, no rembg model download)
           environment:
             REVIEW_IMAGE_FORCE_OPENCV: "1"
+            REVIEW_IMAGE_NO_NETWORK: "1"
             PYTHONPATH: tools/review-image
           command: |
             cd tools/review-image
             PYTHONPATH=. python3 -m pytest -q
+
+  image-process-queue:
+    docker:
+      - image: cimg/python:3.12
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: Install review-image dependencies
+          command: |
+            python3 -m pip install --upgrade pip
+            python3 -m pip install -r tools/review-image/requirements.txt
+            # rembg is optional. Skip the model download if it is not
+            # already cached; the OpenCV fallback still produces a result.
+            python3 -m pip install "rembg[cpu]" || true
+      - run:
+          name: Process open Product Image Process (WR) issues
+          environment:
+            PYTHONPATH: tools/review-image
+          command: |
+            if [ -z "${IMAGE_PROCESS_GITHUB_TOKEN:-}${GITHUB_TOKEN:-}${GH_TOKEN:-}" ]; then
+              echo "No GitHub token in the environment."
+              echo "Add IMAGE_PROCESS_GITHUB_TOKEN to a CircleCI context or project env,"
+              echo "and attach it to this pipeline. See tools/review-image/SETUP.md."
+              exit 2
+            fi
+            cd tools/review-image
+            PYTHONPATH=. python3 -m review_image.queue
 
   review-completeness:
     docker:
@@ -104,6 +147,11 @@ workflows:
       - review-completeness
       - review-desk-frontend
       - review-poster-tests
+
+  image-process-queue:
+    when: << pipeline.parameters.run_image_process_queue >>
+    jobs:
+      - image-process-queue
 
   review-poster-on-main:
     when:
