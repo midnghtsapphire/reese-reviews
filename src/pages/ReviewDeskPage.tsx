@@ -18,7 +18,7 @@ import {
   loadReviewFromBranch,
 } from "@/review-desk/github";
 import { serializeReviewMarkdown } from "@/review-desk/parseReview";
-import { getSampleReviews } from "@/review-desk/sample";
+import { getLocalReviews, getSampleReviews } from "@/review-desk/sample";
 import {
   DEFAULT_FIELD_DELAY_SEC,
   initialFillProgress,
@@ -44,7 +44,7 @@ function fieldsOf(review: ProductReview, extraImages = 0) {
 export default function ReviewDeskPage() {
   const [reviews, setReviews] = useState<ProductReview[]>(() => getSampleReviews());
   const [index, setIndex] = useState(0);
-  const [mode, setMode] = useState<"demo" | "github">("demo");
+  const [mode, setMode] = useState<"demo" | "local" | "github">("local");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState("");
@@ -64,11 +64,12 @@ export default function ReviewDeskPage() {
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
+    const local = getLocalReviews();
     try {
       const pulls = await listReviewPulls(DEFAULT_REPO, token || undefined);
       if (!pulls.length) {
-        setReviews(getSampleReviews());
-        setMode("demo");
+        setReviews(local.length ? local : getSampleReviews());
+        setMode(local.length ? "local" : "demo");
         return;
       }
       const loaded: ProductReview[] = [];
@@ -77,8 +78,8 @@ export default function ReviewDeskPage() {
         if (review) loaded.push(review);
       }
       if (!loaded.length) {
-        setReviews(getSampleReviews());
-        setMode("demo");
+        setReviews(local.length ? local : getSampleReviews());
+        setMode(local.length ? "local" : "demo");
         setError("Open review PRs were found, but none had a reviews/<slug>/review.md file yet.");
         return;
       }
@@ -86,9 +87,9 @@ export default function ReviewDeskPage() {
       setMode("github");
       setIndex(0);
     } catch (err) {
-      setReviews(getSampleReviews());
-      setMode("demo");
-      setError(err instanceof Error ? err.message : "Could not load review pull requests.");
+      setReviews(local.length ? local : getSampleReviews());
+      setMode(local.length ? "local" : "demo");
+      setError(`${err instanceof Error ? err.message : "Could not load review pull requests."} Showing every product imported into this checkout instead.`);
     } finally {
       setLoading(false);
     }
@@ -250,7 +251,7 @@ export default function ReviewDeskPage() {
             <h1 className="font-serif text-3xl font-bold text-foreground">Review Desk</h1>
             <p className="text-sm text-muted-foreground" aria-live="polite">
               {index + 1} of {reviews.length}
-              {mode === "demo" ? " · Demo" : " · Open review PRs"}
+              {mode === "github" ? " · Open review PRs" : mode === "local" ? " · Local queue" : " · Demo"}
             </p>
           </div>
           <p className="mt-3 max-w-3xl text-sm text-muted-foreground">
@@ -260,8 +261,34 @@ export default function ReviewDeskPage() {
 
         {error && (
           <p className="mb-4 rounded-lg border border-border bg-card px-4 py-3 text-sm text-muted-foreground" role="status">
-            {error} Showing the sample review so you can still walk through the desk.
+            {error}
           </p>
+        )}
+
+        {reviews.length > 1 && (
+          <nav aria-label="Products that need a review" className="mb-4 grid gap-2 sm:grid-cols-2">
+            {reviews.map((item, itemIndex) => {
+              const itemComplete = checkCompleteness(fieldsOf(item)).complete;
+              const selected = itemIndex === index;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setIndex(itemIndex)}
+                  className={`rounded-lg border px-3 py-2 text-left text-sm transition-colors ${
+                    selected
+                      ? "border-primary bg-card text-foreground"
+                      : "border-border bg-card/60 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <span className="block font-medium text-foreground">{item.name}</span>
+                  <span className="mt-1 block text-xs">
+                    {item.asin || "No ASIN"} · {itemComplete ? "Ready" : "Needs fields"}
+                  </span>
+                </button>
+              );
+            })}
+          </nav>
         )}
 
         <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -282,6 +309,7 @@ export default function ReviewDeskPage() {
             </a>
           )}
         </div>
+
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
           <section className="rounded-xl border border-border bg-card p-5 shadow-sm" aria-labelledby="product-heading">

@@ -9,6 +9,9 @@
 # run_image_process_queue=true (CircleCI Schedule every 15 minutes,
 # or an n8n / Zapier pipeline trigger). See tools/review-image/SETUP.md
 # for the context, token, labels, and how to create the schedule.
+# The product import does not run on push. Set
+# run_product_import=true on a CircleCI scheduled pipeline (document
+# the setup in docs/REVIEW-DESK.md; do not invent a live schedule here).
 # Do not invent a live schedule from this file alone — CircleCI
 # scheduled pipelines are created in the project UI or API.
 #
@@ -29,6 +32,9 @@ parameters:
     type: boolean
     default: false
   run_image_process_queue:
+    type: boolean
+    default: false
+  run_product_import:
     type: boolean
     default: false
 
@@ -123,6 +129,7 @@ jobs:
             python3 -m pip install --upgrade pip
             python3 -m pip install pytest
             python3 -m pytest -q scripts/review-pr/test_check_completeness.py
+            python3 -m pytest -q scripts/review-pr/test_import_products.py
             python3 -m pytest -q agents/review-poster/tests
 
   review-poster-site:
@@ -134,6 +141,47 @@ jobs:
       - run:
           name: Publish approved reviews to the site (never Amazon)
           command: python3 agents/review-poster/publish_to_site.py
+
+  product-import:
+    docker:
+      - image: cimg/python:3.12
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: Import $0 / Vine products into Review Desk
+          command: |
+            set -e
+            FLAGS=(
+              --root .
+              --write-reviews
+              --snapshot scripts/review-pr/fixtures/product-queue.json
+              --from-json scripts/review-pr/fixtures/notion-inventory.json
+              --from-gmail-json scripts/review-pr/fixtures/gmail-zero-cost-snapshot.json
+            )
+            if [ -n "${NOTION_TOKEN:-}" ]; then
+              FLAGS+=(--from-notion)
+            else
+              echo "NOTION_TOKEN is pending. Using the committed Notion snapshot."
+              echo "Add NOTION_TOKEN to a CircleCI context (image-process or product-import)."
+              echo "See docs/REVIEW-DESK.md."
+            fi
+            if [ -n "${GMAIL_REFRESH_TOKEN:-}${GMAIL_ACCESS_TOKEN:-}" ]; then
+              FLAGS+=(--from-gmail)
+            else
+              echo "Gmail OAuth credentials are pending. Using the committed Gmail snapshot."
+              echo "This job is read-only and never sends, labels, archives, or modifies mail."
+            fi
+            if [ -n "${AMAZON_ORDERS_CSV:-}" ] && [ -f "${AMAZON_ORDERS_CSV}" ]; then
+              FLAGS+=(--from-orders "${AMAZON_ORDERS_CSV}")
+            fi
+            python3 scripts/review-pr/import_products.py "${FLAGS[@]}"
+            if [ -n "${IMAGE_PROCESS_GITHUB_TOKEN:-}${GITHUB_TOKEN:-}${GH_TOKEN:-}" ]; then
+              command -v gh >/dev/null || { sudo apt-get update -y && sudo apt-get install -y gh; }
+              python3 scripts/review-pr/import_products.py "${FLAGS[@]}" --open-import-pr
+            else
+              echo "No GitHub token; skipped opening the draft import PR."
+            fi
 
 workflows:
   review-image-tests:
@@ -152,6 +200,11 @@ workflows:
     when: << pipeline.parameters.run_image_process_queue >>
     jobs:
       - image-process-queue
+
+  product-import:
+    when: << pipeline.parameters.run_product_import >>
+    jobs:
+      - product-import
 
   review-poster-on-main:
     when:

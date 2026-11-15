@@ -1,0 +1,2 @@
+name,asin,amazonUrl,title,body,rating,reviewStatus,slug
+CSV Only Mug,B0CSVONLY1,https://www.amazon.com/dp/B0CSVONLY1,A sturdy mug,"The mug is sturdy and the size is right.",4,To Review,csv-only-mug
