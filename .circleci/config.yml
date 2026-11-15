@@ -96,7 +96,14 @@ jobs:
       - checkout
       - run:
           name: Check review.md required fields
-          command: python3 scripts/review-pr/check_completeness.py --root .
+          command: |
+            if [[ "${CIRCLE_BRANCH:-}" == review/* ]]; then
+              python3 scripts/review-pr/check_completeness.py --root .
+            else
+              # Importer/feature branches may include products that still have
+              # empty Notion fields. Report the gaps; fail only on review/* PRs.
+              python3 scripts/review-pr/check_completeness.py --root . --report-only
+            fi
 
   review-desk-frontend:
     docker:
