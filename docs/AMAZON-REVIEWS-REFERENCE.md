@@ -88,6 +88,14 @@ The public help pages fetched on 14 November 2026 **do not state** a character l
 
 House practice from Audrey’s Notion (not an Amazon rule), as shown on the item pages: keep an **Original Product Photo** and a **Final Review Photo (matches original size + light filter)**. Crop, background removal, and a light filter are applied to **her** photos before Amazon upload, as long as the final image still shows the product she received and is not a seller or stock shot. If the processed photo is not ready, the page is marked **Image still needed**. When it is ready: upload the processed image, then submit. Text-only reviews are still allowed.
 
+A local CLI in [`tools/review-image`](../tools/review-image/README.md) runs that process: crop, remove the background, apply the light filter, and match the original pixel size.
+
+```bash
+cd tools/review-image
+python3 -m pip install -r requirements.txt
+PYTHONPATH=. python3 -m review_image /path/to/your-original.jpg
+```
+
 ### Review posting frequency and limits
 
 - If Amazon finds unusual reviewing behavior, it may limit the ability to submit reviews. ([Community Guidelines](https://www.amazon.com/gp/help/customer/display.html?nodeId=GLHXEX85MENUE4XF))
