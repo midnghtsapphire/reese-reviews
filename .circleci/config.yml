@@ -1,0 +1,48 @@
+# CircleCI for the review-image CLI tests.
+# Manual / branch-only so ordinary pushes to main do not spend
+# free-plan credits. Set pipeline parameter run_review_image=true
+# to run on any branch, including main.
+#
+# A separate draft PR (reese-reviews #77) proposes Node lint/test
+# and Trivy jobs. When that lands, add those jobs to this file
+# rather than replacing it.
+#
+# GitHub Actions workflows are unchanged.
+
+version: 2.1
+
+parameters:
+  run_review_image:
+    type: boolean
+    default: false
+
+jobs:
+  review-image-test:
+    docker:
+      - image: cimg/python:3.12
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: Install review-image test dependencies
+          command: |
+            python3 -m pip install --upgrade pip
+            python3 -m pip install -r tools/review-image/requirements.txt
+      - run:
+          name: Pytest (OpenCV fallback, no rembg model download)
+          environment:
+            REVIEW_IMAGE_FORCE_OPENCV: "1"
+            PYTHONPATH: tools/review-image
+          command: |
+            cd tools/review-image
+            PYTHONPATH=. python3 -m pytest -q
+
+workflows:
+  review-image-tests:
+    when:
+      or:
+        - << pipeline.parameters.run_review_image >>
+        - not:
+            equal: [ main, << pipeline.git.branch >> ]
+    jobs:
+      - review-image-test

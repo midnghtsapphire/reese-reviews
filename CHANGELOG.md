@@ -10,8 +10,10 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 - **Amazon review WR and resale inventory forms:** Stage 3 and the inventory Image field now follow the Notion item-page image process (Original Product Photo, crop / background removal / light filter, Final Review Photo, Image still needed). Text-only reviews are still allowed. The previous Stage 3 media-check fields are commented out with a REVVEL-DISABLED header, not deleted.
+- **Amazon reviews reference:** the image-process section now links to `tools/review-image` and the local commands.
 
 ### Added
+- **Review image CLI:** `tools/review-image` processes an Original Product Photo into a Final Review Photo (crop, rembg or OpenCV background removal, light filter, original pixel size). Optional Notion read/upload with `NOTION_TOKEN`. Credits VineFlow’s rembg design; listing-image fetch is not included because Amazon requires her own photos.
 - **Voice:** `voice/` — Reese's canonical voice profile (`Sulafat`, `en-US`), exact style strings, pronunciation guide, full reference voiceover, 10-second sample, ready-to-use speech payload, and ElevenLabs app integration notes.
 - **Content:** `content/2026-11-13-ring-play-yard-hack/` — 35–45 second script and setup checklist for using a Ring Battery Doorbell 2K in a kids' play yard, with honest supervision and privacy caveats.
 - **RR-508:** `src/__tests__/deployWorkflow.test.ts` — regression tests that the deploy workflow stays a single coherent document and `.do/app.yaml` never commits plaintext secrets.

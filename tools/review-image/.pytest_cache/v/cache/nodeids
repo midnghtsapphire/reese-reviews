@@ -1,0 +1,14 @@
+[
+  "tests/test_cli.py::test_cli_notion_without_token_prints_instructions",
+  "tests/test_cli.py::test_cli_writes_final_review_jpg",
+  "tests/test_notion_io.py::test_find_original_photo_prefers_labeled_block",
+  "tests/test_notion_io.py::test_parse_page_id_from_hex_and_url",
+  "tests/test_process.py::test_background_becomes_white",
+  "tests/test_process.py::test_crop_bbox_auto_tightens_around_product",
+  "tests/test_process.py::test_filter_none_vs_light_changes_brightness",
+  "tests/test_process.py::test_fit_to_size_pads_and_preserves_aspect",
+  "tests/test_process.py::test_keeps_two_product_views_on_white",
+  "tests/test_process.py::test_manual_crop",
+  "tests/test_process.py::test_output_size_matches_input",
+  "tests/test_process.py::test_product_color_stays_recognizable_with_light_filter"
+]
