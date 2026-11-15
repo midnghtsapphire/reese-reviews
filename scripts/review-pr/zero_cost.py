@@ -61,6 +61,29 @@ def is_zero_amount(value: Any) -> bool:
         return False
 
 
+def explicit_order_total(*parts: Any) -> float | None:
+    """Return a Grand Total / Total amount when that label is present.
+
+    Line-item list prices such as "89.99 USD" without a Total label are
+    ignored, so a Vine item's catalog price is not treated as the amount
+    charged.
+    """
+    text = "\n".join(str(part) for part in parts if part is not None and str(part).strip())
+    if not text:
+        return None
+    match = re.search(
+        r"(?:grand\s*)?total[\s:]*\$?\s*(\d+(?:\.\d{1,2})?)\s*(?:USD)?",
+        text,
+        re.I,
+    )
+    if not match:
+        return None
+    try:
+        return float(match.group(1))
+    except ValueError:
+        return None
+
+
 def is_zero_cost(*parts: Any) -> bool:
     """True if any part shows a $0.00 / 0 USD total or Vine wording.
 

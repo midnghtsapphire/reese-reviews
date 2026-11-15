@@ -4,10 +4,14 @@ Read-only. Never sends, labels, archives, or modifies mail.
 
 Current Amazon order, shipped, and delivered templates (as of 2026-11)
 include a $0.00 / 0 USD grand total and a category such as "Outerwear",
-but not the product name, ASIN, or product photo. Identified products
-therefore come from Notion or from an order-history CSV Audrey downloads
-herself. Images already linked in an email body may be used; this module
-does not fetch Amazon product or order pages.
+but not the product name, ASIN, or product photo. Other Amazon emails
+for the same order often do: review-request and seller-feedback emails,
+shipping-address updates, delivery-estimate updates, shipping delays,
+and cancellation notices. This module groups those messages by order
+number and fills in the name, ASIN, and any product image already
+linked in the email. Images already linked in an email body may be
+used; this module does not fetch Amazon product or order pages.
+Cancelled items are flagged and kept out of the Review Desk queue.
 """
 
 from __future__ import annotations
@@ -26,7 +30,7 @@ from email.message import Message
 from pathlib import Path
 from typing import Any
 
-from zero_cost import is_zero_cost
+from zero_cost import explicit_order_total, is_zero_cost
 
 CATEGORY_RE = re.compile(
     r"(?:ordered|shipped|delivered|out for delivery)\s+(\d+)\s+items?:\s*(.+)$",
@@ -39,6 +43,17 @@ ITEM_CATEGORY_RE = re.compile(
 ASIN_RE = re.compile(r"\b(B0[A-Z0-9]{8})\b")
 DP_RE = re.compile(r"(?:/dp/|/gp/product/)([A-Z0-9]{10})", re.I)
 ORDER_DATE_RE = re.compile(r"\b(20\d{2}-\d{2}-\d{2})")
+ORDER_NUMBER_RE = re.compile(r"(\d{3}-\d{7}-\d{7})")
+ASIN_QUERY_RE = re.compile(r"(?:[?&]asin=|/dp/|/gp/product/)([A-Z0-9]{10})", re.I)
+BULLET_NAME_RE = re.compile(r"^\*\s+(.+)$", re.M)
+SUBJECT_NAME_RE = re.compile(
+    r"(?:Shipping address updated|Item cancelled successfully|Item cancelled|Item canceled)\s*:\s*\"?(.+?)\"?\s*$",
+    re.I,
+)
+PRIMARY_TEXT_RE = re.compile(
+    r'class="primary-text-color"[^>]*>\s*([^<]{8,400})',
+    re.I,
+)
 PRODUCT_IMG_RE = re.compile(
     r"https?://[^\"'\s>]*(?:media-amazon\.com|images-na\.ssl-images-amazon\.com)/images/I/[^\"'\s>]+",
     re.I,
@@ -83,13 +98,23 @@ def extract_category(subject: str, body: str) -> str:
     return ""
 
 
+def extract_order_numbers(text: str) -> list[str]:
+    found: list[str] = []
+    for match in ORDER_NUMBER_RE.findall(text or ""):
+        if match not in found:
+            found.append(match)
+    return found
+
+
 def extract_asins(text: str) -> list[str]:
     found: list[str] = []
-    for regex in (DP_RE, ASIN_RE):
-        for match in regex.findall(text or ""):
-            asin = match.upper()
-            if asin not in found:
-                found.append(asin)
+    decoded = urllib.parse.unquote(text or "")
+    for source in (text or "", decoded):
+        for regex in (ASIN_QUERY_RE, DP_RE, ASIN_RE):
+            for match in regex.findall(source):
+                asin = match.upper()
+                if asin not in found:
+                    found.append(asin)
     return found
 
 
@@ -104,11 +129,190 @@ def extract_image_urls(html: str, body: str = "") -> list[str]:
 
 
 def extract_event(subject: str, body: str) -> str:
+    subject_l = (subject or "").lower()
+    body_l = (body or "").lower()
+    if "shipping address updated" in subject_l:
+        return "address_updated"
+    if "item cancelled" in subject_l or "item canceled" in subject_l or "were cancelled" in body_l:
+        return "cancelled"
+    if "delay in shipping" in subject_l or "shipment is delayed" in body_l:
+        return "delayed"
+    if "delivery estimate" in subject_l:
+        return "delivery_estimate"
+    if (
+        "review it on amazon" in subject_l
+        or "review your purchase" in subject_l
+        or "review-your-purchases" in body_l
+        or "your opinion matters" in body_l
+    ):
+        return "review_requested"
+    if "rate your transaction" in subject_l or "leave seller feedback" in body_l:
+        return "rate_transaction"
     for source in (subject or "", body or ""):
         match = EVENT_RE.search(source)
         if match:
             return match.group(1).lower()
     return ""
+
+
+_NAME_SKIP = re.compile(
+    r"(?i)^(your orders|your account|buy again|privacy notice|amazon\.com|"
+    r"grand total|view or edit order|view order details|quantity:.*|"
+    r"ordered|shipped|delivered|out for delivery|cancelled|arriving\b.*|"
+    r"update your preferences|unsubscribe)$"
+)
+
+
+def _clean_product_name(name: str) -> str:
+    name = re.sub(r"\s+", " ", (name or "").strip())
+    name = name.strip("\"'")
+    name = re.sub(r"\.{3,}$", "", name).strip()
+    return name
+
+
+def _is_real_product_name(name: str) -> bool:
+    name = (name or "").strip()
+    if len(name) < 8:
+        return False
+    if ORDER_NUMBER_RE.fullmatch(name):
+        return False
+    if _NAME_SKIP.match(name):
+        return False
+    if re.fullmatch(r"[\d.,\s$USD]+", name, re.I):
+        return False
+    return True
+
+
+def extract_product_name(subject: str, body: str, html: str = "") -> str:
+    """Return a product title from a review, address-update, delay, or cancel email."""
+    text = body or ""
+    if html:
+        text = f"{text}\n{_html_to_text(html)}"
+    for match in BULLET_NAME_RE.finditer(text):
+        name = _clean_product_name(match.group(1))
+        if _is_real_product_name(name):
+            return name
+    if html:
+        match = PRIMARY_TEXT_RE.search(html)
+        if match:
+            name = _clean_product_name(re.sub(r"\s+", " ", match.group(1)))
+            if _is_real_product_name(name):
+                return name
+    match = SUBJECT_NAME_RE.search(subject or "")
+    if match:
+        name = _clean_product_name(match.group(1))
+        if _is_real_product_name(name):
+            return name
+    return ""
+
+
+def _pick_longest(*values: str) -> str:
+    best = ""
+    for value in values:
+        text = (value or "").strip()
+        if len(text) > len(best):
+            best = text
+    return best
+
+
+def join_order_emails(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Merge Amazon emails that share an order number.
+
+    A $0 confirmation (no product name) plus a later review-request,
+    address-update, delay, or delivery-estimate email becomes one
+    identified product. An explicit paid Grand Total on any message
+    in the group marks the order paid. List prices such as "89.99 USD"
+    on a line item are not treated as the order total.
+    """
+    groups: dict[str, list[dict[str, Any]]] = {}
+    leftover: list[dict[str, Any]] = []
+    for item in items:
+        numbers = [num for num in (item.get("orderNumbers") or []) if num]
+        if not numbers:
+            leftover.append(item)
+            continue
+        # One email rarely has two order numbers; keep the first.
+        groups.setdefault(numbers[0], []).append(item)
+    merged = [_merge_order_group(order, rows) for order, rows in groups.items()]
+    merged.extend(leftover)
+    return merged
+
+
+def _merge_order_group(order: str, rows: list[dict[str, Any]]) -> dict[str, Any]:
+    base = dict(rows[0])
+    events: list[str] = []
+    asins: list[str] = []
+    images: list[str] = []
+    names: list[str] = []
+    categories: list[str] = []
+    dates: list[str] = []
+    explicit_zeros = 0
+    explicit_paid = 0
+    for row in rows:
+        event = (row.get("event") or "").strip()
+        if event and event not in events:
+            events.append(event)
+        asin = (row.get("asin") or "").strip().upper()
+        if asin and asin not in asins:
+            asins.append(asin)
+        image = (row.get("imageUrl") or "").strip()
+        if image and image not in images:
+            images.append(image)
+        name = (row.get("name") or "").strip()
+        if name and name not in names:
+            names.append(name)
+        category = (row.get("sourceCategory") or "").strip()
+        if category and category not in categories:
+            categories.append(category)
+        date = (row.get("orderDate") or "").strip()
+        if date:
+            dates.append(date)
+        total = row.get("explicitTotal")
+        if total is None:
+            continue
+        try:
+            value = float(total)
+        except (TypeError, ValueError):
+            continue
+        if value == 0.0:
+            explicit_zeros += 1
+        elif value > 0:
+            explicit_paid += 1
+    name = _pick_longest(*names)
+    asin = asins[0] if asins else ""
+    cancelled = any(
+        row.get("cancelled") or row.get("event") == "cancelled" for row in rows
+    )
+    review_requested = any(
+        row.get("reviewRequested")
+        or row.get("event") in {"review_requested", "rate_transaction"}
+        for row in rows
+    )
+    if explicit_zeros:
+        zero = True
+    elif explicit_paid:
+        zero = False
+    else:
+        zero = any(bool(row.get("zeroCost")) for row in rows)
+    base.update(
+        {
+            "name": name,
+            "asin": asin,
+            "amazonUrl": f"https://www.amazon.com/dp/{asin}" if asin else "",
+            "sourceCategory": categories[0] if categories else base.get("sourceCategory") or "",
+            "orderDate": min(dates) if dates else base.get("orderDate") or "",
+            "event": events[-1] if events else base.get("event") or "",
+            "events": events,
+            "imageUrl": images[0] if images else "",
+            "zeroCost": zero,
+            "identified": bool(name or asin),
+            "cancelled": cancelled,
+            "reviewRequested": review_requested,
+            "orderNumbers": [order],
+            "source": "gmail",
+        }
+    )
+    return base
 
 
 def parse_email_dict(raw: dict[str, Any]) -> dict[str, Any]:
@@ -133,8 +337,14 @@ def parse_email_dict(raw: dict[str, Any]) -> dict[str, Any]:
     asins = extract_asins(combined)
     images = extract_image_urls(html, body)
     name = (raw.get("name") or raw.get("product") or raw.get("productName") or "").strip()
+    if not name:
+        name = extract_product_name(subject, body, html)
     category = extract_category(subject, body)
-    zero = is_zero_cost(subject, body, html, raw.get("grandTotal"), raw.get("total"))
+    event = extract_event(subject, body)
+    total = explicit_order_total(subject, body, html, raw.get("grandTotal"), raw.get("total"))
+    zero = total == 0.0 if total is not None else is_zero_cost(
+        subject, body, html, raw.get("grandTotal"), raw.get("total")
+    )
     item = {
         "name": name,
         "asin": asins[0] if asins else "",
@@ -149,11 +359,16 @@ def parse_email_dict(raw: dict[str, Any]) -> dict[str, Any]:
         "status": "draft",
         "source": "gmail",
         "zeroCost": zero,
+        "explicitTotal": total,
         "orderDate": date,
-        "event": extract_event(subject, body),
+        "event": event,
+        "events": [event] if event else [],
         "imageUrl": images[0] if images else "",
         "hasFinalPhoto": False,
         "identified": bool(name or asins),
+        "cancelled": event == "cancelled",
+        "reviewRequested": event in {"review_requested", "rate_transaction"},
+        "orderNumbers": extract_order_numbers(combined),
     }
     return item
 
@@ -356,6 +571,8 @@ def _api_message_to_dict(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 DEFAULT_GMAIL_QUERY = (
-    'from:(shipment-tracking@amazon.com OR auto-confirm@amazon.com OR '
-    "order-update@amazon.com) newer_than:90d"
+    "from:(auto-confirm@amazon.com OR shipment-tracking@amazon.com OR "
+    "order-update@amazon.com OR no-reply@amazon.com OR "
+    "marketplace-messages@amazon.com OR payments-update@amazon.com) "
+    "newer_than:90d"
 )

@@ -54,7 +54,7 @@ Review Desk should grab **every product that needs a review**, not have them add
 
 **$0 cost is the queue rule.** Audrey's review products are Amazon Vine items with a `$0.00` (or `0.0 USD` / `0 USD`) order or item total. The importer treats a $0.00 total, or Vine wording, as "needs a review." Ordinary paid orders are skipped by default. Pass `--include-paid` only when you also want those paid orders on the desk.
 
-**Gmail is the primary source.** Amazon shipped, delivered, and auto-confirm emails are read only (never sent, labeled, archived, or modified). As of November 2026, those templates include the $0.00 total and a category such as "Outerwear," but not the product name, ASIN, or product photo. The importer does **not** visit, fetch, or scrape Amazon product or order pages. Images already linked inside an email body may be used.
+**Gmail is the primary source.** Amazon emails are read only (never sent, labeled, archived, or modified). As of November 2026, order, shipped, and delivered templates include the $0.00 total and a category such as "Outerwear," but not the product name, ASIN, or product photo. The importer groups later emails by order number and fills those fields from review-request and seller-feedback emails, shipping-address updates, delivery-estimate updates, and shipping-delay notices. Cancellation emails identify the item and keep it out of the queue. The importer does **not** visit, fetch, or scrape Amazon product or order pages. Images already linked inside an email body may be used.
 
 **Notion is the secondary source** — the Amazon Resale Inventory (Reviewed NIB) database — and is where identified product names, ASINs, and existing review drafts live. Existing review text is kept; nothing is invented.
 

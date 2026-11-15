@@ -3,9 +3,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import import_products
-from gmail_source import parse_email_dict
+from gmail_source import extract_asins, join_order_emails, load_gmail_json, parse_email_dict
 from order_csv import parse_order_csv_text
-from zero_cost import is_zero_cost, is_zero_amount, has_vine_wording
+from zero_cost import explicit_order_total, is_zero_cost, is_zero_amount, has_vine_wording
 
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
@@ -54,6 +54,85 @@ def test_gmail_parser_keeps_asin_and_image_when_present_in_the_email():
     assert item["identified"] is True
     assert "71UFbHmybWL" in item["imageUrl"]
     assert item["zeroCost"] is True
+
+
+def test_explicit_total_ignores_list_price_without_a_total_label():
+    assert explicit_order_total("Grand Total:\n0.0 USD") == 0.0
+    assert explicit_order_total("* Sample Widget\n  Quantity: 1\n  30.99 USD") is None
+    assert explicit_order_total("Total\n0 USD") == 0.0
+    assert explicit_order_total("Grand Total: $24.99") == 24.99
+
+
+def test_gmail_join_fills_name_asin_and_image_from_later_emails():
+    rows = load_gmail_json(FIXTURES / "gmail-order-join.json")
+    joined = join_order_emails(rows)
+    by_name = {row["name"]: row for row in joined if row.get("name")}
+    mat = by_name["Sample Kitchen Mat Set of 2, Washable Anti-Fatigue Mats for Kitchen and Laundry"]
+    assert mat["zeroCost"] is True
+    assert mat["asin"] == "B0EXAMPL01"
+    assert "51EXAMPLESL" in mat["imageUrl"]
+    assert mat["cancelled"] is False
+    light = by_name["Sample Galaxy Projection Night Light with 12 slides"]
+    assert light["zeroCost"] is True
+    assert light["asin"] == "B0EXAMPL02"
+    assert light["reviewRequested"] is True
+    cancelled = next(row for row in joined if row.get("cancelled"))
+    assert "Sample Tabi Mary Jane" in cancelled["name"]
+    paid = next(row for row in joined if row.get("explicitTotal") == 24.99)
+    assert paid["zeroCost"] is False
+    assert paid["identified"] is False
+
+
+def test_gmail_parser_reads_encoded_asin_and_review_event():
+    item = parse_email_dict(
+        {
+            "subject": "Did your recent Amazon order meet your expectations? Review it on Amazon",
+            "date": "2026-11-11",
+            "body": "Your opinion matters!\n111-0000009-0000009\nhttps://www.amazon.com/review/review-your-purchases/?asin=B0EXAMPL03%3A",
+            "htmlBody": '<div class="primary-text-color">Sample Sourdough Snack Minis</div>'
+            '<img class="productImage" src="https://m.media-amazon.com/images/I/51EXAMPLEQL._SR500,500_.jpg">',
+        }
+    )
+    assert item["event"] == "review_requested"
+    assert item["asin"] == "B0EXAMPL03"
+    assert item["name"] == "Sample Sourdough Snack Minis"
+    assert "51EXAMPLEQL" in item["imageUrl"]
+    assert item["orderNumbers"] == ["111-0000009-0000009"]
+    assert extract_asins("https://www.amazon.com/review/review-your-purchases/?asin=B0EXAMPL03%3A") == ["B0EXAMPL03"]
+
+
+def test_importer_join_fixture_queues_identified_zero_cost_only(tmp_path: Path):
+    snapshot = tmp_path / "queue.json"
+    rc = import_products.main(
+        [
+            "--root",
+            str(tmp_path),
+            "--from-gmail-json",
+            str(FIXTURES / "gmail-order-join.json"),
+            "--snapshot",
+            str(snapshot),
+            "--write-reviews",
+        ]
+    )
+    assert rc == 0
+    data = __import__("json").loads(snapshot.read_text(encoding="utf-8"))
+    names = {row["name"] for row in data["products"]}
+    assert "Sample Kitchen Mat Set of 2, Washable Anti-Fatigue Mats for Kitchen and Laundry" in names
+    assert "Sample Galaxy Projection Night Light with 12 slides" in names
+    assert not any("Tabi" in name for name in names)
+    assert not any("24.99" in (row.get("name") or "") for row in data["products"])
+    assert data["gmailIdentified"] == 2
+    assert data["gmailCancelled"] == 1
+    assert data["excludedPaid"] == 1
+    assert data["gmailUnresolved"] == 0
+    slugs = {row["slug"] for row in data["products"]}
+    assert (tmp_path / "reviews" / "sample-kitchen-mat-set-of-2-washable-anti-fatigue-mats-for-kitchen-and-laundry").is_dir() or any(
+        "kitchen-mat" in slug for slug in slugs
+    )
+    for row in data["products"]:
+        assert "orderNumbers" not in row
+        assert "111-" not in (row.get("body") or "")
+        assert "address" not in row
 
 
 def test_order_csv_keeps_zero_cost_and_drops_paid_by_default():
