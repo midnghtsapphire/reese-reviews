@@ -10,6 +10,7 @@ This file was created on 2026-11-19. No earlier entry exists.
 - **Role:** executed
 - **Files:** `.circleci/config.yml` (one job and one workflow appended); `.trivyignore.yaml` (new); `trivy.yaml` (new); `CHANGELOG.md`; `LEDGER.md`.
 - **What was done:** `docker-build` uses `setup_remote_docker` to build `Dockerfile` and `Dockerfile.api`, checks `id -u` is not 0 in both images and runs `nginx -t` in the web image. It pushes and deploys nothing. The ignore file names rule `jwt-token` and path `vitest.config.ts` only; `trivy.yaml` makes Trivy read it. A local Trivy v0.76.2 run showed the finding suppressed and no other finding hidden.
+- **Found by the new job:** the first `docker-build` run built both images (web uid 101, api uid 100) but `nginx -t` failed: the image's `nginx.conf` has `pid /run/nginx.pid;`, so my `sed` for `/var/run/nginx.pid` did not apply. Fixed in a new commit: the `sed` matches any pid path, the old line is kept as a comment, and the build fails if the edit does not apply.
 - **Decisions:** A plain `.trivyignore` cannot be scoped to a file, so the YAML form is used. The test JWT was not changed. No CVE or Dockerfile finding was ignored.
 - **Sources:** MEASURED: `circleci config validate` passes (10 jobs, 6 workflows). The docker-build result is on the PR's CircleCI run.
 - **Commits / PRs:** PR #100.
