@@ -11,6 +11,64 @@
 
 version: 2.1
 
+# ---------------------------------------------------------------------------
+# Repaired 2026-11-19 by Git-Master (issue #99, WR midnghtsapphire/revvel-standards#18494).
+# This file used to be two complete CircleCI configs pasted one after the other by
+# the "keep both" merge 39cf575a (two `version:`, `jobs:` and `workflows:` keys, which
+# CircleCI rejects as duplicate keys). They are now ONE config:
+#   - first half  (merge parent 51680d83): jobs lint-typecheck-test-build and trivy-fs,
+#                 workflow ci;
+#   - second half (merge parent 21709bb8): parameters run_review_image,
+#                 run_image_process_queue, run_product_import; jobs review-image-test,
+#                 image-process-queue, review-completeness, review-desk-frontend,
+#                 review-poster-tests, review-poster-site, product-import; workflows
+#                 review-image-tests, image-process-queue, product-import,
+#                 review-poster-on-main.
+# No job or workflow was dropped or renamed (there were no name collisions). The
+# superseded duplicate `version:`, `jobs:` and `workflows:` lines of the second half are
+# kept below as comments. The comment block that opened the second half follows.
+# ---------------------------------------------------------------------------
+
+# CircleCI for the review-image CLI tests and the Product Image
+# Process (WR) queue.
+#
+# Manual / branch-only test job so ordinary pushes to main do not
+# spend free-plan credits. Set pipeline parameter run_review_image=true
+# to run tests on any branch, including main.
+#
+# The image-process queue does not run on push. Set
+# run_image_process_queue=true (CircleCI Schedule every 15 minutes,
+# or an n8n / Zapier pipeline trigger). See tools/review-image/SETUP.md
+# for the context, token, labels, and how to create the schedule.
+# The product import does not run on push. Set
+# run_product_import=true on a CircleCI scheduled pipeline (document
+# the setup in docs/REVIEW-DESK.md; do not invent a live schedule here).
+# Do not invent a live schedule from this file alone — CircleCI
+# scheduled pipelines are created in the project UI or API.
+#
+# A separate draft PR (reese-reviews #77) proposes Node lint/test
+# and Trivy jobs. When that lands, add those jobs to this file
+# rather than replacing it.
+# Review Desk completeness, frontend tests, and the review-poster
+# unit tests are added below; the review-image jobs are unchanged.
+#
+# GitHub Actions workflows are unchanged (billing-locked). Event-shaped
+# jobs can also use ops/self-hosted-ci on a machine Audrey controls;
+# see tools/review-image/SETUP.md.
+
+# version: 2.1   # SUPERSEDED duplicate (second pasted config). `version` is set once, at the top.
+
+parameters:
+  run_review_image:
+    type: boolean
+    default: false
+  run_image_process_queue:
+    type: boolean
+    default: false
+  run_product_import:
+    type: boolean
+    default: false
+
 jobs:
   lint-typecheck-test-build:
     docker:
@@ -64,52 +122,8 @@ jobs:
           path: /tmp/trivy-report.txt
           destination: trivy-fs
 
-workflows:
-  ci:
-    jobs:
-      - lint-typecheck-test-build
-      - trivy-fs
-# CircleCI for the review-image CLI tests and the Product Image
-# Process (WR) queue.
-#
-# Manual / branch-only test job so ordinary pushes to main do not
-# spend free-plan credits. Set pipeline parameter run_review_image=true
-# to run tests on any branch, including main.
-#
-# The image-process queue does not run on push. Set
-# run_image_process_queue=true (CircleCI Schedule every 15 minutes,
-# or an n8n / Zapier pipeline trigger). See tools/review-image/SETUP.md
-# for the context, token, labels, and how to create the schedule.
-# The product import does not run on push. Set
-# run_product_import=true on a CircleCI scheduled pipeline (document
-# the setup in docs/REVIEW-DESK.md; do not invent a live schedule here).
-# Do not invent a live schedule from this file alone — CircleCI
-# scheduled pipelines are created in the project UI or API.
-#
-# A separate draft PR (reese-reviews #77) proposes Node lint/test
-# and Trivy jobs. When that lands, add those jobs to this file
-# rather than replacing it.
-# Review Desk completeness, frontend tests, and the review-poster
-# unit tests are added below; the review-image jobs are unchanged.
-#
-# GitHub Actions workflows are unchanged (billing-locked). Event-shaped
-# jobs can also use ops/self-hosted-ci on a machine Audrey controls;
-# see tools/review-image/SETUP.md.
-
-version: 2.1
-
-parameters:
-  run_review_image:
-    type: boolean
-    default: false
-  run_image_process_queue:
-    type: boolean
-    default: false
-  run_product_import:
-    type: boolean
-    default: false
-
-jobs:
+  # ---- jobs that came from the second pasted config (unchanged) ----
+  # jobs:   # SUPERSEDED duplicate key (second pasted config). Its jobs follow under the single `jobs:` above.
   review-image-test:
     docker:
       - image: cimg/python:3.12
@@ -261,7 +275,15 @@ jobs:
               echo "No GitHub token; skipped opening the draft import PR."
             fi
 
+
 workflows:
+  ci:
+    jobs:
+      - lint-typecheck-test-build
+      - trivy-fs
+
+  # ---- workflows that came from the second pasted config (unchanged) ----
+  # workflows:   # SUPERSEDED duplicate key (second pasted config). Its workflows follow under the single `workflows:` above.
   review-image-tests:
     when:
       or:
