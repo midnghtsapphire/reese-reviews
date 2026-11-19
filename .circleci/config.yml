@@ -276,6 +276,35 @@ jobs:
             fi
 
 
+  # ---- docker-build: added by Git-Master (issue #99 follow-up; Audrey, t133u: "ya fix it all and merge it") ----
+  # Builds both images with a remote Docker engine, so a Dockerfile change is proven in CI and not
+  # only on a machine. It pushes nothing and deploys nothing. It is its own workflow below, so it
+  # cannot block or change any other job. Then it checks that each image runs as a non-root user
+  # (Trivy DS-0002) and that nginx accepts its config as that user.
+  docker-build:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build the web image (Dockerfile)
+          no_output_timeout: 20m
+          command: docker build -f Dockerfile -t reese-web:ci .
+      - run:
+          name: Build the API image (Dockerfile.api)
+          no_output_timeout: 20m
+          command: docker build -f Dockerfile.api -t reese-api:ci .
+      - run:
+          name: Check both images run as non-root and nginx accepts its config
+          command: |
+            web_uid="$(docker run --rm --entrypoint id reese-web:ci -u)"
+            api_uid="$(docker run --rm --entrypoint id reese-api:ci -u)"
+            echo "web image uid: ${web_uid}, api image uid: ${api_uid}"
+            [ "${web_uid}" != "0" ] || { echo "web image runs as root"; exit 1; }
+            [ "${api_uid}" != "0" ] || { echo "api image runs as root"; exit 1; }
+            docker run --rm --entrypoint nginx reese-web:ci -t
+
 workflows:
   ci:
     jobs:
@@ -312,3 +341,8 @@ workflows:
     jobs:
       - review-poster-site
       - review-completeness
+
+  # Git-Master: builds both Docker images in CI. Runs on every branch; it is not a deploy job.
+  docker-build:
+    jobs:
+      - docker-build

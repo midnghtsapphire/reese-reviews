@@ -3,6 +3,18 @@
 Work log per revvel-standards `WRITE_AS_YOU_GO_STANDARD.md`. Append-only. Newest first.
 This file was created on 2026-11-19. No earlier entry exists.
 
+## 2026-11-19 17:10 America/Denver — Git-Master — docker-build job and narrow Trivy ignore (issue #99 follow-up)
+
+- **Actor:** Git-Master
+- **Requested by:** TriageChief (prove the Docker build in CI; the ignore for the fake test JWT) and Audrey Evans in her own chat, t133u: "ya fix it all and merge it". The Audrey quote is `RELAYED` by the dispatcher.
+- **Role:** executed
+- **Files:** `.circleci/config.yml` (one job and one workflow appended); `.trivyignore.yaml` (new); `trivy.yaml` (new); `CHANGELOG.md`; `LEDGER.md`.
+- **What was done:** `docker-build` uses `setup_remote_docker` to build `Dockerfile` and `Dockerfile.api`, checks `id -u` is not 0 in both images and runs `nginx -t` in the web image. It pushes and deploys nothing. The ignore file names rule `jwt-token` and path `vitest.config.ts` only; `trivy.yaml` makes Trivy read it. A local Trivy v0.76.2 run showed the finding suppressed and no other finding hidden.
+- **Decisions:** A plain `.trivyignore` cannot be scoped to a file, so the YAML form is used. The test JWT was not changed. No CVE or Dockerfile finding was ignored.
+- **Sources:** MEASURED: `circleci config validate` passes (10 jobs, 6 workflows). The docker-build result is on the PR's CircleCI run.
+- **Commits / PRs:** PR #100.
+- **Open / handoff:** Base `daily/2026-11-19` was merged into this branch after #102 (the CVE fixes) landed. `LEDGER.md` conflicts with #102's were resolved by keeping every entry.
+
 ## 2026-11-19 16:50 America/Denver — Git-Master — run both containers as non-root (Trivy DS-0002, issue #99 follow-up)
 
 - **Actor:** Git-Master

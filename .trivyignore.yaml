@@ -1,0 +1,13 @@
+# Git-Master, 2026-11-19 (issue #99 follow-up). Narrow Trivy ignore, one rule in one file.
+#
+# vitest.config.ts line 9 holds a FAKE test JWT for the vitest environment (a made-up
+# project URL, JWT ref "test", signature "test-key"). It is not a credential. Secret and
+# TriageChief confirmed this on 2026-11-19. The test value was not changed.
+#
+# Why a YAML file and not a plain .trivyignore: a plain .trivyignore can only name a rule id,
+# which would hide that rule everywhere. This entry names the rule AND the single file.
+# trivy.yaml at the repo root points Trivy at this file, so the CircleCI trivy-fs job picks it up.
+secrets:
+  - id: jwt-token
+    paths:
+      - "vitest.config.ts"
