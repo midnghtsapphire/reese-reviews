@@ -3,6 +3,18 @@
 Work log per revvel-standards `WRITE_AS_YOU_GO_STANDARD.md`. Append-only. Newest first.
 This file was created on 2026-11-19. No earlier entry exists.
 
+## 2026-11-19 16:50 America/Denver — Git-Master — CircleCI pipeline `toolkit` registered for `.circleci/toolkit.yml`
+
+- **Actor:** Git-Master
+- **Requested by:** Secret and TriageChief, 19 Nov 2026 (push a commit to get the first run). `RELAYED`: not Audrey's own words.
+- **Role:** executed
+- **Files:** `LEDGER.md` only.
+- **What was done:** Secret registered a CircleCI pipeline named `toolkit` for this repository. It reads `.circleci/toolkit.yml` and triggers on PR opened or pushed, plus default-branch and tag pushes. This entry is the commit that triggers its first run. The context `github-free-toolkit` (GH_TOKEN) already exists.
+- **Decisions:** None. No config was changed in this commit.
+- **Sources:** Secret's message to Git-Master, 19 Nov 2026.
+- **Commits / PRs:** PR #98.
+- **Open / handoff:** Check that `pr-hygiene-check` runs green on this PR.
+
 ## 2026-11-19 17:25 America/Denver — Git-Master — github-free-toolkit in CircleCI (WR midnghtsapphire/revvel-standards#18494)
 
 - **Actor:** Git-Master
