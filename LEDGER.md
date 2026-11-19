@@ -3,6 +3,18 @@
 Work log per revvel-standards `WRITE_AS_YOU_GO_STANDARD.md`. Append-only. Newest first.
 This file was created on 2026-11-19. No earlier entry exists.
 
+## 2026-11-19 16:50 America/Denver — Git-Master — run both containers as non-root (Trivy DS-0002, issue #99 follow-up)
+
+- **Actor:** Git-Master
+- **Requested by:** TriageChief, 19 Nov 2026 (fix DS-0002 rather than ignore it). `RELAYED`: not Audrey's own words.
+- **Role:** executed
+- **Files:** `Dockerfile`; `Dockerfile.api`; `CHANGELOG.md`; `LEDGER.md`.
+- **What was done:** `Dockerfile` final stage (nginx:alpine): chown `/var/cache/nginx` to the image's `nginx` user (uid 101), move the pid file from `/var/run/nginx.pid` to `/tmp/nginx.pid` and comment out `user nginx;` in `/etc/nginx/nginx.conf` with one `sed`, then `USER nginx` before `CMD`. `Dockerfile.api` (python:3.12-slim): `addgroup --system app && adduser --system --ingroup app app`, chown `/app` to it, `USER app` before `CMD`. No line was deleted; the new lines are additions.
+- **Decisions:** Runtime writes were found by reading the code. `app/stages/s7_assembly.py` uses `tempfile.TemporaryDirectory()` and `app/utils/ffmpeg_helpers.py` writes beside its output path, which comes from that temp dir, so `/tmp` is enough. `docker-compose.yml` bind-mounts `./app` for development; I found no code that writes there. Ports 8080 and 8000 are above 1024. `trivy-fs` and all 9 CircleCI jobs are unchanged.
+- **Sources:** MEASURED: `trivy config` v0.76.2 (the version CI uses) reports 0 misconfigurations for both Dockerfiles. NOT TESTED: neither image was built or run, because the box has no Docker. The `sed` was tested only on a sample of the stock nginx.conf lines.
+- **Commits / PRs:** PR #100.
+- **Open / handoff:** TriageChief reviews. Anyone with Docker should run `docker build` for both files, and `docker run` the web image to confirm nginx starts as `nginx`.
+
 ## 2026-11-19 18:00 America/Denver — Git-Master — repair duplicated .circleci/config.yml (issue #99)
 
 - **Actor:** Git-Master

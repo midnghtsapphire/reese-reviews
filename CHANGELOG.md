@@ -22,6 +22,7 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Review-image CLI (general tool):** `--from-url`, `--asin`, `--remove-text`, `--preset review|social|cutout|all`, pluggable Notion uploader. Not limited to reviews. n8n / Zapier and ops/self-hosted-ci notes are in the tool README.
 
 ### Fixed
+- **Containers no longer run as root (Git-Master, issue #99 follow-up, Trivy DS-0002):** `Dockerfile` (nginx:alpine) now runs as the image's non-root `nginx` user, with its cache dir chowned and its pid file moved to `/tmp`. `Dockerfile.api` (python:3.12-slim) now creates a non-root `app` user and owns `/app`. Both ports (8080, 8000) are above 1024. Runtime scratch files go to `/tmp`. Found when the repaired CircleCI config brought `trivy-fs` back. `trivy config` (v0.76.2, same version as CI) reports 0 findings for both files. The images were not built locally because the box has no Docker. — Git-Master
 - **CircleCI config repaired (Git-Master, issue #99, WR midnghtsapphire/revvel-standards#18494):** `.circleci/config.yml` was two complete configs pasted one after the other by merge `39cf575a`, which CircleCI rejects (duplicate `version`, `jobs` and `workflows` keys). It is now one valid config with all 9 jobs and 5 workflows from both halves. No job was dropped and none was renamed (no name collisions). The duplicate `version:`, `jobs:` and `workflows:` lines are kept as comments. `circleci config validate` passes. — Git-Master
 
 ### Changed
