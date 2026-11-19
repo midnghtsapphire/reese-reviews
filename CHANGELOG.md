@@ -72,6 +72,7 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Background:** Site background gradient matched to logo backdrop colors (#0f0f1a → #1a1a2e → #16213e).
 
 ### Security
+- **HIGH dependency CVEs fixed (Git-Master, issue #101):** Trivy `trivy-fs` flagged 21 HIGH npm CVEs and 2 HIGH `python-multipart` CVEs. `npm audit fix` (no `--force`) updated `package-lock.json` (`@xmldom/xmldom` to 0.8.15, `axios` to 1.21.1, `follow-redirects` to 1.16.3, `source-map-js` to 1.2.4, `brace-expansion` and `minimatch` patch/minor bumps, `@typescript-eslint/*` 8.38 to 8.73 and other minor/patch updates). `requirements.txt` now has `python-multipart>=0.0.30` (old pin commented out). HIGH count is now 0 in both files. The only major-version bumps are two nested copies under `@typescript-eslint/typescript-estree` (`brace-expansion` 2.1.4 to 5.0.13, `minimatch` 9.0.9 to 11.0.9) that npm chose itself. No Trivy ignores were added. Typecheck, 275 tests and the build pass. — Git-Master
 - **RR-401:** API keys removed from browser `localStorage`. Admin Panel reads from `import.meta.env.*` with read-only status display.
 
 ---
