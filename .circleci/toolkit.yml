@@ -1,4 +1,4 @@
-# CircleCI config for the github-free-toolkit jobs (reese-reviews).
+# CircleCI config for the advisory github-free-toolkit PR check (reese-reviews).
 # Written by Git-Master for WR midnghtsapphire/revvel-standards#18494.
 #
 # WHY THIS IS A SEPARATE FILE AND NOT PART OF .circleci/config.yml
@@ -7,10 +7,10 @@
 # a duplicate-key YAML error, so CircleCI cannot read it as it stands
 # (`circleci config validate` fails with "Unable to parse YAML"). It looks like a
 # merge artifact from the "keep both" merge into ci/circleci-lint-test-trivy-2026-11-14.
-# Git-Master did not repair or edit that file (not in scope; needs the owner's
-# yes). Once config.yml is repaired, this file's two jobs and two workflows can be
-# appended to it as they are; until then Secret can run this file as a second
-# config source for the project.
+# Git-Master did not repair it in this PR. Issue #99 tracks the repair, which is
+# a separate draft PR that merges the two halves into one config. Once config.yml
+# is repaired, this file's job and workflow can be appended to it as they are;
+# until then Secret can run this file as a second config source for the project.
 #
 # This file is valid CircleCI config on its own.
 
@@ -19,11 +19,10 @@ version: 2.1
 jobs:
   # ---------------------------------------------------------------------------
   # Git-Master: github-free-toolkit adoption (WR midnghtsapphire/revvel-standards#18494).
-  # Added as two NEW jobs at the end of `jobs:`. No existing job was changed.
+  # Added as one NEW job at the end of `jobs:`. No existing job was changed.
   #
   # Requires a CircleCI context named `github-free-toolkit` holding GH_TOKEN
-  # (a read-only GitHub token). Secret creates the context and, for the weekly
-  # report, the scheduled trigger. Neither is created by this file.
+  # (a read-only GitHub token). Secret creates the context. This file does not.
   #
   # The toolkit is fetched at a pinned commit (not vendored). Repo:
   # https://github.com/midnghtsapphire/github-free-toolkit  (MIT, read-only tools,
@@ -66,79 +65,14 @@ jobs:
             INPUT_FAIL_ON_PROBLEM=false node /tmp/github-free-toolkit/actions/pr-hygiene-check/check.js
             exit 0
 
-  # Weekly read-only report: stale PRs, unassigned PRs, repos missing a README,
-  # license or description. Meant to run from a CircleCI scheduled trigger
-  # (see the `toolkit-weekly-report` workflow). Output goes to the job log and
-  # to CircleCI artifacts under toolkit-report/. It writes nothing to GitHub.
-  # The job fails only if a tool cannot run at all (exit code 2, for example a
-  # bad or missing GH_TOKEN), so a broken token is noticed. Finding stale or
-  # unassigned PRs is not a failure.
-  # TOOLKIT_OWNER is the account to scan. TOOLKIT_PUBLIC_ONLY=true keeps private
-  # repositories out of the log and artifacts (use it where the project is public).
-  toolkit-weekly-report:
-    docker:
-      - image: cimg/node:22.11
-    environment:
-      TOOLKIT_SHA: 2b7fcd8004f4a6f21703bba10dab4ef52204a276
-      GH_CLI_VERSION: 2.63.2
-      TOOLKIT_OWNER: midnghtsapphire
-      TOOLKIT_PUBLIC_ONLY: "true"
-    steps:
-      - run:
-          name: Fetch the toolkit (pinned) and the gh CLI
-          command: |
-            [ -n "${GH_TOKEN:-}" ] || { echo "GH_TOKEN is missing. Attach the github-free-toolkit context."; exit 1; }
-            git clone --quiet https://github.com/midnghtsapphire/github-free-toolkit /tmp/github-free-toolkit
-            git -C /tmp/github-free-toolkit checkout --quiet "$TOOLKIT_SHA"
-            curl -fsSL "https://github.com/cli/cli/releases/download/v${GH_CLI_VERSION}/gh_${GH_CLI_VERSION}_linux_amd64.tar.gz" | tar -xz -C /tmp
-            echo 'export PATH="/tmp/gh_'"${GH_CLI_VERSION}"'_linux_amd64/bin:$PATH"' >> "$BASH_ENV"
-      - run:
-          name: Run stale-prs, unassigned-prs and repo-inventory
-          command: |
-            set +e
-            T=/tmp/github-free-toolkit/cli
-            OUT=/tmp/toolkit-report
-            mkdir -p "$OUT"
-            # Public project: only report on public repositories.
-            PUBLIC_FLAG=""
-            if [ "$TOOLKIT_PUBLIC_ONLY" = "true" ]; then
-              PUBLIC_FLAG="--public-only"
-              gh repo list "$TOOLKIT_OWNER" --visibility public --limit 1000 --json nameWithOwner \
-                --jq '.[].nameWithOwner' > /tmp/public-repos.txt
-            fi
-            # Keeps only rows whose repository is in /tmp/public-repos.txt (no-op when not public-only).
-            keep_public() {
-              if [ "$TOOLKIT_PUBLIC_ONLY" != "true" ]; then cat; return; fi
-              node -e '
-                const fs = require("fs");
-                const ok = new Set(fs.readFileSync("/tmp/public-repos.txt", "utf8").split("\n").filter(Boolean));
-                const rows = JSON.parse(fs.readFileSync(0, "utf8")).filter((r) => ok.has(r.repository));
-                console.log(JSON.stringify(rows, null, 2));'
-            }
-            rc=0
-            node "$T/stale-prs/bin/stale-prs.js" --owner "$TOOLKIT_OWNER" --days 14 --json | keep_public > "$OUT/stale-prs.json"
-            [ "${PIPESTATUS[0]}" -ne 2 ] || rc=2
-            node "$T/unassigned-prs/bin/unassigned-prs.js" --owner "$TOOLKIT_OWNER" --json | keep_public > "$OUT/unassigned-prs.json"
-            [ "${PIPESTATUS[0]}" -ne 2 ] || rc=2
-            node "$T/repo-inventory/bin/repo-inventory.js" --owner "$TOOLKIT_OWNER" $PUBLIC_FLAG --json > "$OUT/repo-inventory.json"
-            [ "${PIPESTATUS[0]}" -ne 2 ] || rc=2
-            echo "stale PRs (14+ days idle): $(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1])).length)' "$OUT/stale-prs.json")"
-            echo "unassigned PRs:            $(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1])).length)' "$OUT/unassigned-prs.json")"
-            echo "repos with a gap:          $(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1])).length)' "$OUT/repo-inventory.json")"
-            echo "Full results are in the toolkit-report artifacts."
-            exit $rc
-      - store_artifacts:
-          path: /tmp/toolkit-report
-          destination: toolkit-report
-
 workflows:
   version: 2
 
   # ---------------------------------------------------------------------------
   # Git-Master: github-free-toolkit adoption (WR midnghtsapphire/revvel-standards#18494).
-  # Two NEW workflows, appended. No existing workflow was changed.
-  # Both need the CircleCI context `github-free-toolkit` (holds GH_TOKEN).
-  # Secret creates the context and the scheduled trigger; this file creates neither.
+  # One NEW workflow, appended. No existing workflow was changed.
+  # It needs the CircleCI context `github-free-toolkit` (holds GH_TOKEN).
+  # Secret creates the context; this file does not.
   # ---------------------------------------------------------------------------
 
   # Advisory PR hygiene check on every non-main branch. Never fails the build.
@@ -149,13 +83,3 @@ workflows:
           filters:
             branches:
               ignore: main
-
-  # Weekly fleet report. Runs only when a CircleCI scheduled trigger starts the
-  # pipeline (project settings > Triggers, weekly, on branch main, with the
-  # context above). It does not run on pushes or pull requests.
-  toolkit-weekly-report:
-    when:
-      equal: [scheduled_pipeline, << pipeline.trigger_source >>]
-    jobs:
-      - toolkit-weekly-report:
-          context: github-free-toolkit
