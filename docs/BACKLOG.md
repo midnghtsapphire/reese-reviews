@@ -113,6 +113,7 @@ This is the **single source of truth** for all outstanding work on Reese Reviews
 
 | Date Added | Requested By | Title | Description | Priority Guess |
 | :--- | :--- | :--- | :--- | :--- |
+| 2026-11-19 | Audrey / WR revvel-standards#18494 | Adopt github-free-toolkit PR hygiene check in CircleCI | Advisory `pr-hygiene-check` job in `.circleci/toolkit.yml` (PR #98). Finds the PR number from CIRCLE_PULL_REQUEST, the pipeline value, or the commit lookup; never fails the build. Status: In Review. | 🟡 Medium |
 | 2026-08-08 | Issue #69 | /dragnet fix lint-and-test (10890) | Misrouted CircleCI link to revvel-standards; fixed local deploy.yml corruption, secret redaction, dep audits, hook lint warnings. See RR-508. | 🔴 Critical |
 | 2026-04-05 | Issue #issue | Compliance + documentation upgrade | Full analysis, backlog, rollout plan, agent guide | 🔴 Critical |
 | 2026-04-28 | Issue: business tabs mess | Consolidate Business nav + remove purple | Main navbar shows duplicate Business links with off-brand purple. Consolidate to one Business entry, align styling to steel/glass theme, add regression test. | 🟡 Medium |

@@ -38,14 +38,14 @@ jobs:
     environment:
       TOOLKIT_SHA: 2b7fcd8004f4a6f21703bba10dab4ef52204a276
       GH_CLI_VERSION: 2.63.2
+      # Git-Master: PR number from the pipeline values (GitHub App pipelines never
+      # set CIRCLE_PULL_REQUEST). Empty or 0 when the pipeline is not a PR event.
+      PIPELINE_PR_NUMBER: << pipeline.event.github.pull_request.number >>
     steps:
       - run:
           name: PR hygiene check (advisory, never fails the build)
           command: |
             set +e
-            if [ -z "${CIRCLE_PULL_REQUEST:-}" ]; then
-              echo "Not a pull request build. Nothing to check."; exit 0
-            fi
             if [ -z "${GH_TOKEN:-}" ]; then
               echo "GH_TOKEN is not set (context github-free-toolkit). Skipping the advisory check."; exit 0
             fi
@@ -56,9 +56,30 @@ jobs:
               | tar -xz -C /tmp \
               || { echo "Could not install the gh CLI. Skipping."; exit 0; }
             export PATH="/tmp/gh_${GH_CLI_VERSION}_linux_amd64/bin:$PATH"
-            export PR_NUMBER="${CIRCLE_PULL_REQUEST##*/}"
-            export PR_ASSIGNEES="$(gh pr view "$CIRCLE_PULL_REQUEST" --json assignees --jq '.assignees')"
-            export PR_BODY="$(gh pr view "$CIRCLE_PULL_REQUEST" --json body --jq '.body')"
+            # Git-Master: resolve the PR number. Order: CIRCLE_PULL_REQUEST (URL, only on
+            # OAuth pipelines), then the pipeline value, then the GitHub commit->PR lookup.
+            OWNER="${CIRCLE_PROJECT_USERNAME:-}"; REPO="${CIRCLE_PROJECT_REPONAME:-}"
+            PR_NUMBER=""
+            if [ -n "${CIRCLE_PULL_REQUEST:-}" ]; then
+              PR_NUMBER="${CIRCLE_PULL_REQUEST##*/}"
+              PR_SOURCE="CIRCLE_PULL_REQUEST"
+            fi
+            if [ -z "$PR_NUMBER" ] && [ -n "${PIPELINE_PR_NUMBER:-}" ] && [ "${PIPELINE_PR_NUMBER}" != "0" ]; then
+              PR_NUMBER="$PIPELINE_PR_NUMBER"
+              PR_SOURCE="pipeline.event.github.pull_request.number"
+            fi
+            if [ -z "$PR_NUMBER" ] && [ -n "$OWNER" ] && [ -n "$REPO" ] && [ -n "${CIRCLE_SHA1:-}" ]; then
+              PR_NUMBER="$(gh api "repos/$OWNER/$REPO/commits/$CIRCLE_SHA1/pulls" --jq '.[0].number' 2>/dev/null)"
+              PR_SOURCE="gh api commits/$CIRCLE_SHA1/pulls"
+            fi
+            case "$PR_NUMBER" in
+              ''|null|*[!0-9]*)
+                echo "No pull request is associated with this build (looked at CIRCLE_PULL_REQUEST, the pipeline value, and the commit lookup). Nothing to check."; exit 0 ;;
+            esac
+            echo "Checking PR #$PR_NUMBER of $OWNER/$REPO (found via: $PR_SOURCE)"
+            export PR_NUMBER
+            export PR_ASSIGNEES="$(gh pr view "$PR_NUMBER" -R "$OWNER/$REPO" --json assignees --jq '.assignees')"
+            export PR_BODY="$(gh pr view "$PR_NUMBER" -R "$OWNER/$REPO" --json body --jq '.body')"
             if [ -z "$PR_ASSIGNEES" ]; then
               echo "Could not read the pull request. Skipping."; exit 0
             fi

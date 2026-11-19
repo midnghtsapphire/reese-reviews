@@ -3,6 +3,18 @@
 Work log per revvel-standards `WRITE_AS_YOU_GO_STANDARD.md`. Append-only. Newest first.
 This file was created on 2026-11-19. No earlier entry exists.
 
+## 2026-11-19 17:05 America/Denver — Git-Master — fix the PR-number guard in the toolkit job; add the BACKLOG and HANDOFF entries
+
+- **Actor:** Git-Master
+- **Requested by:** TriageChief, 19 Nov 2026 (review of PR #98: Bugbot Medium at `.circleci/toolkit.yml` lines 45-48, plus the Devin docs flag). `RELAYED`: not Audrey's own words. Audrey (t133u, 19 Nov 2026): "ya fix it all and merge it".
+- **Role:** executed
+- **Files:** `.circleci/toolkit.yml`; `docs/BACKLOG.md` (Inbox row added); `docs/scrum/HANDOFF.md` (dated section added); `CHANGELOG.md`; `LEDGER.md`.
+- **What was done:** Replaced the `CIRCLE_PULL_REQUEST` early exit with a three-step lookup: that variable, then `pipeline.event.github.pull_request.number`, then `gh api .../commits/$CIRCLE_SHA1/pulls`. The job logs which source found the number. Still advisory; every path ends in `exit 0`.
+- **Decisions:** No `.github/workflows` file touched. No job deleted. `pipeline.trigger_parameters.github_app.*` was not used because CircleCI marks it deprecated.
+- **Sources:** CircleCI docs (variables reference, pipeline values), read 19 Nov 2026.
+- **Commits / PRs:** PR #98.
+- **Open / handoff:** Confirm in the CircleCI step log that the check ran for the PR instead of skipping.
+
 ## 2026-11-19 16:50 America/Denver — Git-Master — CircleCI pipeline `toolkit` registered for `.circleci/toolkit.yml`
 
 - **Actor:** Git-Master
