@@ -155,6 +155,13 @@ The following documents were added to address the compliance and agent-completio
 - **Tests** — 251 passing including new `deployWorkflow.test.ts` guards. Lint 0 errors, typecheck clean, build succeeds.
 - **Note on issue body:** CircleCI job 10890 URL points at `midnghtsapphire/revvel-standards`, not this repo. That failure cannot be fixed from reese-reviews; open/track it in revvel-standards (similar open issues: #16904, #16865).
 
+### What Was Completed This Session (November 19, 2026 — github-free-toolkit PR check, PR #98)
+
+- Git-Master added `.circleci/toolkit.yml` with an advisory `pr-hygiene-check` job (WR revvel-standards#18494). Review found that it skipped itself because `CIRCLE_PULL_REQUEST` is empty on CircleCI GitHub App pipelines; it now looks the PR number up from the pipeline value or the GitHub commit-to-PR API instead. It never fails the build.
+- The job needs the CircleCI context `github-free-toolkit` (read-only `GH_TOKEN`, created by Secret) and the `toolkit` pipeline Secret registered for `.circleci/toolkit.yml`.
+- Not in this PR: the repair of `.circleci/config.yml` (PR #100) and the dependency CVE fixes, which another worker owns.
+- Next agent: after PR #98 merges, check one run's step log to confirm the check ran, then read `docs/BACKLOG.md` as usual. — Git-Master
+
 ### What's Next (Highest Priority for Next Session)
 
 1. **Rotate leaked OpenRouter key** (human / Doppler) — previously committed in `.do/app.yaml`

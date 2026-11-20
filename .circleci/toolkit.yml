@@ -1,0 +1,106 @@
+# CircleCI config for the advisory github-free-toolkit PR check (reese-reviews).
+# Written by Git-Master for WR midnghtsapphire/revvel-standards#18494.
+#
+# WHY THIS IS A SEPARATE FILE AND NOT PART OF .circleci/config.yml
+# On main, .circleci/config.yml is currently two complete CircleCI configs pasted
+# one after the other (two `version:`, two `jobs:`, two `workflows:` keys). That is
+# a duplicate-key YAML error, so CircleCI cannot read it as it stands
+# (`circleci config validate` fails with "Unable to parse YAML"). It looks like a
+# merge artifact from the "keep both" merge into ci/circleci-lint-test-trivy-2026-11-14.
+# Git-Master did not repair it in this PR. Issue #99 tracks the repair, which is
+# a separate draft PR that merges the two halves into one config. Once config.yml
+# is repaired, this file's job and workflow can be appended to it as they are;
+# until then Secret can run this file as a second config source for the project.
+#
+# This file is valid CircleCI config on its own.
+
+version: 2.1
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Git-Master: github-free-toolkit adoption (WR midnghtsapphire/revvel-standards#18494).
+  # Added as one NEW job at the end of `jobs:`. No existing job was changed.
+  #
+  # Requires a CircleCI context named `github-free-toolkit` holding GH_TOKEN
+  # (a read-only GitHub token). Secret creates the context. This file does not.
+  #
+  # The toolkit is fetched at a pinned commit (not vendored). Repo:
+  # https://github.com/midnghtsapphire/github-free-toolkit  (MIT, read-only tools,
+  # Node 18+ and the gh CLI, zero dependencies). To upgrade, change TOOLKIT_SHA.
+  # ---------------------------------------------------------------------------
+
+  # ADVISORY ONLY. Reports a missing assignee or a thin PR description as a
+  # warning in the job log. It never fails the build: every step is guarded and
+  # the command always ends with `exit 0`.
+  pr-hygiene-check:
+    docker:
+      - image: cimg/node:22.11
+    environment:
+      TOOLKIT_SHA: 2b7fcd8004f4a6f21703bba10dab4ef52204a276
+      GH_CLI_VERSION: 2.63.2
+      # Git-Master: PR number from the pipeline values (GitHub App pipelines never
+      # set CIRCLE_PULL_REQUEST). Empty or 0 when the pipeline is not a PR event.
+      PIPELINE_PR_NUMBER: << pipeline.event.github.pull_request.number >>
+    steps:
+      - run:
+          name: PR hygiene check (advisory, never fails the build)
+          command: |
+            set +e
+            if [ -z "${GH_TOKEN:-}" ]; then
+              echo "GH_TOKEN is not set (context github-free-toolkit). Skipping the advisory check."; exit 0
+            fi
+            git clone --quiet https://github.com/midnghtsapphire/github-free-toolkit /tmp/github-free-toolkit \
+              && git -C /tmp/github-free-toolkit checkout --quiet "$TOOLKIT_SHA" \
+              || { echo "Could not fetch the toolkit. Skipping."; exit 0; }
+            curl -fsSL "https://github.com/cli/cli/releases/download/v${GH_CLI_VERSION}/gh_${GH_CLI_VERSION}_linux_amd64.tar.gz" \
+              | tar -xz -C /tmp \
+              || { echo "Could not install the gh CLI. Skipping."; exit 0; }
+            export PATH="/tmp/gh_${GH_CLI_VERSION}_linux_amd64/bin:$PATH"
+            # Git-Master: resolve the PR number. Order: CIRCLE_PULL_REQUEST (URL, only on
+            # OAuth pipelines), then the pipeline value, then the GitHub commit->PR lookup.
+            OWNER="${CIRCLE_PROJECT_USERNAME:-}"; REPO="${CIRCLE_PROJECT_REPONAME:-}"
+            PR_NUMBER=""
+            if [ -n "${CIRCLE_PULL_REQUEST:-}" ]; then
+              PR_NUMBER="${CIRCLE_PULL_REQUEST##*/}"
+              PR_SOURCE="CIRCLE_PULL_REQUEST"
+            fi
+            if [ -z "$PR_NUMBER" ] && [ -n "${PIPELINE_PR_NUMBER:-}" ] && [ "${PIPELINE_PR_NUMBER}" != "0" ]; then
+              PR_NUMBER="$PIPELINE_PR_NUMBER"
+              PR_SOURCE="pipeline.event.github.pull_request.number"
+            fi
+            if [ -z "$PR_NUMBER" ] && [ -n "$OWNER" ] && [ -n "$REPO" ] && [ -n "${CIRCLE_SHA1:-}" ]; then
+              PR_NUMBER="$(gh api "repos/$OWNER/$REPO/commits/$CIRCLE_SHA1/pulls" --jq '.[0].number' 2>/dev/null)"
+              PR_SOURCE="gh api commits/$CIRCLE_SHA1/pulls"
+            fi
+            case "$PR_NUMBER" in
+              ''|null|*[!0-9]*)
+                echo "No pull request is associated with this build (looked at CIRCLE_PULL_REQUEST, the pipeline value, and the commit lookup). Nothing to check."; exit 0 ;;
+            esac
+            echo "Checking PR #$PR_NUMBER of $OWNER/$REPO (found via: $PR_SOURCE)"
+            export PR_NUMBER
+            export PR_ASSIGNEES="$(gh pr view "$PR_NUMBER" -R "$OWNER/$REPO" --json assignees --jq '.assignees')"
+            export PR_BODY="$(gh pr view "$PR_NUMBER" -R "$OWNER/$REPO" --json body --jq '.body')"
+            if [ -z "$PR_ASSIGNEES" ]; then
+              echo "Could not read the pull request. Skipping."; exit 0
+            fi
+            INPUT_FAIL_ON_PROBLEM=false node /tmp/github-free-toolkit/actions/pr-hygiene-check/check.js
+            exit 0
+
+workflows:
+  version: 2
+
+  # ---------------------------------------------------------------------------
+  # Git-Master: github-free-toolkit adoption (WR midnghtsapphire/revvel-standards#18494).
+  # One NEW workflow, appended. No existing workflow was changed.
+  # It needs the CircleCI context `github-free-toolkit` (holds GH_TOKEN).
+  # Secret creates the context; this file does not.
+  # ---------------------------------------------------------------------------
+
+  # Advisory PR hygiene check on every non-main branch. Never fails the build.
+  pr-hygiene-advisory:
+    jobs:
+      - pr-hygiene-check:
+          context: github-free-toolkit
+          filters:
+            branches:
+              ignore: main
