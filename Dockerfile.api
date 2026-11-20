@@ -5,5 +5,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ ./app/
 COPY scripts/ ./scripts/
+# Git-Master (issue #99 follow-up, Trivy DS-0002): run as a non-root user. /app is
+# chowned to it. Runtime scratch files (tempfile in app/stages/s7_assembly.py and the
+# ffmpeg helpers) go to /tmp, which any user can write. Port 8000 is above 1024.
+RUN addgroup --system app && adduser --system --ingroup app app \
+    && chown -R app:app /app
+USER app
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
