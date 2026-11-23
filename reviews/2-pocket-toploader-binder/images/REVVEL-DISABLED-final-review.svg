@@ -1,8 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-labelledby="title desc">
-  <title id="title">Demo placeholder photo</title>
-  <desc id="desc">Placeholder used in the Review Desk sample. Not a live product photograph.</desc>
-  <rect width="800" height="600" fill="#f4f1ea"/>
-  <rect x="80" y="60" width="640" height="480" rx="16" fill="#ffffff" stroke="#8a8f9c" stroke-width="3"/>
-  <text x="400" y="290" text-anchor="middle" font-family="Georgia, serif" font-size="28" fill="#2a2e38">Final Review Photo</text>
-  <text x="400" y="330" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="#5c6370">Demo placeholder — replace with your own photo</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" aria-labelledby="title desc" role="img" viewBox="0 0 800 600"><title id="title">Demo placeholder photo</title><desc id="desc">Placeholder used in the Review Desk sample. Not a live product photograph.</desc><rect width="800" height="600" fill="#f4f1ea"/><rect width="640" height="480" x="80" y="60" fill="#fff" stroke="#8a8f9c" stroke-width="3" rx="16"/><text x="400" y="290" fill="#2a2e38" font-family="Georgia, serif" font-size="28" text-anchor="middle">Final Review Photo</text><text x="400" y="330" fill="#5c6370" font-family="Georgia, serif" font-size="16" text-anchor="middle">Demo placeholder — replace with your own photo</text></svg>
